@@ -1,0 +1,51 @@
+.dialog-section{
+    
+    color: #646466;
+}
+
+.dialog-section-title{
+    text-align: left;
+    font-weight: bold;
+    font-size: 0.8rem;
+    padding: 1.5rem 0 1.5rem 0;
+    
+}
+
+.dialog-section-content{
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.dialog-section-content .hulogo{
+    margin: 0px 10px 0px 0px;
+    padding: 1px;
+}
+
+.dialog-section-content .dialog-section-content-header{
+    display: flex;
+    align-items: center;
+
+}
+
+.dialog-section-content .dialog-section-content-value{
+    line-height: 30px;
+}
+
+.dialog-section-content .dialog-section-content-value .dialog-section-arrow{
+    margin: 0 5px;
+    padding-top: 5px;
+    position: relative;
+    top:1px;
+    display: none;
+}
+
+.dialog-section-content .dialog-section-content-value .dialog-section-arrow-active{
+    display: initial;
+}
+
+.dialog-section-content .dialog-section-content-value .dialog-section-arrow svg{
+    transform: rotate(270deg);
+}
+

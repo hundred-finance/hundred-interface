@@ -1,0 +1,104 @@
+.pct-button{
+    position: relative;
+    height: 40px;
+    min-width: 100px;
+    margin-top: 2px;
+    background-color: #fff;
+}
+
+.pct-button .pct-button-header{
+    border: 1px solid  #646464;
+    border-radius: 5px;
+    margin: 0;
+    padding:0;
+    display: flex;
+    height: 40px;
+    justify-content: space-between;
+}
+
+.pct-button .pct-button-header:hover{
+    cursor: pointer;
+    -webkit-box-shadow: 0px 0px 20px -7px rgba(100,100,100,0.75); 
+    box-shadow: 0px 0px 20px -7px rgba(100,100,100,0.75);
+}
+
+.pct-button .pct-button-logo {
+    margin-top: 4px;
+    margin-left: 2px;
+    padding: 1px;
+}
+
+
+
+.pct-button .pctBalance {
+    padding:0 5px;
+    width: calc(100% - 46px);
+    text-align: center;
+    display: block;
+    line-height: 40px;
+    background-color: transparent;
+}
+
+
+
+.pct-button .pct-button-arrow {
+    margin-top: 15px;
+    margin-right: 4px;
+}
+
+.pct-button ul{
+    position: absolute;
+    border: 1px solid #646464;
+    width: 250px;
+    right: 0;
+    top:57px;
+    display: none;
+    border-radius: 5px 0 5px 5px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    z-index: 999;
+}
+
+.pct-button ul::before{
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 20px solid #646464;
+    position: absolute;
+    top:-20px;
+    right: -1px;
+}
+
+.pct-button .active{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.pct-button .active li{
+    display: flex;
+    justify-content: space-between;
+}
+
+.pct-button .active li span{
+    padding: 10px;
+}
+
+.pct-button .active li button{
+    width: 100%;
+    height: 40px;
+    margin: 0 10px 10px;
+    border-radius: 5px;
+    border: 1px solid #646464;
+    background-color: #fff;
+    outline: none;
+}
+
+.pct-button .active li button:hover{
+    background-color: #646464;
+    color: #fff;
+}

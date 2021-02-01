@@ -1,0 +1,27 @@
+.supply-markets .markets-content{
+    display: block;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    overflow-x: auto;
+}
+
+.supply-markets .circle{
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    border: 2px solid rgb(12, 223, 12);
+    background-color:  rgb(12, 223, 12);;
+    display: inline-block;
+    margin-right: 5px;
+    position: relative;
+}
+
+.supply-markets .circle-o{
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    border: 2px solid rgb(12, 223, 12);
+    display: inline-block;
+    margin-right: 5px;
+}
