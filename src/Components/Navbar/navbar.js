@@ -1,5 +1,4 @@
 import React from "react"
-import Section from "../Section/section"
 import "./navbar.css"
 
 const Navbar = (props) => {
