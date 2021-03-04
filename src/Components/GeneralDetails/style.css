@@ -67,6 +67,7 @@
     font-size: 1rem;
     font-weight: bold;
     width: 35%;
+    position: relative;
 }
 
 .general-details-item .general-details-item-content .general-details-item-content-item .center{
@@ -78,4 +79,8 @@
 .general-details-item .general-details-item-content .general-details-item-content-item .value-details{
     font-size: 0.8rem;
     opacity: 0.7;
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    left: 0;
 }
