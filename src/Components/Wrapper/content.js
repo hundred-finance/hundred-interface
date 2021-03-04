@@ -63,10 +63,13 @@ const Content = (props) => {
         const underlyingPrice = eX(underlying.price, underlying.decimals - 36)
 
         const accountSnapshot = await ctoken.getAccountSnapshot(props.address)
-        const supplyBalanceInTokenUnit = eX(new BigNumber(accountSnapshot[1].toString()).times(accountSnapshot[3].toString()).toString(),-1 * decimals - 18)
+        var div = new BigNumber("10").pow(new BigNumber(decimals+18))
+        const supplyBalanceInTokenUnit = new BigNumber(accountSnapshot[1].toString()).times(new BigNumber(accountSnapshot[3].toString()).div(div))
+        
         const supplyBalance = eX(supplyBalanceInTokenUnit.times(underlyingPrice), -1 * decimals -18)
+
         const borrowBalanceInTokenUnit = eX(new BigNumber(accountSnapshot[2].toString()).toString(),-1 * decimals)
-        const borrowBalance = borrowBalanceInTokenUnit.times(isNaN(underlyingPrice) ? 0 : underlyingPrice)
+        const borrowBalance = borrowBalanceInTokenUnit.times(underlyingPrice)
 
         const cTokenTotalSupply = await ctoken.totalSupply()
         const exchangeRateStored = await ctoken.exchangeRateStored()
@@ -78,8 +81,8 @@ const Content = (props) => {
 
         const isEnterMarket = comptrollerData.enteredMarkets.includes(address);
 
-        const marktets = await comptrollerData.comptroller.markets(address)
-        const collateralFactor = eX(marktets.collateralFactorMantissa.toString(), -18)
+        const markets = await comptrollerData.comptroller.markets(address)
+        const collateralFactor = eX(markets.collateralFactorMantissa.toString(), -18)
 
         const supplyRatePerBlock = await ctoken.supplyRatePerBlock()
         const supplyApy = new BigNumber(Math.pow((supplyRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1)
@@ -219,6 +222,21 @@ const Content = (props) => {
             }
             return 0
         })
+
+        
+          console.log(`pctPrice: ` + pctPrice)
+          console.log(`totalSupplyBalance: ${totalSupplyBalance}`)
+          console.log(`totalBorrowBalance: ${totalBorrowBalance}`)
+          console.log(`allMarketsTotalSupplyBalance: ${allMarketsTotalSupplyBalance}`)
+          console.log(`allMarketsTotalBorrowBalance: ${allMarketsTotalBorrowBalance}`)
+          console.log(`totalBorrowLimit: ${totalBorrowLimit}`)
+          console.log(`yearSupplyInterest: ${yearSupplyInterest}`)
+          console.log(`yearBorrowInterest: ${yearBorrowInterest}`)
+          console.log(`yearSupplyPctRewards: ${yearSupplyPctRewards}`)
+          console.log(`yearBorrowPctRewards: ${yearBorrowPctRewards}`)
+          console.log(`totalLiquidity: ${totalLiquidity}`)
+        
+
 
         return {
             totalSupplyBalance,

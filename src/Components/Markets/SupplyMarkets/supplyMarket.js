@@ -22,9 +22,9 @@ const SupplyMarket = (props) => {
                     <tr>
                       <td
                         style={{
-                          fontSize: "80%",
+                          fontSize: "100%",
                           fontWeight: "bold",
-                          padding: "1px 0px 1px 15px",
+                          padding: "10px 0px 10px 15px",
                         }}
                       >
                         Supplying
@@ -45,9 +45,9 @@ const SupplyMarket = (props) => {
                     <tr>
                       <td
                         style={{
-                          fontSize: "80%",
+                          fontSize: "100%",
                           fontWeight: "bold",
-                          padding: "1px 0px 1px 15px",
+                          padding: "10px 0px 10px 15px",
                         }}
                       >
                         Other Markets
