@@ -9,8 +9,8 @@ const SwitchButton = (props) => {
     }
     
     return (
-        <div className={`switch ${props.checked ? "switch-checked" : ""}`}>
-            <div className="switch-button" onClick={props.onClick}>
+        <div className={`switch ${props.checked ? "switch-checked" : ""}`} onClick={props.onClick}>
+            <div className="switch-button">
 
             </div>
         </div>
