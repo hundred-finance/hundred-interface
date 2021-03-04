@@ -15,7 +15,6 @@ import NavBarRight from './Components/Navbar/navBarRight';
 import AddressButton from './Components/AddressButton/addressButton';
 import {ethers} from "ethers"
 import AccountSettings from './Components/SideMenu/accountSettings';
-import GeneralDetails from './Components/GeneralDetails/generalDetails';
 import Content from './Components/Wrapper/content';
 
 
