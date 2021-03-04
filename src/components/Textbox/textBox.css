@@ -5,11 +5,11 @@
 
 .textbox .validation{
     color: red;
-    font-size: 0.8rem;    
+    font-size: 0.8rem;
 }
 
 .textbox div{
-    border: 1px solid #646464;
+    border: 1px solid var(--buttonColor);
     border-radius: 5px;
     height: 45px;
     margin-bottom: 0;
@@ -18,12 +18,13 @@
     flex-direction: column;
     justify-content: center;
     position: relative;
+    background-color: var(--navBackground);
 }
 
 .textbox div .placeholder{
     position: absolute;
     left: 15px;
-    color: rgba(0,0,0,.5);
+    color: var(--textboxPlaceholder);
     transition: all 0.2s ease-in-out;
     pointer-events: none;
 }
@@ -34,23 +35,25 @@
     font-size: 1.2rem;
     padding:5px;
     border: none;
-    color: #646464;
+    color: var(--text);
+    box-sizing: border-box;
+    background-color: transparent;
 }
 
 
 .textbox div input:focus + .placeholder{
-    transform: scale(0.7) translateY(-75%) translateX(-40%);
+    transform: scale(0) translateY(-75%) translateX(-40%);
     top:0;
-    background-color: #fff;
+    background-color: transparent;
     padding: 5px;
-    color:rgb(66, 122, 241);
+    color:var(--text);
 }
 
 .textbox div input:valid + .placeholder{
-    transform: scale(0.7) translateY(-75%) translateX(-40%);
+    transform: scale(0) translateY(-75%) translateX(-40%);
     top:0;
     
-    background-color: #fff;
+    background-color: transparent;
     padding: 5px;
 }
 
@@ -60,20 +63,24 @@
     padding: 0 5px;
     line-height: 43px;
     text-align: center;
-    right: 0;
+    right: 2px;
     font-size: 0.9rem;
     cursor: pointer;
     top:50%;
     transform: translateY(-50%);
     columns: #646466;
     user-select: none;
+    color: var(--text);
+    
 }
 
 .textbox .textbox-button .input-button:hover{
-    color: rgb(66, 122, 241);
+    color: var(--buttonHover);
 }
 
 .textbox .textbox-button input{
     padding-right: 50px;
 }
+
+
 

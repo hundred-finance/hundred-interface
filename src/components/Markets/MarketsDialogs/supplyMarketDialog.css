@@ -1,0 +1,87 @@
+.dialog{
+    display: none;
+    position: fixed;
+    top:0vh;
+    width:100%;
+    height: 100%;
+    z-index: 5000;
+    left:0;
+    margin: 0;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.dialog .dialog-background{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-color: var(--overlayBackground);
+    top:0;
+    left: 0;
+}
+
+.open-dialog{
+    display: block;
+}
+
+.supply-box{
+    min-width: 200px;
+    max-width: 400px;
+    height: 90%;
+    max-height: 950px;
+    -webkit-box-shadow: 0px 0px 10px 4px rgba(252,252,252,0.5); 
+    box-shadow: 0px 0px 10px 4px rgba(252,252,252,0.5);
+    border-radius: 10px;
+    padding:1rem;
+    position: relative;
+    margin: auto;
+    top:50%;
+    transform: translateY(-50%);
+    background-color: var(--background);
+    display: flex;
+    flex-direction: column;
+}
+
+.supply-box .dialog-close  {
+    border: 1px solid var(--buttonColor);
+    display: block;
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    font-size: 20px;
+    -webkit-box-shadow: var(--boxShadow); 
+    box-shadow: var(--boxShadow);
+    outline: none;
+    cursor: pointer;
+    position: absolute;
+    top: 17px;
+    right: 10px;
+    color: var(--text);
+    background-color: var(--background);
+}
+
+.supply-box .dialog-close::after{
+    content: "\d7";
+    font-size: 1.5rem;
+    columns: var(--buttonColor);
+    position: absolute;
+    top:50%;
+    left: 50%;
+    transform:translate(-50%, -50%);
+    
+}
+
+.supply-box .dialog-close:hover{
+    background-color: var(--buttonColor);
+    color: var(--buttonHover2);
+}
+
+.supply-box .dialog-title{
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    height: 40px;
+    color: var(--text);
+    font-size:1.3rem;
+}

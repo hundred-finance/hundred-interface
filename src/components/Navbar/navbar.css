@@ -1,0 +1,85 @@
+.navbar{
+    width:100%;
+    max-width:100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--navBackground);
+}
+
+.navbar-content{
+    display: block;
+    width: 1200px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.navbar-logo{
+    display: flex;
+    
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    height: 60px;
+}
+
+.navbar-logo-icon{
+    display: flex;
+    align-content: center;
+    padding-right: 5px;
+}
+
+.navbar-logo-caption span{
+    font-size: 1.6rem;
+    text-shadow: var(--textShadow);
+}
+.nav-link{
+    position: relative;
+    color: var(--text);
+    text-shadow: var(--textShadow);
+    letter-spacing: 1px;
+
+}
+
+.nav-link:hover{
+    color:var(--buttonHover);
+    text-shadow: var(--textShadow);
+}
+
+.nav-link::after{
+    content:"";
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 3px;
+    background-color: var(--buttonHover);
+    left: 50%;
+    top:10px;
+    transform: translateX(-50%);
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-link::before{
+    content:"";
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 3px;
+    background-color: var(--buttonHover);
+    left: 50%;
+    bottom:10px;
+    transform: translateX(-50%);
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover::after{
+    width: 80%;
+    
+}
+
+.nav-link:hover::before{
+    width: 80%;
+    
+}
