@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react"
+import React, { useRef, useEffect } from "react"
 import DialogBorrowLimitSection from "../../BorrowLimit/borrowLimit";
 import "./enterMarketDialog.css"
 
@@ -29,7 +29,7 @@ const EnterMarketDialog = (props) => {
           document.removeEventListener("mousedown", handleClickOutside);
       };
        
-    }, [props.open]);
+    }, [props]);
     
 
     return (

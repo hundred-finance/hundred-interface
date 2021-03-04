@@ -7,13 +7,10 @@ const DarkSwitch = (props) => {
     }
 
     const toggle = {
-        position: 'absolute',
         border: '1px solid #f3f3f3',
         width: '60px',
         height: '25px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        right: '0',
+        position:'relative',
         borderRadius: '25px',
         backgroundColor: `${props.darkMode ? '#333' : "#f3f3f3"}`,
         transition: 'background-color 0.2s ease-in-out 0.1s',
@@ -36,13 +33,20 @@ const DarkSwitch = (props) => {
 
 
     return (
-        <div style={style}>
-            <label>{props.darkMode ? "Dark Mode" : "Light Mode"}
+        <div style={style} className="site-settings">
+            <div className="site-settings-item">
+                <label>{props.darkMode ? "Dark Mode" : "Light Mode"}
                 
-            </label>
-            <span style={toggle} onClick={()=>props.setDarkMode(!props.darkMode)}>
-                    <span style={toggleButton}></span>
+                </label>
+                <span style={toggle} onClick={()=>props.setDarkMode(!props.darkMode)}>
+                        <span style={toggleButton}></span>
                 </span>
+            </div>
+            <div className="site-settings-item">
+                <label>
+                    Update Data:
+                </label>
+            </div>
             
         </div>
     )

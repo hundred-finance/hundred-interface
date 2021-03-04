@@ -130,7 +130,8 @@ const App = () =>{
       </Wrapper>
       
       <SideMenu open={sideMenu} theme={theme} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}>
-        {openAddress ? <AccountSettings address={address} setAddress={setAddress} provider={provider} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}/> :
+        { openAddress ? 
+          <AccountSettings address={address} setAddress={setAddress} provider={provider} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}/> :
           <DarkSwitch darkMode={darkMode} setDarkMode={setDarkMode}/>
         } 
       </SideMenu>

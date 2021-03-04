@@ -35,3 +35,15 @@
 .dark-switch-on label span::after{
     right: 1px;
 }
+
+.site-settings{
+    display: flex;
+    flex-direction: column;
+}
+
+.site-settings .site-settings-item{
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

@@ -66,10 +66,7 @@ const Content = (props) => {
         const supplyBalanceInTokenUnit = eX(new BigNumber(accountSnapshot[1].toString()).times(accountSnapshot[3].toString()).toString(),-1 * decimals - 18)
         const supplyBalance = eX(supplyBalanceInTokenUnit.times(underlyingPrice), -1 * decimals -18)
         const borrowBalanceInTokenUnit = eX(new BigNumber(accountSnapshot[2].toString()).toString(),-1 * decimals)
-        console.log(`borrowBalanceInTokenUnit: ${borrowBalanceInTokenUnit}`)
-        console.log(`underlyingPrice: ${underlyingPrice}`)
         const borrowBalance = borrowBalanceInTokenUnit.times(isNaN(underlyingPrice) ? 0 : underlyingPrice)
-        console.log("borrowBalance "+borrowBalance)
 
         const cTokenTotalSupply = await ctoken.totalSupply()
         const exchangeRateStored = await ctoken.exchangeRateStored()
@@ -349,16 +346,15 @@ const Content = (props) => {
       setSelectedMarket(null)
     }
 
-    const handleEnterMarket = async(symbol) => {
+    const handleEnterMarket = async(address, symbol) => {
       spinner.current(true)
-
       var market = marketsData.find(m => m.symbol === symbol)
       if (market){
-        console.log(market)
         try{
+          let addr = [market.pTokenaddress]
           const signer = props.provider.getSigner()
           const signedComptroller = comptrollerData.comptroller.connect(signer)
-          const tx = await signedComptroller.enterMarkets(market.pTokenaddress)
+          const tx = await signedComptroller.enterMarkets(addr)
           const receipt = await tx.wait()
 
           if(receipt.status){
@@ -379,7 +375,6 @@ const Content = (props) => {
 
       var market = marketsData.find(m => m.symbol === symbol)
       if (market){
-        console.log(market)
         try{
           const signer = props.provider.getSigner()
           const signedComptroller = comptrollerData.comptroller.connect(signer)
@@ -444,7 +439,8 @@ const Content = (props) => {
         <div className="content">
             <GeneralDetails generalData={generalData}/>
             <Markets generalData = {generalData} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog}/>
-            <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
+            <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
+              handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
             <SupplyMarketDialog open={openSupplyMarketDialog} market={selectedMarket} generalData={generalData} closeSupplyMarketDialog = {closeSupplyMarketDialog} darkMode={props.darkMode} 
               handleEnable = {handleEnable} handleSupply={handleSupply} handleWithdraw={handleWithdraw}/>
             <BorrowMarketDialog open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode}
