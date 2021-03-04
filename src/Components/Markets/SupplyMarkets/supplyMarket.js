@@ -12,7 +12,7 @@ const SupplyMarket = (props) => {
                 <tr>
                     <th colSpan={2}>Asset</th>
                     <th>APY</th>
-                    <th>You Supplied</th>
+                    <th>Supplied</th>
                     <th>Wallet</th>
                     <th>Collateral</th>
                 </tr>

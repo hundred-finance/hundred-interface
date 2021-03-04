@@ -12,7 +12,7 @@ const BorrowMarket = (props) => {
                     <tr>
                         <th colSpan={2}>Asset</th>
                         <th>APY</th>
-                        <th>You Borrowed</th>
+                        <th>Borrowed</th>
                         <th>Wallet</th>
                         <th>Liquidity</th>
                     </tr>
