@@ -14,7 +14,7 @@ const SupplyMarket = (props) => {
                     <th>APY</th>
                     <th>You Supplied</th>
                     <th>Wallet</th>
-                    <th>Use As Collateral</th>
+                    <th>Collateral</th>
                 </tr>
             </thead>
             <tbody className="market-table-content">
