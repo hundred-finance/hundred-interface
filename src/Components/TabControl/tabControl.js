@@ -73,8 +73,12 @@ const TabHeader = (props) => {
     const [left, setLeft] = useState("0")
     const [width, setWidth] = useState(0)
 
+    const length = useRef(null)
+
+    length.current = props.children.length
+
     useEffect(()=>{
-        var w = 100 / props.children.length
+        var w = 100 / length
         var l = (w * (props.tabChange -1))+"%"
         setLeft(l)
         setWidth(w+"%")
