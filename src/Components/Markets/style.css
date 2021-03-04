@@ -86,10 +86,8 @@
     .markets{
         grid-template-columns: repeat(auto-fit, minmax(250px, 900px));
     }
-
-    .market-container{
-        
-    }
-
 }
 
+.rounded-circle{
+    border-radius: 50%;
+}

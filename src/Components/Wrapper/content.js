@@ -291,7 +291,11 @@ const Content = (props) => {
             if(!updateRef.current)
               spinner.current(true)
             
-              var markets = await Promise.all(comptrollerData.allMarkets.map(async (a) => {
+              var markets = await Promise.all(comptrollerData.allMarkets.filter((a) => {
+                  if (a.toLowerCase() === "0xc98182014c90baa26a21e991bfec95f72bd89aed")
+                     return false
+                  return true
+                    }).map(async (a) => {
                 const isEther = a.toLowerCase() === "0x45f157b3d3d7c415a0e40012d64465e3a0402c64"
                 return await getCTokenInfo.current(a, isEther)}))
 
