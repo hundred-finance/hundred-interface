@@ -17,6 +17,7 @@ const blockTime = 13.5
 const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
 const blocksPerDay = (24 * 60 * 60) / blockTime
 const daysPerYear = 365
+const BN = BigNumber.clone({DECIMAL_PLACES: 18})
 
 const Content = (props) => {
     const modal = useRef(null)
@@ -60,13 +61,11 @@ const Content = (props) => {
         const underlying = await getUnderlying(underlyingAddress, address)
 
         const decimals = underlying.decimals
-        const underlyingPrice = eX(underlying.price, underlying.decimals - 36)
+        const underlyingPrice = new BN(eX(underlying.price, underlying.decimals - 36))
 
         const accountSnapshot = await ctoken.getAccountSnapshot(props.address)
-        var div = new BigNumber("10").pow(new BigNumber(decimals+18))
-        const supplyBalanceInTokenUnit = new BigNumber(accountSnapshot[1].toString()).times(new BigNumber(accountSnapshot[3].toString()).div(div))
-        
-        const supplyBalance = eX(supplyBalanceInTokenUnit.times(underlyingPrice), -1 * decimals -18)
+        const supplyBalanceInTokenUnit = new BN(new BigNumber(accountSnapshot[1].toString()).times(new BigNumber(accountSnapshot[3].toString()).div(new BigNumber("10").pow(new BigNumber(decimals + 18)))))
+        const supplyBalance = supplyBalanceInTokenUnit.times(underlyingPrice)
 
         const borrowBalanceInTokenUnit = eX(new BigNumber(accountSnapshot[2].toString()).toString(),-1 * decimals)
         const borrowBalance = borrowBalanceInTokenUnit.times(underlyingPrice)
@@ -82,8 +81,8 @@ const Content = (props) => {
         const isEnterMarket = comptrollerData.enteredMarkets.includes(address);
 
         const markets = await comptrollerData.comptroller.markets(address)
-        const collateralFactor = eX(markets.collateralFactorMantissa.toString(), -18)
-
+        const collateralFactor = new BigNumber(markets.collateralFactorMantissa.toString()).div(new BigNumber("10").pow(new BigNumber(18)))
+        
         const supplyRatePerBlock = await ctoken.supplyRatePerBlock()
         const supplyApy = new BigNumber(Math.pow((supplyRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1)
 
@@ -188,18 +187,19 @@ const Content = (props) => {
 
       getGeneralDetails.current = async () => {
         const pctPrice = await getPctPrice()
-        let totalSupplyBalance = new BigNumber(0)
-        let totalBorrowBalance = new BigNumber(0)
-        let allMarketsTotalSupplyBalance = new BigNumber(0)
-        let allMarketsTotalBorrowBalance = new BigNumber(0)
-        let totalBorrowLimit = new BigNumber(0)
-        let yearSupplyInterest = new BigNumber(0)
-        let yearBorrowInterest = new BigNumber(0)
-        let yearSupplyPctRewards = new BigNumber(0)
-        let yearBorrowPctRewards = new BigNumber(0)
-        let totalLiquidity = new BigNumber(0)
+        let totalSupplyBalance = new BN(0)
+        let totalBorrowBalance = new BN(0)
+        let allMarketsTotalSupplyBalance = new BN(0)
+        let allMarketsTotalBorrowBalance = new BN(0)
+        let totalBorrowLimit = new BN(0)
+        let yearSupplyInterest = new BN(0)
+        let yearBorrowInterest = new BN(0)
+        let yearSupplyPctRewards = new BN(0)
+        let yearBorrowPctRewards = new BN(0)
+        let totalLiquidity = new BN(0)
+        
 
-        marketsData.map((market) => {
+        marketsData.map((market) => {            
             totalSupplyBalance = totalSupplyBalance.plus(market?.supplyBalance)
             totalBorrowBalance = totalBorrowBalance.plus(market?.borrowBalance)
             
@@ -223,18 +223,20 @@ const Content = (props) => {
             return 0
         })
 
+          const netApy = yearSupplyInterest.minus(yearBorrowInterest).div(totalSupplyBalance)
         
-          console.log(`pctPrice: ` + pctPrice)
-          console.log(`totalSupplyBalance: ${totalSupplyBalance}`)
-          console.log(`totalBorrowBalance: ${totalBorrowBalance}`)
-          console.log(`allMarketsTotalSupplyBalance: ${allMarketsTotalSupplyBalance}`)
-          console.log(`allMarketsTotalBorrowBalance: ${allMarketsTotalBorrowBalance}`)
-          console.log(`totalBorrowLimit: ${totalBorrowLimit}`)
+          // console.log(`pctPrice: ` + pctPrice)
+          //console.log(`totalSupplyBalance: ${totalSupplyBalance}`)
+          // console.log(`totalBorrowBalance: ${totalBorrowBalance}`)
+          // console.log(`allMarketsTotalSupplyBalance: ${allMarketsTotalSupplyBalance}`)
+          // console.log(`allMarketsTotalBorrowBalance: ${allMarketsTotalBorrowBalance}`)
+          //console.log(`totalBorrowLimit: ${totalBorrowLimit.precision(4)}`)
           console.log(`yearSupplyInterest: ${yearSupplyInterest}`)
           console.log(`yearBorrowInterest: ${yearBorrowInterest}`)
+          console.log(`netapy: ${netApy}`)
           console.log(`yearSupplyPctRewards: ${yearSupplyPctRewards}`)
           console.log(`yearBorrowPctRewards: ${yearBorrowPctRewards}`)
-          console.log(`totalLiquidity: ${totalLiquidity}`)
+          // console.log(`totalLiquidity: ${totalLiquidity}`)
         
 
 
@@ -247,7 +249,7 @@ const Content = (props) => {
             totalBorrowLimitUsedPercent: totalBorrowBalance.div(totalBorrowLimit).times(100),
             yearSupplyInterest,
             yearBorrowInterest,
-            netApy: yearSupplyInterest.minus(yearBorrowInterest).div(totalSupplyBalance),
+            netApy,
             totalSupplyPctApy: yearSupplyPctRewards?.div(totalSupplyBalance),
             totalBorrowPctApy: yearBorrowPctRewards?.div(totalBorrowBalance),
             pctPrice,

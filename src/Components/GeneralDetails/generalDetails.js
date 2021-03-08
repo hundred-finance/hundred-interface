@@ -22,12 +22,12 @@ const GeneralDetails = (props) => {
                     <GeneralDetailsItemTitle  title="Balances"/>
                         <GeneralDetailsItemContent>
                             <GeneralDetailsItemContentItem label="Supply:" 
-                                value={`$${zeroStringIfNullish(props.generalData?.totalSupplyBalance?.toFixed(2), 2)}`}/>
+                                value={`$${convertToLargeNumberRepresentation(props.generalData?.totalSupplyBalance?.precision(4))}`}/>
                             <GeneralDetailsItemContentItem label="Borrow:" 
-                                value={`$${zeroStringIfNullish(props.generalDetails?.totalBorrowBalance?.toFixed(2),2)}`}/>
+                                value={`$${zeroStringIfNullish(props.generalData?.totalBorrowBalance?.toFixed(2),2)}`}/>
                             <GeneralDetailsItemContentItem label="Borrow Limit:" 
-                                value={`$${zeroStringIfNullish(props.generalDetails?.totalBorrowLimit?.toFixed(2),2)}`}
-                                valueDetails={`(${zeroStringIfNullish(props.generalDetails?.totalBorrowLimitUsedPercent?.toFixed(2),2)}% Used)`}/>
+                                value={`$${zeroStringIfNullish(props.generalData?.totalBorrowLimit?.toFixed(2),2)}`}
+                                valueDetails={`(${zeroStringIfNullish(props.generalData?.totalBorrowLimitUsedPercent?.toFixed(2),2)}% Used)`}/>
                         </GeneralDetailsItemContent>
                 </GeneralDetailsItem>
                 
@@ -35,11 +35,11 @@ const GeneralDetails = (props) => {
                     <GeneralDetailsItemTitle  title="Net APY"/>
                     <GeneralDetailsItemContent>
                         <GeneralDetailsItemContentItem className="center"
-                            value={`${zeroStringIfNullish(props.generalDetails?.netApy?.times(100).toFixed(2),2)}%`}/>
+                            value={`${zeroStringIfNullish(props.generalData?.netApy?.times(100).toFixed(2),2)}%`}/>
                         <GeneralDetailsItemContentItem label="PCT (supply):" 
-                            value={`+ ${zeroStringIfNullish(props.generalDetails?.totalSupplyPctApy?.times(100).toFixed(2),2)}%`}/>
+                            value={`+ ${zeroStringIfNullish(props.generalData?.totalSupplyPctApy?.times(100).toFixed(2),2)}%`}/>
                         <GeneralDetailsItemContentItem label="PCT (borrow):" 
-                            value={`+ ${zeroStringIfNullish(props.generalDetails?.totalBorrowPctApy?.times(100).toFixed(2),2)}%`}/>
+                            value={`+ ${zeroStringIfNullish(props.generalData?.totalBorrowPctApy?.times(100).toFixed(2),2)}%`}/>
                     </GeneralDetailsItemContent>
                 </GeneralDetailsItem>
                 
