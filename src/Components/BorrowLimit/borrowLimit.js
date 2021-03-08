@@ -14,7 +14,7 @@ const DialogBorrowLimitSection = (props) => {
                 </div>
                 <div className="borrow-limit-item-details">
                     <span>
-                        {`$${props.generalData.totalBorrowLimit?.toFixed(2)}`}
+                        {`$${props.generalData?.totalBorrowLimit?.toFixed(2)}`}
                     </span>
                         {props.newBorrowLimit ? (
                     <span>
@@ -32,20 +32,20 @@ const DialogBorrowLimitSection = (props) => {
                 </div>
                 <div className="borrow-limit-item-details">
                     <span>{`${zeroStringIfNullish(
-                        props.generalData.totalBorrowLimitUsedPercent?.toFixed(2),2)}%`}
+                        props.generalData?.totalBorrowLimitUsedPercent?.toFixed(2),2)}%`}
                     </span>
                     {props.newBorrowLimit ? (
                     <span>
                         {">"}
                         <span
                             style={{
-                                color: props.generalData.totalBorrowBalance
+                                color: props.generalData?.totalBorrowBalance
                                 ?.div(props.newBorrowLimit)
                                 .isGreaterThan(1)
                                 ?"red"
                                 : null,}}>
                         {`${zeroStringIfNullish(
-                                props.generalData.totalBorrowBalance
+                                props.generalData?.totalBorrowBalance
                                 ?.div(props.newBorrowLimit)
                                 .times(100)
                                 .toFixed(2),

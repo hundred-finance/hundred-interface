@@ -34,3 +34,7 @@
     transition: all 0.5s ease-out;
     right: 0;
 }
+
+.switch-button-disable{
+    opacity: .6;
+}

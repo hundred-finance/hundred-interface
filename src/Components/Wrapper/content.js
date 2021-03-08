@@ -121,7 +121,8 @@ const Content = (props) => {
           liquidity,
           collateralFactor,
           pctSpeed,
-          decimals
+          decimals,
+          spinner: false
         }
       }
 
@@ -320,7 +321,13 @@ const Content = (props) => {
                 return await getCTokenInfo.current(a, isEther)}))
 
            // var data = await getGeneralDetails(markets)
-
+            if(marketsData){
+              markets.map((m) => {
+                var market = marketsData.find(x => x.symbol === m.symbol)
+                if (market)
+                  m.spinner = market.spinner
+              })
+            }
             setMarketsData(markets)
             //setGeneralData(data)
           }
@@ -379,16 +386,26 @@ const Content = (props) => {
           const signer = props.provider.getSigner()
           const signedComptroller = comptrollerData.comptroller.connect(signer)
           const tx = await signedComptroller.enterMarkets(addr)
+          setOpenEnterMarket(false)
+          market = marketsData.find(m => m.symbol === symbol)
+          market.spinner = true
+          console.log(tx)
           const receipt = await tx.wait()
 
           if(receipt.status){
+            var market = marketsData.find(m => m.symbol === symbol)
+            market.spinner = false
+            setMarketsData(marketsData)
             var comptroller =  await getComptrollerData.current()
             setComptrollerData(comptroller)  
-            setOpenEnterMarket(false)
           } 
         }
         catch (err){
           console.log(err)
+          var market = marketsData.find(m => m.symbol === symbol)
+          market.spinner = false
+          setMarketsData(marketsData)
+            
         }
       }
       spinner.current(false)
@@ -398,23 +415,24 @@ const Content = (props) => {
       spinner.current(true)
 
       var market = marketsData.find(m => m.symbol === symbol)
-      if (market){
-        try{
-          const signer = props.provider.getSigner()
-          const signedComptroller = comptrollerData.comptroller.connect(signer)
-          const tx = await signedComptroller.exitMarket(market.pTokenaddress)
-          const receipt = await tx.wait()
+      // if (market){
+      //   try{
+      //     const signer = props.provider.getSigner()
+      //     const signedComptroller = comptrollerData.comptroller.connect(signer)
+      //     const tx = await signedComptroller.exitMarket(market.pTokenaddress)
 
-          if(receipt.status){
-            var comptroller =  await getComptrollerData.current()
-            setComptrollerData(comptroller)  
-            setOpenEnterMarket(false)
-          } 
-        }
-        catch (err){
-          console.log(err)
-        }
-      }
+      //     const receipt = await tx.wait()
+
+      //     if(receipt.status){
+      //       var comptroller =  await getComptrollerData.current()
+      //       setComptrollerData(comptroller)  
+      //       setOpenEnterMarket(false)
+      //     } 
+      //   }
+      //   catch (err){
+      //     console.log(err)
+      //   }
+      // }
       spinner.current(false)
     }
 

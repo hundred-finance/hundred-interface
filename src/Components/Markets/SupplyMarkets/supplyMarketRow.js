@@ -1,4 +1,5 @@
 import React from "react"
+import { Spinner } from "../../../assets/huIcons/huIcons"
 import SwitchButton from "../../Switch/switch"
 
 import "../style.css"
@@ -45,7 +46,10 @@ const SupplyMarketRow =(props) =>{
           
         </td>
         <td>
-            <SwitchButton checked={props.details.isEnterMarket} onClick={()=>{props.enterMarketDialog(props.details)}}/>
+          <div className="spinner-container">
+            <SwitchButton disabled={props.spinner} checked={props.details.isEnterMarket} onClick={()=>{props.enterMarketDialog(props.details)}}/>
+            {props.details.spinner ? (<Spinner size={"20px"}/>) : null}
+          </div>
           {/*<StyledSwitch
             checked={props.details.isEnterMarket}
             onChange={() => {

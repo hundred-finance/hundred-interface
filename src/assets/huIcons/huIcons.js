@@ -1,4 +1,5 @@
 import React from "react"
+import "./style.css"
 
 const HuLogo = (props) => {
     const style = {
@@ -193,4 +194,16 @@ const HuArrow = (props) => {
 
 }
 
-export {HuLogo, HuLogo1, HuLogoSpinner, HuArrow}
+const Spinner = (props) => {
+    const style = {
+        width: props.size ? props.size : "50px",
+        height: props.size ? props.size : "50px"
+    }
+    return(
+        <svg style={style} class="spinner" viewBox="0 0 50 50">
+            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+        </svg>
+    )
+}
+
+export {HuLogo, HuLogo1, HuLogoSpinner, HuArrow, Spinner}
