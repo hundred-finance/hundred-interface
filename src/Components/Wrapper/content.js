@@ -393,13 +393,15 @@ const Content = (props) => {
           spinner.current(false)
           const receipt = await tx.wait()
 
-          if(receipt.status){
+          
             var market = marketsData.find(m => m.symbol === symbol)
             market.spinner = false
+            market.isEnterMarket = true
             setMarketsData(marketsData)
+            setUpdate(true)
             var comptroller =  await getComptrollerData.current()
-            setComptrollerData(comptroller)  
-          } 
+            setComptrollerData(comptroller) 
+           
         }
         catch (err){
           console.log(err)
