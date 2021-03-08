@@ -10,7 +10,7 @@ const BorrowMarket = (props) => {
             <table className = "market-table">
                 <thead className="market-table-header">
                     <tr>
-                        <th colSpan={2}>Asset</th>
+                        <th>Asset</th>
                         <th>APY</th>
                         <th>Borrowed</th>
                         <th>Wallet</th>
@@ -34,7 +34,6 @@ const BorrowMarket = (props) => {
                       <td></td>
                       <td></td>
                       <td></td>
-                      <td></td>
                     </tr>
                   )}
                   {props.marketsData?.filter((item) => item.borrowBalance?.isGreaterThan(0))
@@ -53,7 +52,6 @@ const BorrowMarket = (props) => {
                       >
                         Other Markets
                       </td>
-                      <td></td>
                       <td></td>
                       <td></td>
                       <td></td>

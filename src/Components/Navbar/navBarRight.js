@@ -6,11 +6,10 @@ const NavBarRight = (props) => {
     const style = {
         display: 'flex',
         alignItems: 'center',
-        
     }
     
     return (
-        <div style={style}>
+        <div className="navbar-right">
             {props.children}
         </div>
     )

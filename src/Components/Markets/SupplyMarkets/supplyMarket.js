@@ -10,7 +10,7 @@ const SupplyMarket = (props) => {
             <table className = "market-table">
             <thead className="market-table-header">
                 <tr>
-                    <th colSpan={2}>Asset</th>
+                    <th>Asset</th>
                     <th>APY</th>
                     <th>Supplied</th>
                     <th>Wallet</th>
@@ -33,7 +33,6 @@ const SupplyMarket = (props) => {
                       <td></td>
                       <td></td>
                       <td></td>
-                      <td></td>
                     </tr>
                   )}
                   {props.marketsData?.filter((item) => item.supplyBalance?.isGreaterThan(0))
@@ -52,7 +51,6 @@ const SupplyMarket = (props) => {
                       >
                         Other Markets
                       </td>
-                      <td></td>
                       <td></td>
                       <td></td>
                       <td></td>

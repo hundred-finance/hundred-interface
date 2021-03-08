@@ -16,6 +16,8 @@ import AddressButton from './Components/AddressButton/addressButton';
 import {ethers} from "ethers"
 import AccountSettings from './Components/SideMenu/accountSettings';
 import Content from './Components/Wrapper/content';
+import Menu from './Components/Menu/menu';
+import TabletMenu from './Components/Menu/tabletMenu'
 
 
 
@@ -31,15 +33,37 @@ const App = () =>{
   const [sideMenu, setSideMenu] = useState(false)
   const [theme, setTheme] = useState(lightTheme)
   const [isMobile, setIsMobile] = useState(false)
+  const [isTablet, setIsTablet] = useState(false)
+  const [show, setShow] = useState(false)
   const [openAddress, setOpenAddress] = useState(false)
 
-  window.addEventListener('resize', ()=>{
-    if (document.documentElement.clientWidth < 450)
-      setIsMobile(true)
-    else setIsMobile(false)
-  });
-
   useEffect(() => {
+    
+    if (document.documentElement.clientWidth < 420){
+      setIsMobile(true)
+      setIsTablet(false)
+    }
+    else if (document.documentElement.clientWidth < 700){
+  
+      setIsTablet(true)
+      setIsMobile(false)
+    }
+    else setIsTablet(false)
+
+    setShow(true)
+
+    window.addEventListener('resize', ()=>{
+      if (document.documentElement.clientWidth < 420){
+        setIsMobile(true)
+        setIsTablet(false)
+      }
+      else if (document.documentElement.clientWidth < 700){
+    
+        setIsTablet(true)
+        setIsMobile(false)
+      }
+      else setIsTablet(false)
+    });
 
     const connect = async () => {
       if (window.ethereum) {
@@ -109,20 +133,13 @@ const App = () =>{
   return (
     <div className={`App ${darkMode ? "App-dark" : ""}`} style={{backgroundColor: `${theme.background}`}}>
       <Wrapper sideMenu={sideMenu} theme={theme}>
-        <Navbar theme={theme}>
-          <NavbarLogo theme={theme} darkMode={darkMode}/>
-          <NavBarButton theme={theme} isMobile={isMobile}/>
-          <NavBarLinks theme={theme} isMobile={isMobile}>
-            <NavbarLink theme={theme} link="/">Governance</NavbarLink>
-            <NavbarLink theme={theme} link="/">Audit</NavbarLink>
-            <NavbarLink theme={theme} link="/">Github</NavbarLink>
-            <NavbarLink theme={theme} link="https://dev.percent.finance" target="_blank">Dashboard</NavbarLink>
-          </NavBarLinks>
-          <NavBarRight>
-            <AddressButton theme={theme} address={address} setAddress={setAddress} provider={provider} setProvider={setProvider} openAddress={setOpenAddress} setSideMenu={setSideMenu}/>
-            <SideMenuButton theme={theme} setSideMenu ={setSideMenu}/>
-          </NavBarRight>
-        </Navbar>
+        
+        <Menu show={show} isTablet={isTablet} isMobile={isMobile} theme={theme} darkMode={darkMode} address={address} 
+          setAddress={setAddress} provider={provider} setProvider={setProvider} openAddress={setOpenAddress} 
+          setSideMenu={setSideMenu}/>
+        <TabletMenu show={show} isTablet={isTablet} isMobile={isMobile} theme={theme} darkMode={darkMode} address={address} 
+          setAddress={setAddress} provider={provider} setProvider={setProvider} openAddress={setOpenAddress} 
+          setSideMenu={setSideMenu}/>
         <Content  address={address} provider={provider} setSpinnerVisible={setSpinnerVisible} darkMode={darkMode}>
           
         </Content>

@@ -1,6 +1,6 @@
 .switch{
-    height: 20px;
-    width: 50px;
+    height: 10px;
+    width: 45px;
     border-radius: 10px;
     background-color: #b8b8b8;
     position: relative;
@@ -9,14 +9,14 @@
 
 .switch .switch-button{
     
-    height: 25px;
-    width: 25px;
+    height: 20px;
+    width: 20px;
     border-radius: 50%;
     -webkit-box-shadow: 0px 0px 10px 1px rgba(89,89,89,0.5); 
     box-shadow: 0px 0px 10px 1px rgba(89,89,89,0.5);
     background-color: #fff;
     position: absolute;
-    top:-2.5px;
+    top:-5px;
     transition: all 0.5s ease-out;
 }
 
@@ -27,7 +27,7 @@
 
 .switch-checked{
     transition: all 0.5s ease-out;
-    background-color: rgb(12, 223, 12);
+    background-color: var(--buttonHover);
 }
 
 .switch-checked .switch-button{

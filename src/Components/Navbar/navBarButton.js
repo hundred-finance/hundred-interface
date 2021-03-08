@@ -7,22 +7,22 @@ const NavBarButton = (props) => {
     const style = {
         border: `1px solid ${props.theme.text}`,
         borderRadius: '10px',
-        display: `${props.isMobile ? 'block' : 'none'}`,
+        display: `${props.isMobile || props.isTablet ? 'block' : 'none'}`,
         width: '40px',
         height: '40px',
         margin: '0 10px',
         position: 'relative',
         cursor: 'pointer',
-        transform: `${hover ? 'rotate(180deg)' : ''}`,
-        transition: 'all 0.2s ease-out'
+        transition: 'all 0.2s ease-out',
+        backgroundColor: `${hover || clicked ? props.theme.buttonColor : ""}`
     }
 
     const bar1 = {
         display: 'block',
         width: '25px',
         height: '2px',
-        backgroundColor: `${props.theme.text}`,
-        border: `1px solid ${props.theme.text}`,
+        backgroundColor: `${hover || clicked ? props.theme.buttonHover2 : props.theme.text}`,
+        border: `1px solid ${hover || clicked ? props.theme.buttonHover2 : props.theme.text}`,
         borderRadius: '3px',
         position:'absolute',
         left: '50%',
@@ -35,8 +35,8 @@ const NavBarButton = (props) => {
         display: 'block',
         width: '25px',
         height: '2px',
-        backgroundColor: `${props.theme.text}`,
-        border: `1px solid ${props.theme.text}`,
+        backgroundColor: `${hover || clicked ? props.theme.buttonHover2 : props.theme.text}`,
+        border: `1px solid ${hover || clicked ? props.theme.buttonHover2 : props.theme.text}`,
         borderRadius: '3px',
         position:'absolute',
         left: '50%',
@@ -50,8 +50,8 @@ const NavBarButton = (props) => {
         display: 'block',
         width: '25px',
         height: '2px',
-        backgroundColor: `${props.theme.text}`,
-        border: `1px solid ${props.theme.text}`,
+        backgroundColor: `${hover || clicked ? props.theme.buttonHover2 : props.theme.text}`,
+        border: `1px solid ${hover || clicked ? props.theme.buttonHover2 : props.theme.text}`,
         borderRadius: '3px',
         position:'absolute',
         left: '50%',
@@ -63,7 +63,7 @@ const NavBarButton = (props) => {
 
 
     return (
-        <div style={style} onClick={() => setClicked(!clicked)} onMouseOver={()=>setHover(true)} onMouseOut={()=>setHover(false)}>
+        <div style={style} onClick={() =>{ setClicked(!clicked); props.setMenuOpen(!clicked)}} onMouseOver={()=>setHover(true)} onMouseOut={()=>setHover(false)}>
             <span style={bar1}></span>
             <span style={bar2}></span>
             <span style={bar3}></span>

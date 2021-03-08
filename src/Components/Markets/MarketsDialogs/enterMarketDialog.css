@@ -16,16 +16,17 @@
 }
 
 .dialog-box{
-    max-width: 600px;
+    max-width: 60%;
     min-width: 200px;
     min-height: 350px;
     -webkit-box-shadow: var(--boxShadow);
     box-shadow: var(--boxShadow);
     border-radius: 10px;
     padding:1rem;
-    position: relative;
-    margin: auto;
+    position: fixed;
     top:15%;
+    left: 50%;
+    transform: translateX(-50%);
     background-color: var(--navBackground);
     display: flex;
     flex-direction: column;

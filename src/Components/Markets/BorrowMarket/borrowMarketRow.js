@@ -9,17 +9,14 @@ const BorrowMarketRow = (props) => {
     return (
         <tr onClick={() => props.borrowMarketDialog(props.details)}>
         <td>
-          <img
-            className="rounded-circle"
-            style={{ width: "40px" }}
-            src={props.details.logoSource}
-            alt=""
-          />
+          <div className="asset"> 
+                <div className="asset-logo">
+                  <img className="rounded-circle" src={props.details.logoSource} alt=""/>
+                </div>
+                <span>{props.details.symbol}</span>
+            </div>
         </td>
-        <td>
-          {props.details.symbol}
-        </td>
-        <td>
+        <td className={props.details?.borrowApy.toFixed(2) > 0 ? "positive" : ""}>
             {`${props.details.borrowApy?.times(100).toFixed(2)}%`}
             {props.details.borrowPctApy?.isGreaterThan(0) ? (
               <div>

@@ -7,13 +7,13 @@ const SideMenuButton = (props) => {
         border: `0px solid ${props.theme.text}`,
         borderRadius: '10px',
         display: 'block',
-        width: '40px',
+        width: '0px',
         height: '40px',
         margin: '0 10px',
         position: 'relative',
         cursor: 'pointer',
         transition: 'all 0.2s ease-out',
-        
+        padding:"0 10px"
     }
 
     const dot1 = {

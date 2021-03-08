@@ -3,8 +3,10 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
-    min-width: 100%;
+    width: 100%;
     margin-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .market-container{
@@ -65,8 +67,8 @@
     width: 0.4rem;
     height: 0.4rem;
     border-radius: 50%;
-    border: 2px solid rgb(12, 223, 12);
-    background-color:  rgb(12, 223, 12);;
+    border: 2px solid var(--buttonHover);
+    background-color:  var(--buttonHover);
     display: inline-block;
     margin-right: 5px;
     position: relative;
@@ -76,9 +78,28 @@
     width: 0.4rem;
     height: 0.4rem;
     border-radius: 50%;
-    border: 2px solid rgb(12, 223, 12);
+    border: 2px solid var(--buttonHover);
     display: inline-block;
     margin-right: 5px;
+}
+
+.market-content .positive{
+    color: var(--textPositive);
+}
+
+.market-table .asset{  
+    height: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.market-table .asset span{
+    padding-left: 1rem;
+}
+
+.market-table .asset .asset-logo img{
+    width: 30px;
+    height: 30px;
 }
 
 

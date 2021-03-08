@@ -12,20 +12,17 @@ const SupplyMarketRow =(props) =>{
         }}*/
       >
         <td onClick={() => props.supplyMarketDialog(props.details)}>
-          <img
-            className="rounded-circle"
-            style={{ width: "40px" }}
-            src={props.details.logoSource}
-            alt=""
-          />
+          <div className="asset"> 
+              <div className="asset-logo">
+                <img className="rounded-circle" src={props.details.logoSource} alt=""/>
+              </div>
+              <span>{props.details.symbol}</span>
+          </div>
         </td>
-        <td onClick={() => props.supplyMarketDialog(props.details)}>
-          {props.details.symbol}
-        </td>
-        <td onClick={() => props.supplyMarketDialog(props.details)}>
+        <td onClick={() => props.supplyMarketDialog(props.details)} className={props.details?.supplyApy.toFixed(2) > 0 ? "positive" : ""}>
           
-            {`${props.details.supplyApy?.times(100).toFixed(2)}%`}
-            {props.details.supplyPctApy?.isGreaterThan(0) ? (
+            {`${props.details?.supplyApy?.times(100).toFixed(2)}%`}
+            {props.details?.supplyPctApy > 0 ? (
               <div>
                 {`+ ${props.details.supplyPctApy?.times(100).toFixed(2)}% PCT`}
               </div>
