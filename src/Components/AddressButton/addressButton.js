@@ -18,7 +18,7 @@ const AddressButton = (props) => {
       
             if (account && account.length > 0){
                 if(address.current !== ""){
-                    const addr = '0x87616fA850c87a78f307878f32D808dad8f4d401'//account.find(element => element === address.current)
+                    const addr = account.find(element => element === address.current)//'0x87616fA850c87a78f307878f32D808dad8f4d401' 
                     if(addr)
                         setAddress.current(addr)
                     else
