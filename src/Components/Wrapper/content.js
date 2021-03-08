@@ -390,6 +390,7 @@ const Content = (props) => {
           market = marketsData.find(m => m.symbol === symbol)
           market.spinner = true
           console.log(tx)
+          spinner.current(false)
           const receipt = await tx.wait()
 
           if(receipt.status){
