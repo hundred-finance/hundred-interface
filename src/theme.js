@@ -11,7 +11,6 @@ export const lightTheme = {
     textShadow: '1px 1px 1px rgba(0,0,0,.2)',
     spinnerColor: '#f0f0f0',
     boxShadow: '0px 1px 10px 1px rgba(97, 97, 97, 0.5)',
-    buttonHover2: "#f0f0f0"
 }
 
 export const darkTheme = {
