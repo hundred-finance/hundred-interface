@@ -6,7 +6,7 @@ export const eX = (value, x) => {
   return new BigNumber(`${value}e${x}`);
 };
 
-export const convertToLargeNumberRepresentation = (value) => {
+export const convertToLargeNumberRepresentation = (value, d) => {
   if (!value) {
     return "0";
   } else if (+value >= 1e5) {
@@ -33,9 +33,29 @@ export const emptyStringIfNullish = (value) => {
 };
 
 export const zeroStringIfNullish = (value, dp) => {
-  if (value && value !== "NaN") {
+ 
+  if (value && !isNaN(value)) {
     return value;
   } else {
     return Number(0).toFixed(dp);
   }
 };
+
+export const getShortenAddress = (address) => {
+  const firstCharacters = address.substring(0, 6);
+  const lastCharacters = address.substring(
+    address.length - 4,
+    address.length
+  );
+  return `${firstCharacters}...${lastCharacters}`;
+};
+
+export const compareSymbol = (a, b) => {
+  if (a.symbol < b.symbol) {
+    return -1;
+  }
+  if (a.symbol > b.symbol) {
+    return 1;
+  }
+  return 0;
+}

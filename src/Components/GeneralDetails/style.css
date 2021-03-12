@@ -1,0 +1,86 @@
+.general-details{
+    background-color: var(--sectionBackground);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.general-details .general-details-content{
+    
+    display: block;
+    max-width: 1200px;
+    padding: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.general-details-item{
+    
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 200px;
+    width:220px;
+    height: 200px;
+    color: var(--text);
+    text-shadow: var(--textShadow);
+    position: relative;
+    box-shadow: var(--boxShadow);
+    margin: 10px;
+}
+
+.general-details-item .general-details-item-title{
+    background-color:var(--navBackground);
+    box-shadow: var(--titleShadow);
+    border-radius: 10px 10px 0 0;
+    padding: 1rem;
+    text-align: center;
+    
+    text-shadow: var(--textShadow);
+    letter-spacing: 1px;
+    font-size: 1rem;
+}
+
+.general-details-item .general-details-item-content{
+    padding: .5rem;    
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-evenly;
+    color: var(--text);
+}
+
+.general-details-item .general-details-item-content .general-details-item-content-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.general-details-item .general-details-item-content .general-details-item-content-item label{
+    width: 58%;
+    text-align: right;
+}
+
+.general-details-item .general-details-item-content .general-details-item-content-item span{
+    font-size: 1rem;
+    font-weight: bold;
+    width: 35%;
+    position: relative;
+}
+
+.general-details-item .general-details-item-content .general-details-item-content-item .center{
+    width: 100%;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.general-details-item .general-details-item-content .general-details-item-content-item .value-details{
+    font-size: 0.8rem;
+    opacity: 0.7;
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    left: 0;
+}
