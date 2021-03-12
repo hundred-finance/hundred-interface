@@ -5,10 +5,12 @@ import "./style.css"
 
 const AddressButton = (props) => {
 
-    var setAddress = useRef(() => {})
-    var address = useRef()
+    const setAddress = useRef(() => {})
+    const setOpenAddress = useRef(() => {})
+    const address = useRef()
 
     setAddress.current = props.setAddress
+    setOpenAddress.current = props.setOpenAddress
     address.current = props.address
 
     useEffect (()=>{
@@ -46,7 +48,7 @@ const AddressButton = (props) => {
     }
 
     const handleAddress = () => {
-        props.openAddress(true)
+        setOpenAddress.current(true)
         props.setSideMenu(true)
     }
 

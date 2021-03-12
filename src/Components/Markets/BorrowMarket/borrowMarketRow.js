@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js"
 import React from "react"
+import { Spinner } from "../../../assets/huIcons/huIcons"
 import { convertToLargeNumberRepresentation } from "../../../helpers"
 
 import "../style.css"
@@ -32,9 +33,12 @@ const BorrowMarketRow = (props) => {
             {props.details.walletBalance.decimalPlaces(4).toString()}
         </td>
         <td>
-          {`$${convertToLargeNumberRepresentation(
-            new BigNumber(props.details.liquidity).precision(2)
-          )}`}
+          <div className="spinner-container">
+            {`$${convertToLargeNumberRepresentation(
+              new BigNumber(props.details.liquidity).precision(2)
+            )}`}
+            {(props.details.borrowSpinner || props.details.repaySpinner) ? (<Spinner size={"20px"}/>) : null}
+          </div>
         </td>
       </tr>
     )

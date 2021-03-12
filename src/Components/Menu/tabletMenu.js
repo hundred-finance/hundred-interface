@@ -20,7 +20,7 @@ const TabletMenu = (props) => {
                 <NavBarRight>
                     {props.isTablet && !props.isMobile ?
                         (<AddressButton theme={props.theme} address={props.address} setAddress={props.setAddress} 
-                            provider={props.provider} setProvider={props.setProvider} openAddress={props.setOpenAddress} 
+                            provider={props.provider} setProvider={props.setProvider} setOpenAddress={props.setOpenAddress} 
                             setSideMenu={props.setSideMenu}/>)
                         : null}
                   <NavBarButton theme={props.theme} isTablet={props.isTablet} isMobile={props.isMobile} 
@@ -31,7 +31,7 @@ const TabletMenu = (props) => {
                     {props.isMobile ? (
                         <NavBarRight style={{justifyContent:"flex-end"}}>
                             <AddressButton theme={props.theme} address={props.address} setAddress={props.setAddress} 
-                        provider={props.provider} setProvider={props.setProvider} openAddress={props.setOpenAddress} 
+                        provider={props.provider} setProvider={props.setProvider} setOpenAddress={props.setOpenAddress} 
                         setSideMenu={props.setSideMenu}/>
                         </NavBarRight>
                     ) : null}

@@ -4,11 +4,10 @@ import { getShortenAddress, zeroStringIfNullish } from "../../helpers"
 import "./style.css"
 import {ethers} from "ethers"
 import {PCT_ADDRESS, PCT_ABI, COMPOUND_LENS_ADDRESS, COMPOUNT_LENS_ABI} from "../../constants"
+import { Spinner } from "../../assets/huIcons/huIcons"
 
 const AccountSettings = (props) => {
-    const [pctBalance, setPctBalance] = useState(null)
-    const [pctEarned, setPctEarned] = useState(null)
-
+    
     const getPctBalance = useRef(() => {})
     const getPctEarned = useRef(() => {})
 
@@ -33,14 +32,14 @@ const AccountSettings = (props) => {
         const getPctBalances = async() => {
             var pct_temp = await getPctBalance?.current()
             var pct_earned = await getPctEarned?.current()
-            setPctBalance(pct_temp)
-            setPctEarned(pct_earned)
+            props.setPctBalance(pct_temp)
+            props.setPctEarned(pct_earned)
         }
 
         if (props.provider && props.address!=="")
             getPctBalances()
         else{
-            setPctBalance(null)
+            props.setPctBalance(null)
         }
 
     }, [props.provider, props.address])
@@ -49,10 +48,6 @@ const AccountSettings = (props) => {
         props.setSideMenu(false) 
         props.setOpenAddress(false)
         props.setAddress("")
-    }
-
-    const handleCollect = () => {
-
     }
 
     return (
@@ -64,9 +59,10 @@ const AccountSettings = (props) => {
             </div>
             <hr/>
             <div className="account-settings-item">
-                <div className="account-settings-item-label"><label>PCT Balance </label><span>{pctBalance ? `${zeroStringIfNullish(new BigNumber(pctBalance.pct_balance).decimalPlaces(4).toString())}`: "--"}</span></div>
-                <div className="account-settings-item-label"><label>PCT Earned </label><span>{pctEarned ? `${zeroStringIfNullish(new BigNumber(pctEarned).decimalPlaces(4).toString())}` : "--"}</span></div>
-                <div className="account-settings-item-button" onClick={() => handleCollect()}>Collect</div>
+                <div className="account-settings-item-label"><label>PCT Balance </label><span>{props.pctBalance ? `${zeroStringIfNullish(new BigNumber(props.pctBalance.pct_balance).decimalPlaces(4).toString())}`: "--"}</span></div>
+                <div className="account-settings-item-label"><label>PCT Earned </label><span>{props.pctEarned ? `${zeroStringIfNullish(new BigNumber(props.pctEarned).decimalPlaces(4).toString())}` : "--"}</span></div>
+                <div className={`${props.pctSpinner ? "account-settings-item-button-disabled" : "account-settings-item-button"}`} onClick={() => !props.pctSpinner ? props.handleCollect() : null}>
+                    {props.pctSpinner ? (<Spinner size={"20px"}/>) : "Collect"}</div>
             </div>
         </div>
     )

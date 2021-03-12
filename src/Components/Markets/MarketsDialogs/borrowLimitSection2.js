@@ -12,7 +12,6 @@ const BorrowLimitSection2 = (props) => {
         repayAmount,
         underlyingPrice
       ) => {
-          console.log(`originBorrowBalance: ${originBorrowBalance} borrowAmount: ${borrowAmount} repayAmount: ${repayAmount} underlyingPrice: ${underlyingPrice}`)
         return originBorrowBalance?.plus(
           new BigNumber(borrowAmount).minus(repayAmount).times(underlyingPrice)
         );

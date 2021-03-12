@@ -91,6 +91,21 @@
     background-color: #EEE;
 }
 
+.account-settings-item .account-settings-item-button-disabled{
+    border: 1px solid #BBB;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 40px;
+    cursor: not-allowed;
+    user-select: none;
+    transition: all 0.1s ease-out;
+    background-color: rgba(221, 221, 221, 0.4);
+}
+
 .account-settings hr {
     margin: 20px 0;
 }
@@ -98,5 +113,9 @@
 .account-settings .account-settings-item hr {
     margin: 0;
     margin-bottom: 20px;
+}
+
+.side-menu-hidden{
+    display: none;
 }
 

@@ -20,7 +20,8 @@ const Menu = (props) => {
                   <NavbarLink theme={props.theme} link="https://dev.percent.finance" target="_blank">Dashboard</NavbarLink>
                 </NavBarLinks>
                 <NavBarRight>
-                  <AddressButton theme={props.theme} address={props.address} setAddress={props.setAddress} provider={props.provider} setProvider={props.setProvider} openAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
+                  <AddressButton theme={props.theme} address={props.address} setAddress={props.setAddress} provider={props.provider} 
+                    setProvider={props.setProvider} setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
                   <SideMenuButton theme={props.theme} setSideMenu ={props.setSideMenu}/>
                 </NavBarRight>
             </Navbar>

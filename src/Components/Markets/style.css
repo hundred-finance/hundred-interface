@@ -108,6 +108,15 @@
     justify-content: space-between;
 }
 
+.disable-row{
+    opacity: 0.5;
+    cursor:not-allowed;
+}
+
+.disable-row td{
+    cursor:not-allowed;
+}
+
 
 @media (max-width: 900px) {
     .markets{

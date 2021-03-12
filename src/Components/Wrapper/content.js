@@ -1,6 +1,6 @@
 import { ethers} from "ethers"
-import React, { useEffect, useRef, useState } from "react"
-import { COMPTROLLER_ABI, UNITROLLER_ADDRESS, CTOKEN_ABI, ORACLE_ABI, TOKEN_ABI, MKR_TOKEN_ABI } from "../../constants"
+import React, { useEffect,  useRef, useState } from "react"
+import { COMPTROLLER_ABI, UNITROLLER_ADDRESS, CTOKEN_ABI, ORACLE_ABI, TOKEN_ABI, MKR_TOKEN_ABI, CETHER_ABI } from "../../constants"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import ETHlogo from "../../assets/images/ETH-logo.png"
 import BigNumber from "bignumber.js"
@@ -12,12 +12,29 @@ import SupplyMarketDialog from "../Markets/MarketsDialogs/supplyMarketDialog"
 import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import Modal from "../Modal/modal"
 
-const MaxUint256 = new BigNumber(2).pow(256).div(1)
-const blockTime = 13.5
+
+const blockTime = 13.5 // seconds
 const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
 const blocksPerDay = (24 * 60 * 60) / blockTime
 const daysPerYear = 365
 const BN = BigNumber.clone({DECIMAL_PLACES: 18})
+const MaxUint256 = ethers.constants.MaxUint256
+
+const gasLimit = "250000";
+// const gasLimitSupplyDai = "535024";
+// const gasLimitSupplySnx = "450000";
+// const gasLimitSupplySusd = "450000";
+// const gasLimitWithdrawDai = "550000";
+// const gasLimitWithdrawSnx = "550000";
+// const gasLimitWithdrawSusd = "550000";
+// const gasLimitWithdraw = "450000";
+// const gasLimitEnable = "70000";
+// const gasLimitEnableDai = "66537";
+// const gasLimitBorrow = "702020";
+// const gasLimitBorrowDai = "729897";
+// const gasLimitRepayDai = "535024";
+// const gasLimitRepaySusd = "400000";
+// const gasLimitEnterMarket = "112020";
 
 const Content = (props) => {
     const modal = useRef(null)
@@ -36,9 +53,13 @@ const Content = (props) => {
     const getGeneralDetails = useRef(() => {})
     const spinner = useRef(null)
     const updateRef = useRef(null)
+    const marketsRef = useRef(null)
+    const selectedMarketRef = useRef(null)
 
     spinner.current = props.setSpinnerVisible
     updateRef.current = update
+    marketsRef.current = marketsData
+    selectedMarketRef.current = selectedMarket
 
     getComptrollerData.current = async () => {
         const comptroller = new ethers.Contract(UNITROLLER_ADDRESS, COMPTROLLER_ABI, props.provider)
@@ -95,6 +116,8 @@ const Content = (props) => {
         const liquidity = +underlyingAmount * +underlyingPrice
         
         const underlyingAllowance = eX(underlying.allowance, -1 * decimals)
+        if(underlying.symbol === "ETH")
+        console.log(`supplyBalanceInTokenUnit: ${supplyBalanceInTokenUnit}`)
 
         const speed = await comptrollerData.comptroller.compSpeeds(address)
         const pctSpeed = eX(speed.toString(), -18);
@@ -122,7 +145,11 @@ const Content = (props) => {
           collateralFactor,
           pctSpeed,
           decimals,
-          spinner: false
+          spinner: false,
+          supplySpinner: false,
+          withdrawSpinner: false,
+          borrowSpinner: false,
+          repaySpinner: false
         }
       }
 
@@ -226,21 +253,6 @@ const Content = (props) => {
 
           const netApy = yearSupplyInterest.minus(yearBorrowInterest).div(totalSupplyBalance)
         
-          // console.log(`pctPrice: ` + pctPrice)
-          //console.log(`totalSupplyBalance: ${totalSupplyBalance}`)
-          // console.log(`totalBorrowBalance: ${totalBorrowBalance}`)
-          // console.log(`allMarketsTotalSupplyBalance: ${allMarketsTotalSupplyBalance}`)
-          // console.log(`allMarketsTotalBorrowBalance: ${allMarketsTotalBorrowBalance}`)
-          //console.log(`totalBorrowLimit: ${totalBorrowLimit.precision(4)}`)
-          console.log(`yearSupplyInterest: ${yearSupplyInterest}`)
-          console.log(`yearBorrowInterest: ${yearBorrowInterest}`)
-          console.log(`netapy: ${netApy}`)
-          console.log(`yearSupplyPctRewards: ${yearSupplyPctRewards}`)
-          console.log(`yearBorrowPctRewards: ${yearBorrowPctRewards}`)
-          // console.log(`totalLiquidity: ${totalLiquidity}`)
-        
-
-
         return {
             totalSupplyBalance,
             totalBorrowBalance,
@@ -321,18 +333,33 @@ const Content = (props) => {
                 return await getCTokenInfo.current(a, isEther)}))
 
            // var data = await getGeneralDetails(markets)
-            if(marketsData){
+            if(marketsRef.current){
               markets.map((m) => {
-                var market = marketsData.find(x => x.symbol === m.symbol)
-                if (market)
+                var market = marketsRef.current.find(x => x.symbol === m.symbol)
+                if (market){
                   m.spinner = market.spinner
+                  m.supplySpinner = market.supplySpinner
+                  m.withdrawSpinner = market.withdrawSpinner
+                  m.borrowSpinner = market.borrowSpinner
+                  m.repaySpinner = market.repaySpinner
+                }
+                return true
               })
             }
             setMarketsData(markets)
+            if(selectedMarketRef.current)
+            {
+              var market = markets.find(x=>x.symbol === selectedMarketRef.current.symbol)
+              if (market)
+                setSelectedMarket(market)
+            }
             //setGeneralData(data)
           }
           catch(err){
             console.log(err)
+            setUpdate(true)
+            var comptroller =  await getComptrollerData.current()
+            setComptrollerData(comptroller) 
           }
           finally{
             spinner.current(false)
@@ -367,6 +394,27 @@ const Content = (props) => {
         }
     },[marketsData])
 
+    const getMaxAmount = async (symbol, walletBalance) => {
+      if (symbol === "ETH") {
+       
+        let gasPrice = await props.provider.getGasPrice()
+        var price = new BN(gasPrice.toString()).times(new BN(gasLimit)).div(new BigNumber("10").pow(new BigNumber(18)))
+        var balance = walletBalance.minus(price)
+        return balance
+      } else {
+        return walletBalance
+      }
+    }
+
+    const getMaxRepayAmount = (symbol, borrowBalanceInTokenUnit, borrowApy) => {
+      const maxRepayFactor = new BigNumber(1).plus(borrowApy / 100); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
+      if (symbol === "ETH") {
+        return borrowBalanceInTokenUnit.times(maxRepayFactor).decimalPlaces(18); // Setting it to a bit larger, this makes sure the user can repay 100%.
+      } else {
+        return borrowBalanceInTokenUnit.times(maxRepayFactor).decimalPlaces(18); // The same as ETH for now. The transaction will use -1 anyway.
+      }
+    }
+
     const enterMarketDialog = (market) => {
       setSelectedMarket(market)
       setOpenEnterMarket(true)
@@ -393,19 +441,20 @@ const Content = (props) => {
           spinner.current(false)
           const receipt = await tx.wait()
 
-          
-            var market = marketsData.find(m => m.symbol === symbol)
+            market = marketsData.find(m => m.symbol === symbol)
             market.spinner = false
             market.isEnterMarket = true
             setMarketsData(marketsData)
             setUpdate(true)
             var comptroller =  await getComptrollerData.current()
             setComptrollerData(comptroller) 
+
+            console.log("Transaction Receipt" + receipt.status)
            
         }
         catch (err){
           console.log(err)
-          var market = marketsData.find(m => m.symbol === symbol)
+          market = marketsData.find(m => m.symbol === symbol)
           market.spinner = false
           setMarketsData(marketsData)
             
@@ -417,7 +466,7 @@ const Content = (props) => {
     const handleExitMarket = async (address, symbol) => {
       spinner.current(true)
 
-      var market = marketsData.find(m => m.symbol === symbol)
+      //var market = marketsData.find(m => m.symbol === symbol)
       // if (market){
       //   try{
       //     const signer = props.provider.getSigner()
@@ -438,7 +487,7 @@ const Content = (props) => {
       // }
       spinner.current(false)
     }
-
+    
     const supplyMarketDialog = (market) => {
       setSelectedMarket(market)
       setOpenSupplyDialog(true)
@@ -449,16 +498,116 @@ const Content = (props) => {
       setSelectedMarket(null)
     }
 
-    const handleEnable = async (market) => {
-      
-
+    const handleEnable = async (symbol) => {
+      spinner.current(true)
+      var market = marketsData.find(x=> x.symbol === symbol)
+      if(market){
+        try{
+          
+          const signer = props.provider.getSigner()
+          const contract = new ethers.Contract(market.underlyingAddress, TOKEN_ABI, signer);
+          const tx = await contract.approve(market.pTokenaddress, MaxUint256)
+          
+          market.supplySpinner = true
+          selectedMarket.supplySpinner = true
+          spinner.current(false)
+          console.log(tx)
+          const receipt = await tx.wait()
+          console.log(receipt)
+        }
+        catch(err){
+          console.log(err)
+          
+        }
+        finally{
+          spinner.current(false)
+          market.supplySpinner = false
+          
+          setMarketsData(marketsData)
+          setUpdate(true)
+          var comptroller =  await getComptrollerData.current()
+          setComptrollerData(comptroller)  
+          if (selectedMarket && selectedMarket.symbol === symbol)
+            selectedMarket.supplySpinner = false
+        }
+      }
     }
 
-    const handleSupply = () => {
+    const handleSupply = async (symbol, amount) => {
+      spinner.current(true)
+      var market = marketsData.find(x =>x.symbol === symbol)
+      if(market){
+        try{
+          console.log(symbol)
+          let am = (symbol === "ETH") ? {value: ethers.utils.parseEther(amount)} : ethers.utils.parseUnits(amount, market.decimals)
+          console.log(am)
+          selectedMarket.supplySpinner = true
+          market.supplySpinner = true
+          const signer = props.provider.getSigner()
+          const token = (symbol === "ETH") ? CETHER_ABI : CTOKEN_ABI
+          const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
+          console.log(ctoken)
+          const tx = await ctoken.mint(am)
 
+          spinner.current(false)
+          
+
+          console.log(tx)
+          const receipt = await tx.wait()
+          console.log(receipt)
+        }
+        catch(err){
+          console.log(err)
+        }
+        finally{
+          spinner.current(false)
+          market = marketsData.find(x =>x.symbol === symbol)
+          market.supplySpinner = false
+
+          setMarketsData(marketsData)
+          setUpdate(true)
+          var comptroller = await getComptrollerData.current()
+          setComptrollerData(comptroller)
+          if(selectedMarket && selectedMarket.symbol === symbol)
+            selectedMarket.supplySpinner = false
+        }
+      }
     }
 
-    const handleWithdraw = () => {
+    const handleWithdraw = async (symbol, amount) => {
+      spinner.current(true)
+      var market = marketsData.find(x=>x.symbol === symbol)
+      if(market){
+        try{
+          let am = ethers.utils.parseUnits(amount, market.decimals)
+          selectedMarket.withdrawSpinner = true
+          market.withdrawSpinner = true
+          const signer = props.provider.getSigner()
+          const token = market.isEther ? CETHER_ABI : CTOKEN_ABI
+          const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
+          const tx = await ctoken.redeemUnderlying(am)
+
+          spinner.current(false)
+
+          console.log(tx)
+          const receipt = await tx.wait()
+          console.log(receipt)
+          
+        }
+        catch(err){
+          console.log(err)
+        }
+        finally{
+          spinner.current(false)
+          market = marketsData.find(x => x.symbol === symbol)
+          market.withdrawSpinner = false
+          setUpdate(true)
+          var comptroller = await getComptrollerData.current()
+          setComptrollerData(comptroller)
+          if(selectedMarket && selectedMarket.symbol === symbol)
+            selectedMarket.withdrawSpinner = false
+        }
+      }
 
     }
 
@@ -472,12 +621,76 @@ const Content = (props) => {
       setSelectedMarket(null)
   }
 
-  const handleBorrow = () => {
+  const handleBorrow = async (symbol, amount) => {
+    spinner.current(true)
+    var market = marketsData.find(x => x.symbol === symbol)
+    if(market){
+      try{
+        let am = ethers.utils.parseUnits(amount, market.decimals)
+        console.log(am)
+        selectedMarket.borrowSpinner = true
+        market.borrowSpinner = true
+        const signer = props.provider.getSigner()
+        const token = market.isEther ? CETHER_ABI : CTOKEN_ABI
+        const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
+        const tx = await ctoken.borrow(am)
 
+        spinner.current(false)
+
+        console.log(tx)
+        const receipt = await tx.wait()
+        console.log(receipt)
+      }
+      catch(err){
+        console.log(err)
+      }
+      finally{
+        spinner.current(false)
+        market = marketsData.find(x => x.symbol === symbol)
+        market.borrowSpinner = false
+        setUpdate(true)
+        var comptroller = await getComptrollerData.current()
+        setComptrollerData(comptroller)
+        if(selectedMarket && selectedMarket.symbol === symbol)
+          selectedMarket.borrowSpinner = false
+      }
+    }
   }
 
-  const handleRepay = () => {
+  const handleRepay = async(symbol, amount, fullRepay) => {
+    spinner.current(true)
+    var market = marketsData.find(x => x.symbol === symbol)
+    if(market){
+      try{
+        let am = props.isEther ? {value: ethers.utils.parseEther(amount)} : (fullRepay ? MaxUint256 : ethers.utils.parseUnits(amount, market.decimals))
+        console.log(am)
+        selectedMarket.repaySpinner = true
+        market.repaySpinner = true
+        const signer = props.provider.getSigner()
+        const token = market.isEther ? CETHER_ABI : CTOKEN_ABI
+        const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
+        const tx = await ctoken.repayBorrow(am)
 
+        spinner.current(false)
+
+        console.log(tx)
+        const receipt = await tx.wait()
+        console.log(receipt)
+      }
+      catch(err){
+        console.log(err)
+      }
+      finally{
+        spinner.current(false)
+        market = marketsData.find(x => x.symbol === symbol)
+        market.repaySpinner = false
+        setUpdate(true)
+        var comptroller = await getComptrollerData.current()
+        setComptrollerData(comptroller)
+        if(selectedMarket && selectedMarket.symbol === symbol)
+          selectedMarket.repaySpinner = false
+      }
+    }
   }
     
     return (
@@ -486,10 +699,12 @@ const Content = (props) => {
             <Markets generalData = {generalData} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog}/>
             <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
               handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
-            <SupplyMarketDialog open={openSupplyMarketDialog} market={selectedMarket} generalData={generalData} closeSupplyMarketDialog = {closeSupplyMarketDialog} darkMode={props.darkMode} 
-              handleEnable = {handleEnable} handleSupply={handleSupply} handleWithdraw={handleWithdraw}/>
-            <BorrowMarketDialog open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode}
-              handleBorrow={handleBorrow} handleRepay={handleRepay}/>
+            <SupplyMarketDialog open={openSupplyMarketDialog} market={selectedMarket} generalData={generalData} 
+              closeSupplyMarketDialog = {closeSupplyMarketDialog} darkMode={props.darkMode} 
+              handleEnable = {handleEnable} handleSupply={handleSupply} handleWithdraw={handleWithdraw} getMaxAmount={getMaxAmount}/>
+            <BorrowMarketDialog open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
+              closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount}
+              handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount}/>
             <Modal ref={modal}>
                 hello
             </Modal>

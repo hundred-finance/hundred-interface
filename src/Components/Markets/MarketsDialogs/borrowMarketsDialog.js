@@ -8,6 +8,7 @@ import "./supplyMarketDialog.css"
 import MarketDialogItem from "./marketDialogItem";
 import BorrowRateSection from "./borrowRateSection";
 import BorrowLimitSection2 from "./borrowLimitSection2";
+import { Spinner } from "../../../assets/huIcons/huIcons";
 
 const BorrowMarketDialog = (props) =>{
     const ref = useRef(null)
@@ -113,8 +114,8 @@ const BorrowMarketDialog = (props) =>{
         };
     }, [ref, props]);
 
-    const handleMaxRepay = () => {
-        const maxAffortable = props.getMaxAmount(
+    const handleMaxRepay = async () => {
+        const maxAffortable = await props.getMaxAmount(
             props.market?.symbol,
             props.market?.walletBalance
           );
@@ -122,7 +123,7 @@ const BorrowMarketDialog = (props) =>{
             props.market?.symbol,
             props.market?.borrowBalanceInTokenUnit,
             props.market?.borrowApy
-          );
+          )
           const isFull = maxAffortable.gte(fullRepayAmount);
           setIsFullRepay(isFull);
           setRepayInput( BigNumber.minimum(
@@ -160,22 +161,19 @@ const BorrowMarketDialog = (props) =>{
                                 borrowAmount={borrowInput} repayAmount={0}/>
                             <DialogMarketInfoSection generalData={props.generalData} market={props.market}
                                 collateralFactorText={"Liquidation Threshold"}/>
-                            <MarketDialogButton disabled={!borrowInput || borrowValidation}
+                            <MarketDialogButton disabled={!borrowInput || borrowValidation || props.market?.borrowSpinner}
                                 onClick={() => {    props.handleBorrow(
-                                                        props.market?.underlyingAddress,
-                                                        props.market?.pTokenAddress,
-                                                        borrowInput,
-                                                        props.market?.decimals,
-                                                        props.market?.symbol
+                                                        props.market?.symbol,
+                                                        borrowInput
                                                     );
                                                 }}>
-                                Borrow
+                                {props.market?.borrowSpinner ? (<Spinner size={"20px"}/>) :"Borrow"}
                             </MarketDialogButton>
                             <MarketDialogItem title={"You Borrowed"} value={`${props.market?.borrowBalanceInTokenUnit?.decimalPlaces(4)} ${props.market?.symbol}`}/>
                         </TabContentItem>
                         <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
                             <TextBox placeholder={props.market?.symbol} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"MAX"}
-                             onClick={()=>handleMaxRepay()} onChange={()=>setIsFullRepay(false)}/>
+                             onClick={ ()=> handleMaxRepay()} onChange={()=>setIsFullRepay(false)}/>
                             <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                             <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                 borrowAmount={0} repayAmount={repayInput}/>
@@ -185,23 +183,19 @@ const BorrowMarketDialog = (props) =>{
                                 {props.market?.underlyingAllowance?.isGreaterThan(0) &&
                                  props.market?.underlyingAllowance?.isGreaterThanOrEqualTo(+repayInput) ? 
                                  (
-                                    <MarketDialogButton disabled={!repayInput || repayValidation}
+                                    <MarketDialogButton disabled={!repayInput || repayValidation || props.market?.repaySpinner}
                                         onClick={() => {props.handleRepay(
-                                                    props.account,
-                                                    props.market?.underlyingAddress,
-                                                    props.market?.pTokenAddress,
+                                                    props.market?.symbol,
                                                     repayInput,
                                                     isFullRepay,
-                                                    props.market?.decimals,
-                                                    props.market?.symbol
                                                 );}}>
-                                        Repay
+                                        {props.market?.repaySpinner? (<Spinner size={"20px"}/>) : "Repay"}
                                     </MarketDialogButton>
                                 ) : (
-                                    <MarketDialogButton onClick={() => { props.handleEnable(
+                                    <MarketDialogButton disabled={props.market?.repaySpinner} onClick={() => { props.handleEnable(
                                                                             props.market?.underlyingAddress,
                                                                             props.market?.pTokenAddress)}}>
-                                        Access To Wallet
+                                        {props.market?.repaySpinner ? (<Spinner size={"20px"}/>) : "Access To Wallet"}
                                     </MarketDialogButton>)}
                             
                                     <MarketDialogItem title={"Wallet Ballance"} 

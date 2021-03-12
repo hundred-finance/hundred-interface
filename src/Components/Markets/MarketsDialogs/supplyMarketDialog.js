@@ -8,6 +8,7 @@ import DialogMarketInfoSection from "./marketInfoSection";
 import "./supplyMarketDialog.css"
 import SupplyRateSection from "./supplyRatesSection";
 import MarketDialogItem from "./marketDialogItem";
+import { Spinner } from "../../../assets/huIcons/huIcons";
 
 const SupplyMarketDialog = (props) =>{
     
@@ -21,6 +22,7 @@ const SupplyMarketDialog = (props) =>{
 
     const CloseDialog = () =>{
         setSupplyInput("")
+        setWithdrawInput("")
         setSupplyValidation("")
         setWithdrawValidation("")
         setTabChange(1)
@@ -110,9 +112,9 @@ const SupplyMarketDialog = (props) =>{
 
     
 
-    const getMaxAmount = () => {
-        var amount = props.getMaxAmount(props.market?.symbol, props.market?.walletBalance).toString()
-        setSupplyInput(amount)
+    const getMaxAmount = async () => {
+        var amount = await props.getMaxAmount(props.market?.symbol, props.market?.walletBalance)
+        setSupplyInput(amount.toString())
     }
 
     return (
@@ -148,26 +150,21 @@ const SupplyMarketDialog = (props) =>{
                             {props.market?.underlyingAllowance?.isGreaterThan(0) &&
                                 props.market?.underlyingAllowance?.isGreaterThanOrEqualTo(+supplyInput) 
                                 ? (
-                                    <MarketDialogButton disabled={!supplyInput || supplyValidation}
+                                    <MarketDialogButton disabled={!supplyInput || supplyValidation || props.market?.supplySpinner}
                                         onClick={() => {    props.handleSupply(
-                                                                props.market?.underlyingAddress,
-                                                                props.market?.pTokenAddress,
-                                                                supplyInput,
-                                                                props.market?.decimals,
-                                                                props.market?.symbol
+                                                                props.market?.symbol,
+                                                                supplyInput
                                                             );
                                                         }}>
-                                        Supply
+                                        {props.market.supplySpinner ? (<Spinner size={"20px"}/>) : "Supply"}
                                     </MarketDialogButton>
                                 ) : (
-                                    <MarketDialogButton
+                                    <MarketDialogButton disabled={props.market?.supplySpinner}
                                         onClick={() => {props.handleEnable(
-                                                            props.market?.underlyingAddress,
-                                                            props.market?.pTokenAddress,
                                                             props.market?.symbol
-                                                        );
+                                                        )
                                                 }}>
-                                        Access To Wallet
+                                        {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : "Access To Wallet"}
                                     </MarketDialogButton>)}
 
                             <MarketDialogItem title={"Wallet Ballance"} 
@@ -180,11 +177,8 @@ const SupplyMarketDialog = (props) =>{
                             <DialogMarketInfoSection generalData={props.generalData} market={props.market} collateralFactorText={"Loan-to-Value"}/>
                             <MarketDialogButton disabled={!withdrawInput || withdrawValidation}
                                 onClick={() => {    props.handleWithdraw(
-                                                        props.market?.underlyingAddress,
-                                                        props.market?.pTokenAddress,
-                                                        withdrawInput,
-                                                        props.market?.decimals,
-                                                        props.market?.symbol
+                                                        props.market?.symbol,
+                                                        withdrawInput
                                                     );
                                                 }}>
                                 Withdraw
