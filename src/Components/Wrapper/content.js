@@ -116,9 +116,7 @@ const Content = (props) => {
         const liquidity = +underlyingAmount * +underlyingPrice
         
         const underlyingAllowance = eX(underlying.allowance, -1 * decimals)
-        if(underlying.symbol === "ETH")
-        console.log(`supplyBalanceInTokenUnit: ${supplyBalanceInTokenUnit}`)
-
+        
         const speed = await comptrollerData.comptroller.compSpeeds(address)
         const pctSpeed = eX(speed.toString(), -18);
 
@@ -281,14 +279,13 @@ const Content = (props) => {
 
         const interval = setInterval(() => {
           try{
-            console.log("interval")
               GetData()
               setUpdate(true)
           }
           catch(err){
               console.log(err)
           }
-      }, 600000);
+      }, 60000);
         
         if(props.provider && props.address !== ""){
             try{
@@ -449,7 +446,7 @@ const Content = (props) => {
             var comptroller =  await getComptrollerData.current()
             setComptrollerData(comptroller) 
 
-            console.log("Transaction Receipt" + receipt.status)
+            console.log(receipt)
            
         }
         catch (err){
@@ -538,15 +535,12 @@ const Content = (props) => {
       var market = marketsData.find(x =>x.symbol === symbol)
       if(market){
         try{
-          console.log(symbol)
           let am = (symbol === "ETH") ? {value: ethers.utils.parseEther(amount)} : ethers.utils.parseUnits(amount, market.decimals)
-          console.log(am)
           selectedMarket.supplySpinner = true
           market.supplySpinner = true
           const signer = props.provider.getSigner()
           const token = (symbol === "ETH") ? CETHER_ABI : CTOKEN_ABI
           const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
-          console.log(ctoken)
           const tx = await ctoken.mint(am)
 
           spinner.current(false)
@@ -627,7 +621,6 @@ const Content = (props) => {
     if(market){
       try{
         let am = ethers.utils.parseUnits(amount, market.decimals)
-        console.log(am)
         selectedMarket.borrowSpinner = true
         market.borrowSpinner = true
         const signer = props.provider.getSigner()
@@ -663,7 +656,6 @@ const Content = (props) => {
     if(market){
       try{
         let am = props.isEther ? {value: ethers.utils.parseEther(amount)} : (fullRepay ? MaxUint256 : ethers.utils.parseUnits(amount, market.decimals))
-        console.log(am)
         selectedMarket.repaySpinner = true
         market.repaySpinner = true
         const signer = props.provider.getSigner()

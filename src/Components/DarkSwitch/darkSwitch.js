@@ -42,11 +42,7 @@ const DarkSwitch = (props) => {
                         <span style={toggleButton}></span>
                 </span>
             </div>
-            <div className="site-settings-item">
-                <label>
-                    Update Data:
-                </label>
-            </div>
+            
             
         </div>
     )

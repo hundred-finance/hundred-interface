@@ -65,7 +65,6 @@ const App = () =>{
       if (window.ethereum) {
         try {
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          console.log(accounts)
         } catch (error) {
           if (error.code === 4001) {
             // User rejected request
@@ -126,14 +125,12 @@ const App = () =>{
   const handleCollect = async () => {
     try{
       setPctSpinner(true)
-      const signer = provider.getSigner()
-      const comptroller = new ethers.Contract(UNITROLLER_ADDRESS, COMPTROLLER_ABI, signer)
-      console.log(comptroller)
-      console.log(address)
-      const tx = await comptroller.claimComp(address)
-      console.log(tx)
-      const receipt = await tx.wait()
-      console.log(receipt)
+      // const signer = provider.getSigner()
+      // const comptroller = new ethers.Contract(UNITROLLER_ADDRESS, COMPTROLLER_ABI, signer)
+      // const tx = await comptroller.claimComp(address)
+      // console.log(tx)
+      // const receipt = await tx.wait()
+      // console.log(receipt)
     }
     catch(err){
       console.log(err)
