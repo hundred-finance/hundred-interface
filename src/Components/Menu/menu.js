@@ -1,7 +1,6 @@
 import React from "react"
 import AddressButton from "../AddressButton/addressButton"
 import Navbar from "../Navbar/navbar"
-import NavBarButton from "../Navbar/navBarButton"
 import NavbarLink from "../Navbar/navBarLink"
 import NavBarLinks from "../Navbar/navBarLinks"
 import NavbarLogo from "../Navbar/navbarLogo"

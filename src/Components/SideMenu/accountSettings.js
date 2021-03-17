@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js"
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import { getShortenAddress, zeroStringIfNullish } from "../../helpers"
 import "./style.css"
 import {ethers} from "ethers"
@@ -10,7 +10,11 @@ const AccountSettings = (props) => {
     
     const getPctBalance = useRef(() => {})
     const getPctEarned = useRef(() => {})
+    const setPctBalance = useRef(() => {})
+    const setPctEarned = useRef(() => {})
 
+    setPctBalance.current = props.setPctBalance
+    setPctEarned.current = props.setPctEarned
 
     getPctBalance.current = async () => {
       console.log("get pct")
@@ -32,14 +36,14 @@ const AccountSettings = (props) => {
         const getPctBalances = async() => {
             var pct_temp = await getPctBalance?.current()
             var pct_earned = await getPctEarned?.current()
-            props.setPctBalance(pct_temp)
-            props.setPctEarned(pct_earned)
+            setPctBalance.current(pct_temp)
+            setPctEarned.current(pct_earned)
         }
 
         if (props.provider && props.address!=="")
             getPctBalances()
         else{
-            props.setPctBalance(null)
+            setPctBalance.current(null)
         }
 
     }, [props.provider, props.address])

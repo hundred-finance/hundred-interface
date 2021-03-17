@@ -10,7 +10,6 @@ import AccountSettings from './Components/SideMenu/accountSettings';
 import Content from './Components/Wrapper/content';
 import Menu from './Components/Menu/menu';
 import TabletMenu from './Components/Menu/tabletMenu'
-import { COMPTROLLER_ABI, UNITROLLER_ADDRESS } from './constants';
 
 
 
@@ -64,7 +63,7 @@ const App = () =>{
     const connect = async () => {
       if (window.ethereum) {
         try {
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
         } catch (error) {
           if (error.code === 4001) {
             // User rejected request
