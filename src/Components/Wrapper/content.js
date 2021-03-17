@@ -39,6 +39,7 @@ const gasLimit = "250000";
 const Content = (props) => {
     const modal = useRef(null)
 
+    const [logos, setLogos] = useState(null)
     const [comptrollerData, setComptrollerData] = useState(null)
     const [marketsData, setMarketsData] = useState(null)
     const [generalData, setGeneralData] = useState(null)
@@ -175,14 +176,16 @@ const Content = (props) => {
       }
 
       const getTokenInfo = async(address, ptoken) => {
-        const contract = new ethers.Contract(address, TOKEN_ABI, props.provider);
+        const contract = new ethers.Contract(address, TOKEN_ABI, props.provider)
+        const symbol = await contract.symbol()
+        const logo = logos.find(x=>x.address.toLowerCase() === address.toLowerCase())?.logoURI
         return{
           address,
-          symbol: await contract.symbol(),
+          symbol,
           name: await contract.name(),
           decimals: await contract.decimals(),
           totalSupply: await contract.totalSupply(),
-          logo: `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`,
+          logo, //`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`,
           price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
           walletBalance: await contract.balanceOf(props.address),
           allowance: await contract.allowance(props.address, ptoken),
@@ -277,6 +280,18 @@ const Content = (props) => {
             
         }
 
+        const GetLogos = async() => {
+          try{
+            const url = 'https://tokens.coingecko.com/uniswap/all.json'
+            const response = await fetch(url)
+            const data = await response.json()
+            setLogos(data?.tokens)
+          }
+          catch(err){
+            console.log(err)
+          }
+        }
+
         const interval = setInterval(() => {
           try{
               GetData()
@@ -290,6 +305,7 @@ const Content = (props) => {
         if(props.provider && props.address !== ""){
             try{
               spinner.current(true)
+              GetLogos()
                 GetData()
             }
             catch(err){
