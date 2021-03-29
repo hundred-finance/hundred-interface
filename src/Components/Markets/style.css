@@ -14,7 +14,7 @@
     box-shadow: var(--boxShadow);
     border-radius: 5px;
     color: var(--text);
-    text-shadow: var(--textShadow);
+    /* text-shadow: var(--textShadow); */
     min-height: 200px;
    
 }
