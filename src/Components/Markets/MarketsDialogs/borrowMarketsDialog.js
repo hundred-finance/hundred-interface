@@ -134,6 +134,11 @@ const BorrowMarketDialog = (props) =>{
             ).toString());
     }
 
+    const handleMaxBorrow = async (originBorrowBalance) => {
+        var balance = new BigNumber(props.generalData?.totalBorrowLimit.minus(props.generalData?.totalBorrowBalance)).div(props.market?.underlyingPrice)
+        setBorrowInput(balance.toString())
+    }
+
     return (
         props.open ? (
         <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
@@ -157,7 +162,8 @@ const BorrowMarketDialog = (props) =>{
                     </TabHeader>
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
-                            <TextBox placeholder={`0 ${props.market?.symbol}`} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation}/>
+                            <TextBox placeholder={`0 ${props.market?.symbol}`} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"MAX"}
+                            onClick={ () => handleMaxBorrow(props.generalData.totalBorrowBalance)}/>
                             <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                             <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                 borrowAmount={borrowInput} repayAmount={0} validation={borrowValidation}/>

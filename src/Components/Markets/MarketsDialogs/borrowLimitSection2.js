@@ -12,6 +12,7 @@ const BorrowLimitSection2 = (props) => {
         repayAmount,
         underlyingPrice
       ) => {
+        
         return originBorrowBalance?.plus(
           new BigNumber(borrowAmount).minus(repayAmount).times(underlyingPrice)
         );
@@ -30,8 +31,8 @@ const BorrowLimitSection2 = (props) => {
                     <span>
                         {`$${props.generalData?.totalBorrowBalance?.toFixed(2)}`}
                     </span>
-                    <span className={`dialog-section-arrow ${(props.borrowAmount || props.repayAmount) && props.validation === "" ? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
-                        {(props.borrowAmount || props.repayAmount) && props.validation === "" ? (
+                    <span className={`dialog-section-arrow ${(props.borrowAmount || props.repayAmount) ? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
+                        {(props.borrowAmount || props.repayAmount) ? (
                     
                         <span>
                             {`$${zeroStringIfNullish(
@@ -52,8 +53,8 @@ const BorrowLimitSection2 = (props) => {
                     <span>{`${zeroStringIfNullish(
                         props.generalData?.totalBorrowLimitUsedPercent?.toFixed(2),2)}%`}
                     </span>
-                    <span className={`dialog-section-arrow ${(props.borrowAmount || props.repayAmount) && props.validation === "" ? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
-                    {(props.borrowAmount || props.repayAmount) && props.validation === "" ? 
+                    <span className={`dialog-section-arrow ${(props.borrowAmount || props.repayAmount) ? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
+                    {(props.borrowAmount || props.repayAmount) ? 
                         (
                             <span style={{color: getNewBorrowBalance(
                                                     props.generalData.totalBorrowBalance,
