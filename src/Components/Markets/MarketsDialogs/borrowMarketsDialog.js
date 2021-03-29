@@ -84,6 +84,8 @@ const BorrowMarketDialog = (props) =>{
          */
         
         const CloseDialog = () =>{
+            if(props.spinnerVisible)
+                return
             setBorrowInput("")
             setRepayInput("")
             setBorrowValidation("")
@@ -195,7 +197,7 @@ const BorrowMarketDialog = (props) =>{
                                     <MarketDialogButton disabled={props.market?.repaySpinner} onClick={() => { props.handleEnable(
                                                                             props.market?.underlyingAddress,
                                                                             props.market?.pTokenAddress)}}>
-                                        {props.market?.repaySpinner ? (<Spinner size={"20px"}/>) : "Access To Wallet"}
+                                        {props.market?.repaySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.symbol}`}
                                     </MarketDialogButton>)}
                             
                                     <MarketDialogItem title={"Wallet Ballance"} 

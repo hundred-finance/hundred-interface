@@ -152,7 +152,7 @@ const App = () =>{
         <TabletMenu show={show} isTablet={isTablet} isMobile={isMobile} theme={theme} darkMode={darkMode} address={address} 
           setAddress={setAddress} provider={provider} setProvider={setProvider} setOpenAddress={setOpenAddress} 
           setSideMenu={setSideMenu}/>
-        <Content  address={address} provider={provider} setSpinnerVisible={setSpinnerVisible} darkMode={darkMode}>
+        <Content  address={address} provider={provider} setSpinnerVisible={setSpinnerVisible} darkMode={darkMode} spinnerVisible={spinnerVisible}>
           
         </Content>
       </Wrapper>

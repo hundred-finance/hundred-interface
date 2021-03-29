@@ -39,7 +39,7 @@
 .dialog-section-content .dialog-section-content-value .dialog-section-arrow{
     
     position: relative;
-    
+    padding: 0 5px;
     display: none;
     
 }

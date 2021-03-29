@@ -21,6 +21,8 @@ const SupplyMarketDialog = (props) =>{
     const [newBorrowLimit2, setNewBorrowLimit2] = useState();
 
     const CloseDialog = () =>{
+        if(props.spinnerVisible)
+            return
         setSupplyInput("")
         setWithdrawInput("")
         setSupplyValidation("")
@@ -180,7 +182,7 @@ const SupplyMarketDialog = (props) =>{
                                                             props.market?.symbol
                                                         )
                                                 }}>
-                                        {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : "Access To Wallet"}
+                                        {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.symbol}`}
                                     </MarketDialogButton>)}
 
                             <MarketDialogItem title={"Wallet Ballance"} 
