@@ -51,6 +51,7 @@ body{
   --tableRowShadow:0px 0px 3px -1px rgba(0,0,0,0.41);
   --textboxPlaceholder:rgba(51, 51, 51, .5);
   --textPositive: #006d5e;
+  --dialogSectionBackground:#f9f9f9;
 }
 
 .App-dark{
@@ -67,5 +68,6 @@ body{
   --tableRowShadow:0px 0px 3px -1px rgba(255,255,255,0.41);
   --textboxPlaceholder:rgb(238, 238, 238,.5);
   --textPositive: #00ffdd;
+  --dialogSectionBackground:#333;
 }
 

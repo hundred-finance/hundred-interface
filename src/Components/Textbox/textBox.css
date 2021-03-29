@@ -1,11 +1,15 @@
 .textbox{
     width: 100%;
     position: relative;
+    height: 60px;
 }
 
 .textbox .validation{
     color: red;
     font-size: 0.8rem;
+    margin-bottom: 5px;
+    position: absolute;
+    bottom: -9px;
 }
 
 .textbox div{
@@ -18,7 +22,7 @@
     flex-direction: column;
     justify-content: center;
     position: relative;
-    background-color: var(--navBackground);
+    background-color: var(--dialogSectionBackground);
 }
 
 .textbox div .placeholder{

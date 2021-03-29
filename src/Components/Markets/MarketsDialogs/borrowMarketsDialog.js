@@ -155,10 +155,10 @@ const BorrowMarketDialog = (props) =>{
                     </TabHeader>
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
-                            <TextBox placeholder={props.market?.symbol} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation}/>
+                            <TextBox placeholder={`0 ${props.market?.symbol}`} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation}/>
                             <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                             <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
-                                borrowAmount={borrowInput} repayAmount={0}/>
+                                borrowAmount={borrowInput} repayAmount={0} validation={borrowValidation}/>
                             <DialogMarketInfoSection generalData={props.generalData} market={props.market}
                                 collateralFactorText={"Liquidation Threshold"}/>
                             <MarketDialogButton disabled={!borrowInput || borrowValidation || props.market?.borrowSpinner}
@@ -172,11 +172,11 @@ const BorrowMarketDialog = (props) =>{
                             <MarketDialogItem title={"You Borrowed"} value={`${props.market?.borrowBalanceInTokenUnit?.decimalPlaces(4)} ${props.market?.symbol}`}/>
                         </TabContentItem>
                         <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
-                            <TextBox placeholder={props.market?.symbol} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"MAX"}
+                            <TextBox placeholder={`0 ${props.market?.symbol}`} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"MAX"}
                              onClick={ ()=> handleMaxRepay()} onChange={()=>setIsFullRepay(false)}/>
                             <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                             <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
-                                borrowAmount={0} repayAmount={repayInput}/>
+                                borrowAmount={0} repayAmount={repayInput} validation={repayValidation}/>
                             <DialogMarketInfoSection generalData={props.generalData} market={props.market}
                                 collateralFactorText={"Liquidation Threshold"}/>
 

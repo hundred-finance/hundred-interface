@@ -1,42 +1,45 @@
 .dialog-section{
-    background-color: var(--navBackground);
-    padding: 0.5rem;
+    background-color: var(--dialogSectionBackground);
     color: var(--text);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
 }
 
 
 .dialog-section-content{
-    display: flex;
-    flex-direction: row;
-    line-height: 40px;
-    padding: 0 1rem;
-    justify-content: space-between;
     
+    display: flex;
+    height: 20px;
+    justify-content: space-between;
 }
 
 .dialog-section .dialog-section-content .fill{
     flex:1;
-    padding-left: 1rem;
+    padding-left: 12px;
 }
 
 .dialog-section .logo-holder{
     display: block;
-    height: 30px;
-    width: 30px;
-    padding: 5px;
+    width: 20px;
+    height: 20px;
+    
+}
+
+.dialog-section-title{
+    display: none;
 }
 
 
 
-.dialog-section-content .dialog-section-content-value{
-    line-height: 30px;
-}
+/* .dialog-section-content .dialog-section-content-value{
+} */
 
 .dialog-section-content .dialog-section-content-value .dialog-section-arrow{
-    margin: 0 5px;
-    padding-top: 5px;
+    
     position: relative;
-    top:1px;
+    
     display: none;
     
 }

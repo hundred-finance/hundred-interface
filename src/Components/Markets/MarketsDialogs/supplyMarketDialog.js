@@ -35,18 +35,25 @@ const SupplyMarketDialog = (props) =>{
         const handleSupplyAmountChange = () => {
             if(supplyInput === ""){
                 setSupplyValidation("")
+                setNewBorrowLimit1(null)
                 return;
             }
 
             if(isNaN(supplyInput)){
                 setSupplyValidation("Amount must be a number");
+                setNewBorrowLimit1(null)
+                return
             }else if (supplyInput <= 0) {
               setSupplyValidation("Amount must be > 0");
+              setNewBorrowLimit1(null)
+              return
             } else if (supplyInput > +props.market?.walletBalance) {
               setSupplyValidation("Amount must be <= balance");
-            } else {
-              setSupplyValidation("");
+              setNewBorrowLimit1(null)
+              return;
             }
+            
+            setSupplyValidation("");
       
             setNewBorrowLimit1(
               props.generalData.totalBorrowLimit?.plus(
@@ -68,19 +75,28 @@ const SupplyMarketDialog = (props) =>{
             
             if(withdrawInput===""){
                 setWithdrawValidation("")
-                return;
+                setNewBorrowLimit2(null)
+                return
             }
             if(isNaN(withdrawInput)){
                 setWithdrawValidation("Amount must be a number")
+                setNewBorrowLimit2(null)
+                return
             }else if (withdrawInput <= 0) {
-                setWithdrawValidation("Amount must be > 0");
+                setWithdrawValidation("Amount must be > 0")
+                setNewBorrowLimit2(null)
+                return
             } else if (withdrawInput > +props.market?.supplyBalanceInTokenUnit) {
-                setWithdrawValidation("Amount must be <= your supply balance");
+                setWithdrawValidation("Amount must be <= your supply balance")
+                setNewBorrowLimit2(null)
+                return
             } else if (withdrawInput > +props.market?.underlyingAmount) {
-                setWithdrawValidation("Amount must be <= liquidity");
-            } else {
-                setWithdrawValidation("");
+                setWithdrawValidation("Amount must be <= liquidity")
+                setNewBorrowLimit2(null)
+                return
             }
+                
+            setWithdrawValidation("");
 
             setNewBorrowLimit2(
                 props.generalData.totalBorrowLimit?.minus(
@@ -141,7 +157,7 @@ const SupplyMarketDialog = (props) =>{
                     </TabHeader>
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
-                            <TextBox placeholder={props.market?.symbol} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"MAX"} 
+                            <TextBox placeholder={`0 ${props.market?.symbol}`} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"MAX"} 
                                 onClick={()=>getMaxAmount()}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit1}/>
@@ -171,7 +187,7 @@ const SupplyMarketDialog = (props) =>{
                                 value={`${props.market?.walletBalance?.decimalPlaces(4).toString()} ${props.market?.symbol}`}/>
                         </TabContentItem>
                         <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
-                            <TextBox placeholder={props.market?.symbol} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation}/>
+                            <TextBox placeholder={`0 ${props.market?.symbol}`} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection generalData={props.generalData} market={props.market} collateralFactorText={"Loan-to-Value"}/>

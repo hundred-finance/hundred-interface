@@ -12,7 +12,7 @@ const DialogMarketInfoSection = (props) => {
                 <div className="dialog-section-content-header">
                     <span>{props.collateralFactorText}</span>
                 </div>
-                <div className="dialog-section-content-value" style={{ margin: "0px 15px 0px 0px" }}>
+                <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
                     {`${props.market?.collateralFactor
                         ?.times(100)
                         .toFixed(0)}%`}
@@ -22,7 +22,7 @@ const DialogMarketInfoSection = (props) => {
                 <div className="dialog-section-content-header">
                     <span>% of Supply Borrowed</span>
                 </div>
-                <div className="dialog-section-content-value" style={{ margin: "0px 15px 0px 0px" }}>
+                <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
                     {`${zeroStringIfNullish(
                         props.market?.marketTotalBorrowInTokenUnit
                         ?.div(props.market?.marketTotalBorrowInTokenUnit.plus(
