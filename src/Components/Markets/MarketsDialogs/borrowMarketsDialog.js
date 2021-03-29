@@ -135,9 +135,9 @@ const BorrowMarketDialog = (props) =>{
     }
 
     const handleMaxBorrow = async (originBorrowBalance) => {
-        var balance = new BigNumber(props.generalData?.totalBorrowLimit.minus(props.generalData?.totalBorrowBalance)).div(props.market?.underlyingPrice).decimalPlaces(18)
-        if(balance.isGreaterThan(props.market?.underlyingAmount))
-            setBorrowInput(props.market?.underlyingAmount)
+        var balance = new BigNumber(props.generalData?.totalBorrowLimit.minus(props.generalData?.totalBorrowBalance)).div(props.market?.underlyingPrice).div(2).decimalPlaces(18)
+        if(balance.isGreaterThan(props.market?.underlyingAmount.div(2)))
+            setBorrowInput(props.market?.underlyingAmount.div(2))
         else
         setBorrowInput(balance.toString())
     }
