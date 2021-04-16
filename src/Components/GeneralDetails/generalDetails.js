@@ -36,9 +36,9 @@ const GeneralDetails = (props) => {
                     <GeneralDetailsItemContent>
                         <GeneralDetailsItemContentItem className="center"
                             value={`${zeroStringIfNullish(props.generalData?.netApy?.times(100).toFixed(2),2)}%`}/>
-                        <GeneralDetailsItemContentItem label="PCT (supply):" 
+                        <GeneralDetailsItemContentItem label="100 (supply):" 
                             value={`+ ${zeroStringIfNullish(props.generalData?.totalSupplyPctApy?.times(100).toFixed(2),2)}%`}/>
-                        <GeneralDetailsItemContentItem label="PCT (borrow):" 
+                        <GeneralDetailsItemContentItem label="100 (borrow):" 
                             value={`+ ${zeroStringIfNullish(props.generalData?.totalBorrowPctApy?.times(100).toFixed(2),2)}%`}/>
                     </GeneralDetailsItemContent>
                 </GeneralDetailsItem>

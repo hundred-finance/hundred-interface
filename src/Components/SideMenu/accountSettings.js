@@ -63,8 +63,8 @@ const AccountSettings = (props) => {
             </div>
             <hr/>
             <div className="account-settings-item">
-                <div className="account-settings-item-label"><label>PCT Balance </label><span>{props.pctBalance ? `${zeroStringIfNullish(new BigNumber(props.pctBalance.pct_balance).decimalPlaces(4).toString())}`: "--"}</span></div>
-                <div className="account-settings-item-label"><label>PCT Earned </label><span>{props.pctEarned ? `${zeroStringIfNullish(new BigNumber(props.pctEarned).decimalPlaces(4).toString())}` : "--"}</span></div>
+                <div className="account-settings-item-label"><label>100 Balance </label><span>{props.pctBalance ? `${zeroStringIfNullish(new BigNumber(props.pctBalance.pct_balance).decimalPlaces(4).toString())}`: "--"}</span></div>
+                <div className="account-settings-item-label"><label>100 Earned </label><span>{props.pctEarned ? `${zeroStringIfNullish(new BigNumber(props.pctEarned).decimalPlaces(4).toString())}` : "--"}</span></div>
                 <div className={`${props.pctSpinner ? "account-settings-item-button-disabled" : "account-settings-item-button"}`} onClick={() => !props.pctSpinner ? props.handleCollect() : null}>
                     {props.pctSpinner ? (<Spinner size={"20px"}/>) : "Collect"}</div>
             </div>
