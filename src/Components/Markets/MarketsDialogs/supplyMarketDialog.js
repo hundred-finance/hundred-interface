@@ -19,6 +19,7 @@ const SupplyMarketDialog = (props) =>{
     const [tabChange, setTabChange] = useState(1)
     const [newBorrowLimit1, setNewBorrowLimit1] = useState();
     const [newBorrowLimit2, setNewBorrowLimit2] = useState();
+    const [withdrawMax, setWithdrawMax] = useState(false);
 
     const CloseDialog = () =>{
         if(props.spinnerVisible)
@@ -30,6 +31,7 @@ const SupplyMarketDialog = (props) =>{
         setTabChange(1)
         setNewBorrowLimit1("")
         setNewBorrowLimit2("")
+        setWithdrawMax(false)
         props.closeSupplyMarketDialog()
     }
 
@@ -67,7 +69,6 @@ const SupplyMarketDialog = (props) =>{
 
     useEffect(()=>{
         const handleWithdrawAmountChange = () => {
-            
             if(withdrawInput===""){
                 setWithdrawValidation("")
                 return
@@ -82,7 +83,18 @@ const SupplyMarketDialog = (props) =>{
                 setWithdrawValidation("Amount must be <= liquidity")
             }else{
                 setWithdrawValidation("");
+                if(withdrawMax){
+                    if(props.market?.supplyBalanceInTokenUnit.toString() !== withdrawInput.toString())
+                    {
+                        console.log(props.market?.supplyBalanceInTokenUnit.toString() + " " + withdrawInput)
+                            setWithdrawMax(false)
+                    }
+                }
             }
+
+            
+
+            
 
             setNewBorrowLimit2(
                 props.generalData.totalBorrowLimit?.minus(
@@ -92,6 +104,7 @@ const SupplyMarketDialog = (props) =>{
                         .times(props.market?.collateralFactor)
                 : new BigNumber(0)
             ));
+            console.log(withdrawMax)
         };
         
           handleWithdrawAmountChange()
@@ -120,6 +133,7 @@ const SupplyMarketDialog = (props) =>{
     }
 
     const getMaxWithdraw = () => {
+        setWithdrawMax(true)
         setWithdrawInput(props.market?.supplyBalanceInTokenUnit)
     }
 
@@ -183,9 +197,11 @@ const SupplyMarketDialog = (props) =>{
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection generalData={props.generalData} market={props.market} collateralFactorText={"Loan-to-Value"}/>
                             <MarketDialogButton disabled={!withdrawInput || withdrawValidation}
-                                onClick={() => {    props.handleWithdraw(
+                                onClick={() => {    console.log(withdrawMax)
+                                                    props.handleWithdraw(
                                                         props.market?.symbol,
-                                                        withdrawInput
+                                                        withdrawInput,
+                                                        withdrawMax
                                                     );
                                                 }}>
                                 Withdraw

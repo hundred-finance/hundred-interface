@@ -582,18 +582,30 @@ const Content = (props) => {
       }
     }
 
-    const handleWithdraw = async (symbol, amount) => {
+    const handleWithdraw = async (symbol, amount, max) => {
+      console.log("max:" + max)
       spinner.current(true)
       var market = marketsRef.current.find(x=>x.symbol === symbol)
       if(market){
         try{
-          let am = ethers.utils.parseUnits(amount, market.decimals)
-          selectedMarketRef.current.withdrawSpinner = true
-          market.withdrawSpinner = true
           const signer = props.provider.getSigner()
           const token = market.isEther ? CETHER_ABI : CTOKEN_ABI
           const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
-          const tx = await ctoken.redeemUnderlying(am)
+          var withdraw = 0
+          if (max){
+            console.log("ok")
+            const accountSnapshot = await ctoken.getAccountSnapshot(props.address)
+            withdraw = ethers.BigNumber.from(accountSnapshot[1].toString()).mul(ethers.BigNumber.from(accountSnapshot[3].toString()))
+            console.log(amount.toString())
+          }
+          else
+          withdraw = ethers.utils.parseUnits(amount.toString(), market.decimals + 18)
+          
+          console.log(withdraw.toString())
+          
+          selectedMarketRef.current.withdrawSpinner = true
+          market.withdrawSpinner = true
+          const tx = await ctoken.redeemUnderlying(withdraw)
 
           spinner.current(false)
 
