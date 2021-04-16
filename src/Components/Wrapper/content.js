@@ -65,7 +65,6 @@ const Content = (props) => {
     getComptrollerData.current = async () => {
         const comptroller = new ethers.Contract(UNITROLLER_ADDRESS, COMPTROLLER_ABI, props.provider)
         const oracleAddress = await comptroller.oracle()
-
         return{
             address : UNITROLLER_ADDRESS,
             comptroller,
@@ -177,11 +176,11 @@ const Content = (props) => {
 
       const getTokenInfo = async(address, ptoken) => {
         const contract = new ethers.Contract(address, TOKEN_ABI, props.provider)
-        const symbol = await contract.symbol()
-        const logo = logos.find(x=>x.address.toLowerCase() === address.toLowerCase())?.logoURI
+        const tempSymbol = await contract.symbol()
+        const logo = tempSymbol === "WETH" ? ETHlogo : logos.find(x=>x.symbol.toLowerCase() === tempSymbol.toLowerCase())?.logoURI
         return{
           address,
-          symbol,
+          symbol : tempSymbol === "WETH" ? "ETH" : tempSymbol,
           name: await contract.name(),
           decimals: await contract.decimals(),
           totalSupply: await contract.totalSupply(),

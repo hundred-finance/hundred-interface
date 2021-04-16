@@ -28,8 +28,8 @@ const AccountSettings = (props) => {
     }
 
     getPctEarned.current = async () => {
-      const contract = new ethers.Contract(COMPOUND_LENS_ADDRESS, COMPOUNT_LENS_ABI, props.provider)
-      return await contract.getCompBalanceMetadata(PCT_ADDRESS, props.address)
+      //const contract = new ethers.Contract(COMPOUND_LENS_ADDRESS, COMPOUNT_LENS_ABI, props.provider)
+      return 0//await contract.getCompBalanceMetadata(PCT_ADDRESS, props.address)
     }
 
     useEffect(() => {
