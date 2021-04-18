@@ -16,7 +16,7 @@ const Menu = (props) => {
                   <NavbarLink theme={props.theme} link="/">Governance</NavbarLink>
                   <NavbarLink theme={props.theme} link="/">Audit</NavbarLink>
                   <NavbarLink theme={props.theme} link="/">Github</NavbarLink>
-                  <NavbarLink theme={props.theme} link="https://dev.percent.finance" target="_blank">Dashboard</NavbarLink>
+                  <NavbarLink theme={props.theme} link="https://hundred-dashboard.netlify.app/" target="_blank">Dashboard</NavbarLink>
                 </NavBarLinks>
                 <NavBarRight>
                   <AddressButton theme={props.theme} address={props.address} setAddress={props.setAddress} provider={props.provider} 
