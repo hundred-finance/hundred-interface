@@ -80,7 +80,8 @@ const Content = (props) => {
         const underlyingAddress = isEther ? null : await ctoken.underlying()
        
         const underlying = await getUnderlying(underlyingAddress, address)
-
+        const und = ethers.utils.formatUnits(underlying.price, 36-18)
+        const und2 = ethers.utils.parseUnits(und,18)
         const decimals = underlying.decimals
         const underlyingPrice = new BN(eX(underlying.price, underlying.decimals - 36))
 
