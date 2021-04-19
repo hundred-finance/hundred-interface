@@ -178,7 +178,7 @@ const Content = (props) => {
       const getTokenInfo = async(address, ptoken) => {
         const contract = new ethers.Contract(address, TOKEN_ABI, props.provider)
         const tempSymbol = await contract.symbol()
-        const logo = tempSymbol === "WETH" ? ETHlogo : logos.find(x=>x.symbol.toLowerCase() === tempSymbol.toLowerCase())?.logoURI
+        const logo = tempSymbol === "WETH" ? ETHlogo : logos?.find(x=>x.symbol.toLowerCase() === tempSymbol.toLowerCase())?.logoURI
         return{
           address,
           symbol : tempSymbol,
