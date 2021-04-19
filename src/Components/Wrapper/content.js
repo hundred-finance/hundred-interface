@@ -181,7 +181,7 @@ const Content = (props) => {
         const logo = tempSymbol === "WETH" ? ETHlogo : logos.find(x=>x.symbol.toLowerCase() === tempSymbol.toLowerCase())?.logoURI
         return{
           address,
-          symbol : tempSymbol === "WETH" ? "ETH" : tempSymbol,
+          symbol : tempSymbol,
           name: await contract.name(),
           decimals: await contract.decimals(),
           totalSupply: await contract.totalSupply(),
