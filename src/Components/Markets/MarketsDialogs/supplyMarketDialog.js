@@ -204,7 +204,7 @@ const SupplyMarketDialog = (props) =>{
                                                         withdrawMax
                                                     );
                                                 }}>
-                                Withdraw
+                                {props.market.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
                             </MarketDialogButton>
                             <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.decimalPlaces(4)} ${props.market?.symbol}`}/>
                         </TabContentItem>

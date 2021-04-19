@@ -599,7 +599,7 @@ const Content = (props) => {
             console.log(amount.toString())
           }
           else
-          withdraw = ethers.utils.parseUnits(amount.toString(), market.decimals + 18)
+          withdraw = ethers.utils.parseUnits(amount.toString(), market.decimals)
           
           console.log(withdraw.toString())
           
