@@ -723,7 +723,7 @@ const Content = (props) => {
               closeSupplyMarketDialog = {closeSupplyMarketDialog} darkMode={props.darkMode} 
               handleEnable = {handleEnable} handleSupply={handleSupply} handleWithdraw={handleWithdraw} getMaxAmount={getMaxAmount} spinnerVisible={props.spinnerVisible}/>
             <BorrowMarketDialog open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
-              closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount}
+              closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}
               handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={props.spinnerVisible}/>
             <Modal ref={modal}>
                 hello
