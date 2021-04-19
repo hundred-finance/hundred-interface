@@ -512,13 +512,13 @@ const Content = (props) => {
       }
     }
 
-    const handleEnable = async (symbol) => {
+    const handleEnable = async (symbol, borrowDialog) => {
       spinner.current(true)
       var market = marketsRef.current.find(x=> x.symbol === symbol)
       if(market){
         try{
-          market.supplySpinner = true
-          selectedMarketRef.current.supplySpinner = true
+          borrowDialog ? market.repaySpinner = true : market.supplySpinner = true
+          borrowDialog ? selectedMarketRef.current.repaySpinner = true : selectedMarketRef.current.supplySpinner = true
           const signer = props.provider.getSigner()
           const contract = new ethers.Contract(market.underlyingAddress, TOKEN_ABI, signer);
           const tx = await contract.approve(market.pTokenaddress, MaxUint256)
@@ -534,13 +534,13 @@ const Content = (props) => {
         finally{
           spinner.current(false)
           market = marketsRef.current.find(x=> x.symbol === symbol)
-          market.supplySpinner = false
+          borrowDialog ? market.repaySpinner = false : market.supplySpinner = false
           
           setUpdate(true)
           var comptroller =  await getComptrollerData.current()
           setComptrollerData(comptroller)  
           if (selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
-            selectedMarketRef.current.supplySpinner = false
+            borrowDialog ? selectedMarketRef.current.repaySpinner = false : selectedMarketRef.current.supplySpinner = false
         }
       }
     }
@@ -550,11 +550,11 @@ const Content = (props) => {
       var market = marketsRef.current.find(x =>x.symbol === symbol)
       if(market){
         try{
-          let am = (symbol === "ETH") ? {value: ethers.utils.parseEther(amount)} : ethers.utils.parseUnits(amount, market.decimals)
+          let am = market.isEther ? {value: ethers.utils.parseEther(amount)} : ethers.utils.parseUnits(amount, market.decimals)
           selectedMarketRef.current.supplySpinner = true
           market.supplySpinner = true
           const signer = props.provider.getSigner()
-          const token = (symbol === "ETH") ? CETHER_ABI : CTOKEN_ABI
+          const token = market.isEther ? CETHER_ABI : CTOKEN_ABI
           const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
           const tx = await ctoken.mint(am)
 

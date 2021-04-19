@@ -181,7 +181,8 @@ const SupplyMarketDialog = (props) =>{
                                 ) : (
                                     <MarketDialogButton disabled={props.market?.supplySpinner}
                                         onClick={() => {props.handleEnable(
-                                                            props.market?.symbol
+                                                            props.market?.symbol,
+                                                            false
                                                         )
                                                 }}>
                                         {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.symbol}`}

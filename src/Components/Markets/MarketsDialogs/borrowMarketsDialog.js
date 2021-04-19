@@ -204,8 +204,8 @@ const BorrowMarketDialog = (props) =>{
                                     </MarketDialogButton>
                                 ) : (
                                     <MarketDialogButton disabled={props.market?.repaySpinner} onClick={() => { props.handleEnable(
-                                                                            props.market?.underlyingAddress,
-                                                                            props.market?.pTokenAddress)}}>
+                                                                            props.market?.symbol,
+                                                                            true)}}>
                                         {props.market?.repaySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.symbol}`}
                                     </MarketDialogButton>)}
                             
