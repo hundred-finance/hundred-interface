@@ -74,10 +74,10 @@ const Content = (props) => {
         }
       }
 
-     getCTokenInfo.current = async (address, isEther) => {
+     getCTokenInfo.current = async (address, isEther, isMatic) => {
         const ctoken = new ethers.Contract(address, CTOKEN_ABI, props.provider);
 
-        const underlyingAddress = isEther ? null : await ctoken.underlying()
+        const underlyingAddress = isEther ? null : (isMatic ? "matic" : await ctoken.underlying())
        
         const underlying = await getUnderlying(underlyingAddress, address)
         const und = ethers.utils.formatUnits(underlying.price, 36-18)
@@ -155,6 +155,8 @@ const Content = (props) => {
       const getUnderlying = async (underlyingAddress, ptoken) => {  
         if (!underlyingAddress)
           return await getEtherInfo(ptoken)
+        if (underlyingAddress === "matic")
+          return await getMaticInfo(ptoken)
         else if (underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2")
           return await getMakerInfo(underlyingAddress)
         else 
@@ -169,6 +171,20 @@ const Content = (props) => {
           decimals: 18,
           totalSupply: 0,
           logo: ETHlogo,
+          price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
+          walletBalance: await props.provider.getBalance(props.address),
+          allowance: MaxUint256,
+        }
+      }
+
+      const getMaticInfo = async (ptoken) => {
+        return{
+          address: "0x0",
+          symbol: "MATIC",
+          name: "Matic",
+          decimals: 18,
+          totalSupply: 0,
+          logo: logos?.find(x=>x.symbol.toLowerCase() === 'matic')?.logoURI,
           price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
           walletBalance: await props.provider.getBalance(props.address),
           allowance: MaxUint256,
@@ -342,7 +358,8 @@ const Content = (props) => {
                   return true
                     }).map(async (a) => {
                 const isEther = a.toLowerCase() === "0x45f157b3d3d7c415a0e40012d64465e3a0402c64"
-                return await getCTokenInfo.current(a, isEther)}))
+                const isMatic = a.toLowerCase() === "0xebd7f3349aba8bb15b897e03d6c1a4ba95b55e31"
+                return await getCTokenInfo.current(a, isEther, isMatic)}))
 
            // var data = await getGeneralDetails(markets)
             if(marketsRef.current){
