@@ -39,7 +39,7 @@ const TabletMenu = (props) => {
                         <NavbarLink link="/">Governance</NavbarLink>
                         <NavbarLink link="/">Audit</NavbarLink>
                         <NavbarLink link="/">Github</NavbarLink>
-                        <NavbarLink link="https://dev.percent.finance" target="_blank">Dashboard</NavbarLink>
+                        <NavbarLink link="https://hundred-dashboard.netlify.app" target="_blank">Dashboard</NavbarLink>
                     </NavBarLinks>
                 </NavbarMobile>
             </Navbar>
