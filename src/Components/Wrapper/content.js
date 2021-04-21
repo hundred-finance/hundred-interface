@@ -674,8 +674,10 @@ const Content = (props) => {
     var market = marketsRef.current.find(x => x.symbol === symbol)
     if(market){
       try{
+        console.log("Full Repay: " + fullRepay)
         let am = (market.isNativeToken) ? ({value: ethers.utils.parseEther(amount)}) : 
                  (fullRepay ? MaxUint256 : ethers.utils.parseUnits(amount, market.decimals))
+        console.log("Amount: " + am.toString())
         selectedMarketRef.current.repaySpinner = true
         market.repaySpinner = true
         const signer = props.provider.getSigner()

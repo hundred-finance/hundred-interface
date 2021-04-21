@@ -14,11 +14,15 @@
     width: 90%;
     font-size: 1.2rem;
     outline: none;
-    border: 1px solid var(--buttonColor);
+    border: 1px solid var(--buttonHover);
     background-color: var(--navBackground);
     color:var(--text);
     border-radius: 5px;
     cursor: pointer;
+}
+
+.market-dialog-button button:disabled{
+    border: 1px solid var(--buttonColor);
 }
 
 .market-dialog-button button:hover{

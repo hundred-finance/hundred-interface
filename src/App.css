@@ -59,6 +59,7 @@ body{
   --background: #555;
   --sectionBackground: #333;
   --text: #EEE;
+  --buttonHover: rgb(17, 162, 234);/*#1abc9c;*/
   --bottomShadow: 0px 1px 10px 1px rgba(230, 230, 230, 0.5);
   --overlayBackground: rgba(250, 250, 250, 0.2);
   --boxShadow: 0px 0px 15px -1px rgba(230, 230, 230, 0.5);
