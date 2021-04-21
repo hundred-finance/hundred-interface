@@ -178,7 +178,7 @@ const Content = (props) => {
           name: chainId === "0x1" ? "Ethereum" : "Matic",
           decimals: 18,
           totalSupply: 0,
-          logo: ETHlogo,
+          logo: chaindId === "0x1" ? ETHlogo : logos?.find(x=>x.symbol.toLowerCase() === "MATIC")?.logoURI,
           price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
           walletBalance: await props.provider.getBalance(props.address),
           allowance: MaxUint256,
