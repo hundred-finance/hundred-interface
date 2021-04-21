@@ -2,7 +2,6 @@ import { ethers} from "ethers"
 import React, { useEffect,  useRef, useState } from "react"
 import { COMPTROLLER_ABI, UNITROLLER_ADDRESS, CTOKEN_ABI, ORACLE_ABI, TOKEN_ABI, MKR_TOKEN_ABI, CETHER_ABI } from "../../constants"
 import GeneralDetails from "../GeneralDetails/generalDetails"
-import ETHlogo from "../../assets/images/ETH-logo.png"
 import BigNumber from "bignumber.js"
 
 import {eX} from "../../helpers"
@@ -169,7 +168,7 @@ const Content = (props) => {
           name: chainId === "0x1" ? "Ethereum" : "Matic",
           decimals: 18,
           totalSupply: 0,
-          logo: chainId === "0x1" ? ETHlogo : Logos["MATIC"].logoURI,
+          logo: chainId === "0x1" ? Logos["ETH"] : Logos["MATIC"],
           price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
           walletBalance: await props.provider.getBalance(props.address),
           allowance: MaxUint256,
@@ -179,7 +178,7 @@ const Content = (props) => {
       const getTokenInfo = async(address, ptoken) => {
         const contract = new ethers.Contract(address, TOKEN_ABI, props.provider)
         const tempSymbol = await contract.symbol()
-        const logo = tempSymbol === "WETH" ? ETHlogo : Logos[tempSymbol]?.logoURI
+        const logo = tempSymbol === "WETH" ? Logos["ETH"] : Logos[tempSymbol]
         return{
           address,
           symbol : tempSymbol,
