@@ -41,7 +41,6 @@ const gasLimit = "250000";
 const Content = (props) => {
     const modal = useRef(null)
 
-    const [logos, setLogos] = useState(null)
     const [comptrollerData, setComptrollerData] = useState(null)
     const [marketsData, setMarketsData] = useState(null)
     const [generalData, setGeneralData] = useState(null)
@@ -82,22 +81,12 @@ const Content = (props) => {
         const underlyingAddress = isNativeToken ? null : await ctoken.underlying()
        
         const underlying = await getUnderlying(underlyingAddress, address)
-        const und = ethers.utils.formatUnits(underlying.price, 36-underlying.decimals)
         const decimals = underlying.decimals
         const underlyingPrice = new BN(eX(underlying.price, underlying.decimals - 36))
-//        console.log(`-------------------------------------\n${underlying.symbol}\n-------------------------------------\nEthers Bignumber Price:\t${und}\nBignumber.js Price:\t\t${underlyingPrice}\n-------------------------------------\n\n`)
 
         const accountSnapshot = await ctoken.getAccountSnapshot(props.address)
         const supplyBalanceInTokenUnit = new BN(new BigNumber(accountSnapshot[1].toString()).times(new BigNumber(accountSnapshot[3].toString()).div(new BigNumber("10").pow(new BigNumber(decimals + 18)))))
-        const supplyBalanceInTokenUnitT = new BigNumber(accountSnapshot[1].toString()).times(new BigNumber(accountSnapshot[3].toString()))
-        const supplyBalanceInTokenUnitEthers = ethers.BigNumber.from(accountSnapshot[1].toString()).mul(ethers.BigNumber.from(accountSnapshot[3].toString()))
-        const account1 = ethers.BigNumber.from(accountSnapshot[1])
         const supplyBalance = supplyBalanceInTokenUnit.times(underlyingPrice)
-        const supplyBalanceEthers = supplyBalanceInTokenUnitEthers.mul(underlying.price)
-
-        //console.log(`-------------------------------------\n${underlying.symbol}\n-------------------------------------\nEthers Bignumber Account:\t${account1}\n-------------------------------------\n\n`)
-        //console.log(`-------------------------------------\n${underlying.symbol}\n-------------------------------------\nEthers Bignumber SupplyBalanceInTokenUnits:\t${supplyBalanceInTokenUnitEthers}\nBignumber.js SupplyBalanceInTokenUnits:\t\t${supplyBalanceInTokenUnitT}\n-------------------------------------\n\n`)
-        //console.log(`-------------------------------------\n${underlying.symbol}\n-------------------------------------\nEthers Bignumber SupplyBalance:\t${ethers.utils.formatUnits(supplyBalanceEthers, 54)}\nBignumber.js SupplyBalance:\t\t${supplyBalance}\n-------------------------------------\n\n`)
 
         const borrowBalanceInTokenUnit = eX(new BigNumber(accountSnapshot[2].toString()).toString(),-1 * decimals)
         const borrowBalance = borrowBalanceInTokenUnit.times(underlyingPrice)
@@ -289,18 +278,6 @@ const Content = (props) => {
             var comptroller =  await getComptrollerData.current()
             setComptrollerData(comptroller)    
             
-        }
-
-        const GetLogos = async() => {
-          try{
-            const url = 'https://tokens.coingecko.com/uniswap/all.json'
-            const response = await fetch(url)
-            const data = await response.json()
-            setLogos(data?.tokens)
-          }
-          catch(err){
-            console.log(err)
-          }
         }
 
         const interval = setInterval(() => {
