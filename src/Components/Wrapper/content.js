@@ -12,6 +12,8 @@ import SupplyMarketDialog from "../Markets/MarketsDialogs/supplyMarketDialog"
 import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import Modal from "../Modal/modal"
 
+import Logos from "../../logos"
+
 
 const blockTime = 2.1 // seconds
 const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
@@ -178,7 +180,7 @@ const Content = (props) => {
           name: chainId === "0x1" ? "Ethereum" : "Matic",
           decimals: 18,
           totalSupply: 0,
-          logo: chainId === "0x1" ? ETHlogo : logos?.find(x=>x.symbol.toLowerCase() === "matic")?.logoURI,
+          logo: chainId === "0x1" ? ETHlogo : Logos["MATIC"].logoURI,
           price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
           walletBalance: await props.provider.getBalance(props.address),
           allowance: MaxUint256,
@@ -188,7 +190,7 @@ const Content = (props) => {
       const getTokenInfo = async(address, ptoken) => {
         const contract = new ethers.Contract(address, TOKEN_ABI, props.provider)
         const tempSymbol = await contract.symbol()
-        const logo = tempSymbol === "WETH" ? ETHlogo : logos?.find(x=>x.symbol.toLowerCase() === tempSymbol.toLowerCase())?.logoURI
+        const logo = tempSymbol === "WETH" ? ETHlogo : Logos[tempSymbol]?.logoURI
         return{
           address,
           symbol : tempSymbol,
@@ -314,7 +316,6 @@ const Content = (props) => {
         if(props.provider && props.address !== ""){
             try{
               spinner.current(true)
-              GetLogos()
               GetData()
             }
             catch(err){
