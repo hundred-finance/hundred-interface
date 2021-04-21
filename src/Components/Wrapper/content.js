@@ -682,7 +682,12 @@ const Content = (props) => {
         market.repaySpinner = true
         const signer = props.provider.getSigner()
         const tokenABI = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
+        console.log("Native Token: " + market.isNativeToken)
+        console.log("TokenABI: ")
+        console.log(tokenABI)
         const ctoken = new ethers.Contract(market.pTokenaddress, tokenABI, signer)
+        console.log("ctoken")
+        console.log(ctoken)
         const tx = await ctoken.repayBorrow(am)
         spinner.current(false)
 
