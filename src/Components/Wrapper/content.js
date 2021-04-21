@@ -13,7 +13,7 @@ import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import Modal from "../Modal/modal"
 
 
-const blockTime = 13.5 // seconds
+const blockTime = 2.1 // seconds
 const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
 const blocksPerDay = (24 * 60 * 60) / blockTime
 const daysPerYear = 365
@@ -74,20 +74,28 @@ const Content = (props) => {
         }
       }
 
-     getCTokenInfo.current = async (address, isEther, isMatic) => {
+     getCTokenInfo.current = async (address, isNativeToken) => {
         const ctoken = new ethers.Contract(address, CTOKEN_ABI, props.provider);
 
-        const underlyingAddress = isEther ? null : (isMatic ? "matic" : await ctoken.underlying())
+        const underlyingAddress = isNativeToken ? null : await ctoken.underlying()
        
         const underlying = await getUnderlying(underlyingAddress, address)
-        const und = ethers.utils.formatUnits(underlying.price, 36-18)
-        const und2 = ethers.utils.parseUnits(und,18)
+        const und = ethers.utils.formatUnits(underlying.price, 36-underlying.decimals)
         const decimals = underlying.decimals
         const underlyingPrice = new BN(eX(underlying.price, underlying.decimals - 36))
+//        console.log(`-------------------------------------\n${underlying.symbol}\n-------------------------------------\nEthers Bignumber Price:\t${und}\nBignumber.js Price:\t\t${underlyingPrice}\n-------------------------------------\n\n`)
 
         const accountSnapshot = await ctoken.getAccountSnapshot(props.address)
         const supplyBalanceInTokenUnit = new BN(new BigNumber(accountSnapshot[1].toString()).times(new BigNumber(accountSnapshot[3].toString()).div(new BigNumber("10").pow(new BigNumber(decimals + 18)))))
+        const supplyBalanceInTokenUnitT = new BigNumber(accountSnapshot[1].toString()).times(new BigNumber(accountSnapshot[3].toString()))
+        const supplyBalanceInTokenUnitEthers = ethers.BigNumber.from(accountSnapshot[1].toString()).mul(ethers.BigNumber.from(accountSnapshot[3].toString()))
+        const account1 = ethers.BigNumber.from(accountSnapshot[1])
         const supplyBalance = supplyBalanceInTokenUnit.times(underlyingPrice)
+        const supplyBalanceEthers = supplyBalanceInTokenUnitEthers.mul(underlying.price)
+
+        //console.log(`-------------------------------------\n${underlying.symbol}\n-------------------------------------\nEthers Bignumber Account:\t${account1}\n-------------------------------------\n\n`)
+        //console.log(`-------------------------------------\n${underlying.symbol}\n-------------------------------------\nEthers Bignumber SupplyBalanceInTokenUnits:\t${supplyBalanceInTokenUnitEthers}\nBignumber.js SupplyBalanceInTokenUnits:\t\t${supplyBalanceInTokenUnitT}\n-------------------------------------\n\n`)
+        //console.log(`-------------------------------------\n${underlying.symbol}\n-------------------------------------\nEthers Bignumber SupplyBalance:\t${ethers.utils.formatUnits(supplyBalanceEthers, 54)}\nBignumber.js SupplyBalance:\t\t${supplyBalance}\n-------------------------------------\n\n`)
 
         const borrowBalanceInTokenUnit = eX(new BigNumber(accountSnapshot[2].toString()).toString(),-1 * decimals)
         const borrowBalance = borrowBalanceInTokenUnit.times(underlyingPrice)
@@ -148,43 +156,29 @@ const Content = (props) => {
           supplySpinner: false,
           withdrawSpinner: false,
           borrowSpinner: false,
-          repaySpinner: false
+          repaySpinner: false,
+          isNativeToken
         }
       }
 
       const getUnderlying = async (underlyingAddress, ptoken) => {  
         if (!underlyingAddress)
-          return await getEtherInfo(ptoken)
-        if (underlyingAddress === "matic")
-          return await getMaticInfo(ptoken)
+          return await getNativeTokenInfo(ptoken)
         else if (underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2")
           return await getMakerInfo(underlyingAddress)
         else 
           return await getTokenInfo(underlyingAddress, ptoken)
       }
 
-      const getEtherInfo = async (ptoken) => {
+      const getNativeTokenInfo = async (ptoken) => {
+        const chainId = window.ethereum.chainId
         return{
           address: "0x0",
-          symbol: "ETH",
-          name: "Ethereum",
+          symbol: chainId === "0x1" ? "ETH" : "MATIC",
+          name: chainId === "0x1" ? "Ethereum" : "Matic",
           decimals: 18,
           totalSupply: 0,
           logo: ETHlogo,
-          price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
-          walletBalance: await props.provider.getBalance(props.address),
-          allowance: MaxUint256,
-        }
-      }
-
-      const getMaticInfo = async (ptoken) => {
-        return{
-          address: "0x0",
-          symbol: "MATIC",
-          name: "Matic",
-          decimals: 18,
-          totalSupply: 0,
-          logo: logos?.find(x=>x.symbol.toLowerCase() === 'matic')?.logoURI,
           price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
           walletBalance: await props.provider.getBalance(props.address),
           allowance: MaxUint256,
@@ -357,9 +351,8 @@ const Content = (props) => {
                      return false
                   return true
                     }).map(async (a) => {
-                const isEther = a.toLowerCase() === "0x45f157b3d3d7c415a0e40012d64465e3a0402c64"
-                const isMatic = a.toLowerCase() === "0xebd7f3349aba8bb15b897e03d6c1a4ba95b55e31"
-                return await getCTokenInfo.current(a, isEther, isMatic)}))
+                const isNativeToken = a.toLowerCase() === "0x45f157b3d3d7c415a0e40012d64465e3a0402c64" || a.toLowerCase() === "0xebd7f3349aba8bb15b897e03d6c1a4ba95b55e31"
+                return await getCTokenInfo.current(a, isNativeToken)}))
 
            // var data = await getGeneralDetails(markets)
             if(marketsRef.current){
@@ -425,24 +418,27 @@ const Content = (props) => {
         }
     },[marketsData])
 
-    const getMaxAmount = async (symbol, walletBalance) => {
-      if (symbol === "ETH") {
-       
-        let gasPrice = await props.provider.getGasPrice()
-        var price = new BN(gasPrice.toString()).times(new BN(gasLimit)).div(new BigNumber("10").pow(new BigNumber(18)))
-        var balance = walletBalance.minus(price)
-        return balance
-      } else {
-        return walletBalance
+    const getMaxAmount = async (market) => {
+      if(market){
+        if (market.isNativeToken) {
+          let gasPrice = await props.provider.getGasPrice()
+          var price = new BN(gasPrice.toString()).times(new BN(gasLimit)).div(new BigNumber("10").pow(new BigNumber(18)))
+          var balance = market.walletBalance.minus(price)
+          return balance
+        } else {
+          return market.walletBalance
+        }
       }
     }
 
-    const getMaxRepayAmount = (symbol, borrowBalanceInTokenUnit, borrowApy) => {
-      const maxRepayFactor = new BigNumber(1).plus(borrowApy / 100); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
-      if (symbol === "ETH") {
-        return borrowBalanceInTokenUnit.times(maxRepayFactor).decimalPlaces(18); // Setting it to a bit larger, this makes sure the user can repay 100%.
-      } else {
-        return borrowBalanceInTokenUnit.times(maxRepayFactor).decimalPlaces(18); // The same as ETH for now. The transaction will use -1 anyway.
+    const getMaxRepayAmount = (market) => {
+      if (market){
+        const maxRepayFactor = new BigNumber(1).plus(market.borrowApy / 100); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
+        if (market.isNativeToken) {
+          return market.borrowBalanceInTokenUnit//.times(maxRepayFactor).decimalPlaces(18); // Setting it to a bit larger, this makes sure the user can repay 100%.
+        } else {
+          return market.borrowBalanceInTokenUnit.times(maxRepayFactor).decimalPlaces(18); // The same as ETH for now. The transaction will use -1 anyway.
+      }
       }
     }
 
@@ -567,11 +563,11 @@ const Content = (props) => {
       var market = marketsRef.current.find(x =>x.symbol === symbol)
       if(market){
         try{
-          let am = market.isEther ? {value: ethers.utils.parseEther(amount)} : ethers.utils.parseUnits(amount, market.decimals)
+          let am = (market.isNativeToken) ? {value: ethers.utils.parseEther(amount)} : ethers.utils.parseUnits(amount, market.decimals)
           selectedMarketRef.current.supplySpinner = true
           market.supplySpinner = true
           const signer = props.provider.getSigner()
-          const token = market.isEther ? CETHER_ABI : CTOKEN_ABI
+          const token = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
           const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
           const tx = await ctoken.mint(am)
 
@@ -606,30 +602,31 @@ const Content = (props) => {
       if(market){
         try{
           const signer = props.provider.getSigner()
-          const token = market.isEther ? CETHER_ABI : CTOKEN_ABI
+          const token = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI
           const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
-          var withdraw = 0
-          if (max){
-            console.log("ok")
-            const accountSnapshot = await ctoken.getAccountSnapshot(props.address)
-            withdraw = ethers.BigNumber.from(accountSnapshot[1].toString()).mul(ethers.BigNumber.from(accountSnapshot[3].toString()))
-            console.log(amount.toString())
-          }
-          else
-          withdraw = ethers.utils.parseUnits(amount.toString(), market.decimals)
-          
-          console.log(withdraw.toString())
           
           selectedMarketRef.current.withdrawSpinner = true
           market.withdrawSpinner = true
-          const tx = await ctoken.redeemUnderlying(withdraw)
-
-          spinner.current(false)
-
-          console.log(tx)
-          const receipt = await tx.wait()
-          console.log(receipt)
           
+          if (max){
+            console.log("MAX")
+            const accountSnapshot = await ctoken.getAccountSnapshot(props.address)
+            const withdraw = ethers.BigNumber.from(accountSnapshot[1].toString())
+            console.log(withdraw)
+            const tx = await ctoken.redeem(withdraw)
+            spinner.current(false)
+            console.log(tx)
+            const receipt = await tx.wait()
+            console.log(receipt)
+          }
+          else{
+            const withdraw = ethers.utils.parseUnits(amount.toString(), market.decimals)
+            const tx = await ctoken.redeemUnderlying(withdraw)
+            spinner.current(false)
+            console.log(tx)
+            const receipt = await tx.wait()
+            console.log(receipt)
+          }
         }
         catch(err){
           console.log(err)
@@ -669,7 +666,7 @@ const Content = (props) => {
         selectedMarketRef.current.borrowSpinner = true
         market.borrowSpinner = true
         const signer = props.provider.getSigner()
-        const token = market.isEther ? CETHER_ABI : CTOKEN_ABI
+        const token = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI
         const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
         const tx = await ctoken.borrow(am)
 
@@ -700,14 +697,14 @@ const Content = (props) => {
     var market = marketsRef.current.find(x => x.symbol === symbol)
     if(market){
       try{
-        let am = props.isEther ? {value: ethers.utils.parseEther(amount)} : (fullRepay ? MaxUint256 : ethers.utils.parseUnits(amount, market.decimals))
+        let am = (market.isNativeToken) ? ({value: ethers.utils.parseEther(amount)}) : 
+                 (fullRepay ? MaxUint256 : ethers.utils.parseUnits(amount, market.decimals))
         selectedMarketRef.current.repaySpinner = true
         market.repaySpinner = true
         const signer = props.provider.getSigner()
-        const token = market.isEther ? CETHER_ABI : CTOKEN_ABI
-        const ctoken = new ethers.Contract(market.pTokenaddress, token, signer)
+        const tokenABI = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
+        const ctoken = new ethers.Contract(market.pTokenaddress, tokenABI, signer)
         const tx = await ctoken.repayBorrow(am)
-
         spinner.current(false)
 
         console.log(tx)
@@ -725,7 +722,7 @@ const Content = (props) => {
         var comptroller = await getComptrollerData.current()
         setComptrollerData(comptroller)
         if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
-          selectedMarketRef.repaySpinner = false
+          selectedMarketRef.current.repaySpinner = false
       }
     }
   }

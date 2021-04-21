@@ -128,7 +128,7 @@ const SupplyMarketDialog = (props) =>{
     
 
     const getMaxAmount = async () => {
-        var amount = await props.getMaxAmount(props.market?.symbol, props.market?.walletBalance)
+        var amount = await props.getMaxAmount(props.market)
         setSupplyInput(amount.toString())
     }
 

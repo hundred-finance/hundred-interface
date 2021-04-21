@@ -117,19 +117,16 @@ const BorrowMarketDialog = (props) =>{
     }, [ref, props]);
 
     const handleMaxRepay = async () => {
-        const maxAffortable = await props.getMaxAmount(
-            props.market?.symbol,
-            props.market?.walletBalance
+        const maxAffordable = await props.getMaxAmount(
+            props.market
           );
           const fullRepayAmount = props.getMaxRepayAmount(
-            props.market?.symbol,
-            props.market?.borrowBalanceInTokenUnit,
-            props.market?.borrowApy
+            props.market
           )
-          const isFull = maxAffortable.gte(fullRepayAmount);
+          const isFull = maxAffordable.gte(fullRepayAmount);
           setIsFullRepay(isFull);
           setRepayInput( BigNumber.minimum(
-              maxAffortable,
+              maxAffordable,
               fullRepayAmount
             ).toString());
     }
