@@ -134,7 +134,8 @@ const SupplyMarketDialog = (props) =>{
 
     const getMaxWithdraw = () => {
         setWithdrawMax(true)
-        setWithdrawInput(props.market?.supplyBalanceInTokenUnit)
+        console.log(`SupplyBalance: ${props.market.supplyBalanceInTokenUnit}\nUnderlignAmount: ${props.market.underlyingAmount}`)
+        setWithdrawInput(BigNumber.minimum(props.market?.supplyBalanceInTokenUnit, props.market?.underlyingAmount).toString())
     }
 
     return (

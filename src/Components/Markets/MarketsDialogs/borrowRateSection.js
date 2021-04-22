@@ -27,7 +27,7 @@ const BorrowRateSection = (props) => {
                 <div className="logo-holder">
                     <HuLogo darkMode={props.darkMode} size={"20px"}/>
                     </div>
-                <div className="fill">PCT APY</div>
+                <div className="fill">100 APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
                     {`${zeroStringIfNullish(
                         props.market?.borrowPctApy?.times(100).toFixed(2),2)}%`}
