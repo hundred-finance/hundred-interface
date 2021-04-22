@@ -9,6 +9,7 @@ import WBTClogo from "./assets/images/WBTC-logo.png"
 
 const Logos ={
     "ETH"   : ETHlogo,
+    "WETH"   : ETHlogo,
     "MATIC" : MATIClogo,
     "AAVE"  : AAVElogo,
     "DAI"   : DAIlogo,

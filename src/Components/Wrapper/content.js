@@ -177,11 +177,11 @@ const Content = (props) => {
 
       const getTokenInfo = async(address, ptoken) => {
         const contract = new ethers.Contract(address, TOKEN_ABI, props.provider)
-        const tempSymbol = await contract.symbol()
-        const logo = tempSymbol === "WETH" ? Logos["ETH"] : Logos[tempSymbol]
+        const symbol = await contract.symbol()
+        const logo = Logos[symbol]
         return{
           address,
-          symbol : tempSymbol,
+          symbol,
           name: await contract.name(),
           decimals: await contract.decimals(),
           totalSupply: await contract.totalSupply(),
