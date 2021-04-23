@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react"
 import { getShortenAddress, zeroStringIfNullish } from "../../helpers"
 import "./style.css"
 import {ethers} from "ethers"
-import {PCT_ADDRESS, PCT_ABI, COMPOUND_LENS_ADDRESS, COMPOUNT_LENS_ABI} from "../../constants"
+import {PCT_ABI, NETWORKS} from "../../constants"
 import { Spinner } from "../../assets/huIcons/huIcons"
 
 const AccountSettings = (props) => {
@@ -18,7 +18,7 @@ const AccountSettings = (props) => {
 
     getPctBalance.current = async () => {
       console.log("get pct")
-      const contract = new ethers.Contract(PCT_ADDRESS, PCT_ABI, props.provider)
+      const contract = new ethers.Contract(NETWORKS[window.ethereum.chainId].HUNDRED_ADDRESS, PCT_ABI, props.provider)
       console.log(contract)
       return {
         pct_balance : await contract.balanceOf(props.address),
@@ -29,7 +29,7 @@ const AccountSettings = (props) => {
 
     getPctEarned.current = async () => {
       //const contract = new ethers.Contract(COMPOUND_LENS_ADDRESS, COMPOUNT_LENS_ABI, props.provider)
-      return 0//await contract.getCompBalanceMetadata(PCT_ADDRESS, props.address)
+      return 0//await contract.getCompBalanceMetadata(HUNDRED_ADDRESS, props.address)
     }
 
     useEffect(() => {

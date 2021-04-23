@@ -1,6 +1,6 @@
 import { ethers} from "ethers"
 import React, { useEffect,  useRef, useState } from "react"
-import { COMPTROLLER_ABI, UNITROLLER_ADDRESS, CTOKEN_ABI, ORACLE_ABI, TOKEN_ABI, MKR_TOKEN_ABI, CETHER_ABI } from "../../constants"
+import {NETWORKS, COMPTROLLER_ABI, CTOKEN_ABI, ORACLE_ABI, TOKEN_ABI, MKR_TOKEN_ABI, CETHER_ABI } from "../../constants"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import BigNumber from "bignumber.js"
 
@@ -63,10 +63,10 @@ const Content = (props) => {
     selectedMarketRef.current = selectedMarket
 
     getComptrollerData.current = async () => {
-        const comptroller = new ethers.Contract(UNITROLLER_ADDRESS, COMPTROLLER_ABI, props.provider)
+        const comptroller = new ethers.Contract(NETWORKS[window.ethereum.chainId].UNITROLLER_ADDRESS, COMPTROLLER_ABI, props.provider)
         const oracleAddress = await comptroller.oracle()
         return{
-            address : UNITROLLER_ADDRESS,
+            address : NETWORKS[window.ethereum.chainId].UNITROLLER_ADDRESS,
             comptroller,
             oracle : new ethers.Contract(oracleAddress, ORACLE_ABI, props.provider),
             allMarkets: await comptroller.getAllMarkets(),
@@ -291,6 +291,7 @@ const Content = (props) => {
         
         if(props.provider && props.address !== ""){
             try{
+              setUpdate(false)
               spinner.current(true)
               GetData()
             }

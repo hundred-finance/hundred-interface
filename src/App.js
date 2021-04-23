@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Spinner from './Components/Spinner/spinner';
 import Wrapper from './Components/Wrapper/wrapper';
 import {lightTheme, darkTheme} from "./theme"
@@ -21,6 +21,14 @@ const App = () =>{
   const [pctBalance, setPctBalance] = useState(null)
   const [pctEarned, setPctEarned] = useState(null)
   const [pctSpinner, setPctSpinner] = useState(false)
+
+  const addressRef = useRef()
+  const setAddressRef = useRef(() => {})
+  const setProviderRef = useRef(() => {})
+
+  addressRef.current = address
+  setAddressRef.current = setAddress
+  setProviderRef.current = setProvider
 
   
 

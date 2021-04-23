@@ -16,6 +16,18 @@ const AddressButton = (props) => {
     useEffect (()=>{
         const GetAccount= async () => {
           if(props.provider !== null){
+
+            window.ethereum.on('accountsChanged', function (accounts) {
+                console.log(address.current)
+                if( address.current !=="" )
+                  setAddress.current(accounts[0])
+              })
+
+            window.ethereum.on('chainChanged', () => {
+                const prov = new ethers.providers.Web3Provider(window.ethereum)
+                props.setProvider(prov)
+            })
+
             var account = await props.provider.listAccounts()
       
             if (account && account.length > 0){
