@@ -72,6 +72,13 @@ const App = () =>{
       if (window.ethereum) {
         try {
           await window.ethereum.request({ method: 'eth_requestAccounts' });
+          window.ethereum.on('chainChanged', () => {
+            document.location.reload()
+          })
+          window.ethereum.on('accountsChanged', (accounts) => {
+            setAddress("")
+            
+          })
         } catch (error) {
           if (error.code === 4001) {
             // User rejected request
@@ -103,7 +110,6 @@ const App = () =>{
         setAddress(addr)
         connect() 
       }
-
     setSpinnerVisible(false)
   }, [])
 
@@ -119,7 +125,6 @@ const App = () =>{
   }, [darkMode])
 
   useEffect(() => {
-
     window.localStorage.setItem("hundred-address", address)
     if(address === ""){
       setProvider(null)

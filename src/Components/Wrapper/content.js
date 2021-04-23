@@ -49,6 +49,8 @@ const Content = (props) => {
     const [openBorrowMarketDialog, setOpenBorrowMarketDialog] = useState(false)
     const [update, setUpdate] = useState(false)
 
+    let interval = null
+
     const getComptrollerData = useRef(() =>{})
     const getCTokenInfo = useRef(() => {})
     const getGeneralDetails = useRef(() => {})
@@ -56,11 +58,13 @@ const Content = (props) => {
     const updateRef = useRef(null)
     const marketsRef = useRef(null)
     const selectedMarketRef = useRef(null)
+    const provider = useRef(null)
 
     spinner.current = props.setSpinnerVisible
     updateRef.current = update
     marketsRef.current = marketsData
     selectedMarketRef.current = selectedMarket
+    provider.current = props.provider
 
     getComptrollerData.current = async () => {
         const comptroller = new ethers.Contract(NETWORKS[window.ethereum.chainId].UNITROLLER_ADDRESS, COMPTROLLER_ABI, props.provider)
@@ -76,9 +80,7 @@ const Content = (props) => {
 
      getCTokenInfo.current = async (address, isNativeToken) => {
         const ctoken = new ethers.Contract(address, CTOKEN_ABI, props.provider);
-
         const underlyingAddress = isNativeToken ? null : await ctoken.underlying()
-       
         const underlying = await getUnderlying(underlyingAddress, address)
         const decimals = underlying.decimals
         const underlyingPrice = new BN(eX(underlying.price, underlying.decimals - 36))
@@ -279,21 +281,26 @@ const Content = (props) => {
             
         }
 
-        const interval = setInterval(() => {
-          try{
-              GetData()
-              setUpdate(true)
-          }
-          catch(err){
-              console.log(err)
-          }
-      }, 60000);
-        
-        if(props.provider && props.address !== ""){
+        if(provider.current === null){
+          console.log("Provider")
+          console.log(provider.current)
+          setComptrollerData(null)
+        }
+        else if(provider.current && props.address && props.address !== ""){
+          console.log("UPDATE")
             try{
               setUpdate(false)
               spinner.current(true)
               GetData()
+              interval = setInterval(() => {
+                try{
+                    GetData()
+                    setUpdate(true)
+                }
+                catch(err){
+                    console.log(err)
+                }
+              }, 60000);
             }
             catch(err){
                 console.log(err)
@@ -323,15 +330,18 @@ const Content = (props) => {
           try{
             if(!updateRef.current)
               spinner.current(true)
-            
-              var markets = await Promise.all(comptrollerData.allMarkets.filter((a) => {
+              var markets = await Promise.all(comptrollerData?.allMarkets?.filter((a) => {
                   if (a.toLowerCase() === "0xc98182014c90baa26a21e991bfec95f72bd89aed")
                      return false
                   return true
                     }).map(async (a) => {
                 const isNativeToken = a.toLowerCase() === "0x45f157b3d3d7c415a0e40012d64465e3a0402c64" || a.toLowerCase() === "0xebd7f3349aba8bb15b897e03d6c1a4ba95b55e31"
-                return await getCTokenInfo.current(a, isNativeToken)}))
-
+                
+                const ctokenInfo = await getCTokenInfo.current(a, isNativeToken)
+                
+                return ctokenInfo
+              }))
+        
            // var data = await getGeneralDetails(markets)
             if(marketsRef.current){
               markets.map((m) => {
