@@ -167,11 +167,11 @@ const Content = (props) => {
       const getNativeTokenInfo = async (ptoken) => {
         return{
           address: "0x0",
-          symbol: network.current === "0x1" ? "ETH" : "MATIC",
-          name: network.current === "0x1" ? "Ethereum" : "Matic",
+          symbol: NETWORKS[network.current].tokenSymbol,
+          name: NETWORKS[network.current].tokenName,
           decimals: 18,
           totalSupply: 0,
-          logo: network.current === "0x1" ? Logos["ETH"] : Logos["MATIC"],
+          logo: Logos[NETWORKS[network.current].tokenSymbol],
           price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
           walletBalance: await props.provider.getBalance(userAddress.current),
           allowance: MaxUint256,
@@ -292,7 +292,7 @@ const Content = (props) => {
           }
         }, 60000);
 
-        if(provider.current && network.current && userAddress.current && userAddress.current !== ""){
+        if(provider.current && network.current && NETWORKS[network.current] && userAddress.current && userAddress.current !== ""){
             try{
               setUpdate(false)
               spinner.current(true)

@@ -1,15 +1,19 @@
 const NETWORKS = {
     "0x1" : {
-                name: "Ethereum Mainnet",
+                Network_Name: "Ethereum Mainnet",
                 UNITROLLER_ADDRESS: "0xf47dd16553a934064509c40dc5466bbfb999528b",
                 HUNDRED_ADDRESS: "0xbc16da9df0A22f01A16BC0620a27e7D6d6488550",
-                COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074"
+                COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+                tokenName: "Ethereum",
+                tokenSymbol: "ETH"
             },
     "0x89": {
                 name: "Matic Mainnet",
                 UNITROLLER_ADDRESS: "0xEdBA32185BAF7fEf9A26ca567bC4A6cbe426e499",
                 HUNDRED_ADDRESS: "0xfCD8570AD81e6c77b8D252bEbEBA62ed980BD64D",
-                COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074"
+                COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+                tokenName: "Matic",
+                tokenSymbol: "MATIC"
             }
 }
 
