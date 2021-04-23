@@ -79,7 +79,6 @@ const TabHeader = (props) => {
         var l = (w * (props.tabChange -1))+"%"
         setLeft(l)
         setWidth(w+"%")
-        console.log(l)
     }, [props.tabChange, setLeft, props.children.length])
 
     return(
