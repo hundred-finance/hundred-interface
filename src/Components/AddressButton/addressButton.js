@@ -17,7 +17,7 @@ const AddressButton = (props) => {
             try {
                 var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 if (accounts && accounts.length > 0)
-                    setAddress.current(accounts[0])
+                    setAddress.current( accounts[0])
 
                 window.ethereum.on('chainChanged', (chainId) => {
                     props.setNetwork(chainId)
