@@ -17,7 +17,6 @@ const AccountSettings = (props) => {
     setPctEarned.current = props.setPctEarned
 
     getPctBalance.current = async () => {
-      console.log("get pct")
       const contract = new ethers.Contract(NETWORKS[window.ethereum.chainId].HUNDRED_ADDRESS, PCT_ABI, props.provider)
       console.log(contract)
       return {

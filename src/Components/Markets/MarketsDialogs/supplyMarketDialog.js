@@ -86,8 +86,7 @@ const SupplyMarketDialog = (props) =>{
                 if(withdrawMax){
                     if(props.market?.supplyBalanceInTokenUnit.toString() !== withdrawInput.toString())
                     {
-                        console.log(props.market?.supplyBalanceInTokenUnit.toString() + " " + withdrawInput)
-                            setWithdrawMax(false)
+                        setWithdrawMax(false)
                     }
                 }
             }
@@ -104,7 +103,6 @@ const SupplyMarketDialog = (props) =>{
                         .times(props.market?.collateralFactor)
                 : new BigNumber(0)
             ));
-            console.log(withdrawMax)
         };
         
           handleWithdrawAmountChange()
@@ -134,7 +132,6 @@ const SupplyMarketDialog = (props) =>{
 
     const getMaxWithdraw = () => {
         setWithdrawMax(true)
-        console.log(`SupplyBalance: ${props.market.supplyBalanceInTokenUnit}\nUnderlignAmount: ${props.market.underlyingAmount}`)
         setWithdrawInput(BigNumber.minimum(props.market?.supplyBalanceInTokenUnit, props.market?.underlyingAmount).toString())
     }
 
@@ -199,7 +196,7 @@ const SupplyMarketDialog = (props) =>{
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection generalData={props.generalData} market={props.market} collateralFactorText={"Loan-to-Value"}/>
                             <MarketDialogButton disabled={!withdrawInput || withdrawValidation}
-                                onClick={() => {    console.log(withdrawMax)
+                                onClick={() => {    
                                                     props.handleWithdraw(
                                                         props.market?.symbol,
                                                         withdrawInput,

@@ -580,7 +580,6 @@ const Content = (props) => {
     }
 
     const handleWithdraw = async (symbol, amount, max) => {
-      console.log("max:" + max)
       spinner.current(true)
       var market = marketsRef.current.find(x=>x.symbol === symbol)
       if(market){
@@ -593,10 +592,8 @@ const Content = (props) => {
           market.withdrawSpinner = true
           
           if (max){
-            console.log("MAX")
             const accountSnapshot = await ctoken.getAccountSnapshot(userAddress.current)
             const withdraw = ethers.BigNumber.from(accountSnapshot[1].toString())
-            console.log(withdraw)
             const tx = await ctoken.redeem(withdraw)
             spinner.current(false)
             console.log(tx)
@@ -681,20 +678,13 @@ const Content = (props) => {
     var market = marketsRef.current.find(x => x.symbol === symbol)
     if(market){
       try{
-        console.log("Full Repay: " + fullRepay)
         let am = (market.isNativeToken) ? ({value: ethers.utils.parseEther(amount)}) : 
                  (fullRepay ? MaxUint256 : ethers.utils.parseUnits(amount, market.decimals))
-        console.log("Amount: " + am.toString())
         selectedMarketRef.current.repaySpinner = true
         market.repaySpinner = true
         const signer = props.provider.getSigner()
         const tokenABI = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
-        console.log("Native Token: " + market.isNativeToken)
-        console.log("TokenABI: ")
-        console.log(tokenABI)
         const ctoken = new ethers.Contract(market.pTokenaddress, tokenABI, signer)
-        console.log("ctoken")
-        console.log(ctoken)
         const tx = await ctoken.repayBorrow(am)
         spinner.current(false)
 
