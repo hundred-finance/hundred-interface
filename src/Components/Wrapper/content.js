@@ -69,7 +69,6 @@ const Content = (props) => {
     network.current = props.network
 
     getComptrollerData.current = async () => {
-      console.log(network.current)
         const comptroller = new ethers.Contract(NETWORKS[network.current].UNITROLLER_ADDRESS, COMPTROLLER_ABI, props.provider)
         const oracleAddress = await comptroller.oracle()
         return{
