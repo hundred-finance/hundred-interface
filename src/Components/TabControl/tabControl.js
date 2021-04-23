@@ -4,64 +4,6 @@ import "./tab.css"
 
 
 const Tab = (props) =>{
-    
-
-
-    /*var tabHeader = document.getElementsByClassName("tab-header")[0]
-    var tabContent = document.getElementsByClassName("tab-content")[0]
-
-    var headerItems = tabHeader?.getElementsByClassName("tab-header-item")
-    
-    if (headerItems?.length > 0){
-        var headerActive = tabHeader.getElementsByClassName("active")
-            if(headerActive.length > 0){
-                for(let j=0; j<headerActive.length; j++){
-                    headerActive[j].classList.remove("active")
-                }
-            }
-
-            var contentActive = tabContent.getElementsByClassName("active")
-            if (contentActive.length > 0){
-                for(var j=0; j< contentActive.length; j++){
-                    contentActive[j].classList.remove("active")
-                }
-            }
-        var indicator = tabHeader.getElementsByClassName("indicator")[0]
-        indicator.style.width = "calc(100% / " + headerItems.length + ")"
-        indicator.style.left = "0"
-        var headerItem=headerItems[0]
-        var item = document.querySelector("[data-tab-item='"+headerItem?.dataset.tabValue+"']")
-        headerItem?.classList.add("active")
-        item?.classList.add("active")
-    }
-
-
-    for(let i=0; i<headerItems?.length; i++){
-        headerItems[i].addEventListener("click", function (){
-            var headerActive = tabHeader.getElementsByClassName("active")
-            if(headerActive.length > 0){
-                for(let j=0; j<headerActive.length; j++){
-                    headerActive[j].classList.remove("active")
-                }
-            }
-
-            var contentActive = tabContent.getElementsByClassName("active")
-            if (contentActive.length > 0){
-                for(var j=0; j< contentActive.length; j++){
-                    contentActive[j].classList.remove("active")
-                }
-            }
-            var item = document.querySelector("[data-tab-item='"+headerItems[i].dataset.tabValue+"']")
-            headerItems[i]?.classList.add("active")
-            item?.classList.add("active")
-            var indicator = tabHeader.getElementsByClassName("indicator")[0]
-            indicator.style.left = `${100*i/headerItems.length}%`
-            
-        });
-
-        
-    }*/
-
     return(
         <div className="tab">
             {props.children}
