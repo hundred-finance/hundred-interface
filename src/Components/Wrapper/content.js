@@ -49,8 +49,6 @@ const Content = (props) => {
     const [openBorrowMarketDialog, setOpenBorrowMarketDialog] = useState(false)
     const [update, setUpdate] = useState(false)
 
-    let interval = null
-
     const getComptrollerData = useRef(() =>{})
     const getCTokenInfo = useRef(() => {})
     const getGeneralDetails = useRef(() => {})
@@ -59,22 +57,27 @@ const Content = (props) => {
     const marketsRef = useRef(null)
     const selectedMarketRef = useRef(null)
     const provider = useRef(null)
+    const userAddress = useRef(null)
+    const network = useRef(null)
 
     spinner.current = props.setSpinnerVisible
     updateRef.current = update
     marketsRef.current = marketsData
     selectedMarketRef.current = selectedMarket
     provider.current = props.provider
+    userAddress.current = props.address
+    network.current = props.network
 
     getComptrollerData.current = async () => {
-        const comptroller = new ethers.Contract(NETWORKS[window.ethereum.chainId].UNITROLLER_ADDRESS, COMPTROLLER_ABI, props.provider)
+      console.log(network.current)
+        const comptroller = new ethers.Contract(NETWORKS[network.current].UNITROLLER_ADDRESS, COMPTROLLER_ABI, props.provider)
         const oracleAddress = await comptroller.oracle()
         return{
-            address : NETWORKS[window.ethereum.chainId].UNITROLLER_ADDRESS,
+            address : NETWORKS[network.current].UNITROLLER_ADDRESS,
             comptroller,
             oracle : new ethers.Contract(oracleAddress, ORACLE_ABI, props.provider),
             allMarkets: await comptroller.getAllMarkets(),
-            enteredMarkets: await comptroller.getAssetsIn(props.address)
+            enteredMarkets: await comptroller.getAssetsIn(userAddress.current)
         }
       }
 
@@ -85,7 +88,7 @@ const Content = (props) => {
         const decimals = underlying.decimals
         const underlyingPrice = new BN(eX(underlying.price, underlying.decimals - 36))
 
-        const accountSnapshot = await ctoken.getAccountSnapshot(props.address)
+        const accountSnapshot = await ctoken.getAccountSnapshot(userAddress.current)
         const supplyBalanceInTokenUnit = new BN(new BigNumber(accountSnapshot[1].toString()).times(new BigNumber(accountSnapshot[3].toString()).div(new BigNumber("10").pow(new BigNumber(decimals + 18)))))
         const supplyBalance = supplyBalanceInTokenUnit.times(underlyingPrice)
 
@@ -163,16 +166,15 @@ const Content = (props) => {
       }
 
       const getNativeTokenInfo = async (ptoken) => {
-        const chainId = window.ethereum.chainId
         return{
           address: "0x0",
-          symbol: chainId === "0x1" ? "ETH" : "MATIC",
-          name: chainId === "0x1" ? "Ethereum" : "Matic",
+          symbol: network.current === "0x1" ? "ETH" : "MATIC",
+          name: network.current === "0x1" ? "Ethereum" : "Matic",
           decimals: 18,
           totalSupply: 0,
-          logo: chainId === "0x1" ? Logos["ETH"] : Logos["MATIC"],
+          logo: network.current === "0x1" ? Logos["ETH"] : Logos["MATIC"],
           price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
-          walletBalance: await props.provider.getBalance(props.address),
+          walletBalance: await props.provider.getBalance(userAddress.current),
           allowance: MaxUint256,
         }
       }
@@ -189,9 +191,9 @@ const Content = (props) => {
           totalSupply: await contract.totalSupply(),
           logo, //`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`,
           price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
-          walletBalance: await contract.balanceOf(props.address),
-          allowance: await contract.allowance(props.address, ptoken),
-          balance: await contract.balanceOf(props.address)
+          walletBalance: await contract.balanceOf(userAddress.current),
+          allowance: await contract.allowance(userAddress.current, ptoken),
+          balance: await contract.balanceOf(userAddress.current)
         }
       }
 
@@ -281,26 +283,21 @@ const Content = (props) => {
             
         }
 
-        if(provider.current === null){
-          console.log("Provider")
-          console.log(provider.current)
-          setComptrollerData(null)
-        }
-        else if(provider.current && props.address && props.address !== ""){
-          console.log("UPDATE")
+        const interval = setInterval(() => {
+          try{
+              GetData()
+              setUpdate(true)
+          }
+          catch(err){
+              console.log(err)
+          }
+        }, 60000);
+
+        if(provider.current && network.current && userAddress.current && userAddress.current !== ""){
             try{
               setUpdate(false)
               spinner.current(true)
               GetData()
-              interval = setInterval(() => {
-                try{
-                    GetData()
-                    setUpdate(true)
-                }
-                catch(err){
-                    console.log(err)
-                }
-              }, 60000);
             }
             catch(err){
                 console.log(err)
@@ -323,7 +320,7 @@ const Content = (props) => {
 
         return() => clearInterval(interval)
 
-    },[props.provider, props.address])
+    },[props.provider])
 
     useEffect(() => {
         const GetMarkets = async() =>{
@@ -598,7 +595,7 @@ const Content = (props) => {
           
           if (max){
             console.log("MAX")
-            const accountSnapshot = await ctoken.getAccountSnapshot(props.address)
+            const accountSnapshot = await ctoken.getAccountSnapshot(userAddress.current)
             const withdraw = ethers.BigNumber.from(accountSnapshot[1].toString())
             console.log(withdraw)
             const tx = await ctoken.redeem(withdraw)

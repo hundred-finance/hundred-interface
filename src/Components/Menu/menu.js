@@ -19,8 +19,8 @@ const Menu = (props) => {
                   <NavbarLink theme={props.theme} link="https://hundred-dashboard.netlify.app" target="_blank">Dashboard</NavbarLink>
                 </NavBarLinks>
                 <NavBarRight>
-                  <AddressButton theme={props.theme} address={props.address} setAddress={props.setAddress} provider={props.provider} 
-                    setProvider={props.setProvider} setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
+                  <AddressButton theme={props.theme} address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
+                     setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
                   <SideMenuButton theme={props.theme} setSideMenu ={props.setSideMenu}/>
                 </NavBarRight>
             </Navbar>

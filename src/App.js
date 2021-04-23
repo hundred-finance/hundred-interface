@@ -21,14 +21,17 @@ const App = () =>{
   const [pctBalance, setPctBalance] = useState(null)
   const [pctEarned, setPctEarned] = useState(null)
   const [pctSpinner, setPctSpinner] = useState(false)
+  const [network, setNetwork] = useState(null)
 
   const addressRef = useRef()
   const setAddressRef = useRef(() => {})
   const setProviderRef = useRef(() => {})
+  const networkRef = useRef()
 
   addressRef.current = address
   setAddressRef.current = setAddress
   setProviderRef.current = setProvider
+  networkRef.current = network
 
   
 
@@ -72,12 +75,15 @@ const App = () =>{
       if (window.ethereum) {
         try {
           await window.ethereum.request({ method: 'eth_requestAccounts' });
-          window.ethereum.on('chainChanged', () => {
-            document.location.reload()
+          window.ethereum.on('chainChanged', (chainId) => {
+            setNetwork(chainId)
           })
           window.ethereum.on('accountsChanged', (accounts) => {
-            setAddress("")
-            
+            if(accounts && accounts.length > 0){
+              setAddress(accounts[0])
+            }
+            else
+              setAddress("")
           })
         } catch (error) {
           if (error.code === 4001) {
@@ -87,16 +93,8 @@ const App = () =>{
           console.log(error)
         }
       }
-      try {
-        
-        const prov = new ethers.providers.Web3Provider(window.ethereum)
-        setProvider(prov)
-      }
-      catch (err){
-        console.log(err)
-      }
     }
-
+      
     const darkmode = window.localStorage.getItem("hundred-darkmode")
     const addr = window.localStorage.getItem("hundred-address")
 
@@ -104,12 +102,20 @@ const App = () =>{
       setDarkMode(true)
     else
       setDarkMode(false)
+    
+    const onLoadSetAddress = async (addr) =>{
+      if(window.ethereum){
+        var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if(accounts && accounts.length > 0){
+          setAddress(addr)
+          connect() 
+        }
+      }
+    }
 
     if(addr && addr !== "")
-      {
-        setAddress(addr)
-        connect() 
-      }
+      onLoadSetAddress(addr)
+
     setSpinnerVisible(false)
   }, [])
 
@@ -129,8 +135,43 @@ const App = () =>{
     if(address === ""){
       setProvider(null)
     }
-    
+    else{
+      try {     
+        const chain = window.ethereum.chainId
+        if(networkRef.current && networkRef.current === chain){
+          try{
+            const prov = new ethers.providers.Web3Provider(window.ethereum)
+            setProvider(prov)
+          }
+          catch(err){
+            console.log(err)
+          }
+        }
+        else{
+            setNetwork(chain) 
+        }
+      }
+      catch (err){
+        console.log(err)
+      }
+    }
   }, [address])
+
+  useEffect(() => {
+    if(network)
+    {
+      try{
+        const prov = new ethers.providers.Web3Provider(window.ethereum)
+        setProvider(prov)
+      }
+      catch(err){
+        console.log(err)
+      }
+    }
+    else
+      setProvider(null)
+
+  }, [network])
 
 
 
@@ -160,12 +201,11 @@ const App = () =>{
       <Wrapper sideMenu={sideMenu} theme={theme}>
         
         <Menu show={show} isTablet={isTablet} isMobile={isMobile} theme={theme} darkMode={darkMode} address={address} 
-          setAddress={setAddress} provider={provider} setProvider={setProvider} setOpenAddress={setOpenAddress} 
-          setSideMenu={setSideMenu}/>
+          setAddress={setAddress} setNetwork = {setNetwork} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu}/>
         <TabletMenu show={show} isTablet={isTablet} isMobile={isMobile} theme={theme} darkMode={darkMode} address={address} 
-          setAddress={setAddress} provider={provider} setProvider={setProvider} setOpenAddress={setOpenAddress} 
+          setAddress={setAddress} setNetwork = {setNetwork} setOpenAddress={setOpenAddress} 
           setSideMenu={setSideMenu}/>
-        <Content  address={address} provider={provider} setSpinnerVisible={setSpinnerVisible} darkMode={darkMode} spinnerVisible={spinnerVisible}>
+        <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} darkMode={darkMode} spinnerVisible={spinnerVisible}>
           
         </Content>
       </Wrapper>
