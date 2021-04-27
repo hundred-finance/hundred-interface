@@ -57,7 +57,7 @@ const SupplyMarket = (props) => {
                       <td></td>
                     </tr>
                   )}
-                  {props.marketsData?.filter((item) => item.supplyBalance?.isLessThanOrEqualTo(0))
+                  {props.marketsData?.filter((item) => item.supplyBalance?.isLessThanOrEqualTo(0) && item.underlyingPrice?.isGreaterThan(0))
                     .sort(compareSymbol)
                     .map((details, index) => (
                       <SupplyMarketRow key={index} details={details} index={index} enterMarketDialog={props.enterMarketDialog} supplyMarketDialog={props.supplyMarketDialog} closeSupplyMarketDialog={props.closeSupplyMarketDialog}/>
