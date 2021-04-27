@@ -14,6 +14,45 @@ import TUSDlogo from "./assets/images/TUSD-logo.png"
 import UNIlogo from "./assets/images/UNI-logo.png"
 import YFIlogo from "./assets/images/YFI-logo.png"
 import SUSDlogo from "./assets/images/SUSD-logo.png"
+import XDAIlogo  from "./assets/images/XDAI-logo.png"
+import SUSHIlogo  from "./assets/images/SUSHI-logo.png"
+import BALlogo  from "./assets/images/BAL-logo.png"
+import CRVlogo  from "./assets/images/CRV-logo.png"
+import MKRlogo  from "./assets/images/MKR-logo.png"
+import HHTlogo from "./assets/images/HHT-logo.png"
+import HUSDlogo from "./assets/images/HUSD-logo.png"
+import MDXlogo from "./assets/images/MDX-logo.png"
+import BAGSlogo from "./assets/images/MDX-logo.png"
+import HBCHlogo from "./assets/images/HBCH-logo.png"
+import HFILlogo from "./assets/images/HFIL-logo.png"
+import HLTClogo from "./assets/images/HLTC-logo.png"
+import HDOTlogo from "./assets/images/HDOT-logo.png"
+import BNBlogo from "./assets/images/BNB-logo.png"
+import ADAlogo from "./assets/images/ADA-logo.png"
+import ALPHAlogo from "./assets/images/ALPHA-logo.png"
+import ATOMlogo from "./assets/images/ATOM-logo.png"
+import AUTOlogo from "./assets/images/AUTO-logo.png"
+import BANDlogo from "./assets/images/BAND-logo.png"
+import BCHlogo from "./assets/images/BCH-logo.png"
+import BTCBlogo from "./assets/images/BTCB-logo.png"
+import CAKElogo from "./assets/images/CAKE-logo.png"
+import CREAMlogo from "./assets/images/CREAM-logo.png"
+import DFlogo from "./assets/images/DF-logo.png"
+import DOTlogo from "./assets/images/DOT-logo.png"
+import EOSlogo from "./assets/images/EOS-logo.png"
+import FILlogo from "./assets/images/FIL-logo.png"
+import LINAlogo from "./assets/images/LINA-logo.png"
+import LTClogo from "./assets/images/LTC-logo.png"
+import PAXGlogo from "./assets/images/PAXG-logo.png"
+import RAMPlogo from "./assets/images/RAMP-logo.png"
+import SXPlogo from "./assets/images/SXP-logo.png"
+import TWTlogo from "./assets/images/TWT-logo.png"
+import VAIlogo from "./assets/images/VAI-logo.png"
+import BZRXlogo from "./assets/images/BZRX-logo.png"
+import XRPlogo from "./assets/images/XRP-logo.png"
+import XTZlogo from "./assets/images/XTZ-logo.png"
+import XVSlogo from "./assets/images/XVS-logo.png"
+import YFIIlogo from "./assets/images/YFII-logo.png"
 
 const Logos ={
     "ETH"   : ETHlogo,
@@ -32,7 +71,46 @@ const Logos ={
     "TUSD"  : TUSDlogo,
     "UNI"   : UNIlogo,
     "YFI"   : YFIlogo,
-    "sUSD"  : SUSDlogo
+    "sUSD"  : SUSDlogo,
+    "XDAI"  : XDAIlogo,
+    "SUSHI" : SUSHIlogo,
+    "BAL"   : BALlogo,
+    "CRV"   : CRVlogo,
+    "MKR"   : MKRlogo,
+    "HT"    : HHTlogo,
+    "HUSD"  : HUSDlogo,
+    "MDX"   : MDXlogo,
+    "BAGS"  : BAGSlogo,
+    "HBCH"  : HBCHlogo,
+    "HFIL"  : HFILlogo,
+    "HLTC"  : HLTClogo,
+    "HDOT"  : HDOTlogo,
+    "BNB"   : BNBlogo,
+    "ADA"   : ADAlogo,
+    "ALPHA" : ALPHAlogo,
+    "ATOM"  : ATOMlogo,
+    "AUTO"  : AUTOlogo,
+    "BAND"  : BANDlogo,
+    "BCH"   : BCHlogo,
+    "BTCB"  : BTCBlogo,
+    "Cake"  : CAKElogo,
+    "CREAM" : CREAMlogo,
+    "DF"    : DFlogo,
+    "DOT"   : DOTlogo,
+    "EOS"   : EOSlogo,
+    "FIL"   : FILlogo,
+    "LINA"  : LINAlogo,
+    "LTC"   : LTClogo,
+    "PAXG"  : PAXGlogo,
+    "RAMP"  : RAMPlogo,
+    "SXP"   : SXPlogo,
+    "TWT"   : TWTlogo,
+    "VAI"   : VAIlogo,
+    "BZRX"  : BZRXlogo,
+    "XRP"   : XRPlogo,
+    "XTZ"   : XTZlogo,
+    "XVS"   : XVSlogo,
+    "YFII"  : YFIIlogo
 }
 
 export default Logos

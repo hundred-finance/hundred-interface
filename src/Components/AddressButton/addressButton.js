@@ -1,5 +1,6 @@
 import React, { useRef } from "react"
 import { getShortenAddress } from "../../helpers"
+import {NETWORKS} from "../../constants"
 import "./style.css"
 
 const AddressButton = (props) => {
@@ -20,7 +21,9 @@ const AddressButton = (props) => {
                     setAddress.current( accounts[0])
 
                 window.ethereum.on('chainChanged', (chainId) => {
-                    props.setNetwork(chainId)
+                    const net = NETWORKS[chainId]
+                    if (net)
+                        props.setNetwork(net)
                 })
                 window.ethereum.on('accountsChanged', (accounts) => {
                     if (accounts && accounts.length > 0){

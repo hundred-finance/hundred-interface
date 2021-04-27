@@ -1,6 +1,6 @@
 import { ethers} from "ethers"
 import React, { useEffect,  useRef, useState } from "react"
-import {NETWORKS, COMPTROLLER_ABI, CTOKEN_ABI, ORACLE_ABI, TOKEN_ABI, MKR_TOKEN_ABI, CETHER_ABI } from "../../constants"
+import {COMPTROLLER_ABI, CTOKEN_ABI, ORACLE_ABI, TOKEN_ABI, MKR_TOKEN_ABI, CETHER_ABI } from "../../constants"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import BigNumber from "bignumber.js"
 
@@ -69,10 +69,10 @@ const Content = (props) => {
     network.current = props.network
 
     getComptrollerData.current = async () => {
-        const comptroller = new ethers.Contract(NETWORKS[network.current].UNITROLLER_ADDRESS, COMPTROLLER_ABI, props.provider)
+        const comptroller = new ethers.Contract(network.current.UNITROLLER_ADDRESS, COMPTROLLER_ABI, props.provider)
         const oracleAddress = await comptroller.oracle()
         return{
-            address : NETWORKS[network.current].UNITROLLER_ADDRESS,
+            address : network.current.UNITROLLER_ADDRESS,
             comptroller,
             oracle : new ethers.Contract(oracleAddress, ORACLE_ABI, props.provider),
             allMarkets: await comptroller.getAllMarkets(),
@@ -167,11 +167,11 @@ const Content = (props) => {
       const getNativeTokenInfo = async (ptoken) => {
         return{
           address: "0x0",
-          symbol: NETWORKS[network.current].tokenSymbol,
-          name: NETWORKS[network.current].tokenName,
+          symbol: network.current.symbol,
+          name: network.current.name,
           decimals: 18,
           totalSupply: 0,
-          logo: Logos[NETWORKS[network.current].tokenSymbol],
+          logo: Logos[network.current.symbol],
           price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
           walletBalance: await props.provider.getBalance(userAddress.current),
           allowance: MaxUint256,
@@ -182,6 +182,13 @@ const Content = (props) => {
         const contract = new ethers.Contract(address, TOKEN_ABI, props.provider)
         const symbol = await contract.symbol()
         const logo = Logos[symbol]
+        var price = ethers.BigNumber.from("0")
+        try{
+          price = await comptrollerData.oracle.getUnderlyingPrice(ptoken)
+        }
+        catch(err){
+          console.log(err)
+        }
         return{
           address,
           symbol,
@@ -189,7 +196,7 @@ const Content = (props) => {
           decimals: await contract.decimals(),
           totalSupply: await contract.totalSupply(),
           logo, //`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`,
-          price: await comptrollerData.oracle.getUnderlyingPrice(ptoken),
+          price,
           walletBalance: await contract.balanceOf(userAddress.current),
           allowance: await contract.allowance(userAddress.current, ptoken),
           balance: await contract.balanceOf(userAddress.current)
@@ -292,7 +299,7 @@ const Content = (props) => {
           }
         }, 60000);
 
-        if(provider.current && network.current && NETWORKS[network.current] && userAddress.current && userAddress.current !== ""){
+        if(provider.current && network.current && network.current.chainId && userAddress.current && userAddress.current !== ""){
             try{
               setUpdate(false)
               spinner.current(true)
@@ -331,7 +338,7 @@ const Content = (props) => {
                      return false
                   return true
                     }).map(async (a) => {
-                const isNativeToken = a.toLowerCase() === "0x45f157b3d3d7c415a0e40012d64465e3a0402c64" || a.toLowerCase() === "0xebd7f3349aba8bb15b897e03d6c1a4ba95b55e31"
+                const isNativeToken = a.toLowerCase() ===  network.current.token
                 
                 const ctokenInfo = await getCTokenInfo.current(a, isNativeToken)
                 

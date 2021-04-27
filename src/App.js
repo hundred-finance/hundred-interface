@@ -10,6 +10,7 @@ import AccountSettings from './Components/SideMenu/accountSettings';
 import Content from './Components/Wrapper/content';
 import Menu from './Components/Menu/menu';
 import TabletMenu from './Components/Menu/tabletMenu'
+import {NETWORKS} from './constants'
 
 
 
@@ -76,7 +77,9 @@ const App = () =>{
         try {
           await window.ethereum.request({ method: 'eth_requestAccounts' });
           window.ethereum.on('chainChanged', (chainId) => {
-            setNetwork(chainId)
+            const net = NETWORKS[chainId]
+            if (net)
+              setNetwork(net)
           })
           window.ethereum.on('accountsChanged', (accounts) => {
             if(accounts && accounts.length > 0){
@@ -138,7 +141,7 @@ const App = () =>{
     else{
       try {     
         const chain = window.ethereum.chainId
-        if(networkRef.current && networkRef.current === chain){
+        if(networkRef.current && networkRef.current.chainId === chain){
           try{
             const prov = new ethers.providers.Web3Provider(window.ethereum)
             setProvider(prov)
@@ -148,7 +151,7 @@ const App = () =>{
           }
         }
         else{
-            setNetwork(chain) 
+            setNetwork(NETWORKS[chain]) 
         }
       }
       catch (err){
