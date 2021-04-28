@@ -8,7 +8,7 @@ import NavBarLinks from "../Navbar/navBarLinks"
 import NavbarLogo from "../Navbar/navbarLogo"
 import NavbarMobile from "../Navbar/navbarMobile"
 import NavBarRight from "../Navbar/navBarRight"
-import SideMenuButton from "../Navbar/sideMenuButton"
+// import SideMenuButton from "../Navbar/sideMenuButton"
 
 const TabletMenu = (props) => {
     const [menuOpen, setMenuOpen] = useState(false)
