@@ -1,6 +1,6 @@
 export const lightTheme = {
     navBackground: '#f0f0f0',
-    background: '#f0f0f0',
+    background: '#f9fafb',
     sectionBackground: '#f9f9f9',
     text: '#333',
     bottomShadow: '0px 1px 10px 1px rgba(17, 162, 234, 0.2)',

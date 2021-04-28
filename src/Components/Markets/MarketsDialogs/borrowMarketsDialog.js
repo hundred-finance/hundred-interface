@@ -146,9 +146,7 @@ const BorrowMarketDialog = (props) =>{
         props.open ? (
         <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
             <div ref={ref} className="supply-box">
-                <button className="dialog-close" onClick={()=>CloseDialog()}>
-
-                </button>
+                <img src="/closeIcon.png" alt="Close Icon" className="dialog-close" onClick={()=>CloseDialog()} />
                 <div className="dialog-title">
                     {props.market?.symbol && (
                     <img

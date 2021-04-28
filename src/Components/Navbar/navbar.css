@@ -14,7 +14,13 @@
     width: 1200px;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: space-between;
+}
+
+.navbar-left {
+    display: flex;
+    flex-direction: row;
+    width: 650;
 }
 
 .navbar-logo{

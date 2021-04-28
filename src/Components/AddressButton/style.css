@@ -39,5 +39,6 @@
     height: 30px;
     top:1px;
     right: 8px;
-    font-size: 0.8rem;
+    font-size: 0.5rem;
+    color: var(--buttonColor);
 }

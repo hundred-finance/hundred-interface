@@ -36,9 +36,7 @@ const EnterMarketDialog = (props) => {
       props.open ? (
         <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
             <div ref={ref} className="dialog-box">
-                <button className="dialog-close" onClick={() => props.closeMarketDialog()}>
-                    
-                </button>
+              <img src="/closeIcon.png" alt="Close Icon" className="dialog-close" onClick={() => props.closeMarketDialog()} />
             <div className="dialog-title">
                 {props.market?.symbol && (
                 <img

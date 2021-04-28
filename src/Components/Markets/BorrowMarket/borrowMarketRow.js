@@ -14,7 +14,7 @@ const BorrowMarketRow = (props) => {
                 <div className="asset-logo">
                   <img className="rounded-circle" src={props.details.logoSource} alt=""/>
                 </div>
-                <span>{props.details.symbol}</span>
+                <span style={{color: 'var(--grayText)'}}>{props.details.symbol}</span>
             </div>
         </td>
         <td className={props.details?.borrowApy.toFixed(2) > 0 ? "positive" : ""}>

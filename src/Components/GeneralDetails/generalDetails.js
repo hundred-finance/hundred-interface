@@ -10,20 +10,20 @@ const GeneralDetails = (props) => {
                 <GeneralDetailsItem>
                     <GeneralDetailsItemTitle  title="Market Overview"/>
                         <GeneralDetailsItemContent>
-                            <GeneralDetailsItemContentItem label="Total Supply:" 
+                            <GeneralDetailsItemContentItem label="Total Supply:" bottomBorder
                                 value={`$${convertToLargeNumberRepresentation(props.generalData?.allMarketsTotalSupplyBalance?.precision(4))}`}/>
-                            <GeneralDetailsItemContentItem label="Total Borrow:" 
+                            <GeneralDetailsItemContentItem label="Total Borrow:" bottomBorder
                                 value={`$${convertToLargeNumberRepresentation(props.generalData?.allMarketsTotalBorrowBalance?.precision(4))}`}/>
                             <GeneralDetailsItemContentItem label="Total Liquidity:" 
                                 value={`$${convertToLargeNumberRepresentation(props.generalData?.totalLiquidity?.precision(4))}`}/>
                         </GeneralDetailsItemContent>
                 </GeneralDetailsItem>
-                <GeneralDetailsItem>
+                <GeneralDetailsItem className="general-details-item-second">
                     <GeneralDetailsItemTitle  title="Balances"/>
                         <GeneralDetailsItemContent>
-                            <GeneralDetailsItemContentItem label="Supply:" 
+                            <GeneralDetailsItemContentItem label="Supply:" bottomBorder
                                 value={`$${convertToLargeNumberRepresentation(props.generalData?.totalSupplyBalance?.precision(4))}`}/>
-                            <GeneralDetailsItemContentItem label="Borrow:" 
+                            <GeneralDetailsItemContentItem label="Borrow:" bottomBorder
                                 value={`$${zeroStringIfNullish(props.generalData?.totalBorrowBalance?.toFixed(2),2)}`}/>
                             <GeneralDetailsItemContentItem label="Borrow Limit:" 
                                 value={`$${zeroStringIfNullish(props.generalData?.totalBorrowLimit?.toFixed(2),2)}`}
@@ -31,12 +31,12 @@ const GeneralDetails = (props) => {
                         </GeneralDetailsItemContent>
                 </GeneralDetailsItem>
                 
-                <GeneralDetailsItem>
+                <GeneralDetailsItem className="general-details-item-third">
                     <GeneralDetailsItemTitle  title="Net APY"/>
                     <GeneralDetailsItemContent>
-                        <GeneralDetailsItemContentItem className="center"
+                        <GeneralDetailsItemContentItem className="center" bottomBorder
                             value={`${zeroStringIfNullish(props.generalData?.netApy?.times(100).toFixed(2),2)}%`}/>
-                        <GeneralDetailsItemContentItem label="PCT (supply):" 
+                        <GeneralDetailsItemContentItem label="PCT (supply):" bottomBorder
                             value={`+ ${zeroStringIfNullish(props.generalData?.totalSupplyPctApy?.times(100).toFixed(2),2)}%`}/>
                         <GeneralDetailsItemContentItem label="PCT (borrow):" 
                             value={`+ ${zeroStringIfNullish(props.generalData?.totalBorrowPctApy?.times(100).toFixed(2),2)}%`}/>

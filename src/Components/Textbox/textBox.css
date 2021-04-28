@@ -39,7 +39,7 @@
     font-size: 1.2rem;
     padding:5px;
     border: none;
-    color: var(--text);
+    color: var(--secondaryText);
     box-sizing: border-box;
     background-color: transparent;
 }
@@ -50,7 +50,7 @@
     top:0;
     background-color: transparent;
     padding: 5px;
-    color:var(--text);
+    color:var(--secondaryText);
 }
 
 .textbox div input:valid + .placeholder{
@@ -74,7 +74,7 @@
     transform: translateY(-50%);
     columns: #646466;
     user-select: none;
-    color: var(--text);
+    color: var(--secondaryText);
     
 }
 

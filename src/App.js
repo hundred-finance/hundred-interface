@@ -10,7 +10,7 @@ import AccountSettings from './Components/SideMenu/accountSettings';
 import Content from './Components/Wrapper/content';
 import Menu from './Components/Menu/menu';
 import TabletMenu from './Components/Menu/tabletMenu'
-
+import Footer from './Components/Footer';
 
 
 
@@ -155,6 +155,7 @@ const App = () =>{
         <Content  address={address} provider={provider} setSpinnerVisible={setSpinnerVisible} darkMode={darkMode} spinnerVisible={spinnerVisible}>
           
         </Content>
+        <Footer />
       </Wrapper>
       
       <SideMenu open={sideMenu} theme={theme} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}>

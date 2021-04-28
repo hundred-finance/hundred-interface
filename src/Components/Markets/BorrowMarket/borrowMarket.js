@@ -1,10 +1,11 @@
-import React from "react"
+import React, { useState } from "react"
 import BorrowMarketRow from "./borrowMarketRow"
 import {compareSymbol} from "../../../helpers"
 
 import "../style.css"
 
 const BorrowMarket = (props) => {
+    const [more, setMore] = useState(false);
     return (
         <div className="market-content">
             <table className = "market-table">
@@ -61,9 +62,22 @@ const BorrowMarket = (props) => {
                   )}
                   {props.marketsData?.filter((item) => item.borrowBalance?.isLessThanOrEqualTo(0))
                     .sort(compareSymbol)
-                    .map((details, index) => (
-                      <BorrowMarketRow key={index} details={details} borrowMarketDialog={props.borrowMarketDialog} />
-                    ))}
+                    .map((details, index) => {
+                      if(more || (!more && index < 4))
+                        return (
+                          <BorrowMarketRow key={index} details={details} borrowMarketDialog={props.borrowMarketDialog} />
+                        )
+                      else return null
+                  })}
+                  {
+                    !more && (
+                      <tr className='showMoreRow'>
+                        <td colSpan={5} className='showMore' onClick={() => setMore(true)}>
+                          SHOW MORE
+                        </td>
+                      </tr>
+                    )
+                  }
                 </tbody>
             </table> 
         </div>   

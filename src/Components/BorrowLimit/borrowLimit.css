@@ -8,12 +8,13 @@
 
 .borrow-limit-header{
     font-size: 1rem;
+    color: var(--secondaryText);
 }
 
 .borrow-limit-item{
     display: flex;
     justify-content: space-between;
-    color: var(--text);
+    color: var(--secondaryText);
     font-size: .9rem;
 }
 

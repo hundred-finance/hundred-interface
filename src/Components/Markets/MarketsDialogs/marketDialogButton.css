@@ -15,15 +15,15 @@
     font-size: 1.2rem;
     outline: none;
     border: 1px solid var(--buttonColor);
-    background-color: var(--navBackground);
+    background-color: var(--buttonColor);
     color:var(--text);
-    border-radius: 5px;
+    border-radius: 25px;
     cursor: pointer;
 }
 
 .market-dialog-button button:hover{
-    background-color: var(--buttonColor);
-    color:var(--buttonHover2);
+    background-color: var(--boxBackground);
+    color:var(--secondaryText);
 }
 
 .market-dialog-button button:active{

@@ -17,7 +17,7 @@ const SupplyMarketRow =(props) =>{
               <div className="asset-logo">
                 <img className="rounded-circle" src={props.details.logoSource} alt=""/>
               </div>
-              <span>{props.details.symbol}</span>
+              <span style={{color: 'var(--grayText)'}}>{props.details.symbol}</span>
           </div>
         </td>
         <td onClick={() => !props.details.spinner ? props.supplyMarketDialog(props.details) : null} className={props.details?.supplyApy.toFixed(2) > 0 ? "positive" : ""}>

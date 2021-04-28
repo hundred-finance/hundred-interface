@@ -1,6 +1,6 @@
 .dialog-section{
     background-color: var(--dialogSectionBackground);
-    color: var(--text);
+    color: var(--secondaryText);
     padding: 10px;
     display: flex;
     flex-direction: column;

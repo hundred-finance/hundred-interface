@@ -16,57 +16,86 @@
 }
 
 .general-details-item{
-    
+    position: absolute;
+    top: 10px;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     min-width: 200px;
-    width:220px;
-    height: 200px;
+    width: 280px;
+    height: 175px;
     color: var(--text);
-    text-shadow: var(--textShadow);
     position: relative;
-    box-shadow: var(--boxShadow);
     margin: 10px;
 }
 
+@media (max-width: 915px) {
+    .general-details-item-third {
+        top: 110px;
+    }
+}
+
+@media (max-width: 615px) {
+    .general-details-item-second {
+        top: 120px;
+    }
+    .general-details-item-third {
+        top: 230px;
+    }
+}
+
+.general-details-item .general-details-item-icon {
+    border: 2px solid #2953FF;
+    width: 24px;
+    height: 24px;
+    border-radius: 14px;
+    margin-right: 15px;
+}
+
 .general-details-item .general-details-item-title{
-    background-color:var(--navBackground);
+    background-color:var(--boxBackground);
+    color: var(--secondaryText);
     box-shadow: var(--titleShadow);
-    border-radius: 10px 10px 0 0;
-    padding: 1rem;
-    text-align: center;
-    
-    text-shadow: var(--textShadow);
+    border-radius: 4px 4px 0 0;
+    padding: 1rem 2rem;
+    text-align: left;
     letter-spacing: 1px;
-    font-size: 1rem;
+    font-size: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .general-details-item .general-details-item-content{
+    background-color:var(--boxBackground);
     padding: .5rem;    
+    border-radius: 0px 0px 4px 4px;
     display: flex;
     flex-direction: column;
     height: 100%;
     justify-content: space-evenly;
-    color: var(--text);
+    color: var(--secondaryText);
+    padding: 2rem;
 }
 
 .general-details-item .general-details-item-content .general-details-item-content-item{
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: left;
+    padding: 16px 0px 16px 0px;
 }
 
 .general-details-item .general-details-item-content .general-details-item-content-item label{
     width: 58%;
-    text-align: right;
+    text-align: left;
+    opacity: 0.4;
+    font-size: 14px;
 }
 
 .general-details-item .general-details-item-content .general-details-item-content-item span{
-    font-size: 1rem;
+    font-size: 20px;
     font-weight: bold;
-    width: 35%;
     position: relative;
 }
 
@@ -79,8 +108,5 @@
 .general-details-item .general-details-item-content .general-details-item-content-item .value-details{
     font-size: 0.8rem;
     opacity: 0.7;
-    position: absolute;
-    top: 20px;
     width: 100%;
-    left: 0;
 }

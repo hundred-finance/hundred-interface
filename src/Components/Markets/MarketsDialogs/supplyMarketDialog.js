@@ -142,9 +142,7 @@ const SupplyMarketDialog = (props) =>{
         <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
             <div className="dialog-background" onClick = {() => CloseDialog()}></div>
             <div className="supply-box">
-                <button className="dialog-close" onClick={()=>CloseDialog()}>
-
-                </button>
+                <img src="/closeIcon.png" alt="Close Icon" className="dialog-close" onClick={()=>CloseDialog()} />
                 <div className="dialog-title">
                     {props.market?.symbol && (
                     <img
