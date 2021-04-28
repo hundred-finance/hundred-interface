@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react"
+import React, { useRef } from "react"
 import { getShortenAddress } from "../../helpers"
-import {ethers} from "ethers"
+import {NETWORKS} from "../../constants"
 import "./style.css"
 
 const AddressButton = (props) => {
@@ -13,38 +13,33 @@ const AddressButton = (props) => {
     setOpenAddress.current = props.setOpenAddress
     address.current = props.address
 
-    useEffect (()=>{
-        const GetAccount= async () => {
-          if(props.provider !== null){
-            var account = await props.provider.listAccounts()
-      
-            if (account && account.length > 0){
-                if(address.current !== ""){
-                    const addr = account.find(element => element === address.current)
-                    if(addr)
-                        setAddress.current(addr)
-                    else
-                        setAddress.current("")
-                }
-                else
-                    setAddress.current(account[0])
-            }
-          }
-        }
-      
-        GetAccount()
-
-      },[props.provider])
-
     const handleConnect = async () => {
-        try {
-            await window.ethereum.enable()
-            const prov = new ethers.providers.Web3Provider(window.ethereum)
-            props.setProvider(prov)
-          }
-          catch (err){
-            console.log(err)
-          }
+        if (window.ethereum) {
+            try {
+                var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (accounts && accounts.length > 0)
+                    setAddress.current( accounts[0])
+
+                window.ethereum.on('chainChanged', (chainId) => {
+                    const net = NETWORKS[chainId]
+                    if (net)
+                        props.setNetwork(net)
+                })
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts && accounts.length > 0){
+                        props.setAddress(accounts[0])
+                    }
+                    else
+                        props.setAddress("")
+                }) 
+            } catch (error) {
+              if (error.code === 4001) {
+                // User rejected request
+              }
+          
+              console.log(error)
+            }
+        }
     }
 
     const handleAddress = () => {

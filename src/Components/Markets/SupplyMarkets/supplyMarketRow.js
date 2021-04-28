@@ -48,7 +48,7 @@ const SupplyMarketRow =(props) =>{
         <td>
           <div className="spinner-container">
             <SwitchButton disabled={props.details.spinner} checked={props.details.isEnterMarket} onClick={()=>{props.enterMarketDialog(props.details)}}/>
-            {(props.details.spinner || props.details.supplySpinner)? (<Spinner size={"20px"}/>) : null}
+            {(props.details.spinner || props.details.supplySpinner || props.details.withdrawSpinner)? (<Spinner size={"20px"}/>) : null}
           </div>
           {/*<StyledSwitch
             checked={props.details.isEnterMarket}

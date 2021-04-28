@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react"
 import { getShortenAddress, zeroStringIfNullish } from "../../helpers"
 import "./style.css"
 import {ethers} from "ethers"
-import {PCT_ADDRESS, PCT_ABI, COMPOUND_LENS_ADDRESS, COMPOUNT_LENS_ABI} from "../../constants"
+import {PCT_ABI, NETWORKS} from "../../constants"
 import { Spinner } from "../../assets/huIcons/huIcons"
 
 const AccountSettings = (props) => {
@@ -17,8 +17,7 @@ const AccountSettings = (props) => {
     setPctEarned.current = props.setPctEarned
 
     getPctBalance.current = async () => {
-      console.log("get pct")
-      const contract = new ethers.Contract(PCT_ADDRESS, PCT_ABI, props.provider)
+      const contract = new ethers.Contract(NETWORKS[window.ethereum.chainId].HUNDRED_ADDRESS, PCT_ABI, props.provider)
       console.log(contract)
       return {
         pct_balance : await contract.balanceOf(props.address),
@@ -28,8 +27,8 @@ const AccountSettings = (props) => {
     }
 
     getPctEarned.current = async () => {
-      const contract = new ethers.Contract(COMPOUND_LENS_ADDRESS, COMPOUNT_LENS_ABI, props.provider)
-      return await contract.getCompBalanceMetadata(PCT_ADDRESS, props.address)
+      //const contract = new ethers.Contract(COMPOUND_LENS_ADDRESS, COMPOUNT_LENS_ABI, props.provider)
+      return 0//await contract.getCompBalanceMetadata(HUNDRED_ADDRESS, props.address)
     }
 
     useEffect(() => {
@@ -63,8 +62,8 @@ const AccountSettings = (props) => {
             </div>
             <hr/>
             <div className="account-settings-item">
-                <div className="account-settings-item-label"><label>PCT Balance </label><span>{props.pctBalance ? `${zeroStringIfNullish(new BigNumber(props.pctBalance.pct_balance).decimalPlaces(4).toString())}`: "--"}</span></div>
-                <div className="account-settings-item-label"><label>PCT Earned </label><span>{props.pctEarned ? `${zeroStringIfNullish(new BigNumber(props.pctEarned).decimalPlaces(4).toString())}` : "--"}</span></div>
+                <div className="account-settings-item-label"><label>100 Balance </label><span>{props.pctBalance ? `${zeroStringIfNullish(new BigNumber(props.pctBalance.pct_balance).decimalPlaces(4).toString())}`: "--"}</span></div>
+                <div className="account-settings-item-label"><label>100 Earned </label><span>{props.pctEarned ? `${zeroStringIfNullish(new BigNumber(props.pctEarned).decimalPlaces(4).toString())}` : "--"}</span></div>
                 <div className={`${props.pctSpinner ? "account-settings-item-button-disabled" : "account-settings-item-button"}`} onClick={() => !props.pctSpinner ? props.handleCollect() : null}>
                     {props.pctSpinner ? (<Spinner size={"20px"}/>) : "Collect"}</div>
             </div>

@@ -60,7 +60,7 @@ const BorrowMarket = (props) => {
                       <td></td>
                     </tr>
                   )}
-                  {props.marketsData?.filter((item) => item.borrowBalance?.isLessThanOrEqualTo(0))
+                  {props.marketsData?.filter((item) => item.borrowBalance?.isLessThanOrEqualTo(0) && item.underlyingPrice?.isGreaterThan(0))
                     .sort(compareSymbol)
                     .map((details, index) => {
                       if(more || (!more && index < 4))

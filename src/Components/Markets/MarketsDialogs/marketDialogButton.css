@@ -21,6 +21,10 @@
     cursor: pointer;
 }
 
+.market-dialog-button button:disabled{
+    border: 1px solid var(--buttonColor);
+}
+
 .market-dialog-button button:hover{
     background-color: var(--boxBackground);
     color:var(--secondaryText);

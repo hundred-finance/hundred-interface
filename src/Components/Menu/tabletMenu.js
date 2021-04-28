@@ -30,16 +30,15 @@ const TabletMenu = (props) => {
                 <NavbarMobile menuOpen={menuOpen}>
                     {props.isMobile ? (
                         <NavBarRight style={{justifyContent:"flex-end"}}>
-                            <AddressButton theme={props.theme} address={props.address} setAddress={props.setAddress} 
-                        provider={props.provider} setProvider={props.setProvider} setOpenAddress={props.setOpenAddress} 
-                        setSideMenu={props.setSideMenu}/>
+                            <AddressButton theme={props.theme} address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
+                                setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
                         </NavBarRight>
                     ) : null}
                     <NavBarLinks theme={props.theme}>
                         <NavbarLink link="/">Governance</NavbarLink>
                         <NavbarLink link="/">Audit</NavbarLink>
                         <NavbarLink link="/">Github</NavbarLink>
-                        <NavbarLink link="https://dev.percent.finance" target="_blank">Dashboard</NavbarLink>
+                        <NavbarLink link="https://hundred-dashboard.netlify.app" target="_blank">Dashboard</NavbarLink>
                     </NavBarLinks>
                 </NavbarMobile>
             </Navbar>
