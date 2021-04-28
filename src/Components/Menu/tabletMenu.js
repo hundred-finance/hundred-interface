@@ -25,7 +25,7 @@ const TabletMenu = (props) => {
                         : null}
                   <NavBarButton theme={props.theme} isTablet={props.isTablet} isMobile={props.isMobile} 
                     setMenuOpen={setMenuOpen}/>
-                  <SideMenuButton theme={props.theme} setSideMenu ={props.setSideMenu}/>
+                  {/* <SideMenuButton theme={props.theme} setSideMenu ={props.setSideMenu}/> */}
                 </NavBarRight>
                 <NavbarMobile menuOpen={menuOpen}>
                     {props.isMobile ? (

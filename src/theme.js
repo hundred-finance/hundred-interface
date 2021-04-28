@@ -14,8 +14,8 @@ export const lightTheme = {
 }
 
 export const darkTheme = {
-    navBackground: '#333',
-    background: '#555',
+    navBackground: '#101010',
+    background: '#101010',
     sectionBackground: '#282828',
     text: '#EEE',
     buttonColor: '#444',

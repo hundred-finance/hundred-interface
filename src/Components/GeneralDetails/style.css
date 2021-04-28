@@ -56,7 +56,6 @@
 .general-details-item .general-details-item-title{
     background-color:var(--boxBackground);
     color: var(--secondaryText);
-    box-shadow: var(--titleShadow);
     border-radius: 4px 4px 0 0;
     padding: 1rem 2rem;
     text-align: left;

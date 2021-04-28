@@ -148,7 +148,7 @@ const App = () =>{
         
         <Menu show={show} isTablet={isTablet} isMobile={isMobile} theme={theme} darkMode={darkMode} address={address} 
           setAddress={setAddress} provider={provider} setProvider={setProvider} setOpenAddress={setOpenAddress} 
-          setSideMenu={setSideMenu}/>
+          setSideMenu={setSideMenu} setDarkMode={setDarkMode} />
         <TabletMenu show={show} isTablet={isTablet} isMobile={isMobile} theme={theme} darkMode={darkMode} address={address} 
           setAddress={setAddress} provider={provider} setProvider={setProvider} setOpenAddress={setOpenAddress} 
           setSideMenu={setSideMenu}/>

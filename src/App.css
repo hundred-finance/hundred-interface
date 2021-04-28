@@ -61,9 +61,9 @@ body{
 }
 
 .App-dark{
-  --navBackground: #333;
-  --background: #555;
-  --sectionBackground: #333;
+  --navBackground: #101010;
+  --background: #101010;
+  --sectionBackground: #101010;
   --secondaryBackground: #101010;
   --boxBackground: #000;
   --text: #EEE;

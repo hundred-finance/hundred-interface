@@ -6,7 +6,6 @@ import NavbarLink from "../Navbar/navBarLink"
 import NavBarLinks from "../Navbar/navBarLinks"
 import NavbarLogo from "../Navbar/navbarLogo"
 import NavBarRight from "../Navbar/navBarRight"
-import SideMenuButton from "../Navbar/sideMenuButton"
 
 const Menu = (props) => {
     return(
@@ -21,10 +20,10 @@ const Menu = (props) => {
                     <NavbarLink theme={props.theme} link="https://hundred-dashboard.netlify.app/" target="_blank">Dashboard</NavbarLink>
                   </NavBarLinks>
                 </NavbarLeft>
-                <NavBarRight>
+                <NavBarRight setDarkMode={props.setDarkMode} darkMode={props.darkMode}>
                   <AddressButton theme={props.theme} address={props.address} setAddress={props.setAddress} provider={props.provider} 
                     setProvider={props.setProvider} setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
-                  <SideMenuButton theme={props.theme} setSideMenu ={props.setSideMenu}/>
+                  {/* <SideMenuButton theme={props.theme} setSideMenu ={props.setSideMenu}/> */}
                 </NavBarRight>
             </Navbar>
         ) : null
