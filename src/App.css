@@ -43,7 +43,7 @@ body{
   --bottomShadow: 0px 1px 10px 1px rgba(17, 162, 234, 0.5);
   --overlayBackground: rgba(0, 0, 0, 0.6);
   --buttonColor: #10337a;
-  --buttonHover: #10337a;/*#1abc9c;*/
+  --buttonHover: #2853ff;
   --buttonHover2: #f0f0f0;
   --textShadow: 1px 1px 1px rgba(17, 162, 234, .2);
   --spinnerColor: #f0f0f0;
@@ -62,7 +62,7 @@ body{
 
 .App-dark{
   --navBackground: #101010;
-  --background: #101010;
+  --background: #555;
   --sectionBackground: #101010;
   --secondaryBackground: #101010;
   --boxBackground: #000;
@@ -79,6 +79,6 @@ body{
   --textPositive: #00ffdd;
   --dialogSectionBackground:#333;
   --borderBottom: rgba(9, 9, 9, 0.05);
-  --showMore: #092665;
+  --showMore: #fff;
 }
 

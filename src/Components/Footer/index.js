@@ -9,7 +9,7 @@ const Footer = (props) => {
             <div className='footer-content'>
                 <div className='footer-left'>
                     <div className='footer-logo'>
-                        <HuLogo size={props.isMobile ? "60px" : "80px"} darkMode={false}/>
+                        <HuLogo size={props.isMobile ? "60px" : "80px"} darkMode={props.darkMode}/>
                     </div>
                     <div className='footer-left-navbar'>
                         <a className='footer-link-item' href='/'>Governance</a>

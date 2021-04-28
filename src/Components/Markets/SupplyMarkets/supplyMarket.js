@@ -68,10 +68,16 @@ const SupplyMarket = (props) => {
                   })}
 
                   {
-                    !more && (
+                    !more ? (
                       <tr className='showMoreRow'>
                         <td colSpan={5} className='showMore' onClick={() => setMore(true)}>
                           SHOW MORE
+                        </td>
+                      </tr>
+                    ) : (
+                      <tr className='showMoreRow'>
+                        <td colSpan={5} className='showMore' onClick={() => setMore(false)}>
+                          SHOW LESS
                         </td>
                       </tr>
                     )

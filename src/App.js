@@ -155,7 +155,7 @@ const App = () =>{
         <Content  address={address} provider={provider} setSpinnerVisible={setSpinnerVisible} darkMode={darkMode} spinnerVisible={spinnerVisible}>
           
         </Content>
-        <Footer />
+        <Footer darkMode={darkMode} />
       </Wrapper>
       
       <SideMenu open={sideMenu} theme={theme} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}>
