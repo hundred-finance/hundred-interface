@@ -205,10 +205,10 @@ const App = () =>{
       <Wrapper sideMenu={sideMenu} theme={theme}>
         
         <Menu show={show} isTablet={isTablet} isMobile={isMobile} theme={theme} darkMode={darkMode} address={address} 
-          setAddress={setAddress} setNetwork = {setNetwork} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu}/>
+          setAddress={setAddress} setNetwork = {setNetwork} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setDarkMode={setDarkMode}/>
         <TabletMenu show={show} isTablet={isTablet} isMobile={isMobile} theme={theme} darkMode={darkMode} address={address} 
           setAddress={setAddress} setNetwork = {setNetwork} setOpenAddress={setOpenAddress} 
-          setSideMenu={setSideMenu}/>
+          setSideMenu={setSideMenu} setDarkMode={setDarkMode}/>
         <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} darkMode={darkMode} spinnerVisible={spinnerVisible}>
           
         </Content>
