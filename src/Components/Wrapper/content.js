@@ -714,7 +714,7 @@ const Content = (props) => {
   }
     
     return (
-        <div>
+        <div style={{minHeight: '100vh'}}>
             <GeneralDetails generalData={generalData}/>
             <Markets generalData = {generalData} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog}/>
             <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
