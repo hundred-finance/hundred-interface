@@ -471,7 +471,6 @@ const Content = (props) => {
           market = marketsData.find(m => m.symbol === symbol)
           if (market){
             market.spinner = false
-            market.isEnterMarket = true
           }
           setUpdate(true)
           var comptroller =  await getComptrollerData.current()
@@ -508,7 +507,6 @@ const Content = (props) => {
           market = marketsData.find(m => m.symbol === symbol)
           if(market){
             market.spinner = false
-            market.isEnterMarket = false
           }
           setUpdate(true)
           var comptroller =  await getComptrollerData.current()
