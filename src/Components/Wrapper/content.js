@@ -460,20 +460,22 @@ const Content = (props) => {
           spinner.current(false)
           setOpenEnterMarket(false)
           const receipt = await tx.wait()
-
-          market = marketsData.find(m => m.symbol === symbol)
-          market.spinner = false
-          market.isEnterMarket = true
-          setUpdate(true)
-          var comptroller =  await getComptrollerData.current()
-          setComptrollerData(comptroller) 
           console.log(receipt)
-           
         }
         catch (err){
           console.log(err)
           market = marketsRef.current.find(m => m.symbol === symbol)
           market.spinner = false 
+        }
+        finally{
+          market = marketsData.find(m => m.symbol === symbol)
+          if (market){
+            market.spinner = false
+            market.isEnterMarket = true
+          }
+          setUpdate(true)
+          var comptroller =  await getComptrollerData.current()
+          setComptrollerData(comptroller) 
         }
       }
       spinner.current(false)
@@ -481,26 +483,38 @@ const Content = (props) => {
 
     const handleExitMarket = async (address, symbol) => {
       spinner.current(true)
-
-      //var market = marketsData.find(m => m.symbol === symbol)
-      // if (market){
-      //   try{
-      //     const signer = props.provider.getSigner()
-      //     const signedComptroller = comptrollerData.comptroller.connect(signer)
-      //     const tx = await signedComptroller.exitMarket(market.pTokenaddress)
-
-      //     const receipt = await tx.wait()
-
-      //     if(receipt.status){
-      //       var comptroller =  await getComptrollerData.current()
-      //       setComptrollerData(comptroller)  
-      //       setOpenEnterMarket(false)
-      //     } 
-      //   }
-      //   catch (err){
-      //     console.log(err)
-      //   }
-      // }
+      var market = marketsRef.current.find(m => m.symbol === symbol)
+      if (market){
+        try{
+          let addr = [market.pTokenaddress]
+          const signer = props.provider.getSigner()
+          const signedComptroller = comptrollerData.comptroller.connect(signer)
+          const tx = await signedComptroller.exitMarkets(addr)
+          market = marketsData.find(m => m.symbol === symbol)
+          market.spinner = true
+          console.log(tx)
+          spinner.current(false)
+          setOpenEnterMarket(false)
+          const receipt = await tx.wait() 
+          console.log(receipt)
+           
+        }
+        catch (err){
+          market = marketsRef.current.find(m => m.symbol === symbol)
+          market.spinner = false 
+        }
+        finally{
+          spinner.current(false)
+          market = marketsData.find(m => m.symbol === symbol)
+          if(market){
+            market.spinner = false
+            market.isEnterMarket = false
+          }
+          setUpdate(true)
+          var comptroller =  await getComptrollerData.current()
+          setComptrollerData(comptroller)
+        }
+      }
       spinner.current(false)
     }
     
