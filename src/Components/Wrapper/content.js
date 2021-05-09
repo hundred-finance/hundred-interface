@@ -485,10 +485,9 @@ const Content = (props) => {
       var market = marketsRef.current.find(m => m.symbol === symbol)
       if (market){
         try{
-          let addr = [market.pTokenaddress]
           const signer = props.provider.getSigner()
           const signedComptroller = comptrollerData.comptroller.connect(signer)
-          const tx = await signedComptroller.exitMarkets(addr)
+          const tx = await signedComptroller.exitMarket(market.pTokenaddress)
           market = marketsData.find(m => m.symbol === symbol)
           market.spinner = true
           console.log(tx)
@@ -501,6 +500,7 @@ const Content = (props) => {
         catch (err){
           market = marketsRef.current.find(m => m.symbol === symbol)
           market.spinner = false 
+          console.log(err)
         }
         finally{
           spinner.current(false)
