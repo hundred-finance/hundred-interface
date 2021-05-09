@@ -63,7 +63,6 @@ const EnterMarketDialog = (props) => {
                     {props.market.isEnterMarket ? (
                      <button className="dialog-button" onClick={() => {
                         props.handleExitMarket(
-                          props.market?.pTokenAddress,
                           props.market?.symbol
                         );
                       }}>
@@ -72,7 +71,6 @@ const EnterMarketDialog = (props) => {
                     ) : (
                         <button className="dialog-button"onClick={() => {
                             props.handleEnterMarket(
-                              props.market?.pTokenAddress,
                               props.market?.symbol
                             );
                           }}>

@@ -445,7 +445,7 @@ const Content = (props) => {
       }
     }
 
-    const handleEnterMarket = async(address, symbol) => {
+    const handleEnterMarket = async(symbol) => {
       spinner.current(true)
       var market = marketsRef.current.find(m => m.symbol === symbol)
       if (market){
@@ -481,7 +481,7 @@ const Content = (props) => {
       spinner.current(false)
     }
 
-    const handleExitMarket = async (address, symbol) => {
+    const handleExitMarket = async (symbol) => {
       spinner.current(true)
       var market = marketsRef.current.find(m => m.symbol === symbol)
       if (market){
