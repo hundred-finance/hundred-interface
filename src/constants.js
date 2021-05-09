@@ -7,9 +7,9 @@ const NETWORKS = {
         symbol: "ETH",
         logo: Logos["ETH"],
         name: "Ethereum",
-        token: "0x45f157b3d3d7c415a0e40012d64465e3a0402c64",
-        UNITROLLER_ADDRESS: "0xf47dd16553a934064509c40dc5466bbfb999528b",
-        HUNDRED_ADDRESS: "0xbc16da9df0A22f01A16BC0620a27e7D6d6488550",
+        token: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
+        UNITROLLER_ADDRESS: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
+        HUNDRED_ADDRESS: "0x10010054c81c8c01951e6a631dd228bb02d8d1e5",
         COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
     },
     "0x89": {
