@@ -131,10 +131,10 @@ const BorrowMarketDialog = (props) =>{
             ).toString());
     }
 
-    const handleMaxBorrow = async (originBorrowBalance) => {
+    const handleMaxBorrow = async () => {
         var balance = new BigNumber(props.generalData?.totalBorrowLimit.minus(props.generalData?.totalBorrowBalance)).div(props.market?.underlyingPrice).div(2).decimalPlaces(18)
-        if(balance.isGreaterThan(props.market?.underlyingAmount.div(2)))
-            setBorrowInput(props.market?.underlyingAmount.div(2))
+        if(balance.isGreaterThan(props.market?.underlyingAmount))
+            setBorrowInput(props.market?.underlyingAmount)
         else
         setBorrowInput(balance.toString())
     }
@@ -163,7 +163,7 @@ const BorrowMarketDialog = (props) =>{
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
                             <TextBox placeholder={`0 ${props.market?.symbol}`} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"MAX"}
-                            onClick={ () => handleMaxBorrow(props.generalData.totalBorrowBalance)}/>
+                            onClick={ () => handleMaxBorrow()}/>
                             <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                             <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                 borrowAmount={borrowInput} repayAmount={0} validation={borrowValidation}/>
