@@ -25,7 +25,6 @@
 
 .navbar-logo{
     display: flex;
-    
     justify-content: space-between;
     align-items: center;
     padding: 0 2rem;
@@ -122,6 +121,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    margin-right: 5px;
 }
 
 .navbar-right-sun {
@@ -154,28 +154,27 @@
 
 
 .navbar-mobile-content{
-    display: block;
-    box-sizing: border-box;
     width: 100%;
-    height: calc(100% - 80px);
+    height: 0;
     background-color: var(--navBackground);
-    z-index: 80000;
+    display: block;
     position: absolute;
-    margin: 0;
-    padding: 0;
-    top: 83px;
     left:-100%;
+    top: 80px;
+    z-index: 8000;
     transition: left 0.2s ease-out;
 }
 
 .navbar-mobile-content-open{
-    left: 0;
+    left:0;
+    max-height: calc(100% - 80px);
+    height: 100%;
 }
 
 .navbar-mobile-content .navbar-links{
+    display: flex;
     flex-direction: column;
     height: 100%;
-    justify-content: flex-start;
 }
 
 .navbar-mobile-content .navbar-links .navbar-links-list{
@@ -189,9 +188,21 @@
 }
 
 .navbar-mobile-content-open .navbar-links .navbar-links-list{
-    left:0;
+    left:0; 
 }
 
 .navbar-mobile-content .navbar-links .navbar-links-list .navbar-links-list-item .nav-link{
     display: block;
+}
+
+.navbar-mobile-content .navbar-right{
+    display: flex;
+    justify-content: space-between;
+}
+
+@media (max-width: 420px){
+    .navbar-mobile-content-open{
+        max-height: calc(100% + 40px);
+        height: calc(100% + 40px);
+    }
 }

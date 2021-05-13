@@ -1,32 +1,10 @@
-.section{
-    background-color: var(--sectionBackground);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-@media (max-width: 915px) {
-    .section {
-        padding-bottom: 70px;
-    }
-}
-
-@media (max-width: 615px) {
-    .section {
-        padding-bottom: 170px;
-    }
-}
-
 .secondary-section{
-    background-color: var(--secondaryBackground);
-    margin-top: 150px;
+    margin-top: 20px;
 }
 
 .section .section-content{
     display: block;
-     width: 1200px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 20px 0;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }

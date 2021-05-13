@@ -36,7 +36,9 @@ const EnterMarketDialog = (props) => {
       props.open ? (
         <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
             <div ref={ref} className="dialog-box">
-              <img src="/closeIcon.png" alt="Close Icon" className="dialog-close" onClick={() => props.closeMarketDialog()} />
+                <button className="dialog-close" onClick={() => props.closeMarketDialog()}>
+                    
+                </button>
             <div className="dialog-title">
                 {props.market?.symbol && (
                 <img
@@ -61,7 +63,6 @@ const EnterMarketDialog = (props) => {
                     {props.market.isEnterMarket ? (
                      <button className="dialog-button" onClick={() => {
                         props.handleExitMarket(
-                          props.market?.pTokenAddress,
                           props.market?.symbol
                         );
                       }}>
@@ -70,7 +71,6 @@ const EnterMarketDialog = (props) => {
                     ) : (
                         <button className="dialog-button"onClick={() => {
                             props.handleEnterMarket(
-                              props.market?.pTokenAddress,
                               props.market?.symbol
                             );
                           }}>

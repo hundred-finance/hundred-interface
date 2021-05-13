@@ -14,10 +14,10 @@
     width: 90%;
     font-size: 1.2rem;
     outline: none;
-    border: 1px solid var(--buttonColor);
-    background-color: var(--buttonColor);
+    border: 1px solid var(--buttonHover);
+    background-color: var(--navBackground);
     color:var(--text);
-    border-radius: 25px;
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -26,8 +26,8 @@
 }
 
 .market-dialog-button button:hover{
-    background-color: var(--boxBackground);
-    color:var(--secondaryText);
+    background-color: var(--buttonColor);
+    color:var(--buttonHover2);
 }
 
 .market-dialog-button button:active{

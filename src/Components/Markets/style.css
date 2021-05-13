@@ -1,39 +1,33 @@
 .markets{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    flex-wrap: wrap;
-    width: 100%;
-    margin-top: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
 }
 
 .market-container{
-    margin: 5px;
-    border-radius: 5px;
-    color: var(--text);
-    /* text-shadow: var(--textShadow); */
-    min-height: 200px;
-}
-
-@media (max-width: 615px) {
-    .market-container {
-        width: 80%;
-    }
+    margin-top: 2rem;
+    border-bottom: 0;
+    padding: 0 .5rem;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .market-container-title{
-    height: 2rem;
-    line-height: 2rem;
     padding: 1rem;
     font-weight: bold;
     font-size: 1.2rem;
     border-radius: 4px 4px 0 0;
     background-color: var(--boxBackground);
     color: var(--secondaryText);
-    border-bottom: 1px solid var(--borderBottom);
+    border-bottom: 2px solid var(--borderBottom);
+}
+
+.market-container-show-more {
+    cursor: pointer;
+    text-align: center;
+    color: var(--showMore);
+    font-size: 10px;
+    font-weight: bold;
+    border-top: 2px solid var(--borderBottom);;
 }
 
 .market-content{
@@ -73,8 +67,8 @@
 }
 
 .market-content .circle{
-    width: 0.4rem;
-    height: 0.4rem;
+    width: 0.7rem;
+    height: 0.7rem;
     border-radius: 50%;
     border: 2px solid var(--buttonHover);
     background-color:  var(--buttonHover);
@@ -84,8 +78,8 @@
 }
 
 .market-content .circle-o{
-    width: 0.4rem;
-    height: 0.4rem;
+    width: 0.7rem;
+    height: 0.7rem;
     border-radius: 50%;
     border: 2px solid var(--buttonHover);
     display: inline-block;
@@ -126,16 +120,15 @@
     cursor:not-allowed;
 }
 
-
+/* 
 @media (max-width: 900px) {
     .markets{
         grid-template-columns: repeat(auto-fit, minmax(250px, 900px));
     }
-}
+} */
 
 .rounded-circle{
     border-radius: 50%;
-    background-color: #fff;
 }
 
 .market-table .market-table-content .showMoreRow {
@@ -147,4 +140,21 @@
     color: var(--showMore);
     font-size: 10px;
     font-weight: bold;
+}
+
+@media (min-width: 900px){
+    .markets{
+        display: flex;
+        justify-content: center;
+    }
+
+    .market-container{
+        margin-top: 2rem;
+        border-bottom: 0;
+        padding: 0 .5rem;
+        max-width: 640px;
+        margin-left: 0;
+        margin-right: 0;
+
+    }
 }

@@ -1,38 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
-* {
+*{
   font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 html{
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  box-sizing: border-box;
   font-size: 14px;
 }
-
-body{
-  line-height: 1.5;
-  min-height: 100vh;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow:hidden;
-}
-
-.wrapper .content{
-  padding:1rem;
-}
-
-.content{
-  padding: .5rem 0;
-}
-
 
 .App {
   min-height: 100vh;
   width: 100%;
+  min-width: 210px;
+  height: 100%;
+  position: relative;
+  text-align: center;
   --navBackground: #111111;
   --background: #f9fafb;
   --sectionBackground: #101010;
@@ -43,7 +28,7 @@ body{
   --bottomShadow: 0px 1px 10px 1px rgba(17, 162, 234, 0.5);
   --overlayBackground: rgba(0, 0, 0, 0.6);
   --buttonColor: #10337a;
-  --buttonHover: #10337a;/*#1abc9c;*/
+  --buttonHover: #2853ff;
   --buttonHover2: #f0f0f0;
   --textShadow: 1px 1px 1px rgba(17, 162, 234, .2);
   --spinnerColor: #f0f0f0;
@@ -58,6 +43,8 @@ body{
   --borderBottom: rgba(10, 6, 6, 0.05);
   --grayText: #727A89;
   --showMore: #092665;
+  --navbarButtonHover: #444;
+  background-color: var(--background);
 }
 
 .App-dark{
@@ -68,7 +55,6 @@ body{
   --boxBackground: #000;
   --text: #EEE;
   --secondaryText: #fff;
-  --buttonHover: rgb(17, 162, 234);/*#1abc9c;*/
   --bottomShadow: 0px 1px 10px 1px rgba(230, 230, 230, 0.5);
   --overlayBackground: rgba(250, 250, 250, 0.2);
   --boxShadow: 0px 0px 15px -1px rgba(230, 230, 230, 0.5);
@@ -80,6 +66,8 @@ body{
   --textPositive: #00ffdd;
   --dialogSectionBackground:#333;
   --borderBottom: rgba(9, 9, 9, 0.05);
-  --showMore: #092665;
+  --showMore: #fff;
+  background-color: var(--background);
 }
+
 
