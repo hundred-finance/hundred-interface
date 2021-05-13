@@ -31,7 +31,8 @@ const BorrowMarketRow: React.FC<Props> = (props : Props) => {
             ) : null} */}
         </td>
         <td>
-            {props.details ? +toDecimalPlaces(props.details.borrowBalanceInTokenUnit, 18 + props.details.decimals, 4).toString() : "0"}
+            {props.details ? (+toDecimalPlaces(props.details.borrowBalanceInTokenUnit, 18, 18) > 0.001 || +toDecimalPlaces(props.details.borrowBalanceInTokenUnit, 18, 18) === 0
+                              ? +toDecimalPlaces(props.details.borrowBalanceInTokenUnit, 18, 4).toString() : "<0.001"): "0"}
         </td>
         
         <td>
@@ -39,7 +40,7 @@ const BorrowMarketRow: React.FC<Props> = (props : Props) => {
         </td>
         <td>
           <div className="spinner-container">
-            {`$${props.details ? convertToLargeNumberRepresentation(props.details.liquidity, 36, 2) : "0"}`}
+            {`${props.details ? convertToLargeNumberRepresentation(props.details.liquidity, 36, 2, '$') : "$0"}`}
             {(props?.details?.borrowSpinner || props?.details?.repaySpinner) ? (<Spinner size={"20px"}/>) : null}
           </div>
         </td>

@@ -51,7 +51,7 @@ export const getShortenAddress = (address: string) : string => {
   return `${firstCharacters}...${lastCharacters}`;
 };
 
-export const convertToLargeNumberRepresentation = (value: BigNumber, decimals: number, dp?: number) : string => {
+export const convertToLargeNumberRepresentation = (value: BigNumber, decimals: number, dp?: number, symbol?: string) : string => {
   if (!value) {
     return "0";
   } else{
@@ -59,10 +59,12 @@ export const convertToLargeNumberRepresentation = (value: BigNumber, decimals: n
     if(number === 0)
       return number.toPrecision(dp ? dp : 3) + " "
     else if (number >= 1e5) {
-      return `${(number/1e6).toPrecision(dp ? dp : 4)}M`
+      return `${symbol ? symbol : ""}${(number/1e6).toPrecision(dp ? dp : 4)}M`
     } else if (number >= 1e2) {
-      return `${(number/1e3).toPrecision(dp ? dp : 4)}K`
+      return `${symbol ? symbol : ""}${(number/1e3).toPrecision(dp ? dp : 4)}K`
     } else {
+      if(number > 0 && number < 0.01)
+        return `<${symbol ? symbol : ""}0.01`
       return number.toPrecision(dp ? 2 : 4) + " "
     }
   } 

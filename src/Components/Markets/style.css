@@ -36,6 +36,8 @@
     overflow: hidden;
     overflow-x: auto;
     width: 100%;
+    background-color: var(--boxBackground);
+
 }
 
 .market-table{
@@ -48,9 +50,9 @@
 
 .market-table .market-table-header tr{
     height: 60px;
-    background-color: var(--boxBackground);
     color: var(--grayText);
     padding: 0px 5px;
+    border-bottom: 1px solid var(--borderBottom);
 }
 
 .market-table .market-table-content tr{
@@ -63,7 +65,7 @@
     padding: 15px;
     font-size: 1rem;
     color: var(--secondaryText);
-    background-color: var(--boxBackground);
+    
 }
 
 .market-content .circle{
@@ -129,6 +131,7 @@
 
 .rounded-circle{
     border-radius: 50%;
+    background-color: white;
 }
 
 .market-table .market-table-content .showMoreRow {
@@ -155,6 +158,10 @@
         max-width: 640px;
         margin-left: 0;
         margin-right: 0;
-
     }
+
+    .market-content{
+        width: 100%;
+    }
+
 }

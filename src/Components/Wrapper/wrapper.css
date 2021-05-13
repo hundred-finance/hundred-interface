@@ -14,12 +14,12 @@
 
 @media (max-width: 615px) {
     .wrapper{
-        padding-bottom: 160px;
+        padding-bottom: 185px;
     }
 }
 
-@media (max-width: 290px){
+@media (max-width: 330px){
     .wrapper{
-        padding-bottom: 230px;
+        padding-bottom: 320px;
     }
 }
