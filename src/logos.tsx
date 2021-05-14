@@ -53,6 +53,11 @@ import XRPlogo from "./assets/images/XRP-logo.png"
 import XTZlogo from "./assets/images/XTZ-logo.png"
 import XVSlogo from "./assets/images/XVS-logo.png"
 import YFIIlogo from "./assets/images/YFII-logo.png"
+import REPlogo from "./assets/images/REP-logo.png"
+import BATlogo from "./assets/images/BAT-logo.png"
+import ZRXlogo from "./assets/images/ZRX-logo.png"
+import KNClogo from "./assets/images/KNC-logo.png"
+import MANAlogo from "./assets/images/MANA-logo.png"
 
 const Logos: { [key: string]: string } = {
     "ETH"   : ETHlogo,
@@ -72,6 +77,7 @@ const Logos: { [key: string]: string } = {
     "UNI"   : UNIlogo,
     "YFI"   : YFIlogo,
     "sUSD"  : SUSDlogo,
+    "SUSD"  : SUSDlogo,
     "XDAI"  : XDAIlogo,
     "SUSHI" : SUSHIlogo,
     "BAL"   : BALlogo,
@@ -110,7 +116,12 @@ const Logos: { [key: string]: string } = {
     "XRP"   : XRPlogo,
     "XTZ"   : XTZlogo,
     "XVS"   : XVSlogo,
-    "YFII"  : YFIIlogo
+    "YFII"  : YFIIlogo,
+    "REP"   : REPlogo,
+    "BAT"   : BATlogo,
+    "ZRX"   : ZRXlogo,
+    "KNC"   : KNClogo,
+    "MANA"  : MANAlogo
 }
 
 export default Logos
