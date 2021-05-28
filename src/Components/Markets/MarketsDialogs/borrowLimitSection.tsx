@@ -14,7 +14,7 @@ const BorrowLimitSection:React.FC<Props> = (props : Props) => {
 
     const BorrowLimit = () : BigNumber => {
         const value = props.generalData && props.newBorrowLimit && props.newBorrowLimit.gt(BigNumber.from(0)) ?  +props.generalData?.totalBorrowBalance.toString() / (+props.newBorrowLimit.toString()) * 10 : 0
-        return BigNumber.parseValue(value.toString())
+        return BigNumber.parseValue(value.toFixed(18))
     }
 
     return (
