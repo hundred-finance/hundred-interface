@@ -210,7 +210,6 @@ const Content: React.FC<Props> = (props : Props) => {
     const getMaxAmount = async (market: CTokenInfo) : Promise<BigNumber> => {
         if (market.isNativeToken && props.provider) {
           const gasPrice = await props.provider.getGasPrice()
-          console.log(gasPrice.toString())
           const price = BigNumber.parseValue(gasPrice.toString()).mul(BigNumber.from(gasLimit))
           const balance = market.walletBalance.sub(price)
           return balance

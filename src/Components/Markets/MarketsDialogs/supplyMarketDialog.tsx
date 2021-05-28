@@ -72,7 +72,6 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
               props?.generalData.totalBorrowLimit?.add(props.market?.isEnterMarket ? BigNumber.parseValue(supplyInput!=="" ? supplyInput : "0").
                 mul(props.market?.underlyingPrice).mul(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
             }
-            console.log(newBorrowLimit1)
         
           handleSupplyAmountChange()
           // eslint-disable-next-line
