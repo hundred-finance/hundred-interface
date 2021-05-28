@@ -36,12 +36,12 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
         if(props.generalData){
             if (borrowAmount === "") borrowAmount="0"
         if (repayAmount === "") repayAmount="0"
-        // const value = 
-        //     +originBorrowBalance.toString() + ((+BigNumber.parseValue(borrowAmount).toString() - +BigNumber.parseValue(repayAmount).toString()) * +underlyingPrice.toString())
-            const value = (originBorrowBalance.add((BigNumber.parseValue(borrowAmount).sub(BigNumber.parseValue(repayAmount)).mul(underlyingPrice)))).mul(BigNumber.from(10))
-            setBorrowBalance(BigNumber.parseValue(value.toString()))
-            const pValue = +value.toString() / +props.generalData.totalBorrowLimit.toString() * 100
-            setBorrowLimit(BigNumber.parseValue(pValue.toString()))
+        const value = 
+            +originBorrowBalance.toString() + ((+BigNumber.parseValue(borrowAmount).toString() - +BigNumber.parseValue(repayAmount).toString()) * +underlyingPrice.toString())
+            // const value = (originBorrowBalance.add((BigNumber.parseValue(borrowAmount).sub(BigNumber.parseValue(repayAmount)).mul(underlyingPrice))))
+            setBorrowBalance(BigNumber.parseValue(value.toFixed(18)))
+            const pValue = +value / +props.generalData.totalBorrowLimit.toString() * 100
+            setBorrowLimit(BigNumber.parseValue(pValue.toFixed(18)))
         }
       }
 

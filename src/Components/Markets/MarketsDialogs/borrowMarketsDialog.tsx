@@ -151,12 +151,12 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
 
     const handleMaxBorrow = async () => {
         if(props.generalData && props.market){
-            const balance = (props.generalData.totalBorrowLimit.sub(props.generalData.totalBorrowBalance)).div(props.market.underlyingPrice).div(BigNumber.from(2))
-            const amount = props.market.underlyingAmount.div(BigNumber.from("2"))
-            if (+balance.toString() > +amount.toString())
-                setBorrowInput(amount.toString())
+            const balance = (+props.generalData.totalBorrowLimit.toString() - +props.generalData.totalBorrowBalance.toString()) / +props.market.underlyingPrice.toString() / 2
+            const amount = +props.market.underlyingAmount.toString() / 2
+            if (balance > amount)
+                setBorrowInput(amount.toFixed(18))
             else
-                setBorrowInput(balance.toRound(18))
+                setBorrowInput(balance.toFixed(18))
         }
         else setBorrowInput("0")
         // const balance = props.generalData && props.market ? 
