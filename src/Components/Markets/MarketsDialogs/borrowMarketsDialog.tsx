@@ -57,9 +57,9 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                 setBorrowValidation("Amount must be a number");
             }else if (+borrowInput <= 0) {
               setBorrowValidation("Amount must be > 0");
-            } else if (props.market && props.generalData && BigNumber.parseValue(borrowInput).mul(props.market?.underlyingPrice).gt(props.generalData?.totalBorrowLimit)) {
+            } else if (props.market && props.generalData && +BigNumber.parseValue(borrowInput).mul(props.market?.underlyingPrice).toString() > +props.generalData?.totalBorrowLimit.toString()) {
               setBorrowValidation("Amount must be <= borrow limit");
-            }else if (props.market && BigNumber.parseValue(borrowInput).gt(props.market?.underlyingAmount)) {
+            }else if (props.market && +BigNumber.parseValue(borrowInput).toString() > +props.market?.underlyingAmount.toString()) {
                 setBorrowValidation("Amount must be <= liquidity");
             } else {
               setBorrowValidation("");
@@ -151,15 +151,12 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
 
     const handleMaxBorrow = async () => {
         if(props.generalData && props.market){
-            const totalBorrowLimit = +props.generalData.totalBorrowLimit.toString()
-            const totalBorrowBalance = +props.generalData.totalBorrowBalance.toString()
-            const underlyingPrice = +props.market.underlyingPrice
-            const balance = ((totalBorrowLimit - totalBorrowBalance) / underlyingPrice) / 2
-            console.log("balance: " + balance)
-            if (balance > +props.market.underlyingAmount / 2)
-                setBorrowInput(props.market.underlyingAmount.div(BigNumber.from("2")).toString())
+            const balance = (props.generalData.totalBorrowLimit.sub(props.generalData.totalBorrowBalance)).div(props.market.underlyingPrice).div(BigNumber.from(2))
+            const amount = props.market.underlyingAmount.div(BigNumber.from("2"))
+            if (+balance.toString() > +amount.toString())
+                setBorrowInput(amount.toString())
             else
-                setBorrowInput(balance.toString())
+                setBorrowInput(balance.toRound(18))
         }
         else setBorrowInput("0")
         // const balance = props.generalData && props.market ? 

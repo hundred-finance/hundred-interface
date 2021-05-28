@@ -104,7 +104,7 @@ const App: React.FC = () => {
     else
       setDarkMode(false)
     
-    const onLoadSetAddress: (addr: string) => void = async (addr: string) =>{
+    const onLoadSetAddress = async (addr: string) : Promise<void>=>{
       if(window.ethereum){
         const accounts: string[] = await window.ethereum.request({ method: 'eth_requestAccounts' });
         if(accounts && accounts.length > 0){

@@ -3,7 +3,7 @@ import { getShortenAddress } from "../../helpers"
 import "./accountSettings.css"
 import {BigNumber, ethers} from "ethers"
 import {Network} from "../../networks"
-import {PCT_ABI} from "../../abi"
+import {HUNDRED_ABI} from "../../abi"
 import { Spinner } from "../../assets/huIcons/huIcons"
 import {HundredBalance} from "../../Classes/hundredClass"
 
@@ -34,7 +34,9 @@ const AccountSettings: React.FC<Props> = (props: Props) => {
 
     getPctBalance.current = async () => {
         if(props.network && props.provider){
-            const contract = new ethers.Contract(props.network.HUNDRED_ADDRESS, PCT_ABI, props.provider)
+            if (props.network.chainId === "0x2a")
+                return new HundredBalance( BigNumber.from(0), 18, "HND")    
+            const contract = new ethers.Contract(props.network.HUNDRED_ADDRESS, HUNDRED_ABI, props.provider)
             const balance = await contract.balanceOf(props.address)
             const decimals = await contract.decimals()
             const symbol = await contract.symbol()
@@ -45,7 +47,7 @@ const AccountSettings: React.FC<Props> = (props: Props) => {
 
     getPctEarned.current = async () => {
       //const contract = new ethers.Contract(COMPOUND_LENS_ADDRESS, COMPOUNT_LENS_ABI, props.provider)
-      return new HundredBalance (BigNumber.from("0"), 18, "Hundred")//await contract.getCompBalanceMetadata(HUNDRED_ADDRESS, props.address)
+      return new HundredBalance (BigNumber.from("0"), 18, "HND")//await contract.getCompBalanceMetadata(HUNDRED_ADDRESS, props.address)
     }
 
     useEffect(() => {

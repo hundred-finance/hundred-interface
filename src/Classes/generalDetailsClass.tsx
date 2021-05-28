@@ -93,11 +93,8 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
     const totalBorrowLimitTemp: number = +totalBorrowLimit.toFixed(18)
     const totalBorrowBalanceTemp: number = +totalBorrowBalance.toFixed(18)
     const temp = (totalBorrowBalanceTemp / totalBorrowLimitTemp * 100)
-    const totalBorrowLimitUsedPercent = totalBorrowLimitTemp > 0 ? BigNumber.parseValue(temp.toString()) : BigNumber.from("0")
-
-    const sub = (+yearSupplyInterest.toString() - (+yearBorrowInterest.toString())) / +totalSupplyBalance.toString()
-    
-    const netApy = totalSupplyBalance.gt(BigNumber.from("0")) ? BigNumber.parseValue(sub.toString()) : BigNumber.from("0")
+    const totalBorrowLimitUsedPercent = totalBorrowLimit.gt(BigNumber.from(0)) ? BigNumber.parseValue(temp.toFixed(18)) : BigNumber.from("0")
+    const netApy = totalSupplyBalance.gt(BigNumber.from("0")) ? (yearSupplyInterest.sub(yearBorrowInterest)).div(totalSupplyBalance) : BigNumber.from("0")
     
     return new GeneralDetailsData(
                             totalSupplyBalance,

@@ -24,7 +24,6 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
                     props.borrowAmount,
                     props.repayAmount,
                     props.market?.underlyingPrice)
-                console.log("repay: " + props.repayAmount)
             }
             else{
                 setBorrowBalance(BigNumber.from(0))
@@ -39,7 +38,7 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
         if (repayAmount === "") repayAmount="0"
         // const value = 
         //     +originBorrowBalance.toString() + ((+BigNumber.parseValue(borrowAmount).toString() - +BigNumber.parseValue(repayAmount).toString()) * +underlyingPrice.toString())
-            const value = originBorrowBalance.add((BigNumber.parseValue(borrowAmount).sub(BigNumber.parseValue(repayAmount)).mul(underlyingPrice)))
+            const value = (originBorrowBalance.add((BigNumber.parseValue(borrowAmount).sub(BigNumber.parseValue(repayAmount)).mul(underlyingPrice)))).mul(BigNumber.from(10))
             setBorrowBalance(BigNumber.parseValue(value.toString()))
             const pValue = +value.toString() / +props.generalData.totalBorrowLimit.toString() * 100
             setBorrowLimit(BigNumber.parseValue(pValue.toString()))
@@ -80,7 +79,7 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
                     {borrowLimit.gt(BigNumber.from("0")) ? 
                         (
                             <span style={{color: (+borrowLimit.toString() > 100) ? "red" : ""}}>
-                                {`${borrowLimit.toRound(2)}%`}
+                                {`${borrowLimit.toFixed(2)}%`}
                             </span>
                         ) : null}
                 </div>

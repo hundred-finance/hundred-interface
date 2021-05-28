@@ -27,8 +27,9 @@ export class BigNumber {
     }
 
     div = (value: BigNumber) : BigNumber => {
-      const res = this._value.mul(value._value)
-      const decimals = res.eq(0) ? 0 : this._decimals + value._decimals
+      const res = this._value.div(value._value)
+      let decimals = res.eq(0) ? 0 : this._decimals - value._decimals
+      if (decimals < 0 ) decimals = -1 * decimals
       return new BigNumber(_constructorGuard, res, decimals)
     }
 
@@ -81,7 +82,6 @@ export class BigNumber {
     }
   
     static minimum = (b1: BigNumber, b2: BigNumber) : BigNumber => {
-      console.log(b1.toString() + " - " + b2.toString() )
       if(+b1.toString() > +b2.toString()) return b2
       return b1
     }
