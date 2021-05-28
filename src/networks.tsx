@@ -71,7 +71,19 @@ const NETWORKS: NetworkData = {
         UNITROLLER_ADDRESS: "0x0F390559F258eB8591C8e31Cf0905E97cf36ACE2", 
         HUNDRED_ADDRESS: "0x100100745f72c0b072C55E7fe0750Ba212E380A7",
         COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-    }      
+    },
+    "0x2a":
+    {
+        chainId: "0x2a",
+        network: "KOVAN Test Network",
+        symbol: "ETH",
+        logo: Logos["ETH"],
+        name: "ETH",
+        token: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
+        UNITROLLER_ADDRESS: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
+        HUNDRED_ADDRESS: "0x100100745f72c0b072C55E7fe0750Ba212E380A7",
+        COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+    }         
 }
 
 export { NETWORKS }

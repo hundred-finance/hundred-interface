@@ -205,7 +205,7 @@ const App: React.FC = () => {
               address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork}/>
         }
         <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-          spinnerVisible={spinnerVisible}/>
+          spinnerVisible={spinnerVisible} darkMode={darkMode} />
       </Wrapper>
       <Footer darkMode={darkMode} isMobile={isMobile}/>
       <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}>

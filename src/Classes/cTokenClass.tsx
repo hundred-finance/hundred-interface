@@ -1,4 +1,5 @@
-import { BigNumber, ethers, utils } from "ethers"
+import { ethers} from "ethers"
+import {BigNumber} from "../bigNumber"
 import { CTOKEN_ABI, MKR_TOKEN_ABI, TOKEN_ABI } from "../abi"
 import Logos from "../logos"
 import { Network } from "../networks"
@@ -16,21 +17,21 @@ export class CTokenInfo{
     logoSource: string
     supplyApy: BigNumber
     borrowApy: BigNumber
-    underlyingAllowance: ethers.BigNumber
-    walletBalance: ethers.BigNumber
-    supplyBalanceInTokenUnit: ethers.BigNumber
-    supplyBalance: ethers.BigNumber
-    marketTotalSupply: ethers.BigNumber
-    borrowBalanceInTokenUnit: ethers.BigNumber
-    borrowBalance: ethers.BigNumber
-    marketTotalBorrowInTokenUnit: ethers.BigNumber
-    marketTotalBorrow: ethers.BigNumber
+    underlyingAllowance: BigNumber
+    walletBalance: BigNumber
+    supplyBalanceInTokenUnit: BigNumber
+    supplyBalance: BigNumber
+    marketTotalSupply: BigNumber
+    borrowBalanceInTokenUnit: BigNumber
+    borrowBalance: BigNumber
+    marketTotalBorrowInTokenUnit: BigNumber
+    marketTotalBorrow: BigNumber
     isEnterMarket: boolean
-    underlyingAmount: ethers.BigNumber
-    underlyingPrice: ethers.BigNumber
-    liquidity: ethers.BigNumber
-    collateralFactor: ethers.BigNumber
-    pctSpeed: ethers.BigNumber
+    underlyingAmount: BigNumber
+    underlyingPrice: BigNumber
+    liquidity: BigNumber
+    collateralFactor: BigNumber
+    pctSpeed: BigNumber
     decimals: number
     spinner: boolean
     supplySpinner: boolean
@@ -39,27 +40,30 @@ export class CTokenInfo{
     repaySpinner: boolean
     isNativeToken: boolean
 
+    supplyPctApy: BigNumber
+    borrowPctApy: BigNumber
+
     constructor(pTokenAddress: string,
                 underlyingAddress: string | null,
                 symbol: string,
                 logoSource: string,
                 supplyApy: BigNumber,
                 borrowApy: BigNumber,
-                underlyingAllowance: ethers.BigNumber,
-                walletBalance: ethers.BigNumber,
-                supplyBalanceInTokenUnit: ethers.BigNumber,
-                supplyBalance: ethers.BigNumber,
-                marketTotalSupply: ethers.BigNumber,
-                borrowBalanceInTokenUnit: ethers.BigNumber,
-                borrowBalance: ethers.BigNumber,
-                marketTotalBorrowInTokenUnit: ethers.BigNumber,
-                marketTotalBorrow: ethers.BigNumber,
+                underlyingAllowance: BigNumber,
+                walletBalance: BigNumber,
+                supplyBalanceInTokenUnit: BigNumber,
+                supplyBalance: BigNumber,
+                marketTotalSupply: BigNumber,
+                borrowBalanceInTokenUnit: BigNumber,
+                borrowBalance: BigNumber,
+                marketTotalBorrowInTokenUnit: BigNumber,
+                marketTotalBorrow: BigNumber,
                 isEnterMarket: boolean,
-                underlyingAmount: ethers.BigNumber,
-                underlyingPrice: ethers.BigNumber,
-                liquidity: ethers.BigNumber,
-                collateralFactor: ethers.BigNumber,
-                pctSpeed: ethers.BigNumber,
+                underlyingAmount: BigNumber,
+                underlyingPrice: BigNumber,
+                liquidity: BigNumber,
+                collateralFactor: BigNumber,
+                pctSpeed: BigNumber,
                 decimals: number,
                 isNativeToken: boolean){
         this.pTokenAddress= pTokenAddress
@@ -90,6 +94,9 @@ export class CTokenInfo{
         this.withdrawSpinner = false
         this.borrowSpinner = false
         this.repaySpinner = false
+
+        this.supplyPctApy = BigNumber.from("0")
+        this.borrowPctApy = BigNumber.from("0")
     }
 }
 
@@ -104,16 +111,16 @@ class UnderlyingInfo{
       walletBalance: BigNumber
       allowance: BigNumber
 
-      constructor(address: string, symbol: string, name: string, decimals: number, totalSupply: number, logo: string, price: BigNumber, walletBalance: BigNumber, allowance: BigNumber){
+      constructor(address: string, symbol: string, name: string, decimals: number, totalSupply: number, logo: string, price: BigNumber, walletBalance: ethers.BigNumber, allowance: ethers.BigNumber){
         this.address = address 
         this.symbol = symbol
         this.name = name 
         this.decimals = decimals 
         this.totalSupply = totalSupply 
         this.logo = logo 
-        this.price = price 
-        this.walletBalance = walletBalance 
-        this.allowance = allowance 
+        this.price = price
+        this.walletBalance = BigNumber.from(walletBalance, decimals) 
+        this.allowance = BigNumber.from(allowance, decimals)
       }
 }
 
@@ -122,36 +129,40 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const underlyingAddress = isNativeToken ? null : await ctoken.underlying()
     const underlying = await getUnderlying(underlyingAddress, address, comptrollerData, provider,userAddress, network)
     const decimals = underlying.decimals
-    const underlyingPrice = underlying.price
+    const underlyingPrice = BigNumber.from(underlying.price, 36-decimals)
 
     const accountSnapshot = await ctoken.getAccountSnapshot(userAddress)
-    const supplyBalanceInTokenUnit = BigNumber.from(accountSnapshot[1].toString()).mul(BigNumber.from(accountSnapshot[3].toString()))
+    const accountSnapshot1 = BigNumber.from(accountSnapshot[1].toString(), 18)
+    const accountSnapshot3 = BigNumber.from(accountSnapshot[3].toString(), decimals)
+    const supplyBalanceInTokenUnit = accountSnapshot1.mul(accountSnapshot3)
+
     const supplyBalance = supplyBalanceInTokenUnit.mul(underlyingPrice)
 
-    const borrowBalanceInTokenUnit = BigNumber.from(accountSnapshot[2].toString())
+    const borrowBalanceInTokenUnit = BigNumber.from(accountSnapshot[2].toString(), decimals)
     const borrowBalance = borrowBalanceInTokenUnit.mul(underlyingPrice)
 
-    const cTokenTotalSupply = await ctoken.totalSupply()
-    const exchangeRateStored = await ctoken.exchangeRateStored()
-    const marketTotalSupply = cTokenTotalSupply.mul(exchangeRateStored.toString()).mul(underlyingPrice)
 
-    const totalBorrows = await ctoken.totalBorrows()
-    const marketTotalBorrowInTokenUnit = totalBorrows
+    const cTokenTotalSupply = BigNumber.from(await ctoken.totalSupply(), decimals)
+    const exchangeRateStored = BigNumber.from(await ctoken.exchangeRateStored(), 18)
+    const marketTotalSupply = cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
+
+    const totalBorrows = BigNumber.from(await ctoken.totalBorrows(), decimals)
+    const marketTotalBorrowInTokenUnit = BigNumber.from(totalBorrows._value, decimals)
     const marketTotalBorrow = totalBorrows?.mul(underlyingPrice)
 
     const isEnterMarket = comptrollerData.enteredMarkets.includes(address);
 
     const markets = await comptrollerData.comptroller.markets(address)
 
-    const collateralFactor: BigNumber = BigNumber.from(markets.collateralFactorMantissa.toString())
+    const collateralFactor = BigNumber.from(markets.collateralFactorMantissa.toString(), 18)
     
-    const supplyRatePerBlock: BigNumber = await ctoken.supplyRatePerBlock()
-    const supplyApy = utils.parseUnits((Math.pow((supplyRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
+    const supplyRatePerBlock = BigNumber.from(await ctoken.supplyRatePerBlock())
+    const supplyApy = BigNumber.parseValue((Math.pow((supplyRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
 
-    const borrowRatePerBlock: ethers.BigNumber = await ctoken.borrowRatePerBlock()
-    const borrowApy = utils.parseUnits((Math.pow((borrowRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
+    const borrowRatePerBlock = BigNumber.from(await ctoken.borrowRatePerBlock(), decimals)
+    const borrowApy = BigNumber.parseValue((Math.pow((borrowRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
 
-    const cash: BigNumber = await ctoken.getCash() 
+    const cash = BigNumber.from(await ctoken.getCash(), decimals) 
     const underlyingAmount = cash;
 
     const liquidity = underlyingAmount.mul(underlyingPrice)
@@ -215,7 +226,7 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const contract = new ethers.Contract(address, TOKEN_ABI, provider)
     const symbol = await contract.symbol()
     const logo = Logos[symbol]
-    let price = ethers.BigNumber.from("0")
+    let price = BigNumber.from("0")
     try{
       price = await comptrollerData.oracle.getUnderlyingPrice(ptoken)
     }

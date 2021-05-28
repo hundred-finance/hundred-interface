@@ -1,6 +1,6 @@
 .dialog-section{
     background-color: var(--dialogSectionBackground);
-    color: var(--text);
+    color: var(--secondaryText);
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -11,30 +11,39 @@
 .dialog-section-content{
     
     display: flex;
-    height: 20px;
+    height: 25px;
     justify-content: space-between;
 }
 
 .dialog-section .dialog-section-content .fill{
     flex:1;
     padding-left: 12px;
+    text-align: left;
+    line-height: 25px;
 }
 
 .dialog-section .logo-holder{
     display: block;
-    width: 20px;
-    height: 20px;
-    
+    width: 25px;
+    height: 25px;
+    border-radius: 100%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .dialog-section-title{
     display: none;
 }
 
+.dialog-section-content .dialog-section-content-header{
+    line-height: 25px;
+}
 
-
-/* .dialog-section-content .dialog-section-content-value{
-} */
+.dialog-section-content .dialog-section-content-value{
+    line-height: 25px;
+}
 
 .dialog-section-content .dialog-section-content-value .dialog-section-arrow{
     

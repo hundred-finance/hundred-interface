@@ -1,8 +1,8 @@
-import { BigNumber } from "@ethersproject/bignumber"
+import { BigNumber } from "../../../bigNumber"
 import React from "react"
 import { Spinner } from "../../../assets/huIcons/huIcons"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
-import { convertToLargeNumberRepresentation, toDecimalPlaces } from "../../../helpers"
+import { convertToLargeNumberRepresentation } from "../../../helpers"
 
 import "../style.css"
 
@@ -22,8 +22,8 @@ const BorrowMarketRow: React.FC<Props> = (props : Props) => {
                 <span>{props?.details?.symbol}</span>
             </div>
         </td>
-        <td className={props.details && +toDecimalPlaces(props.details.borrowApy, 36 - props.details.decimals, 2) > 0 ? "positive" : ""}>
-            {`${props.details ? toDecimalPlaces(props.details.borrowApy.mul(BigNumber.from(100)), 36-props.details.decimals, 2): '0'}%`}
+        <td className={props.details && +props.details.borrowApy.toFixed(2) > 0 ? "positive" : ""}>
+            {`${props.details ? props.details.borrowApy.mul(BigNumber.from("100")).toFixed(2): '0.00'}%`}
             {/* {props?.details?.borrowPctApy?.gt(BigNumber.from("0")) ? (
               <div>
                 {`(${props.details.borrowPctApy?.times(100).toFixed(2)}% PCT)`}
@@ -31,16 +31,16 @@ const BorrowMarketRow: React.FC<Props> = (props : Props) => {
             ) : null} */}
         </td>
         <td>
-            {props.details ? (+toDecimalPlaces(props.details.borrowBalanceInTokenUnit, 18, 18) > 0.001 || +toDecimalPlaces(props.details.borrowBalanceInTokenUnit, 18, 18) === 0
-                              ? +toDecimalPlaces(props.details.borrowBalanceInTokenUnit, 18, 4).toString() : "<0.001"): "0"}
+            {props.details ? (+props.details.borrowBalanceInTokenUnit.toString() > 0.001 || +props.details.borrowBalanceInTokenUnit.toString() === 0
+                              ? +props.details.borrowBalanceInTokenUnit.toFixed(4) : "<0.001"): "0"}
         </td>
         
         <td>
-            {props.details ? +toDecimalPlaces(props.details.walletBalance, props.details.decimals, 4).toString() : "0"}
+            {props.details ? +props.details.walletBalance.toFixed(4).toString() : "0"}
         </td>
         <td>
           <div className="spinner-container">
-            {`${props.details ? convertToLargeNumberRepresentation(props.details.liquidity, 36, 2, '$') : "$0"}`}
+            {`${props.details ? convertToLargeNumberRepresentation(props.details.liquidity, 2, '$') : "$0"}`}
             {(props?.details?.borrowSpinner || props?.details?.repaySpinner) ? (<Spinner size={"20px"}/>) : null}
           </div>
         </td>

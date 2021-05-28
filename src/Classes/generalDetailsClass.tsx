@@ -1,6 +1,4 @@
-import { BigNumber } from "@ethersproject/bignumber"
-import { ethers } from "ethers"
-import { toDecimalPlaces } from "../helpers"
+import { BigNumber } from "../bigNumber"
 import { CTokenInfo } from "./cTokenClass"
 
 export class GeneralDetailsData{
@@ -82,7 +80,8 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
         if (market?.marketTotalBorrow?.gt(BigNumber.from("0"))) {
             allMarketsTotalBorrowBalance = allMarketsTotalBorrowBalance.add(market.marketTotalBorrow)
         }
-        totalBorrowLimit = totalBorrowLimit.add(market.isEnterMarket ? market.supplyBalance.mul(market.collateralFactor) : 0)
+        totalBorrowLimit = totalBorrowLimit.add(market.isEnterMarket ? market.supplyBalance.mul(market.collateralFactor) : BigNumber.from("0"))
+        
         yearSupplyInterest = yearSupplyInterest.add(market.supplyBalance.mul(market.supplyApy))
         yearBorrowInterest = yearBorrowInterest.add(market?.borrowBalance.mul(market.borrowApy))
         if (market && market.liquidity.gt(BigNumber.from("0"))) {
@@ -91,11 +90,15 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
       }          
     })
     
-    const totalBorrowLimitTemp: number = +toDecimalPlaces(totalBorrowLimit, 72, 18)
-    const totalBorrowBalanceTemp: number = +toDecimalPlaces(totalBorrowBalance, 36, 18)
-    const totalBorrowLimitUsedPercent = totalBorrowLimitTemp > 0 ? ethers.utils.parseUnits((totalBorrowBalanceTemp / totalBorrowLimitTemp * 100).toString(), 18) : BigNumber.from("0")
-    const netApy = totalSupplyBalance.gt(BigNumber.from("0")) ? yearSupplyInterest.sub(yearBorrowInterest).div(totalSupplyBalance) : BigNumber.from(0)
+    const totalBorrowLimitTemp: number = +totalBorrowLimit.toFixed(18)
+    const totalBorrowBalanceTemp: number = +totalBorrowBalance.toFixed(18)
+    const temp = (totalBorrowBalanceTemp / totalBorrowLimitTemp * 100)
+    const totalBorrowLimitUsedPercent = totalBorrowLimitTemp > 0 ? BigNumber.parseValue(temp.toString()) : BigNumber.from("0")
 
+    const sub = (+yearSupplyInterest.toString() - (+yearBorrowInterest.toString())) / +totalSupplyBalance.toString()
+    
+    const netApy = totalSupplyBalance.gt(BigNumber.from("0")) ? BigNumber.parseValue(sub.toString()) : BigNumber.from("0")
+    
     return new GeneralDetailsData(
                             totalSupplyBalance,
                             totalBorrowBalance,

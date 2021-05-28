@@ -1,9 +1,21 @@
 import React, { useRef, useEffect } from "react"
+import { CTokenInfo } from "../../../Classes/cTokenClass";
+import { GeneralDetailsData } from "../../../Classes/generalDetailsClass";
 import DialogBorrowLimitSection from "../../BorrowLimit/borrowLimit";
 import "./enterMarketDialog.css"
+import closeIcon from "../../../assets/icons/closeIcon.png"
 
-const EnterMarketDialog = (props) => {
-    const ref = useRef(null);
+interface Props{
+  open: boolean,
+  closeMarketDialog: () => void,
+  market: CTokenInfo | null,
+  generalData: GeneralDetailsData | null,
+  handleExitMarket: (symbol: string) => Promise<void>
+  handleEnterMarket: (symbol: string) => Promise<void>
+}
+
+const EnterMarketDialog : React.FC<Props> = (props : Props) => {
+    const ref = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         /**
@@ -16,7 +28,7 @@ const EnterMarketDialog = (props) => {
             document.getElementsByTagName("body")[0].style.overflow = 'auto'
         }
 
-        function handleClickOutside(event) {
+        function handleClickOutside(event : any) : void {
           if (ref.current && !ref.current.contains(event.target)) {
               props.closeMarketDialog()
           }
@@ -36,9 +48,7 @@ const EnterMarketDialog = (props) => {
       props.open ? (
         <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
             <div ref={ref} className="dialog-box">
-                <button className="dialog-close" onClick={() => props.closeMarketDialog()}>
-                    
-                </button>
+                <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>props.closeMarketDialog()} />  
             <div className="dialog-title">
                 {props.market?.symbol && (
                 <img
@@ -62,17 +72,15 @@ const EnterMarketDialog = (props) => {
                 <div className="footer-section">
                     {props.market.isEnterMarket ? (
                      <button className="dialog-button" onClick={() => {
-                        props.handleExitMarket(
+                         props.market?.symbol ? props.handleExitMarket(
                           props.market?.symbol
-                        );
+                        ) : null;
                       }}>
                     {`Disable ${props.market?.symbol} as Collateral`}
                     </button>
                     ) : (
                         <button className="dialog-button"onClick={() => {
-                            props.handleEnterMarket(
-                              props.market?.symbol
-                            );
+                            props.market?.symbol ? props.handleEnterMarket(props.market?.symbol) : null
                           }}>
                     {`Use ${props.market?.symbol} as Collateral`}
                   </button>

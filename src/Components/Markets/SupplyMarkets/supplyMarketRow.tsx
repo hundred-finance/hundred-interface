@@ -1,8 +1,7 @@
-import { BigNumber } from "@ethersproject/bignumber"
+import { BigNumber } from "../../../bigNumber"
 import React from "react"
 import { Spinner } from "../../../assets/huIcons/huIcons"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
-import { toDecimalPlaces } from "../../../helpers"
 import SwitchButton from "../../Switch/switch"
 
 import "../style.css"
@@ -29,9 +28,9 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
               <span>{props?.details?.symbol}</span>
           </div>
         </td>
-        <td onClick={() => props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null} className={props.details ? (+toDecimalPlaces(props.details?.supplyApy, 36 - props.details.decimals, 2) > 0 ? "positive" : "") : ""}>
+        <td onClick={() => props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null} className={props.details ? (+props.details?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}>
           
-            {`${ props.details ? toDecimalPlaces(props.details.supplyApy.mul(BigNumber.from("100")), 36 - props.details.decimals, 2): "0"}%`}
+            {`${ props.details ? props.details.supplyApy.mul(BigNumber.from("100")).toFixed(2): "0"}%`}
             {/* {props.details?.supplyPctApy > 0 ? (
               <div>
                 {`+ ${props.details.supplyPctApy?.times(100).toFixed(2)}% PCT`}
@@ -40,18 +39,18 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
           
         </td>
         <td onClick={() => props.details && !props?.details.spinner ? props.supplyMarketDialog(props?.details) : null}>
-            { props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? +toDecimalPlaces(props.details.supplyBalanceInTokenUnit, props.details.decimals + 18, 4).toString() : 0}
+            { props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? +props.details.supplyBalanceInTokenUnit.toFixed(4) : 0}
           
         </td>
         <td onClick={() => props.details &&  !props.details.spinner ? props.supplyMarketDialog(props.details) : null}>
             <i
               className={`circle${
-                props.details && +toDecimalPlaces(props.details.walletBalance, props.details.decimals, 4) <= 0
+                props.details && +props.details.walletBalance.toFixed(4) <= 0
                   ? "-o"
                   : ""
               } text-c-green f-10 m-r-15`}
             />
-            {props.details ? +toDecimalPlaces(props.details.walletBalance, props.details.decimals, 4).toString() : "0"}
+            {props.details ? props.details.walletBalance.toFixed(4) : "0"}
           
         </td>
         <td>

@@ -1,7 +1,13 @@
-import React from "react"
+import React, { ReactNode } from "react"
 import "./marketDialogButton.css"
 
-const MarketDialogButton = (props) => {
+interface Props{
+    disabled: boolean,
+    children: ReactNode,
+    onClick: () => void
+}
+
+const MarketDialogButton: React.FC<Props> = (props: Props) => {
     return (
         <div className="market-dialog-button">
             <button disabled={props.disabled} onClick={() => props.onClick()}>{props.children}</button>

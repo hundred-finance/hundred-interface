@@ -9,6 +9,7 @@
     max-width: 640px;
     margin-left: auto;
     margin-right: auto;
+    color: var(--text);
 }
 
 .market-container-title{
@@ -27,7 +28,7 @@
     color: var(--showMore);
     font-size: 10px;
     font-weight: bold;
-    border-top: 2px solid var(--borderBottom);;
+    border-top: 2px solid var(--borderBottom);
 }
 
 .market-content{

@@ -1,4 +1,4 @@
-import { BigNumber } from "@ethersproject/bignumber"
+import { BigNumber } from "../../bigNumber"
 import { ethers } from "ethers"
 import { CTokenInfo } from "../../Classes/cTokenClass"
 
@@ -6,8 +6,8 @@ const gasLimit = "250000";
 
 export const getMaxAmount = async (market: CTokenInfo, provider: ethers.providers.Web3Provider): Promise<BigNumber> => {
     if (market.isNativeToken) {
-      const gasPrice = await provider.getGasPrice()
-      const price = BigNumber.from(gasPrice.toString()).mul(BigNumber.from(gasLimit))
+      const gasPrice = BigNumber.from(await provider.getGasPrice())
+      const price = gasPrice.mul(BigNumber.from(gasLimit))
       const balance = market.walletBalance.sub(price)
       return balance
     } 
@@ -16,7 +16,7 @@ export const getMaxAmount = async (market: CTokenInfo, provider: ethers.provider
   }
 
   export const getMaxRepayAmount = (market: CTokenInfo) : BigNumber => {
-    const maxRepayFactor = BigNumber.from(1).add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
+    const maxRepayFactor = BigNumber.from("1").add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
     if (market.isNativeToken) {
       return market.borrowBalanceInTokenUnit//.times(maxRepayFactor).decimalPlaces(18); // Setting it to a bit larger, this makes sure the user can repay 100%.
     }

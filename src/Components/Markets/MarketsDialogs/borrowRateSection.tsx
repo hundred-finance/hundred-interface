@@ -1,9 +1,16 @@
 import React from "react"
 import { HuLogo } from "../../../assets/huIcons/huIcons"
-import { zeroStringIfNullish } from "../../../helpers"
+import { BigNumber } from "../../../bigNumber"
+import { CTokenInfo } from "../../../Classes/cTokenClass"
 import "./dialogSection.css"
 
-const BorrowRateSection = (props) => {
+interface Props{
+    market: CTokenInfo | null,
+    darkMode: boolean
+
+}
+
+const BorrowRateSection: React.FC<Props> = (props : Props) => {
     return (
         <div className="dialog-section">
             <div className="dialog-section-title">
@@ -18,9 +25,7 @@ const BorrowRateSection = (props) => {
                 </div>
                 <div className="fill">Borrow APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${props.market?.borrowApy
-                        ?.times(100)
-                        .toFixed(2)}%`}
+                    {`${props.market?.borrowApy?.mul(BigNumber.from("100")).toRound(2)}%`}
                 </div>
             </div>
             <div className="dialog-section-content">
@@ -29,8 +34,7 @@ const BorrowRateSection = (props) => {
                     </div>
                 <div className="fill">100 APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${zeroStringIfNullish(
-                        props.market?.borrowPctApy?.times(100).toFixed(2),2)}%`}
+                    {`${props.market ? props.market?.borrowPctApy?.mul(BigNumber.from(100)).toRound(2) : "0"}%`}
                 </div>
             </div>
         </div>

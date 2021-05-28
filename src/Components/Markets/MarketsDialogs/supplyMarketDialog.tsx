@@ -1,4 +1,4 @@
-import BigNumber from "bignumber.js";
+import { BigNumber } from "../../../bigNumber";
 import React, {useEffect, useState} from "react"
 import { Tab, TabContent, TabContentItem, TabHeader, TabHeaderItem } from "../../TabControl/tabControl";
 import TextBox from "../../Textbox/textBox";
@@ -9,17 +9,33 @@ import "./supplyMarketDialog.css"
 import SupplyRateSection from "./supplyRatesSection";
 import MarketDialogItem from "./marketDialogItem";
 import { Spinner } from "../../../assets/huIcons/huIcons";
+import { CTokenInfo } from "../../../Classes/cTokenClass";
+import { GeneralDetailsData } from "../../../Classes/generalDetailsClass";
+import closeIcon from "../../../assets/icons/closeIcon.png"
 
-const SupplyMarketDialog = (props) =>{
+interface Props{
+    spinnerVisible: boolean,
+    closeSupplyMarketDialog: () => void,
+    market: CTokenInfo | null,
+    generalData: GeneralDetailsData | null,
+    open: boolean,
+    getMaxAmount: (market: CTokenInfo) => Promise<BigNumber>,
+    darkMode: boolean,
+    handleSupply: (symbol: string, amount: string) => Promise<void>,
+    handleEnable: (symbol: string, borrowDialog: boolean) => Promise<void>,
+    handleWithdraw: (symbol: string, amount: string, max: boolean) => Promise<void>
     
-    const [supplyInput, setSupplyInput] = useState("")
-    const [withdrawInput, setWithdrawInput] = useState("")
-    const [supplyValidation, setSupplyValidation] = useState("")
-    const [withdrawValidation, setWithdrawValidation] = useState("")
-    const [tabChange, setTabChange] = useState(1)
-    const [newBorrowLimit1, setNewBorrowLimit1] = useState();
-    const [newBorrowLimit2, setNewBorrowLimit2] = useState();
-    const [withdrawMax, setWithdrawMax] = useState(false);
+}
+const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
+    
+    const [supplyInput, setSupplyInput] = useState<string>("")
+    const [withdrawInput, setWithdrawInput] = useState<string>("")
+    const [supplyValidation, setSupplyValidation] = useState<string>("")
+    const [withdrawValidation, setWithdrawValidation] = useState<string>("")
+    const [tabChange, setTabChange] = useState<number>(1)
+    const [newBorrowLimit1, setNewBorrowLimit1] = useState<BigNumber>(BigNumber.from(0))
+    const [newBorrowLimit2, setNewBorrowLimit2] = useState<BigNumber>(BigNumber.from(0))
+    const [withdrawMax, setWithdrawMax] = useState<boolean>(false)
 
     const CloseDialog = () =>{
         if(props.spinnerVisible)
@@ -29,8 +45,8 @@ const SupplyMarketDialog = (props) =>{
         setSupplyValidation("")
         setWithdrawValidation("")
         setTabChange(1)
-        setNewBorrowLimit1("")
-        setNewBorrowLimit2("")
+        setNewBorrowLimit1(BigNumber.from(0))
+        setNewBorrowLimit2(BigNumber.from(0))
         setWithdrawMax(false)
         props.closeSupplyMarketDialog()
     }
@@ -42,26 +58,21 @@ const SupplyMarketDialog = (props) =>{
                 return;
             }
 
-            if(isNaN(supplyInput)){
+            if(isNaN(+supplyInput)){
                 setSupplyValidation("Amount must be a number");
-            }else if (supplyInput <= 0) {
+            }else if (+supplyInput <= 0) {
               setSupplyValidation("Amount must be > 0");
-            } else if (supplyInput > +props.market?.walletBalance) {
+            } else if (props.market && +supplyInput > +props.market?.walletBalance) {
               setSupplyValidation("Amount must be <= balance");
             }else{
                 setSupplyValidation("");
             }
-      
-            setNewBorrowLimit1(
-              props.generalData.totalBorrowLimit?.plus(
-                props.market?.isEnterMarket
-                  ? new BigNumber(supplyInput ? supplyInput : "0")
-                      .times(props.market?.underlyingPrice)
-                      .times(props.market?.collateralFactor)
-                  : new BigNumber(0)
-              )
-            );
-          };
+
+            setNewBorrowLimit1( props.generalData && props.market ?
+              props?.generalData.totalBorrowLimit?.add(props.market?.isEnterMarket ? BigNumber.parseValue(supplyInput!=="" ? supplyInput : "0").
+                mul(props.market?.underlyingPrice).mul(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
+            }
+            console.log(newBorrowLimit1)
         
           handleSupplyAmountChange()
           // eslint-disable-next-line
@@ -73,13 +84,13 @@ const SupplyMarketDialog = (props) =>{
                 setWithdrawValidation("")
                 return
             }
-            if(isNaN(withdrawInput)){
+            if(isNaN(+withdrawInput)){
                 setWithdrawValidation("Amount must be a number")
-            }else if (withdrawInput <= 0) {
+            }else if (+withdrawInput <= 0) {
                 setWithdrawValidation("Amount must be > 0")
-            } else if (withdrawInput > +props.market?.supplyBalanceInTokenUnit) {
+            } else if (props.market && +withdrawInput > +props.market?.supplyBalanceInTokenUnit) {
                 setWithdrawValidation("Amount must be <= your supply balance")
-            } else if (withdrawInput > +props.market?.underlyingAmount) {
+            } else if (props.market && +withdrawInput > +props.market?.underlyingAmount) {
                 setWithdrawValidation("Amount must be <= liquidity")
             }else{
                 setWithdrawValidation("");
@@ -95,14 +106,9 @@ const SupplyMarketDialog = (props) =>{
 
             
 
-            setNewBorrowLimit2(
-                props.generalData.totalBorrowLimit?.minus(
-                props.market?.isEnterMarket
-                    ? new BigNumber(withdrawInput ? withdrawInput : "0")
-                        .times(props.market?.underlyingPrice)
-                        .times(props.market?.collateralFactor)
-                : new BigNumber(0)
-            ));
+            setNewBorrowLimit2(props.market && props.generalData ? props.generalData.totalBorrowLimit?.
+                                sub(props.market?.isEnterMarket? BigNumber.parseValue(withdrawInput!=="" ? withdrawInput : "0").
+                                mul(props.market?.underlyingPrice).mul(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
         };
         
           handleWithdrawAmountChange()
@@ -125,14 +131,14 @@ const SupplyMarketDialog = (props) =>{
 
     
 
-    const getMaxAmount = async () => {
-        var amount = await props.getMaxAmount(props.market)
+    const getMaxAmount = async () : Promise<void> => {
+        const amount = props.market ? await props.getMaxAmount(props.market) : 0
         setSupplyInput(amount.toString())
     }
 
-    const getMaxWithdraw = () => {
+    const getMaxWithdraw = () : void=> {
         setWithdrawMax(true)
-        setWithdrawInput(BigNumber.minimum(props.market?.supplyBalanceInTokenUnit, props.market?.underlyingAmount).toString())
+        props.market ? setWithdrawInput(BigNumber.minimum(props.market?.supplyBalanceInTokenUnit, props.market?.underlyingAmount).toString()) : setWithdrawInput("0")
     }
 
     return (
@@ -140,9 +146,7 @@ const SupplyMarketDialog = (props) =>{
         <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
             <div className="dialog-background" onClick = {() => CloseDialog()}></div>
             <div className="supply-box">
-                <button className="dialog-close" onClick={()=>CloseDialog()}>
-
-                </button>
+            <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>CloseDialog()} />  
                 <div className="dialog-title">
                     {props.market?.symbol && (
                     <img
@@ -163,49 +167,41 @@ const SupplyMarketDialog = (props) =>{
                                 onClick={()=>getMaxAmount()}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit1}/>
-                            <DialogMarketInfoSection generalData={props.generalData} market={props.market} collateralFactorText={"Loan-to-Value"}/>
+                            <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                            
-                            {props.market?.underlyingAllowance?.isGreaterThan(0) &&
-                                props.market?.underlyingAllowance?.isGreaterThanOrEqualTo(+supplyInput) 
+                            {props.market?.underlyingAllowance?.gt(BigNumber.from(0)) &&
+                                props.market?.underlyingAllowance?.gte(supplyInput === "" ? BigNumber.from("0") : BigNumber.parseValue(supplyInput)) 
                                 ? (
-                                    <MarketDialogButton disabled={!supplyInput || supplyValidation || props.market?.supplySpinner}
-                                        onClick={() => {    props.handleSupply(
-                                                                props.market?.symbol,
-                                                                supplyInput
-                                                            );
-                                                        }}>
+                                    <MarketDialogButton disabled={supplyInput==="" || supplyValidation!="" || props.market?.supplySpinner}
+                                        onClick={() => {   props.market ? props.handleSupply(props.market?.symbol,supplyInput) : null}}>
                                         {props.market.supplySpinner ? (<Spinner size={"20px"}/>) : "Supply"}
                                     </MarketDialogButton>
                                 ) : (
-                                    <MarketDialogButton disabled={props.market?.supplySpinner}
-                                        onClick={() => {props.handleEnable(
-                                                            props.market?.symbol,
-                                                            false
-                                                        )
-                                                }}>
+                                    <MarketDialogButton disabled={!props.market || (props.market && props.market?.supplySpinner)}
+                                        onClick={() => {props.market ? props.handleEnable(props.market?.symbol,false) : null}}>
                                         {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.symbol}`}
                                     </MarketDialogButton>)}
 
                             <MarketDialogItem title={"Wallet Ballance"} 
-                                value={`${props.market?.walletBalance?.decimalPlaces(4).toString()} ${props.market?.symbol}`}/>
+                                value={`${props.market?.walletBalance?.toRound(4)} ${props.market?.symbol}`}/>
                         </TabContentItem>
                         <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
                             <TextBox placeholder={`0 ${props.market?.symbol}`} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"MAX"}
                                 onClick={() => getMaxWithdraw()}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
-                            <DialogMarketInfoSection generalData={props.generalData} market={props.market} collateralFactorText={"Loan-to-Value"}/>
-                            <MarketDialogButton disabled={!withdrawInput || withdrawValidation}
-                                onClick={() => {    
+                            <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
+                            <MarketDialogButton disabled={withdrawInput==="" || withdrawValidation!==""}
+                                onClick={() => {    props.market ?
                                                     props.handleWithdraw(
                                                         props.market?.symbol,
                                                         withdrawInput,
                                                         withdrawMax
-                                                    );
+                                                    ) : null
                                                 }}>
-                                {props.market.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
+                                {props.market && props.market.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
                             </MarketDialogButton>
-                            <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.decimalPlaces(4)} ${props.market?.symbol}`}/>
+                            <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toRound(4)} ${props.market?.symbol}`}/>
                         </TabContentItem>
                     </TabContent>
                 </Tab>

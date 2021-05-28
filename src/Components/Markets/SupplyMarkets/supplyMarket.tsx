@@ -3,7 +3,7 @@ import "../style.css"
 import SupplyMarketRow from "./supplyMarketRow"
 import {compareSymbol} from "../../../helpers"
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
-import { BigNumber } from "@ethersproject/bignumber"
+import { BigNumber } from "../../../bigNumber"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
 
 interface Props{

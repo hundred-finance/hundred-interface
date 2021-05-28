@@ -5,7 +5,7 @@ import {compareSymbol} from "../../../helpers"
 import "../style.css"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
-import { BigNumber } from "@ethersproject/bignumber"
+import { BigNumber } from "../../../bigNumber"
 
 interface Props{
   generalData: GeneralDetailsData | null,

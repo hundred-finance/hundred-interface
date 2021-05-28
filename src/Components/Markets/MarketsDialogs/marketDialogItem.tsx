@@ -1,7 +1,12 @@
 import React from "react"
 import "./dialogSection.css"
 
-const MarketDialogItem = (props) => {
+interface Props{
+    title: string,
+    value: string
+}
+
+const MarketDialogItem: React.FC<Props> = (props : Props) => {
     return (
         <div className="dialog-section">
             <div className="dialog-section-content">

@@ -1,9 +1,10 @@
-import { BigNumber, ethers, utils } from "ethers";
+import { ethers, utils } from "ethers";
+import {BigNumber} from "./bigNumber"
 import { CTokenInfo } from "./Classes/cTokenClass";
 
 export const eX = (bigNumber: BigNumber, decimals: number): string => {
   if(bigNumber && decimals){
-    return utils.formatUnits(bigNumber, decimals)
+    return utils.formatUnits(bigNumber._value, decimals)
   }
   return '0'
 }
@@ -51,11 +52,12 @@ export const getShortenAddress = (address: string) : string => {
   return `${firstCharacters}...${lastCharacters}`;
 };
 
-export const convertToLargeNumberRepresentation = (value: BigNumber, decimals: number, dp?: number, symbol?: string) : string => {
+export const convertToLargeNumberRepresentation = (value: BigNumber, dp?: number, symbol?: string) : string => {
   if (!value) {
     return "0";
   } else{
-    const number : number = +decimalPlaces(eX(value, decimals), 8)
+    const number : number = +value.toRound(8)
+    
     if(number === 0)
       return number.toPrecision(dp ? dp : 3) + " "
     else if (number >= 1e5) {
@@ -72,7 +74,7 @@ export const convertToLargeNumberRepresentation = (value: BigNumber, decimals: n
 
 export const zeroStringIfNullish = (value: BigNumber, decimals: number, dp:number): string => {
  
-  if (value && value.gt(BigNumber.from(0))) {
+  if (value) {
     return decimalPlaces(eX(value, decimals), dp)
   } else {
     return Number(0).toFixed(dp)
@@ -91,3 +93,5 @@ export const compareSymbol = (a: CTokenInfo | null, b: CTokenInfo | null): numbe
   }  
   return 0;
 }
+
+
