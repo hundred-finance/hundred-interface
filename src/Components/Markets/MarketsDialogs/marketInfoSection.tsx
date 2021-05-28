@@ -15,6 +15,7 @@ const DialogMarketInfoSection : React.FC<Props> = (props : Props) => {
             const underlyingAmount = +props.market?.underlyingAmount.toString()
             let value = marketTotalBorrowInTokenUnit / (marketTotalBorrowInTokenUnit + underlyingAmount) * 100
             if (isNaN(value)) value = 0
+            else value = Math.round((value + Number.EPSILON) * Math.pow(10, 18)) / Math.pow(10, 18)
             return BigNumber.parseValue(value.toString()).toRound(2)+"%"
         }
         return "0%"
