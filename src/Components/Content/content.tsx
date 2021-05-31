@@ -293,9 +293,11 @@ const Content: React.FC<Props> = (props : Props) => {
             setOpenEnterMarket(false)
             const receipt = await tx.wait() 
             console.log(receipt)
-            market = marketsRef.current.find(m => m?.symbol === symbol)
-            if (market) market.isEnterMarket = false
-
+            if(receipt.status === 1){
+              const market = marketsRef.current.find(m => m?.symbol === symbol)
+              if(market)
+                market.isEnterMarket = false
+            }
           }
           catch (err){
             console.log(err)
