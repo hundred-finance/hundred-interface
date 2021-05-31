@@ -278,28 +278,40 @@ const Content: React.FC<Props> = (props : Props) => {
     }
 
     const handleExitMarket = async (symbol: string): Promise<void> => {
-      if (spinner.current) spinner.current(true)
-      console.log(symbol)
-      //var market = marketsData.find(m => m.symbol === symbol)
-      // if (market){
-      //   try{
-      //     const signer = props.provider.getSigner()
-      //     const signedComptroller = comptrollerData.comptroller.connect(signer)
-      //     const tx = await signedComptroller.exitMarket(market.pTokenaddress)
+      if(marketsRef.current){
+        let market = marketsRef.current.find(m => m?.symbol === symbol)
+        if (market && provider.current && comptrollerDataRef.current && userAddress.current && network.current){
+          try{
+            if(spinner.current) spinner.current(true)
+            const signer = provider.current.getSigner()
+            const signedComptroller = comptrollerDataRef.current.comptroller.connect(signer)
+            const tx = await signedComptroller.exitMarket(market.pTokenAddress)
+            market = marketsRef.current.find(m => m?.symbol === symbol)
+            if (market) market.spinner = true
+            console.log(tx)
+            if(spinner.current) spinner.current(false)
+            setOpenEnterMarket(false)
+            const receipt = await tx.wait() 
+            console.log(receipt)
+            market = marketsRef.current.find(m => m?.symbol === symbol)
+            if (market) market.isEnterMarket = false
 
-      //     const receipt = await tx.wait()
-
-      //     if(receipt.status){
-      //       var comptroller =  await getComptrollerData.current()
-      //       setComptrollerData(comptroller)  
-      //       setOpenEnterMarket(false)
-      //     } 
-      //   }
-      //   catch (err){
-      //     console.log(err)
-      //   }
-      // }
-      if (spinner.current) spinner.current(false)
+          }
+          catch (err){
+            console.log(err)
+          }
+          finally{
+            if (spinner.current) spinner.current(false)
+            const market = marketsRef.current.find(x=> x?.symbol === symbol)
+            if (market) market.spinner = false
+            setUpdate(true)
+            const comptroller =  await getComptrollerData(provider.current, userAddress.current, network.current)
+            setComptrollerData(comptroller)  
+            if (selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
+              selectedMarketRef.current.spinner = false
+          }
+        }
+      }
     }
     
     const supplyMarketDialog = (market: CTokenInfo) => {
