@@ -12,6 +12,7 @@ import { HundredBalance } from './Classes/hundredClass';
 import Footer from './Components/Footer/footer';
 import Spinner from './Components/Spinner/spinner';
 import Content from './Components/Content/content';
+import NetworksView from './Components/SideMenu/networksView';
 
 declare global {
   interface Window {
@@ -42,13 +43,14 @@ const App: React.FC = () => {
   const [show, setShow] = useState<boolean>(false)
   const [theme, setTheme] = useState<Theme>(lightTheme)
   const [openAddress, setOpenAddress] = useState<boolean>(false)
+  const [openNetwork, setOpenNetwork] = useState<boolean>(false)
 
   useEffect(() => {
-    if (document.documentElement.clientWidth < 420){
+    if (document.documentElement.clientWidth < 644){
       setIsMobile(true)
       setIsTablet(false)
     }
-    else if (document.documentElement.clientWidth < 750){
+    else if (document.documentElement.clientWidth < 942){
   
       setIsTablet(true)
       setIsMobile(false)
@@ -58,11 +60,11 @@ const App: React.FC = () => {
     setShow(true)
 
     window.addEventListener('resize', ()=>{
-      if (document.documentElement.clientWidth < 420){
+      if (document.documentElement.clientWidth < 644){
         setIsMobile(true)
         setIsTablet(false)
       }
-      else if (document.documentElement.clientWidth < 750){
+      else if (document.documentElement.clientWidth < 942){
     
         setIsTablet(true)
         setIsMobile(false)
@@ -161,6 +163,8 @@ const App: React.FC = () => {
   useEffect(() => {
     if(networkRef.current)
     {
+      setOpenNetwork(false)
+      setSideMenu(false)
       try{
         const prov = new ethers.providers.Web3Provider(window.ethereum)
         setProvider(prov)
@@ -199,20 +203,21 @@ const App: React.FC = () => {
     <div className={`App ${darkMode ? "App-dark" : ""}`}>
       <Wrapper sideMenu={sideMenu}>
         {!isTablet && !isMobile ? 
-          <Menu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode}
-            address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork}/>
-          : <TabletMenu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode}
-              address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork}/>
+          <Menu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network}
+            address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} setOpenNetwork={setOpenNetwork}/>
+          : <TabletMenu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network}
+              address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} setOpenNetwork={setOpenNetwork}/>
         }
         <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
           spinnerVisible={spinnerVisible} darkMode={darkMode} />
       </Wrapper>
       <Footer darkMode={darkMode} isMobile={isMobile}/>
-      <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}>
+      <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress} setOpenNetwork={setOpenNetwork}>
         { openAddress ? 
           <AccountSettings address={address} setAddress={setAddress} provider={provider} setSideMenu={setSideMenu} 
             setOpenAddress={setOpenAddress} pctBalance={pctBalance} pctEarned={pctEarned} pctSpinner={pctSpinner}
-            setPctBalance={setPctBalance} setPctEarned={setPctEarned} handleCollect={handleCollect} network={network}/> : null
+            setPctBalance={setPctBalance} setPctEarned={setPctEarned} handleCollect={handleCollect} network={network}/> : 
+            (openNetwork ? <NetworksView network={network}/> : null)
         }
       </SideMenu>
       <Spinner open={spinnerVisible} theme={theme}/>

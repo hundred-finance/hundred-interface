@@ -1,0 +1,43 @@
+.networks-view {
+    color: var(--text);
+}
+
+.networks-view .networks-caption {
+    font-size: 1.2rem;
+    padding-bottom: 10px;
+}
+
+.networks-view .network-item {
+    border: 1px solid transparent;
+    text-align: left;
+    padding: 10px 5px;
+    cursor: pointer;
+    margin-top: 5px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.networks-view .network-logo {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: var(--text);
+    margin-left: 5px;
+}
+
+.networks-view .network-item:hover {
+    border: 1px solid var(--buttonColor);
+}
+
+.networks-view .network-item span {
+    flex: 1;
+    padding-left: 10px;
+}
+
+.networks-view .network-selected {
+    background-color: var(--buttonColor);
+    color: var(--buttonHover2);
+    cursor: default;
+}

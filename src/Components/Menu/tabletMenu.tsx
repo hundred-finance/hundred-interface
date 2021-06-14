@@ -10,6 +10,7 @@ import NavbarMobile from "../Navbar/navbarMobile"
 import NavBarRight from "../Navbar/navBarRight"
 import ThemeSwitch from "../Navbar/themeSwitch"
 import { Network } from "../../networks"
+import NetworkButton from "../NetworkButton/networkButton"
 // import SideMenuButton from "../Navbar/sideMenuButton"
 
 interface Props{
@@ -22,7 +23,9 @@ interface Props{
     setAddress: React.Dispatch<React.SetStateAction<string>>,
     setOpenAddress: React.Dispatch<React.SetStateAction<boolean>>
     setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
-    setNetwork: React.Dispatch<React.SetStateAction<Network | null>>
+    setNetwork: React.Dispatch<React.SetStateAction<Network | null>>,
+    network: Network | null,
+    setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const TabletMenu: React.FC<Props> = (props: Props) => {
@@ -34,10 +37,12 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
             <Navbar isMobile={props.isMobile} isTablet={props.isTablet}>
                 <NavbarLogo isMobile={props.isMobile}/>
                     <NavBarRight>
-                    {props.isTablet && !props.isMobile ? 
-                        <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
-                        setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
-                        
+                    {props.isTablet && !props.isMobile ?
+                        <>
+                            <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
+                            <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
+                            setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
+                        </>
                     : null}
                         <NavBarButton setMenuOpen={setMenuOpen}/>
                         {props.isTablet && !props.isMobile ? 
@@ -47,7 +52,8 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
             </Navbar>
             <NavbarMobile menuOpen={menuOpen}>
             {props.isMobile ? 
-                <NavBarRight>
+                <NavBarRight className="navbar-right-content">
+                    <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
                     <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
                      setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
                     <ThemeSwitch darkMode={props.darkMode} setDarkMode={props.setDarkMode}/>

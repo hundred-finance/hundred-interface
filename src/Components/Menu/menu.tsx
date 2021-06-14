@@ -8,6 +8,7 @@ import NavBarLinks from "../Navbar/navBarLinks"
 import NavbarLogo from "../Navbar/navbarLogo"
 import NavBarRight from "../Navbar/navBarRight"
 import ThemeSwitch from "../Navbar/themeSwitch"
+import NetworkButton from "../NetworkButton/networkButton"
 
 interface Props {
   isTablet: boolean,
@@ -19,7 +20,9 @@ interface Props {
   setAddress: React.Dispatch<React.SetStateAction<string>>,
   setOpenAddress: React.Dispatch<React.SetStateAction<boolean>>,
   setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
-  setNetwork: React.Dispatch<React.SetStateAction<Network | null>>
+  setNetwork: React.Dispatch<React.SetStateAction<Network | null>>,
+  network: Network | null,
+  setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const Menu : React.FC<Props> = (props: Props) => {
@@ -36,6 +39,7 @@ const Menu : React.FC<Props> = (props: Props) => {
                   </NavBarLinks>
                 </NavbarLeft>
                 <NavBarRight>
+                  <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/>
                   <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
                      setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
                   <ThemeSwitch setDarkMode={props.setDarkMode} darkMode={props.darkMode}/>

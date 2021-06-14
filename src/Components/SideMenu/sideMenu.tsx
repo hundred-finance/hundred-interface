@@ -5,14 +5,16 @@ interface Props{
     open: boolean,
     setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
     setOpenAddress: React.Dispatch<React.SetStateAction<boolean>>,
-    children: ReactNode
+    children: ReactNode,
+    setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const SideMenu: React.FC<Props> = ({open, setSideMenu, setOpenAddress, children} : Props) => {
+const SideMenu: React.FC<Props> = ({open, setSideMenu, setOpenAddress, children, setOpenNetwork} : Props) => {
 
     const handleClose = () => {
         setSideMenu(false)
         setOpenAddress(false)
+        setOpenNetwork(false)
     }
 
     
