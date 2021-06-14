@@ -33,7 +33,14 @@ const NetworkButton : React.FC<Props> = (props : Props) => {
             </div>
         )
     }
-    else return null
+    else return (
+        <div className="network-button" onClick={() => handleOpenNetworks()}>
+            <div className="network-button-content">
+                <span className="network-name">Networks</span>
+                <span className="arrow">&#9660;</span>    
+            </div>
+        </div>
+    )
 }
 
 export default NetworkButton

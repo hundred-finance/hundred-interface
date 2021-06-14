@@ -80,6 +80,7 @@ const App: React.FC = () => {
             const net = NETWORKS[chainId]
             if (net)
               setNetwork(net)
+            else setNetwork(null)
           })
           window.ethereum.on('accountsChanged', (accounts: string[]) => {
             if(accounts && accounts.length > 0){
