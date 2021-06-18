@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import {lightTheme, darkTheme, Theme} from './theme'
-import {ethers} from 'ethers'
+import { ethers } from 'ethers'
 import './App.css';
 import Wrapper from './Components/Wrapper/wrapper'
 import Menu from './Components/Menu/menu'
@@ -13,6 +13,7 @@ import Footer from './Components/Footer/footer';
 import Spinner from './Components/Spinner/spinner';
 import Content from './Components/Content/content';
 import NetworksView from './Components/SideMenu/networksView';
+import { COMPTROLLER_ABI, HUNDRED_ABI } from './abi';
 
 declare global {
   interface Window {
@@ -23,9 +24,9 @@ declare global {
 const App: React.FC = () => {
   const [address, setAddress] = useState<string>("")
   const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null)
-  const [pctBalance, setPctBalance] = useState<HundredBalance | null>(null)
-  const [pctEarned, setPctEarned] = useState<HundredBalance |null>(null)
-  const [pctSpinner, setPctSpinner] = useState<boolean>(false)
+  const [hndBalance, setHndBalance] = useState<HundredBalance | null>(null)
+  const [hndEarned, setHndEarned] = useState<HundredBalance |null>(null)
+  const [hndSpinner, setHndSpinner] = useState<boolean>(false)
   const [network, setNetwork] = useState<Network | null>(null)
 
   // const addressRef = useRef<string>(address)
@@ -179,23 +180,61 @@ const App: React.FC = () => {
 
   }, [network])
 
-
-
-  const handleCollect = async () => {
-    try{
-      setPctSpinner(true)
-      // const signer = provider.getSigner()
-      // const comptroller = new ethers.Contract(UNITROLLER_ADDRESS, COMPTROLLER_ABI, signer)
-      // const tx = await comptroller.claimComp(address)
-      // console.log(tx)
-      // const receipt = await tx.wait()
-      // console.log(receipt)
+  const getHndBalance = async () : Promise<void> => {
+    if(network && provider){
+        try{
+            const contract = new ethers.Contract(network.HUNDRED_ADDRESS, HUNDRED_ABI, provider)
+            const balance = await contract.balanceOf(address)
+            const decimals = await contract.decimals()
+            const symbol = await contract.symbol()
+            setHndBalance(new HundredBalance( balance, decimals, symbol))
+        }
+        catch(err){
+            console.log(err)
+            setHndBalance(null)
+        } 
+        return
     }
-    catch(err){
-      console.log(err)
+    setHndBalance(null)
+  }
+
+  const getHndEarned = async () : Promise<void> => {
+    if(network && provider){
+        try{
+            const contract = new ethers.Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI, provider)
+            const balance = await contract.compAccrued(address)
+            const decimals = 18
+            const symbol = "HND"
+            setHndEarned(new HundredBalance( balance, decimals, symbol))
+        }
+        catch(err){
+            console.log(err)
+            setHndEarned(null)
+        }
+        return
     }
-    finally{
-      setPctSpinner(false)
+    setHndEarned(null)
+}
+
+  const handleCollect = async (): Promise<void> => {
+    if(provider && network){
+      try{
+        setHndSpinner(true)
+        const signer = provider.getSigner()
+        const comptroller = new ethers.Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI, signer)
+        const tx = await comptroller.claimComp(address)
+        console.log(tx)
+        const receipt = await tx.wait()
+        console.log(receipt)
+        await getHndBalance()
+        await getHndEarned()
+      }
+      catch(err){
+        console.log(err)
+      }
+      finally{
+        setHndSpinner(false)
+      }
     }
   }
 
@@ -216,8 +255,8 @@ const App: React.FC = () => {
       <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress} setOpenNetwork={setOpenNetwork}>
         { openAddress ? 
           <AccountSettings address={address} setAddress={setAddress} provider={provider} setSideMenu={setSideMenu} 
-            setOpenAddress={setOpenAddress} pctBalance={pctBalance} pctEarned={pctEarned} pctSpinner={pctSpinner}
-            setPctBalance={setPctBalance} setPctEarned={setPctEarned} handleCollect={handleCollect} network={network}/> : 
+            setOpenAddress={setOpenAddress} hndBalance={hndBalance} getHndBalance={getHndBalance} getHndEarned={getHndEarned} hndEarned={hndEarned} hndSpinner={hndSpinner}
+            handleCollect={handleCollect} network={network}/> : 
             (openNetwork ? <NetworksView network={network}/> : null)
         }
       </SideMenu>

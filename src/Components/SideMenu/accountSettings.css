@@ -1,11 +1,10 @@
-
-.account-settings-item .account-settings-item-label{
+.account-settings-item .account-settings-item-label {
     display: flex;
     justify-content: space-between;
     padding-bottom: 10px;
 }
 
-.account-settings-item .account-settings-item-button{
+.account-settings-item .account-settings-item-button {
     border: 1px solid var(--buttonColor);
     color: var(--text);
     font-weight: bold;
@@ -21,19 +20,19 @@
     align-items: center;
 }
 
-.account-settings-item .account-settings-item-button:hover{
+.account-settings-item .account-settings-item-button:hover {
     background-color: var(--buttonColor);
-    color:var(--buttonHover2);
+    color: var(--buttonHover2);
 }
 
-.account-settings-item .account-settings-item-button:active{
-    border: 1px solid #EEE;
+.account-settings-item .account-settings-item-button:active {
+    border: 1px solid #eee;
     color: #444;
-    background-color: #EEE;
+    background-color: #eee;
 }
 
-.account-settings-item .account-settings-item-button-disabled{
-    border: 1px solid #BBB;
+.account-settings-item .account-settings-item-button-disabled {
+    border: 1px solid #bbb;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -44,7 +43,7 @@
     cursor: not-allowed;
     user-select: none;
     transition: all 0.1s ease-out;
-    background-color: rgba(221, 221, 221, 0.4);
+    background-color: rgba(241, 241, 241, 0.767);
 }
 
 .account-settings hr {
