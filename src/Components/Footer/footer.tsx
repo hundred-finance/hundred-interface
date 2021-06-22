@@ -23,8 +23,8 @@ const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
                 <div className='footer-navbar'>
                     <a className='footer-link-item' href='/'>Governance</a>
                     <a className='footer-link-item' href='/'>Audit</a>
-                    <a className='footer-link-item' href='/'>Github</a>
-                    <a className='footer-link-item' href='/'>Dashboard</a>
+                    <a className='footer-link-item' href='https://github.com/hundred-finance' target="_blank" rel="noreferrer">Github</a>
+                    <a className='footer-link-item' href='https://dashboard.hundred.finance' target="_blank" rel="noreferrer">Dashboard</a>
                 </div>
                 <div className='footer-right'>
                     <a href='/'>
@@ -33,7 +33,7 @@ const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
                     <a href='/'>
                         <img alt="Discord Icon" src={discord} className='footer-image' />
                     </a>
-                    <a href='/'>
+                    <a href='https://github.com/hundred-finance' target="_blank" rel="noreferrer">
                         <img alt="Github Icon" src={github} className='footer-image' />
                     </a>
                 </div>
