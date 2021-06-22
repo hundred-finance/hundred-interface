@@ -1,0 +1,33 @@
+.address-button {
+    border: 1px solid var(--buttonColor);
+    color: var(--text);
+    margin: 0 5px;
+    display: flex;
+    height: 40px;
+    width: 140px;
+    border-radius: 20px;
+    cursor: pointer;
+    padding: 0 0px;
+    transition: background-color 0.2s ease-out;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+}
+
+.address-button:hover{
+    background-color: var(--buttonColor);
+    color:var(--buttonHover2);
+}
+
+.address-button .address{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.address-button .address .arrow{
+    font-size: 0.7rem;
+    /* color: var(--buttonColor); */
+}

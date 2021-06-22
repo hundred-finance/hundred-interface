@@ -1,0 +1,56 @@
+.account-settings-item .account-settings-item-label {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+}
+
+.account-settings-item .account-settings-item-button {
+    border: 1px solid var(--buttonColor);
+    color: var(--text);
+    font-weight: bold;
+    display: flex;
+    height: 40px;
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 40px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.1s ease-out;
+    justify-content: center;
+    align-items: center;
+}
+
+.account-settings-item .account-settings-item-button:hover {
+    background-color: var(--buttonColor);
+    color: var(--buttonHover2);
+}
+
+.account-settings-item .account-settings-item-button:active {
+    border: 1px solid #eee;
+    color: #444;
+    background-color: #eee;
+}
+
+.account-settings-item .account-settings-item-button-disabled {
+    border: 1px solid #bbb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 40px;
+    cursor: not-allowed;
+    user-select: none;
+    transition: all 0.1s ease-out;
+    background-color: rgba(241, 241, 241, 0.767);
+}
+
+.account-settings hr {
+    margin: 20px 0;
+}
+
+.account-settings .account-settings-item hr {
+    margin: 0;
+    margin-bottom: 20px;
+}

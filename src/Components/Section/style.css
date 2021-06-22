@@ -1,0 +1,10 @@
+.secondary-section{
+    margin-top: 20px;
+}
+
+.section .section-content{
+    display: block;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}

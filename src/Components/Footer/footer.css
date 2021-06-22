@@ -1,0 +1,149 @@
+.footer {
+    background-color: var(--boxBackground);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.footer-content {
+    max-width: 1200px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-content-inc {
+    text-indent: 2rem;
+    color: var(--grayText);
+    font-size: 12px;
+}
+
+.footer-navbar{
+    flex: 1;
+    display: flex;
+    margin-left: 1rem;
+}
+
+.footer-logo {
+    padding: 0 0rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.footer-link-item {
+    text-decoration: none;
+    color: var(--secondaryText);
+    position: relative;
+    line-height: 60px;
+    display: inline-block;
+    padding: 0 1rem;
+}
+
+.footer-link-item:hover{
+    color:var(--buttonHover);
+    text-shadow: var(--textShadow);
+}
+
+.footer-link-item::after{
+    content:"";
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 3px;
+    background-color: var(--buttonHover);
+    left: 50%;
+    top:10px;
+    transform: translateX(-50%);
+    transition: all 0.2s ease-in-out;
+}
+
+.footer-link-item::before{
+    content:"";
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 3px;
+    background-color: var(--buttonHover);
+    left: 50%;
+    bottom:10px;
+    transform: translateX(-50%);
+    transition: all 0.2s ease-in-out;
+}
+
+.footer-link-item:hover::after{
+    width:80%;
+}
+
+.footer-link-item:hover::before{
+    width:80%;
+}
+
+.footer-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.footer-image {
+    width: 30px;
+}
+
+.footer-right a{
+    padding: 5px;
+}
+
+@media (max-width: 615px) {
+    .footer{
+        height: 185px;
+    }
+    .footer-content {
+        flex-direction: column;
+    }
+    .footer-logo{
+        flex-direction: row;
+    }
+    .footer-content-inc {
+        text-indent: 0px;
+        padding-left: 1rem;
+    }
+    .footer-navbar{
+        flex: initial;
+        margin-left: 0;
+    }
+
+    .footer-link-item{
+        margin: 0;
+    }
+}
+
+@media (max-width: 330px){
+    .footer{
+        height: 320px;
+    }
+
+    .footer-navbar{
+     flex-direction: column;
+    }
+
+    .footer-logo svg{
+        display: none;
+    }
+
+    .footer-content-inc{
+        padding: 1rem .5rem 0;
+    }
+}
