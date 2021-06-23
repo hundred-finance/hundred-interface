@@ -79,6 +79,7 @@ const Logos: { [key: string]: string } = {
     "sUSD"  : SUSDlogo,
     "SUSD"  : SUSDlogo,
     "XDAI"  : XDAIlogo,
+    "xDAI"  : XDAIlogo,
     "SUSHI" : SUSHIlogo,
     "BAL"   : BALlogo,
     "CRV"   : CRVlogo,
