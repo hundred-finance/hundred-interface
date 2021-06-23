@@ -266,7 +266,7 @@ const App: React.FC = () => {
 
   return (
     theme ?
-    <div className={`App ${darkMode ? "App-dark" : ""}`}>
+    <div className={`App scroller ${darkMode ? "App-dark" : ""}`}>
       <Wrapper sideMenu={sideMenu}>
         {!isTablet && !isMobile ? 
           <Menu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network}
