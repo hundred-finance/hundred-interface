@@ -14,6 +14,9 @@ import Spinner from './Components/Spinner/spinner';
 import Content from './Components/Content/content';
 import NetworksView from './Components/SideMenu/networksView';
 import { COMPTROLLER_ABI, HUNDRED_ABI } from './abi';
+import {ErrorBoundary} from "react-error-boundary"
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 declare global {
   interface Window {
@@ -238,8 +241,31 @@ const App: React.FC = () => {
     }
   }
 
+  const myErrorHandler = (error: Error, info: {componentStack: string}) => {
+    console.log(error)
+    console.log(info)
+    toast.error('An error has occurred, please check console log.', {
+      position: "top-right",
+      autoClose: 10000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      });
+  }
+
+  const errorFallback = () => {
+    return(
+      <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
+        <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
+          spinnerVisible={spinnerVisible} darkMode={darkMode} />
+      </ErrorBoundary>
+    )
+  }
+
   return (
-    theme ? 
+    theme ?
     <div className={`App ${darkMode ? "App-dark" : ""}`}>
       <Wrapper sideMenu={sideMenu}>
         {!isTablet && !isMobile ? 
@@ -248,8 +274,11 @@ const App: React.FC = () => {
           : <TabletMenu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network}
               address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} setOpenNetwork={setOpenNetwork}/>
         }
-        <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-          spinnerVisible={spinnerVisible} darkMode={darkMode} />
+        <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
+          <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
+            spinnerVisible={spinnerVisible} darkMode={darkMode} />
+        </ErrorBoundary>
+        <ToastContainer/>
       </Wrapper>
       <Footer darkMode={darkMode} isMobile={isMobile}/>
       <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress} setOpenNetwork={setOpenNetwork}>
