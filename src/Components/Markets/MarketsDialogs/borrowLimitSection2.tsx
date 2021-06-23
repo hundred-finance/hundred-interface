@@ -39,9 +39,9 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
         const value = 
             +originBorrowBalance.toString() + ((+BigNumber.parseValue(borrowAmount).toString() - +BigNumber.parseValue(repayAmount).toString()) * +underlyingPrice.toString())
             // const value = (originBorrowBalance.add((BigNumber.parseValue(borrowAmount).sub(BigNumber.parseValue(repayAmount)).mul(underlyingPrice))))
-            setBorrowBalance(BigNumber.parseValue(value.toFixed(18)))
-            const pValue = +value / +props.generalData.totalBorrowLimit.toString() * 100
-            setBorrowLimit(BigNumber.parseValue(pValue.toFixed(18)))
+            setBorrowBalance(value===0 ? BigNumber.from(0) :BigNumber.parseValue(value.toFixed(18)))
+            const pValue = +props.generalData.totalBorrowLimit.toString() > 0 ? +value / +props.generalData.totalBorrowLimit.toString() * 100 : 0
+            setBorrowLimit(pValue === 0 ? BigNumber.from(0) : BigNumber.parseValue(pValue.toFixed(18)))
         }
       }
 
