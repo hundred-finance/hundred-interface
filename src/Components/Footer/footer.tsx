@@ -22,7 +22,9 @@ const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
                 </div>
                 <div className='footer-navbar'>
                     <a className='footer-link-item' href='/'>Governance</a>
-                    <a className='footer-link-item' href='/'>Audit</a>
+                    <a className='footer-link-item' href="https://github.com/chainsulting/Smart-Contract-Security-Audits/blob/master/Percent%20Finance/02_Smart%20Contract%20Audit%20Percent%20Finance.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer">Audit</a>
                     <a className='footer-link-item' href='https://github.com/hundred-finance' target="_blank" rel="noreferrer">Github</a>
                     <a className='footer-link-item' href='https://dashboard.hundred.finance' target="_blank" rel="noreferrer">Dashboard</a>
                 </div>

@@ -61,7 +61,7 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
             : null}
             <NavBarLinks>
                  <NavbarLink link="/">Governance</NavbarLink>
-                 <NavbarLink link="/">Audit</NavbarLink>
+                 <NavbarLink link="https://github.com/chainsulting/Smart-Contract-Security-Audits/blob/master/Percent%20Finance/02_Smart%20Contract%20Audit%20Percent%20Finance.pdf">Audit</NavbarLink>
                  <NavbarLink link="https://github.com/hundred-finance" target="_blank">Github</NavbarLink>
                  <NavbarLink link="https://dashboard.hundred.finance" target="_blank">Dashboard</NavbarLink>
              </NavBarLinks>
