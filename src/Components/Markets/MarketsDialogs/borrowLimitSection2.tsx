@@ -18,7 +18,7 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
 
     useEffect(() =>{
         if(props.generalData && props.market){
-            if((props.borrowAmount!=="" && props.repayAmount==="0") || (props.repayAmount!=="" && props.borrowAmount==="0")){
+            if((props.borrowAmount!=="" && !isNaN(+props.borrowAmount) && props.repayAmount==="0") || (props.repayAmount!=="" && !isNaN(+props.repayAmount) && props.borrowAmount==="0")){
                 getNewBorrowBalance(
                     props.generalData.totalBorrowBalance,
                     props.borrowAmount,
@@ -34,9 +34,9 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
 
     const getNewBorrowBalance = (originBorrowBalance : BigNumber, borrowAmount : string, repayAmount : string, underlyingPrice : BigNumber) : void => {
         if(props.generalData){
-            if (borrowAmount === "") borrowAmount="0"
-        if (repayAmount === "") repayAmount="0"
-        const value = 
+            if (borrowAmount === "" || isNaN(+borrowAmount)) borrowAmount="0"
+        if (repayAmount === "" || isNaN(+repayAmount)) repayAmount="0"
+        const value =
             +originBorrowBalance.toString() + ((+BigNumber.parseValue(borrowAmount).toString() - +BigNumber.parseValue(repayAmount).toString()) * +underlyingPrice.toString())
             // const value = (originBorrowBalance.add((BigNumber.parseValue(borrowAmount).sub(BigNumber.parseValue(repayAmount)).mul(underlyingPrice))))
             setBorrowBalance(value===0 ? BigNumber.from(0) :BigNumber.parseValue(value.toFixed(18)))
