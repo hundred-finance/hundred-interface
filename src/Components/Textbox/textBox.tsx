@@ -17,7 +17,10 @@ const TextBox : React.FC<Props> = (props : Props) => {
     const handleChange = (e : any) : void => {
         if(props.onChange)
             props.onChange()
-        props.setInput(e.target.value)
+        let value : string = e.target.value.toString()
+        if(value.startsWith('.'))
+            value = "0" + value
+        props.setInput(value)
     }
 
     return(
