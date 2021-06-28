@@ -375,7 +375,8 @@ const Content: React.FC<Props> = (props : Props) => {
         let market = marketsRef.current.find(x =>x?.symbol === symbol)
         if(market && provider.current){
           try{
-            const am = (market.isNativeToken) ? {value: ethers.utils.parseEther(amount)} : ethers.utils.parseUnits(amount, market.decimals)
+            const value = BigNumber.parseValue(amount)
+            const am = (market.isNativeToken) ? {value: value._value} : value._value
             if(selectedMarketRef.current)
               selectedMarketRef.current.supplySpinner = true
             market.supplySpinner = true
@@ -437,8 +438,8 @@ const Content: React.FC<Props> = (props : Props) => {
               console.log(receipt)
             }
             else{
-              const withdraw = ethers.utils.parseUnits(amount.toString(), market.decimals)
-              const tx = await ctoken.redeemUnderlying(withdraw)
+              const withdraw = BigNumber.parseValue(amount)
+              const tx = await ctoken.redeemUnderlying(withdraw._value)
               if (spinner.current) spinner.current(false)
               console.log(tx)
               const receipt = await tx.wait()
@@ -483,14 +484,14 @@ const Content: React.FC<Props> = (props : Props) => {
       let market = marketsRef.current.find(x => x?.symbol === symbol)
       if(market && provider.current){
         try{
-          const am = ethers.utils.parseUnits(amount, market.decimals)
+          const am = BigNumber.parseValue(amount)
           if (selectedMarketRef.current)
             selectedMarketRef.current.borrowSpinner = true
           market.borrowSpinner = true
           const signer = provider.current.getSigner()
           const token = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI
           const ctoken = new ethers.Contract(market.pTokenAddress, token, signer)
-          const tx = await ctoken.borrow(am)
+          const tx = await ctoken.borrow(am._value)
 
           if (spinner.current) spinner.current(false)
 
@@ -526,8 +527,9 @@ const Content: React.FC<Props> = (props : Props) => {
       let market = marketsRef.current.find(x => x?.symbol === symbol)
       if(market && provider.current){
         try{
-          const am = (market.isNativeToken) ? ({value: ethers.utils.parseEther(amount)}) : 
-                   (fullRepay ? MaxUint256 : ethers.utils.parseUnits(amount, market.decimals))
+          const value = BigNumber.parseValue(amount)
+          const am = (market.isNativeToken) ? ({value: value._value}) : 
+                   (fullRepay ? MaxUint256 : value._value)
           
           if(selectedMarketRef.current)
             selectedMarketRef.current.repaySpinner = true
