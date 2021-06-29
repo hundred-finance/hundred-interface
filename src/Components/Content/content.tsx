@@ -375,7 +375,8 @@ const Content: React.FC<Props> = (props : Props) => {
         let market = marketsRef.current.find(x =>x?.symbol === symbol)
         if(market && provider.current){
           try{
-            const value = BigNumber.parseValue(amount)
+            const value = BigNumber.parseValue(BigNumber.parseValue(amount).toFixed(market.decimals), market.decimals)
+            console.log(`Amount: ${value._value}\n${value.toString()}\nDecimals: ${market.decimals}`)
             const am = (market.isNativeToken) ? {value: value._value} : value._value
             if(selectedMarketRef.current)
               selectedMarketRef.current.supplySpinner = true
@@ -438,7 +439,7 @@ const Content: React.FC<Props> = (props : Props) => {
               console.log(receipt)
             }
             else{
-              const withdraw = BigNumber.parseValue(amount)
+              const withdraw = BigNumber.parseValue(BigNumber.parseValue(amount).toFixed(market.decimals), market.decimals)
               const tx = await ctoken.redeemUnderlying(withdraw._value)
               if (spinner.current) spinner.current(false)
               console.log(tx)
@@ -484,7 +485,10 @@ const Content: React.FC<Props> = (props : Props) => {
       let market = marketsRef.current.find(x => x?.symbol === symbol)
       if(market && provider.current){
         try{
-          const am = BigNumber.parseValue(amount)
+          console.log(`Decimals: ${market.decimals}`)
+          console.log(`Amount: ${amount}`)
+          const am = BigNumber.parseValue(BigNumber.parseValue(amount).toFixed(market.decimals), market.decimals)
+          console.log(`Amount: ${am.toString()}\n${am._value}`)
           if (selectedMarketRef.current)
             selectedMarketRef.current.borrowSpinner = true
           market.borrowSpinner = true
@@ -527,7 +531,7 @@ const Content: React.FC<Props> = (props : Props) => {
       let market = marketsRef.current.find(x => x?.symbol === symbol)
       if(market && provider.current){
         try{
-          const value = BigNumber.parseValue(amount)
+          const value = BigNumber.parseValue(BigNumber.parseValue(amount).toFixed(market.decimals), market.decimals)
           const am = (market.isNativeToken) ? ({value: value._value}) : 
                    (fullRepay ? MaxUint256 : value._value)
           
