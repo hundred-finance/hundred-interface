@@ -1,4 +1,5 @@
 import { ethers} from "ethers"
+import { Contract} from 'ethcall'
 import {BigNumber} from "../bigNumber"
 import { CTOKEN_ABI, MKR_TOKEN_ABI, TOKEN_ABI } from "../abi"
 import Logos from "../logos"
@@ -124,14 +125,30 @@ class UnderlyingInfo{
       }
 }
 
-export const getCtokenInfo = async (address : string, isNativeToken : boolean, provider: ethers.providers.Web3Provider, userAddress: string, comptrollerData: Comptroller, network: Network) : Promise<CTokenInfo>=> {
-    const ctoken = new ethers.Contract(address, CTOKEN_ABI, provider)
-    const underlyingAddress = isNativeToken ? null : await ctoken.underlying()
-    const underlying = await getUnderlying(underlyingAddress, address, comptrollerData, provider,userAddress, network)
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const getCtokenInfo = async (address : string, isNativeToken : boolean, provider: any, userAddress: string, comptrollerData: Comptroller, network: Network) : Promise<CTokenInfo>=> {
+    const [markets, speed] = await comptrollerData.ethcallProvider.all([comptrollerData.comptroller.markets(address), comptrollerData.comptroller.compSpeeds(address)])
+    
+    const cToken = new Contract(address, CTOKEN_ABI)
+
+    let [accountSnapshot, totalSupply, exchangeRate, totalBorrows, supplyRate, borrowRate, getCash, underlyingAddress] = ["", "", "", "", "", "", "", null]
+    if (isNativeToken)
+       [accountSnapshot, totalSupply, exchangeRate, totalBorrows, supplyRate, borrowRate, getCash] = await comptrollerData.ethcallProvider.all([cToken.getAccountSnapshot(userAddress), 
+                                                                                                                          cToken.totalSupply(), cToken.exchangeRateStored(), cToken.totalBorrows(),
+                                                                                                                          cToken.supplyRatePerBlock(), cToken.borrowRatePerBlock(), cToken.getCash()])
+    else
+      [accountSnapshot, totalSupply, exchangeRate, totalBorrows, supplyRate, borrowRate, getCash, underlyingAddress] = await comptrollerData.ethcallProvider.all([cToken.getAccountSnapshot(userAddress), 
+        cToken.totalSupply(), cToken.exchangeRateStored(), cToken.totalBorrows(),
+        cToken.supplyRatePerBlock(), cToken.borrowRatePerBlock(), cToken.getCash(), cToken.underlying()])
+    
+        //const ctoken = new ethers.Contract(address, CTOKEN_ABI, provider)
+    //console.log(`underlyingAddress: ${underlyingAddress}\naccountSnapshot:${accountSnapshot}\ntotalSupply:${totalSupply}\nexchangeRate: ${exchangeRate}\ntotalBorrows: ${totalBorrows}\nsupplyRate: ${supplyRate}\nborrowRate:${borrowRate}\ngetCash: ${getCash}`)
+    
+    const underlying = await getUnderlying(underlyingAddress, address, comptrollerData, provider, userAddress, network)
+    
     const decimals = underlying.decimals
     const underlyingPrice = BigNumber.from(underlying.price, 36-decimals)
 
-    const accountSnapshot = await ctoken.getAccountSnapshot(userAddress)
     const accountSnapshot1 = BigNumber.from(accountSnapshot[1].toString(), 18)
     const accountSnapshot3 = BigNumber.from(accountSnapshot[3].toString(), decimals)
     const supplyBalanceInTokenUnit = accountSnapshot1.mul(accountSnapshot3)
@@ -142,34 +159,34 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const borrowBalance = borrowBalanceInTokenUnit.mul(underlyingPrice)
 
 
-    const cTokenTotalSupply = BigNumber.from(await ctoken.totalSupply(), decimals)
-    const exchangeRateStored = BigNumber.from(await ctoken.exchangeRateStored(), 18)
+    const cTokenTotalSupply = BigNumber.from(totalSupply, decimals)
+    const exchangeRateStored = BigNumber.from(exchangeRate, 18)
     const marketTotalSupply = cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
 
-    const totalBorrows = BigNumber.from(await ctoken.totalBorrows(), decimals)
-    const marketTotalBorrowInTokenUnit = BigNumber.from(totalBorrows._value, decimals)
-    const marketTotalBorrow = totalBorrows?.mul(underlyingPrice)
+    const cTokenTotalBorrows = BigNumber.from(totalBorrows, decimals)
+    const marketTotalBorrowInTokenUnit = BigNumber.from(cTokenTotalBorrows._value, decimals)
+    const marketTotalBorrow = cTokenTotalBorrows?.mul(underlyingPrice)
 
     const isEnterMarket = comptrollerData.enteredMarkets.includes(address);
 
-    const markets = await comptrollerData.comptroller.markets(address)
+    //const markets = await comptrollerData.comptroller.markets(address)
 
     const collateralFactor = BigNumber.from(markets.collateralFactorMantissa.toString(), 18)
     
-    const supplyRatePerBlock = BigNumber.from(await ctoken.supplyRatePerBlock())
+    const supplyRatePerBlock = BigNumber.from(supplyRate)
     const supplyApy = BigNumber.parseValue((Math.pow((supplyRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
 
-    const borrowRatePerBlock = BigNumber.from(await ctoken.borrowRatePerBlock(), decimals)
+    const borrowRatePerBlock = BigNumber.from(borrowRate, decimals)
     const borrowApy = BigNumber.parseValue((Math.pow((borrowRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
 
-    const cash = BigNumber.from(await ctoken.getCash(), decimals) 
+    const cash = BigNumber.from(getCash, decimals) 
     const underlyingAmount = cash;
 
     const liquidity = underlyingAmount.mul(underlyingPrice)
     
     const underlyingAllowance = underlying.allowance
     
-    const speed = await comptrollerData.comptroller.compSpeeds(address)
+    //const speed = await comptrollerData.comptroller.compSpeeds(address)
     const pctSpeed = speed;
 
     return new CTokenInfo(
@@ -199,16 +216,18 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     )
   }
 
-  const getUnderlying = async (underlyingAddress: string, ptoken: string, comptrollerData: Comptroller, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) => {  
+  const getUnderlying = async (underlyingAddress: string | null, ptoken: string, comptrollerData: Comptroller, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) => {  
+    
     if (!underlyingAddress)
       return await getNativeTokenInfo(ptoken, comptrollerData, provider, userAddress, network)
     else if (underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2")
-      return await getMakerInfo(underlyingAddress, ptoken, comptrollerData, provider, userAddress)
+      return await getMakerInfo(underlyingAddress, ptoken, comptrollerData, userAddress)
     else 
-      return await getTokenInfo(underlyingAddress, ptoken, comptrollerData, provider, userAddress)
+      return await getTokenInfo(underlyingAddress, ptoken, comptrollerData, userAddress)
   }
 
   const getNativeTokenInfo = async (ptoken: string, comptrollerData: Comptroller, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) : Promise<UnderlyingInfo> => {
+    console.log("native Token")
     return new UnderlyingInfo(
       "0x0",
       network.symbol,
@@ -222,9 +241,9 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     )
   }
 
-  const getTokenInfo = async(address: string, ptoken: string, comptrollerData: Comptroller, provider: ethers.providers.Web3Provider, userAddress: string) : Promise<UnderlyingInfo> => {
-    const contract = new ethers.Contract(address, TOKEN_ABI, provider)
-    const symbol = await contract.symbol()
+  const getTokenInfo = async(address: string, ptoken: string, comptrollerData: Comptroller, userAddress: string) : Promise<UnderlyingInfo> => {
+    const contract = new Contract(address, TOKEN_ABI)
+    const [symbol, name, decimals, totalSupply, balanceOf, allowance] = await comptrollerData.ethcallProvider.all([ contract.symbol(), contract.name(), contract.decimals(), contract.totalSupply(), contract.balanceOf(userAddress), contract.allowance(userAddress, ptoken)])
     const logo = Logos[symbol]
     let price = BigNumber.from("0")
     try{
@@ -237,29 +256,30 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const token = new UnderlyingInfo(
       address,
       symbol,
-      await contract.name(),
-      await contract.decimals(),
-      await contract.totalSupply(),
+      name,
+      decimals,
+      totalSupply,
       logo, //`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`,
       price,
-      await contract.balanceOf(userAddress),
-      await contract.allowance(userAddress, ptoken)
+      balanceOf,
+      allowance
     )
+    console.log(token)
     return token
   }
 
-  const getMakerInfo = async (address: string, ptoken: string, comptrollerData: Comptroller, provider: ethers.providers.Web3Provider, userAddress: string): Promise<UnderlyingInfo> => {
-    const contract = new ethers.Contract(address, MKR_TOKEN_ABI, provider)
-    const decimals = await contract.decimals()
+  const getMakerInfo = async (address: string, ptoken: string, comptrollerData: Comptroller, userAddress: string): Promise<UnderlyingInfo> => {
+    const contract = new Contract(address, MKR_TOKEN_ABI)
+    const [symbol, name, decimals, totalSupply, balanceOf, allowance] = await comptrollerData.ethcallProvider.all([ contract.symbol(), contract.name(), contract.decimals(), contract.totalSupply(), contract.balanceOf(userAddress), contract.allowance(userAddress, ptoken)])
     return new UnderlyingInfo(
       address,
-      ethers.utils.parseBytes32String(await contract.symbol()),
-      ethers.utils.parseBytes32String(await contract.name()),
+      ethers.utils.parseBytes32String(symbol),
+      ethers.utils.parseBytes32String(name),
       decimals/1,
-      await contract.totalSupply(),
+      totalSupply,
       Logos["MKR"],
       await comptrollerData.oracle.getUnderlyingPrice(ptoken),
-      await contract.balanceOf(userAddress),
-      await contract.allowance(userAddress, ptoken)
+      balanceOf,
+      allowance
     )
   }
