@@ -227,7 +227,6 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
   }
 
   const getNativeTokenInfo = async (ptoken: string, comptrollerData: Comptroller, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) : Promise<UnderlyingInfo> => {
-    console.log("native Token")
     return new UnderlyingInfo(
       "0x0",
       network.symbol,
@@ -264,7 +263,6 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
       balanceOf,
       allowance
     )
-    console.log(token)
     return token
   }
 
