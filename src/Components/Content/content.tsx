@@ -375,7 +375,12 @@ const Content: React.FC<Props> = (props : Props) => {
         let market = marketsRef.current.find(x =>x?.symbol === symbol)
         if(market && provider.current){
           try{
-            const value = BigNumber.parseValue(BigNumber.parseValue(amount).toFixed(market.decimals), market.decimals)
+            console.log(amount)
+            let value = BigNumber.parseValue(amount)
+            
+            if(value._decimals > market.decimals)
+              value = BigNumber.parseValue(value.toFixed(market.decimals), market.decimals)
+
             console.log(`Amount: ${value._value}\n${value.toString()}\nDecimals: ${market.decimals}`)
             const am = (market.isNativeToken) ? {value: value._value} : value._value
             if(selectedMarketRef.current)
