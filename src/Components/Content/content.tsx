@@ -377,9 +377,10 @@ const Content: React.FC<Props> = (props : Props) => {
           try{
             console.log(amount)
             let value = BigNumber.parseValue(amount)
-            
+            console.log(amount)
             if(value._decimals > market.decimals)
               value = BigNumber.parseValue(value.toFixed(market.decimals), market.decimals)
+            else value = BigNumber.parseValue(amount, market.decimals)
 
             console.log(`Amount: ${value._value}\n${value.toString()}\nDecimals: ${market.decimals}`)
             const am = (market.isNativeToken) ? {value: value._value} : value._value
@@ -447,6 +448,7 @@ const Content: React.FC<Props> = (props : Props) => {
               let withdraw = BigNumber.parseValue(amount)
               if (withdraw._decimals > market.decimals)
                 withdraw = BigNumber.parseValue(withdraw.toFixed(market.decimals), market.decimals)
+              else withdraw = BigNumber.parseValue(amount, market.decimals)
               const tx = await ctoken.redeemUnderlying(withdraw._value)
               if (spinner.current) spinner.current(false)
               console.log(tx)
@@ -495,6 +497,7 @@ const Content: React.FC<Props> = (props : Props) => {
           let value = BigNumber.parseValue(amount)
           if (value._decimals > market.decimals)
             value = BigNumber.parseValue(BigNumber.parseValue(amount).toFixed(market.decimals), market.decimals)
+          else value = BigNumber.parseValue(amount, market.decimals)
           console.log(`Amount: ${value.toString()}\n${value._value}`)
           if (selectedMarketRef.current)
             selectedMarketRef.current.borrowSpinner = true
@@ -541,6 +544,7 @@ const Content: React.FC<Props> = (props : Props) => {
           let value = BigNumber.parseValue(amount)
           if (value._decimals > market.decimals)
             value = BigNumber.parseValue(value.toFixed(market.decimals), market.decimals)
+          else value = BigNumber.parseValue(amount, market.decimals)
           const am = (market.isNativeToken) ? ({value: value._value}) : 
                    (fullRepay ? ethers.constants.MaxUint256 : value._value)
           
