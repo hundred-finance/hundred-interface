@@ -223,7 +223,7 @@ const Content: React.FC<Props> = (props : Props) => {
       if (market.isNativeToken) {
         return market.borrowBalanceInTokenUnit//.times(maxRepayFactor).decimalPlaces(18); // Setting it to a bit larger, this makes sure the user can repay 100%.
       }
-      return market.borrowBalanceInTokenUnit.mul(maxRepayFactor); // The same as ETH for now. The transaction will use -1 anyway.
+      return BigNumber.parseValue((market.borrowBalanceInTokenUnit.mul(maxRepayFactor)).toFixed(market.decimals), market.decimals) // The same as ETH for now. The transaction will use -1 anyway.
     }
 
     const enterMarketDialog = (market: CTokenInfo) : void => {
@@ -533,7 +533,9 @@ const Content: React.FC<Props> = (props : Props) => {
         try{
           const value = BigNumber.parseValue(BigNumber.parseValue(amount).toFixed(market.decimals), market.decimals)
           const am = (market.isNativeToken) ? ({value: value._value}) : 
-                   (fullRepay ? MaxUint256 : value._value)
+                   (fullRepay ? ethers.constants.MaxUint256 : value._value)
+          
+          console.log(am)
           
           if(selectedMarketRef.current)
             selectedMarketRef.current.repaySpinner = true

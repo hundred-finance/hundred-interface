@@ -141,7 +141,9 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
             props.market) : BigNumber.from("0")
           const fullRepayAmount = props.market ? props.getMaxRepayAmount(
             props.market) : BigNumber.from("0")
+            
           const isFull = maxAffordable.gte(fullRepayAmount);
+          
           setIsFullRepay(isFull);
           setRepayInput( BigNumber.minimum(
               maxAffordable,
