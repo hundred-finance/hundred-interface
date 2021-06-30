@@ -127,7 +127,7 @@ class UnderlyingInfo{
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const getCtokenInfo = async (address : string, isNativeToken : boolean, provider: any, userAddress: string, comptrollerData: Comptroller, network: Network) : Promise<CTokenInfo>=> {
-    const [markets, speed] = await comptrollerData.ethcallProvider.all([comptrollerData.comptroller.markets(address), comptrollerData.comptroller.compSpeeds(address)])
+    const [markets, speed] = await comptrollerData.ethcallProvider.all([comptrollerData.ethcallComptroller.markets(address), comptrollerData.ethcallComptroller.compSpeeds(address)])
     
     const cToken = new Contract(address, CTOKEN_ABI)
 
