@@ -96,6 +96,13 @@ export class BigNumber {
       const num = utils.parseUnits(value, decimals)
       return new BigNumber(_constructorGuard, num, decimals)
     }
+
+    static parseValueSafe = (value: string, decimals: number): BigNumber => {
+      const temp = BigNumber.parseValue(value)
+      if (temp._decimals > decimals)
+        return BigNumber.parseValue(temp.toFixed(decimals), decimals)
+      return BigNumber.parseValue(value, decimals)
+    }
   
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     static from = (value: any, decimals?:number) : BigNumber => {
