@@ -125,6 +125,15 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
 
     }, [props.open]);
 
+    useEffect(() => {
+        setNewBorrowLimit1( props.generalData && props.market ?
+            props?.generalData.totalBorrowLimit?.add(props.market?.isEnterMarket ? BigNumber.parseValue(supplyInput!=="" ? supplyInput : "0").
+              mul(props.market?.underlyingPrice).mul(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
+          
+        setNewBorrowLimit2(props.market && props.generalData ? props.generalData.totalBorrowLimit?.
+            sub(props.market?.isEnterMarket? BigNumber.parseValue(withdrawInput!=="" ? withdrawInput : "0").
+            mul(props.market?.underlyingPrice).mul(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
+    },[props.generalData, props.market])
     
 
     const getMaxAmount = async () : Promise<void> => {

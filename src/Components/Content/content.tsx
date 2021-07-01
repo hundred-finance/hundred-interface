@@ -85,7 +85,7 @@ const Content: React.FC<Props> = (props : Props) => {
           catch(err){
               console.log(err)
           }
-        }, 60000);
+        }, 600000);
 
         if(provider.current && network.current && network.current.chainId && userAddress.current && userAddress.current !== ""){
             try{

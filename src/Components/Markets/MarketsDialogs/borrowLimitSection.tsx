@@ -1,5 +1,5 @@
 import { BigNumber } from "../../../bigNumber"
-import React from "react"
+import React, { useEffect } from "react"
 import { HuArrow } from "../../../assets/huIcons/huIcons"
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
 import "./dialogSection.css"
@@ -11,11 +11,20 @@ interface Props{
 }
 
 const BorrowLimitSection:React.FC<Props> = (props : Props) => {
-
-    const BorrowLimit = () : BigNumber => {
-        const value = props.generalData && props.newBorrowLimit && props.newBorrowLimit.gt(BigNumber.from(0)) ?  +props.generalData?.totalBorrowBalance.toString() / (+props.newBorrowLimit.toString()) * 100 : 0
-        return BigNumber.parseValue(value.toFixed(18))
-    }
+    
+    // const BorrowLimit = () : void => {
+    //     const value = props.generalData && props.newBorrowLimit && props.newBorrowLimit.gt(BigNumber.from(0)) ?  +props.generalData?.totalBorrowBalance.toString() / (+props.newBorrowLimit.toString()) * 100 : 0
+    //     setBorrowLimit(BigNumber.parseValue(value.toFixed(18)))
+        
+    // }
+    useEffect(() => {
+        console.log(`totalBorrowLimitUsedPercent: ${props.generalData?.totalBorrowLimitUsedPercent.toRound(2)}`)
+        console.log(`newBorrowLimit: ${props.newBorrowLimit?.toString()}`)
+        const value = props.generalData && props.newBorrowLimit && props.newBorrowLimit.gt(BigNumber.from(0)) ?  
+            BigNumber.parseValue((+props.generalData?.totalBorrowBalance.toString() / (+props.newBorrowLimit.toString()) * 100).toFixed(18)).toRound(2) 
+            : 0
+            console.log(`new value: ${value}`)
+    }, [props.generalData?.totalBorrowLimitUsedPercent,  props.newBorrowLimit])
 
     return (
         <div className="dialog-section">
@@ -53,7 +62,9 @@ const BorrowLimitSection:React.FC<Props> = (props : Props) => {
                                 style={{
                                     color: props.newBorrowLimit && props.generalData && props.newBorrowLimit.gt(BigNumber.from(0)) && 
                                         +props.generalData?.totalBorrowBalance/(+props.newBorrowLimit) > 1 ? "red": ""}}>
-                                {`${props.generalData?.totalBorrowBalance ? BorrowLimit().toRound(2) : 0}%`}
+                                {`${props.generalData && props.newBorrowLimit && props.newBorrowLimit.gt(BigNumber.from(0)) ?  
+                                    BigNumber.parseValue((+props.generalData?.totalBorrowBalance.toString() / (+props.newBorrowLimit.toString()) * 100).toFixed(18)).toRound(2) 
+                                    : 0}%`}
                             </span>) : null}
                 </div>
             </div>
@@ -62,3 +73,5 @@ const BorrowLimitSection:React.FC<Props> = (props : Props) => {
 }
 
 export default BorrowLimitSection
+// props.generalData && props.newBorrowLimit && props.newBorrowLimit.gt(BigNumber.from(0)) ?  
+// BigNumber.parseValue((+props.generalData?.totalBorrowBalance.toString() / (+props.newBorrowLimit.toString()) * 100).toFixed(18)).toRound(2) : 0
