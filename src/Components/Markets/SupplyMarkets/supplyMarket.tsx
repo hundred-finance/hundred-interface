@@ -1,10 +1,11 @@
-import React from "react"
+import React, { useEffect } from "react"
 import "../style.css"
 import SupplyMarketRow from "./supplyMarketRow"
 import {compareSymbol} from "../../../helpers"
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
 import { BigNumber } from "../../../bigNumber"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
+import ReactTooltip from "react-tooltip"
 
 interface Props{
   generalData: GeneralDetailsData | null,
@@ -15,9 +16,13 @@ interface Props{
 }
 
 const SupplyMarket: React.FC<Props> = (props : Props) => {
+  useEffect(() =>{
+    ReactTooltip.rebuild()
+  })
     
     return (
         <div className="market-content">
+          <ReactTooltip place="top" effect="solid" />
             <table className = "market-table">
             <thead className="market-table-header">
                 <tr>
@@ -49,7 +54,7 @@ const SupplyMarket: React.FC<Props> = (props : Props) => {
                   {props.marketsData?.filter((item) => item?.supplyBalance?.gt(BigNumber.from("0")))
                     .sort(compareSymbol)
                     .map((details, index) => (
-                      <SupplyMarketRow key={index} details={details} enterMarketDialog={props.enterMarketDialog} 
+                      <SupplyMarketRow key={index} tooltip={`supply-${index}`} details={details} enterMarketDialog={props.enterMarketDialog} 
                         supplyMarketDialog={props.supplyMarketDialog}/>
                     ))}
                   {props.generalData?.totalSupplyBalance.gt(BigNumber.from("0")) && (
@@ -74,7 +79,7 @@ const SupplyMarket: React.FC<Props> = (props : Props) => {
                     .map((details, index) => {
                       if(props.more || (!props.more && index < 4)) 
                         return (
-                          <SupplyMarketRow key={index} details={details} enterMarketDialog={props.enterMarketDialog} 
+                          <SupplyMarketRow key={index} tooltip={`not-supply-${index}`} details={details} enterMarketDialog={props.enterMarketDialog} 
                            supplyMarketDialog={props.supplyMarketDialog}/>
                         )
                       else return null

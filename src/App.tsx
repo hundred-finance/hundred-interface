@@ -16,6 +16,7 @@ import NetworksView from './Components/SideMenu/networksView';
 import { COMPTROLLER_ABI, HUNDRED_ABI } from './abi';
 import {ErrorBoundary} from "react-error-boundary"
 import { ToastContainer, toast } from 'react-toastify'
+import ReactToolTip from 'react-tooltip'
 import 'react-toastify/dist/ReactToastify.css'
 
 declare global {
@@ -289,6 +290,7 @@ const App: React.FC = () => {
             (openNetwork ? <NetworksView network={network}/> : null)
         }
       </SideMenu>
+      <ReactToolTip id="tooltip" effect="solid"/>
       <Spinner open={spinnerVisible} theme={theme}/>
     </div>
     : <div className="App">

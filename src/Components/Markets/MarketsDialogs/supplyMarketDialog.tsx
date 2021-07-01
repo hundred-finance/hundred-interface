@@ -198,7 +198,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                 }}>
                                 {props.market && props.market.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
                             </MarketDialogButton>
-                            <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toRound(4)} ${props.market?.symbol}`}/>
+                            <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.symbol}`}/>
                         </TabContentItem>
                     </TabContent>
                 </Tab>

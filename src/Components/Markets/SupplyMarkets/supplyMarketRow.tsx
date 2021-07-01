@@ -7,6 +7,7 @@ import SwitchButton from "../../Switch/switch"
 import "../style.css"
 
 interface Props{
+  tooltip?: string,
   details: CTokenInfo | null,
   supplyMarketDialog: (market: CTokenInfo) => void,
   enterMarketDialog: (market: CTokenInfo) => void,
@@ -39,8 +40,10 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
           
         </td>
         <td onClick={() => props.details && !props?.details.spinner ? props.supplyMarketDialog(props?.details) : null}>
-            { props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? props.details.supplyBalanceInTokenUnit.toFixed(4) : 0}
-          
+          <span data-tip={props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? props.details.supplyBalanceInTokenUnit.toString() : null}>
+              {props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? props.details.supplyBalanceInTokenUnit.toFixed(4) : 0}
+              </span>
+            {/* { props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? props.details.supplyBalanceInTokenUnit.toFixed(4) : 0} */}
         </td>
         <td onClick={() => props.details &&  !props.details.spinner ? props.supplyMarketDialog(props.details) : null}>
             <i
