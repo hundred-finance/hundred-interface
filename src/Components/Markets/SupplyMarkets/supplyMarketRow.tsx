@@ -39,7 +39,7 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
           
         </td>
         <td onClick={() => props.details && !props?.details.spinner ? props.supplyMarketDialog(props?.details) : null}>
-            { props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? +props.details.supplyBalanceInTokenUnit.toFixed(4) : 0}
+            { props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? props.details.supplyBalanceInTokenUnit.toFixed(4) : 0}
           
         </td>
         <td onClick={() => props.details &&  !props.details.spinner ? props.supplyMarketDialog(props.details) : null}>

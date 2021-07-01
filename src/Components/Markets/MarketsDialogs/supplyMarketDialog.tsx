@@ -93,8 +93,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                 setWithdrawValidation("Amount must be <= liquidity")
             }else{
                 setWithdrawValidation("");
-                if(withdrawMax){
-                    if(props.market?.supplyBalanceInTokenUnit.toString() !== withdrawInput.toString())
+                if(withdrawMax && props.market){
+                    console.log(BigNumber.parseValueSafe(props.market?.supplyBalanceInTokenUnit.toString(), props.market?.decimals).toString())
+                    if(BigNumber.parseValueSafe(props.market?.supplyBalanceInTokenUnit.toString(), props.market?.decimals).toString() !==  withdrawInput.toString())
                     {
                         setWithdrawMax(false)
                     }
