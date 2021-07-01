@@ -21,6 +21,7 @@ interface Props{
     spinnerVisible: boolean,
     open: boolean,
     darkMode: boolean,
+    completed: boolean,
     getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
     getMaxRepayAmount: (market: CTokenInfo) => BigNumber,
     handleBorrow: (symbol: string, amount: string) => Promise<void>,
@@ -30,7 +31,9 @@ interface Props{
 const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
     const ref = useRef<HTMLDivElement | null>(null)
     const [borrowInput, setBorrowInput] = useState<string>("")
+    const [borrowDisabled, setBorrowDisabled] = useState<boolean>(false)
     const [repayInput, setRepayInput] = useState<string>("")
+    const [repayDisabled, setRepayDisabled] = useState<boolean>(false)
     const [borrowValidation, setBorrowValidation] = useState<string>("")
     const [repayValidation, setRepayValidation] = useState<string>("")
     const [tabChange, setTabChange] = useState<number>(1)
@@ -136,6 +139,31 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
         };
     }, [ref, props]);
 
+    useEffect(()=>{
+        if(props.market){
+            if(!props.market.borrowSpinner){
+                if (props.completed) setBorrowInput("")
+                setBorrowDisabled(false)
+            }
+            else{
+                setBorrowDisabled(true)
+            }
+        }
+    }, [props.market?.borrowSpinner])
+
+    useEffect(()=>{
+        if(props.market){
+            if(!props.market.repaySpinner){
+                if(props.completed) setRepayInput("")
+                setRepayDisabled(false)
+            }
+            else{
+                setRepayDisabled(true)
+            }
+        }
+        
+    }, [props.market?.repaySpinner])
+
     const handleMaxRepay = async () => {
         const maxAffordable = props.market ? await props.getMaxAmount(
             props.market, "repay") : BigNumber.from("0")
@@ -189,7 +217,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                         </TabHeader>
                         <TabContent>
                             <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
-                                <TextBox placeholder={`0 ${props.market?.symbol}`} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"MAX"}
+                                <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={borrowDisabled} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"MAX"}
                                 onClick={ () => handleMaxBorrow()}/>
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
@@ -206,7 +234,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                                 <MarketDialogItem title={"You Borrowed"} value={`${props.market?.borrowBalanceInTokenUnit?.toRound(4)} ${props.market?.symbol}`}/>
                             </TabContentItem>
                             <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
-                                <TextBox placeholder={`0 ${props.market?.symbol}`} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"MAX"}
+                                <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={repayDisabled} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"MAX"}
                                  onClick={ ()=> handleMaxRepay()} onChange={()=>setIsFullRepay(false)}/>
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}

@@ -34,6 +34,10 @@
     pointer-events: none;
 }
 
+.textbox div .placeholder-disabled{
+    display: none;
+}
+
 .textbox div input {
     outline: none;
     width: 100%;
@@ -81,6 +85,10 @@
 
 .textbox .textbox-button .input-button:hover{
     color: var(--buttonHover);
+}
+
+.textbox .textbox-button .input-button-disabled{
+    pointer-events: none;
 }
 
 .textbox .textbox-button input{

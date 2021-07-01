@@ -48,6 +48,7 @@ const Content: React.FC<Props> = (props : Props) => {
     const [openSupplyMarketDialog, setOpenSupplyDialog] = useState(false)
     const [openBorrowMarketDialog, setOpenBorrowMarketDialog] = useState(false)
     const [update, setUpdate] = useState<boolean>(false)
+    const [completed, setCompleted] = useState<boolean>(false)
 
     const comptrollerDataRef = useRef<Comptroller | null>(null)
     const spinner = useRef<React.Dispatch<React.SetStateAction<boolean>> | null>(null)
@@ -399,6 +400,7 @@ const Content: React.FC<Props> = (props : Props) => {
         let market = marketsRef.current.find(x =>x?.symbol === symbol)
         if(market && provider.current){
           try{
+            setCompleted(false)
             const value = BigNumber.parseValueSafe(amount, market.decimals)
             const am = (market.isNativeToken) ? {value: value._value} : value._value
             if(selectedMarketRef.current)
@@ -414,6 +416,7 @@ const Content: React.FC<Props> = (props : Props) => {
             console.log(tx)
             const receipt = await tx.wait()
             console.log(receipt)
+            setCompleted(true)
           }
           catch(err){
             console.log(err)
@@ -443,6 +446,7 @@ const Content: React.FC<Props> = (props : Props) => {
         let market = marketsRef.current.find(x=>x?.symbol === symbol)
         if(market && provider.current){
           try{
+            setCompleted(false)
             const signer = provider.current.getSigner()
             const token = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI
             const ctoken = new ethers.Contract(market.pTokenAddress, token, signer)
@@ -461,6 +465,7 @@ const Content: React.FC<Props> = (props : Props) => {
               console.log(tx)
               const receipt = await tx.wait()
               console.log(receipt)
+              setCompleted(true)
             }
             else{
               const withdraw = BigNumber.parseValueSafe(amount, market.decimals)
@@ -509,6 +514,7 @@ const Content: React.FC<Props> = (props : Props) => {
       let market = marketsRef.current.find(x => x?.symbol === symbol)
       if(market && provider.current){
         try{
+          setCompleted(false)
           const value = BigNumber.parseValueSafe(amount, market.decimals)
           if (selectedMarketRef.current)
             selectedMarketRef.current.borrowSpinner = true
@@ -523,6 +529,7 @@ const Content: React.FC<Props> = (props : Props) => {
           console.log(tx)
           const receipt = await tx.wait()
           console.log(receipt)
+          setCompleted(true)
         }
         catch(err){
           console.log(err)
@@ -552,6 +559,7 @@ const Content: React.FC<Props> = (props : Props) => {
       let market = marketsRef.current.find(x => x?.symbol === symbol)
       if(market && provider.current){
         try{
+          setCompleted(false)
           const value = BigNumber.parseValueSafe(amount, market.decimals)
           const am = (market.isNativeToken) ? ({value: value._value}) : 
                    (fullRepay ? ethers.constants.MaxUint256 : value._value)
@@ -570,6 +578,7 @@ const Content: React.FC<Props> = (props : Props) => {
           console.log(tx)
           const receipt = await tx.wait()
           console.log(receipt)
+          setCompleted(true)
         }
         catch(err){
           console.log(err)
@@ -601,10 +610,10 @@ const Content: React.FC<Props> = (props : Props) => {
               supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog}/>
               <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
               handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
-            <SupplyMarketDialog open={openSupplyMarketDialog} market={selectedMarketRef.current} generalData={generalData} 
+            <SupplyMarketDialog completed={completed} open={openSupplyMarketDialog} market={selectedMarketRef.current} generalData={generalData} 
               closeSupplyMarketDialog = {closeSupplyMarketDialog} darkMode={props.darkMode} 
               handleEnable = {handleEnable} handleSupply={handleSupply} handleWithdraw={handleWithdraw} getMaxAmount={getMaxAmount} spinnerVisible={props.spinnerVisible}/>
-            <BorrowMarketDialog open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
+            <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
               closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}
               handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={props.spinnerVisible}/> 
         </div>

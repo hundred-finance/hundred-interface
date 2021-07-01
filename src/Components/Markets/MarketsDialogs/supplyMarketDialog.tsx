@@ -21,6 +21,7 @@ interface Props{
     open: boolean,
     getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
     darkMode: boolean,
+    completed: boolean,
     handleSupply: (symbol: string, amount: string) => Promise<void>,
     handleEnable: (symbol: string, borrowDialog: boolean) => Promise<void>,
     handleWithdraw: (symbol: string, amount: string, max: boolean) => Promise<void>
@@ -29,7 +30,9 @@ interface Props{
 const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     
     const [supplyInput, setSupplyInput] = useState<string>("")
+    const [supplyDisabled, setSupplyDisabled] = useState<boolean>(false)
     const [withdrawInput, setWithdrawInput] = useState<string>("")
+    const [withdrawDisabled, setWithdrawDisabled] = useState<boolean>(false)
     const [supplyValidation, setSupplyValidation] = useState<string>("")
     const [withdrawValidation, setWithdrawValidation] = useState<string>("")
     const [tabChange, setTabChange] = useState<number>(1)
@@ -133,7 +136,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         setNewBorrowLimit2(props.market && props.generalData ? props.generalData.totalBorrowLimit?.
             sub(props.market?.isEnterMarket? BigNumber.parseValue(withdrawInput!=="" ? withdrawInput : "0").
             mul(props.market?.underlyingPrice).mul(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
-    },[props.generalData, props.market])
+    },[props.generalData])
     
 
     const getMaxAmount = async () : Promise<void> => {
@@ -146,6 +149,31 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         props.market ? setWithdrawInput(BigNumber.minimum(BigNumber.parseValueSafe(props.market?.supplyBalanceInTokenUnit.toString(), props.market.decimals),
          BigNumber.parseValueSafe(props.market?.underlyingAmount.toString(), props.market.decimals)).toString()) : setWithdrawInput("0")
     }
+
+    useEffect(() => {
+        if(props.market){
+            if(!props.market.supplySpinner){
+                if(props.completed) setSupplyInput("")
+                setSupplyDisabled(false)
+            }
+            else{
+                setSupplyDisabled(true)
+            }
+        }
+    }, [props.market?.supplySpinner])
+
+    useEffect(() => {
+        if(props.market){
+            if(!props.market.withdrawSpinner){
+                if(props.completed) setWithdrawInput("")
+                setWithdrawDisabled(false)
+            }
+            else{
+                setWithdrawDisabled(true)
+            }
+            
+        }
+    }, [props.market?.withdrawSpinner])
 
     return (
         props.open ? (
@@ -169,7 +197,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                     </TabHeader>
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
-                            <TextBox placeholder={`0 ${props.market?.symbol}`} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"MAX"} 
+                            <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"MAX"} 
                                 onClick={()=>getMaxAmount()}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit1}/>
@@ -192,7 +220,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                 value={`${props.market?.walletBalance?.toRound(4)} ${props.market?.symbol}`}/>
                         </TabContentItem>
                         <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
-                            <TextBox placeholder={`0 ${props.market?.symbol}`} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"MAX"}
+                            <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"MAX"}
                                 onClick={() => getMaxWithdraw()}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
