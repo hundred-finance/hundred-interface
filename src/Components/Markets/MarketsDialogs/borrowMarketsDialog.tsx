@@ -21,7 +21,7 @@ interface Props{
     spinnerVisible: boolean,
     open: boolean,
     darkMode: boolean,
-    getMaxAmount: (market: CTokenInfo) => Promise<BigNumber>,
+    getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
     getMaxRepayAmount: (market: CTokenInfo) => BigNumber,
     handleBorrow: (symbol: string, amount: string) => Promise<void>,
     handleRepay: (symbol: string, amount: string, fullRepay: boolean) => Promise<void>,
@@ -138,12 +138,11 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
 
     const handleMaxRepay = async () => {
         const maxAffordable = props.market ? await props.getMaxAmount(
-            props.market) : BigNumber.from("0")
+            props.market, "repay") : BigNumber.from("0")
           const fullRepayAmount = props.market ? props.getMaxRepayAmount(
             props.market) : BigNumber.from("0")
             
           const isFull = maxAffordable.gte(fullRepayAmount);
-          
           setIsFullRepay(isFull);
           setRepayInput( BigNumber.minimum(
               maxAffordable,
@@ -154,9 +153,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
     const handleMaxBorrow = async () => {
         if(props.generalData && props.market){
             const balance = (+props.generalData.totalBorrowLimit.toString() - +props.generalData.totalBorrowBalance.toString()) / +props.market.underlyingPrice.toString() / 2
-            console.log(`Balance: ${balance}`)
             const amount = +props.market.underlyingAmount.toString() / 2
-            console.log(`amount: ${amount}`)
             if (balance > amount)
                 setBorrowInput(BigNumber.parseValue(amount.toFixed(18)).toString())
             else

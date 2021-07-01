@@ -97,10 +97,10 @@ export class BigNumber {
       return new BigNumber(_constructorGuard, num, decimals)
     }
 
-    static parseValueSafe = (value: string, decimals: number): BigNumber => {
+    static parseValueSafe = (value: string, decimals: number, round?: boolean): BigNumber => {
       const temp = BigNumber.parseValue(value)
       if (temp._decimals > decimals)
-        return BigNumber.parseValue(temp.toFixed(decimals), decimals)
+        return BigNumber.parseValue(round ? temp.toRound(decimals) : temp.toFixed(decimals), decimals)
       return BigNumber.parseValue(value, decimals)
     }
   

@@ -19,7 +19,7 @@ interface Props{
     market: CTokenInfo | null,
     generalData: GeneralDetailsData | null,
     open: boolean,
-    getMaxAmount: (market: CTokenInfo) => Promise<BigNumber>,
+    getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
     darkMode: boolean,
     handleSupply: (symbol: string, amount: string) => Promise<void>,
     handleEnable: (symbol: string, borrowDialog: boolean) => Promise<void>,
@@ -101,10 +101,6 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                 }
             }
 
-            
-
-            
-
             setNewBorrowLimit2(props.market && props.generalData ? props.generalData.totalBorrowLimit?.
                                 sub(props.market?.isEnterMarket? BigNumber.parseValue(withdrawInput!=="" ? withdrawInput : "0").
                                 mul(props.market?.underlyingPrice).mul(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
@@ -131,13 +127,14 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     
 
     const getMaxAmount = async () : Promise<void> => {
-        const amount = props.market ? await props.getMaxAmount(props.market) : 0
+        const amount = props.market ? await props.getMaxAmount(props.market, "supply") : 0
         setSupplyInput(amount.toString())
     }
 
     const getMaxWithdraw = () : void=> {
         setWithdrawMax(true)
-        props.market ? setWithdrawInput(BigNumber.minimum(props.market?.supplyBalanceInTokenUnit, props.market?.underlyingAmount).toString()) : setWithdrawInput("0")
+        props.market ? setWithdrawInput(BigNumber.minimum(BigNumber.parseValueSafe(props.market?.supplyBalanceInTokenUnit.toString(), props.market.decimals),
+         BigNumber.parseValueSafe(props.market?.underlyingAmount.toString(), props.market.decimals)).toString()) : setWithdrawInput("0")
     }
 
     return (
