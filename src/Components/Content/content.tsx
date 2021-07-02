@@ -230,7 +230,6 @@ const Content: React.FC<Props> = (props : Props) => {
             const signer = provider.current.getSigner()
             const ctoken = new ethers.Contract(market.pTokenAddress, CETHER_ABI, signer)
             gaslimit = BigNumber.from(await ctoken.estimateGas.mint(am)).mul(BigNumber.from("12"))
-            console.log(`gasLimit: ${gaslimit}`)
           }
           const price = BigNumber.from((gasPrice.mul(gaslimit))._value, 18)
           const balance = market.walletBalance.sub(price)
