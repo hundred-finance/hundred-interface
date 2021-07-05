@@ -52,25 +52,27 @@ export const getShortenAddress = (address: string) : string => {
   return `${firstCharacters}...${lastCharacters}`;
 };
 
-export const convertToLargeNumberRepresentation = (value: BigNumber, dp?: number, symbol?: string) : string => {
-  if (!value) {
-    return "0";
-  } else{
-    const number : number = +value.toRound(8)
+// export const convertToLargeNumberRepresentation = (value: BigNumber, dp?: number, symbol?: string) : string => {
+//   if (!value) {
+//     return "0";
+//   } else{
+//     const number : number = +value.toRound(8)
     
-    if(number === 0)
-      return number.toPrecision(dp ? dp : 3) + " "
-    else if (number >= 1e5) {
-      return `${symbol ? symbol : ""}${(number/1e6).toPrecision(dp ? dp : 4)}M`
-    } else if (number >= 1e2) {
-      return `${symbol ? symbol : ""}${(number/1e3).toPrecision(dp ? dp : 4)}K`
-    } else {
-      if(number > 0 && number < 0.01)
-        return `<${symbol ? symbol : ""}0.01`
-      return number.toPrecision(dp ? 2 : 4) + " "
-    }
-  } 
-}
+//     if(number === 0)
+//       return number.toPrecision(dp ? dp : 3) + " "
+//     else if (number >= 1e5) {
+//       const tempNum = +BigNumber.parseValue((number/1e6).noExponents()).toFixed(dp ? dp : 3)
+//       console.log(tempNum)
+//       return `${symbol ? symbol : ""}${tempNum.toPrecision(dp ? dp : 4)}M`
+//     } else if (number >= 1e2) {
+//       return `${symbol ? symbol : ""}${(number/1e3).toPrecision(dp ? dp : 4)}K`
+//     } else {
+//       if(number > 0 && number < 0.01)
+//         return `<${symbol ? symbol : ""}0.01`
+//       return number.toPrecision(dp ? 2 : 4) + " "
+//     }
+//   } 
+// }
 
 export const zeroStringIfNullish = (value: BigNumber, decimals: number, dp:number): string => {
  

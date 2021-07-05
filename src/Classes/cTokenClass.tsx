@@ -148,7 +148,7 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     
     const decimals = underlying.decimals
     const underlyingPrice = BigNumber.from(underlying.price, 36-decimals)
-
+  
     const accountSnapshot1 = BigNumber.from(accountSnapshot[1].toString(), 18)
     const accountSnapshot3 = BigNumber.from(accountSnapshot[3].toString(), decimals)
     const supplyBalanceInTokenUnit = accountSnapshot1.mul(accountSnapshot3)

@@ -122,30 +122,15 @@ export class BigNumber {
       return (+num).toFixed(2)
     }
 
-    toRound = (places: number) : string => {
+    toRound = (places: number, seperated?: boolean) : string => {
       const num = +ethers.utils.formatUnits(this._value, this._decimals)
       const rounded = Math.round((num + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places)
-      return this.noExponents(rounded)
+      if(seperated) return this.valueSeperated(rounded.noExponents())
+      return rounded.noExponents()
     }
 
-    private noExponents = (value: number) : string => {
-      const data= String(value).split(/[eE]/);
-      if(data.length== 1) return data[0]; 
-
-      let  z = ''
-      const sign = value < 0 ? '-' : ''
-      const str = data[0].replace('.', '')
-      let mag = +data[1] + 1
-
-      if(mag < 0){
-        z = sign + '0.'
-        while (mag++)
-          z += '0'
-        return z + str.replace(/^\-/,'')
-      }
-      mag -= str.length
-      while (mag--) z += '0'
-      return str + z
+    private valueSeperated = (value: string) : string =>{
+      return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
     }
 
     toNumber = () : number => {
@@ -192,4 +177,54 @@ export class BigNumber {
       const eth = ethers.BigNumber.from(value)
       return new BigNumber(_constructorGuard, eth, decimals)
     }
+
+    convertToLargeNumberRepresentation = (dp?: number, symbol?:string) : string => {
+        if (!this._value) {
+          return "0";
+        } 
+        
+        const number : number = +this.toRound(2)
+        console.log(`Number: ${number.toString()}`)
+        if(number === 0)
+          return number.toPrecision(dp ? dp : 3) + " "
+        // else if (number >= 1e8){
+        //   return `${symbol ? symbol : ""}${(number/1e9).toPrecision(dp ? dp : 4)}B`
+        else if (number >= 1e6) {
+          return `${symbol ? symbol : ""}${(number/1e6).toPrecision(dp ? dp : 4)}M`
+        } else if (number >= 1e3) {
+          return `${symbol ? symbol : ""}${(number/1e3).toPrecision(dp ? dp : 4)}K`
+        } else {
+          if(number > 0 && number < 0.01)
+            return `<${symbol ? symbol : ""}0.01`
+          else if (number > 0)
+            return `${symbol ? symbol : ""}${number.toPrecision(dp ? dp : 4)}`
+          return number.toPrecision(dp ? 3 : 4) + " "
+        }
+      
+    } 
   }
+
+  declare global{
+    interface Number{
+      noExponents() : string
+    }
+  }
+
+  Number.prototype.noExponents= function(){
+    const data= String(this).split(/[eE]/);
+    if(data.length== 1) return data[0]; 
+
+    let  z= ''
+    const sign= this < 0 ? '-':''
+    const str= data[0].replace('.', '')
+    let mag= Number(data[1])+ 1
+
+    if(mag<0){
+        z= sign + '0.';
+        while(mag++) z += '0';
+        return z + str.replace(/^\-/,'');
+    }
+    mag -= str.length;  
+    while(mag--) z += '0';
+    return str + z;
+}

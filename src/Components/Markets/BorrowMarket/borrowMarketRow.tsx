@@ -2,7 +2,6 @@ import { BigNumber } from "../../../bigNumber"
 import React from "react"
 import { Spinner } from "../../../assets/huIcons/huIcons"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
-import { convertToLargeNumberRepresentation } from "../../../helpers"
 
 import "../style.css"
 
@@ -40,7 +39,7 @@ const BorrowMarketRow: React.FC<Props> = (props : Props) => {
         </td>
         <td>
           <div className="spinner-container">
-            {`${props.details ? convertToLargeNumberRepresentation(props.details.liquidity, 2, '$') : "$0"}`}
+            {`${props.details ? props.details.liquidity.convertToLargeNumberRepresentation(3, '$') : "$0"}`}
             {(props?.details?.borrowSpinner || props?.details?.repaySpinner) ? (<Spinner size={"20px"}/>) : null}
           </div>
         </td>
