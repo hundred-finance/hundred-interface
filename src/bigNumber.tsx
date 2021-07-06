@@ -184,7 +184,6 @@ export class BigNumber {
         } 
         
         const number : number = +this.toRound(2)
-        console.log(`Number: ${number.toString()}`)
         if(number === 0)
           return number.toPrecision(dp ? dp : 3) + " "
         // else if (number >= 1e8){

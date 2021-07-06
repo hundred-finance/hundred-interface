@@ -5,6 +5,7 @@ import { CTOKEN_ABI, MKR_TOKEN_ABI, TOKEN_ABI } from "../abi"
 import Logos from "../logos"
 import { Network } from "../networks"
 import { Comptroller } from "./comptrollerClass"
+import { Call } from "ethcall/lib/call"
 
 const blockTime = 2.1 // seconds
 const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
@@ -280,4 +281,41 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
       balanceOf,
       allowance
     )
+  }
+
+
+  export const getTokenBalances = async (tokens: (CTokenInfo | null)[], comptrollerData: Comptroller, userAddress: string) : Promise<(CTokenInfo | null)[] | null> =>{
+    if (tokens && comptrollerData){
+      const calls : Call[] = tokens.map(t => {
+        if(t){
+          if(t.isNativeToken){
+            console.log("IsNativeToken")
+            const call: Call = comptrollerData.ethcallProvider.getEthBalance(userAddress)
+            return call
+          }
+          else if(t.underlyingAddress){
+            const c = t.underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? 
+                    new Contract(t.underlyingAddress, MKR_TOKEN_ABI) : new Contract(t.underlyingAddress, TOKEN_ABI)
+            const call: Call = c.balanceOf(userAddress)
+            return call
+          }
+        }
+        const c = new Contract("", TOKEN_ABI)
+            const call: Call = c.balanceOf(userAddress)
+        return call
+      })
+      
+     
+        const result = await comptrollerData.ethcallProvider.all(calls)
+        
+        tokens.forEach((t, i) => {
+          if(t){
+            t.walletBalance = BigNumber.from(result[i], t.decimals)
+          }
+        })
+        
+        return tokens
+      }
+    
+    return null
   }

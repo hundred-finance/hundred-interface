@@ -5,7 +5,7 @@ import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI } from "../../abi"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import { Network } from "../../networks"
 import { Comptroller, getComptrollerData } from "../../Classes/comptrollerClass"
-import { CTokenInfo, getCtokenInfo } from "../../Classes/cTokenClass"
+import { CTokenInfo, getCtokenInfo, getTokenBalances } from "../../Classes/cTokenClass"
 import { GeneralDetailsData, getGeneralDetails } from "../../Classes/generalDetailsClass"
 import Markets from "../Markets/markets"
 import EnterMarketDialog from "../Markets/MarketsDialogs/enterMarketDialog"
@@ -78,6 +78,20 @@ const Content: React.FC<Props> = (props : Props) => {
             
         }
 
+        const GetWalletBalances = async () => {
+          if(comptrollerDataRef.current && userAddress.current && marketsData && marketsData.length > 0){
+            const balances = await getTokenBalances(marketsData, comptrollerDataRef.current, userAddress.current)
+            if(balances){
+              setMarketsData(balances)
+              if(selectedMarketRef.current && balances){
+                const market = balances.find(x=>x?.symbol === selectedMarketRef.current?.symbol)
+                if (market)
+                  setSelectedMarket(market)
+              }
+            }
+          }
+        }
+
         const interval = setInterval(() => {
           try{
               GetData()
@@ -87,6 +101,16 @@ const Content: React.FC<Props> = (props : Props) => {
               console.log(err)
           }
         }, 60000);
+
+        const interval2 = setInterval(() => {
+          try{
+              GetWalletBalances()
+              //setUpdate(true)
+          }
+          catch(err){
+              console.log(err)
+          }
+        }, 5000);
 
         if(provider.current && network.current && network.current.chainId && userAddress.current && userAddress.current !== ""){
             try{
@@ -105,6 +129,7 @@ const Content: React.FC<Props> = (props : Props) => {
             try{
               setUpdate(false)
               clearInterval(interval)
+              clearInterval(interval2)
             }
             catch(err){
 
@@ -113,7 +138,7 @@ const Content: React.FC<Props> = (props : Props) => {
             setMarketsData(null)
         }
 
-        return() => clearInterval(interval)
+        return() => {clearInterval(interval); clearInterval(interval2);}
 
     },[props.provider])
 
@@ -153,6 +178,7 @@ const Content: React.FC<Props> = (props : Props) => {
                   return true
                 })
               }
+              
               setMarketsData(markets)
               if(selectedMarketRef.current && markets)
               {
