@@ -16,12 +16,13 @@
 
 .theme-switch .switch-button{
     position: absolute;
-    width: 24px;
-    height: 24px;
+    width: 25px;
+    height: 25px;
     border-radius: 50%;
     background-color: var(--secondaryBackground);
     left: 7px;
     transition: all .5s ease-in-out;
+    cursor: pointer;
 }
 
 .theme-switch .switch-button-dark-mode{

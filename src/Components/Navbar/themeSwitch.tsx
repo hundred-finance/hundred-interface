@@ -21,8 +21,8 @@ const ThemeSwitch: React.FC<Props> = ({darkMode, setDarkMode, setOpenMenu} : Pro
     return (
         <div className={`theme-switch ${darkMode ? "theme-switch-dark-mode" : ""}`} onClick={() => handleOpenMenu()}>
             <div className={`switch-button ${darkMode ? "switch-button-dark-mode" : ""}`}></div>
-            <Sun darkMode={darkMode} size="20px"/>
-            <Moon darkMode={darkMode} size="20px"/>
+            <Sun darkMode={darkMode} size="15px"/>
+            <Moon darkMode={darkMode} size="15px"/>
         </div>
     )
 }
