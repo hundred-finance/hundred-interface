@@ -202,11 +202,13 @@
     }
 }
 
-@media (max-width: 442px) {
+@media (max-width: 443px) {
     .navbar-right-content {
         flex-direction: column;
         height: 10rem;
-        align-items: flex-start;
+        align-items: center;
+        padding-bottom: 1rem;
+        justify-content: space-around;
     }
 
     .navbar-right-content .theme-switch {

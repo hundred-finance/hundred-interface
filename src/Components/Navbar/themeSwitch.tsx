@@ -1,18 +1,28 @@
 import React from "react"
+import "./themeSwitch.css"
+import { Sun, Moon } from "../../assets/huIcons/huIcons";
 
-import { ReactComponent as Sun } from '../../assets/sun.svg';
-import { ReactComponent as Moon } from '../../assets/moon.svg';
+// import { ReactComponent as Sun } from '../../assets/sun.svg';
+// import { ReactComponent as Moon } from '../../assets/moon.svg';
 
 interface Props{
     darkMode: boolean,
     setDarkMode: React.Dispatch<React.SetStateAction<boolean>>,
+    setOpenMenu?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const ThemeSwitch: React.FC<Props> = ({darkMode, setDarkMode} : Props) => {
+const ThemeSwitch: React.FC<Props> = ({darkMode, setDarkMode, setOpenMenu} : Props) => {
+    const handleOpenMenu = () => {
+        setDarkMode(!darkMode)
+        if(setOpenMenu) {
+            setOpenMenu(false)
+        }
+    }
     return (
-        <div className="theme-switch">
-            <Sun className={`navbar-right-sun ${darkMode ? 'deactive' : 'active'}`} onClick={() => setDarkMode(false)} />
-            <Moon className={`navbar-right-moon ${darkMode ? 'active' : 'deactive'}`} onClick={() => setDarkMode(true)} />
+        <div className={`theme-switch ${darkMode ? "theme-switch-dark-mode" : ""}`} onClick={() => handleOpenMenu()}>
+            <div className={`switch-button ${darkMode ? "switch-button-dark-mode" : ""}`}></div>
+            <Sun darkMode={darkMode} size="20px"/>
+            <Moon darkMode={darkMode} size="20px"/>
         </div>
     )
 }

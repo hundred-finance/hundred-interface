@@ -18,6 +18,7 @@ interface Props{
     isMobile: boolean,
     darkMode: boolean,
     show: boolean,
+    setShow: React.Dispatch<React.SetStateAction<boolean>>,
     setDarkMode: React.Dispatch<React.SetStateAction<boolean>>,
     address: string,
     setAddress: React.Dispatch<React.SetStateAction<string>>,
@@ -25,7 +26,7 @@ interface Props{
     setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
     setNetwork: React.Dispatch<React.SetStateAction<Network | null>>,
     network: Network | null,
-    setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>
+    setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 const TabletMenu: React.FC<Props> = (props: Props) => {
@@ -42,12 +43,10 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
                             <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
                             <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
                             setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
+                            <ThemeSwitch darkMode={props.darkMode} setDarkMode={props.setDarkMode} setOpenMenu={setMenuOpen}/>
                         </>
                     : null}
-                        <NavBarButton setMenuOpen={setMenuOpen}/>
-                        {props.isTablet && !props.isMobile ? 
-                            <ThemeSwitch darkMode={props.darkMode} setDarkMode={props.setDarkMode}/>
-                        : null}
+                        <NavBarButton setMenuOpen={setMenuOpen} menuOpen={menuOpen}/>
                     </NavBarRight>
             </Navbar>
             <NavbarMobile menuOpen={menuOpen}>
@@ -56,12 +55,12 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
                     <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
                     <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
                      setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
-                    <ThemeSwitch darkMode={props.darkMode} setDarkMode={props.setDarkMode}/>
+                    <ThemeSwitch darkMode={props.darkMode} setDarkMode={props.setDarkMode} setOpenMenu={setMenuOpen}/>
                 </NavBarRight>
             : null}
             <NavBarLinks>
-                 <NavbarLink link="/">Governance</NavbarLink>
-                 <NavbarLink link="https://github.com/chainsulting/Smart-Contract-Security-Audits/blob/master/Percent%20Finance/02_Smart%20Contract%20Audit%20Percent%20Finance.pdf">Audit</NavbarLink>
+                 <NavbarLink link="https://snapshot.org/#/hnd.eth/" target="_blank">Governance</NavbarLink>
+                 <NavbarLink link="https://github.com/chainsulting/Smart-Contract-Security-Audits/blob/master/Percent%20Finance/02_Smart%20Contract%20Audit%20Percent%20Finance.pdf" target="_blank">Audit</NavbarLink>
                  <NavbarLink link="https://github.com/hundred-finance" target="_blank">Github</NavbarLink>
                  <NavbarLink link="https://dashboard.hundred.finance" target="_blank">Dashboard</NavbarLink>
              </NavBarLinks>

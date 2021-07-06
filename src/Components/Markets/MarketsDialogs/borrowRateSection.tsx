@@ -32,7 +32,7 @@ const BorrowRateSection: React.FC<Props> = (props : Props) => {
                 <div className="logo-holder">
                     <HuLogo darkMode={props.darkMode} size={"20px"}/>
                     </div>
-                <div className="fill">100 APY</div>
+                <div className="fill">HND APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
                     {`${props.market ? props.market?.borrowPctApy?.mul(BigNumber.from(100)).toRound(2) : "0"}%`}
                 </div>

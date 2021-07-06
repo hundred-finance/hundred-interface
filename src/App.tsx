@@ -18,6 +18,7 @@ import {ErrorBoundary} from "react-error-boundary"
 import { ToastContainer, toast } from 'react-toastify'
 import ReactToolTip from 'react-tooltip'
 import 'react-toastify/dist/ReactToastify.css'
+import { Contract, Provider } from 'ethcall';
 
 declare global {
   interface Window {
@@ -51,11 +52,11 @@ const App: React.FC = () => {
   const [openNetwork, setOpenNetwork] = useState<boolean>(false)
 
   useEffect(() => {
-    if (document.documentElement.clientWidth < 644){
+    if (document.documentElement.clientWidth < 645){
       setIsMobile(true)
       setIsTablet(false)
     }
-    else if (document.documentElement.clientWidth < 942){
+    else if (document.documentElement.clientWidth < 943){
   
       setIsTablet(true)
       setIsMobile(false)
@@ -65,11 +66,11 @@ const App: React.FC = () => {
     setShow(true)
 
     window.addEventListener('resize', ()=>{
-      if (document.documentElement.clientWidth < 644){
+      if (document.documentElement.clientWidth < 645){
         setIsMobile(true)
         setIsTablet(false)
       }
-      else if (document.documentElement.clientWidth < 942){
+      else if (document.documentElement.clientWidth < 943){
     
         setIsTablet(true)
         setIsMobile(false)
@@ -184,41 +185,24 @@ const App: React.FC = () => {
 
   }, [network])
 
-  const getHndBalance = async () : Promise<void> => {
-    if(network && provider){
-        try{
-            const contract = new ethers.Contract(network.HUNDRED_ADDRESS, HUNDRED_ABI, provider)
-            const balance = await contract.balanceOf(address)
-            const decimals = await contract.decimals()
-            const symbol = await contract.symbol()
-            setHndBalance(new HundredBalance( balance, decimals, symbol))
-        }
-        catch(err){
-            console.log(err)
-            setHndBalance(null)
-        } 
-        return
+  const getHndBalances = async (prv : any) : Promise<void> => {
+    if(network && prv){
+      try {
+        const ethcallProvider = new Provider()
+        await ethcallProvider.init(prv)
+        const balanceContract = new Contract(network.HUNDRED_ADDRESS, HUNDRED_ABI)
+        const earnedContract = new Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI)
+        const [balance, decimals, symbol, earned] = await ethcallProvider.all(
+          [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol(), earnedContract.compAccrued(address)])
+          setHndBalance(new HundredBalance( balance, decimals, symbol))
+          setHndEarned(new HundredBalance( earned, 18, "HND"))
+      } catch (error) {
+        console.log(error)
+        setHndBalance(null)
+        setHndEarned(null)
+      }
     }
-    setHndBalance(null)
   }
-
-  const getHndEarned = async () : Promise<void> => {
-    if(network && provider){
-        try{
-            const contract = new ethers.Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI, provider)
-            const balance = await contract.compAccrued(address)
-            const decimals = 18
-            const symbol = "HND"
-            setHndEarned(new HundredBalance( balance, decimals, symbol))
-        }
-        catch(err){
-            console.log(err)
-            setHndEarned(null)
-        }
-        return
-    }
-    setHndEarned(null)
-}
 
   const handleCollect = async (): Promise<void> => {
     if(provider && network){
@@ -230,8 +214,7 @@ const App: React.FC = () => {
         console.log(tx)
         const receipt = await tx.wait()
         console.log(receipt)
-        await getHndBalance()
-        await getHndEarned()
+        await getHndBalances(provider)
       }
       catch(err){
         console.log(err)
@@ -273,7 +256,8 @@ const App: React.FC = () => {
           <Menu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network}
             address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} setOpenNetwork={setOpenNetwork}/>
           : <TabletMenu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network}
-              address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} setOpenNetwork={setOpenNetwork}/>
+              address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} 
+              setOpenNetwork={setOpenNetwork} setShow={setShow}/>
         }
         <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
           <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
@@ -285,7 +269,7 @@ const App: React.FC = () => {
       <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress} setOpenNetwork={setOpenNetwork}>
         { openAddress ? 
           <AccountSettings address={address} setAddress={setAddress} provider={provider} setSideMenu={setSideMenu} 
-            setOpenAddress={setOpenAddress} hndBalance={hndBalance} getHndBalance={getHndBalance} getHndEarned={getHndEarned} hndEarned={hndEarned} hndSpinner={hndSpinner}
+            setOpenAddress={setOpenAddress} hndBalance={hndBalance} getHndBalances={getHndBalances} hndEarned={hndEarned} hndSpinner={hndSpinner}
             handleCollect={handleCollect} network={network}/> : 
             (openNetwork ? <NetworksView network={network}/> : null)
         }

@@ -35,7 +35,6 @@ export class BigNumber {
           return tempNum1.sub(tempNum2)
         }
         case "mul" : {
-          console.log("div")
           return tempNum1.mul(tempNum2)
         }
         case "div" : {

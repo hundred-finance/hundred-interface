@@ -69,6 +69,7 @@ html{
   --dialogSectionBackground:#333;
   --borderBottom: rgba(255, 255, 255, 0.05);
   --showMore: #fff;
+  --themeSwitchBackground: #f9fafb;
   background-color: var(--background);
 }
 

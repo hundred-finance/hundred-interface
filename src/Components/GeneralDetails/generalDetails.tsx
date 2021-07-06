@@ -42,10 +42,10 @@ const GeneralDetails: React.FC<Props> = ({generalData} : Props) => {
                         <GeneralDetailsItemContentItem className="center"
                             // Check Number
                             value={`${generalData ? generalData?.netApy.toRound(2, true) : 0}%`}/> 
-                        <GeneralDetailsItemContentItem label="100 (supply):" 
+                        <GeneralDetailsItemContentItem label="HND APR:" 
                             value={`+ ${generalData ? generalData?.totalSupplyPctApy.toRound(2, true) : 0}%`}/>
-                        <GeneralDetailsItemContentItem label="100 (borrow):" 
-                            value={`+ ${generalData ? generalData?.totalBorrowPctApy.toRound(2, true) : 0}%`}/>
+                        <GeneralDetailsItemContentItem label="" 
+                            value=""/>
                     </GeneralDetailsItemContent>
                 </GeneralDetailsItem>
                 

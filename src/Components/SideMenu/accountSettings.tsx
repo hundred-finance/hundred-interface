@@ -17,16 +17,15 @@ interface Props{
     setOpenAddress: React.Dispatch<React.SetStateAction<boolean>>,
     setAddress: React.Dispatch<React.SetStateAction<string>>,
     handleCollect: () => Promise<void>,
-    getHndBalance: () => Promise<void>,
-    getHndEarned:  () => Promise<void>
+    getHndBalances: (prv: any) => Promise<void>
 }
 
 
 const AccountSettings: React.FC<Props> = (props: Props) => {
     useEffect(() => {
         const getPctBalances = async() => {
-            props.getHndBalance()
-            props.getHndEarned()  
+            props.getHndBalances(props.provider)
+            // props.getHndEarned()  
         }
 
         if (props.provider && props.address!=="")
@@ -48,8 +47,8 @@ const AccountSettings: React.FC<Props> = (props: Props) => {
             </div>
             <hr/>
             <div className="account-settings-item">
-                <div className="account-settings-item-label"><label>100 Balance </label><span>{props.hndBalance ? (props.hndBalance.balance.gt(BigNumber.from(0)) ? props.hndBalance.toFixed(4) : "0") : "--"}</span></div>
-                <div className="account-settings-item-label"><label>100 Earned </label><span>{props.hndEarned ? props.hndEarned?.balance.gt(BigNumber.from(0)) ? props.hndEarned?.toFixed(4) : "0" : "--"}</span></div>
+                <div className="account-settings-item-label"><label>HND Balance </label><span>{props.hndBalance ? (props.hndBalance.balance.gt(BigNumber.from(0)) ? props.hndBalance.toFixed(2) : "0") : "--"}</span></div>
+                <div className="account-settings-item-label"><label>HND Earned </label><span>{props.hndEarned ? props.hndEarned?.balance.gt(BigNumber.from(0)) ? props.hndEarned?.toFixed(2) : "0" : "--"}</span></div>
                 <div className={`${props.hndSpinner ? "account-settings-item-button-disabled" : "account-settings-item-button"}`} onClick={() => !props.hndSpinner ? props.handleCollect() : null}>
                     {props.hndSpinner ? (<Spinner size={"25px"}/>) : "Collect"}</div>
             </div>

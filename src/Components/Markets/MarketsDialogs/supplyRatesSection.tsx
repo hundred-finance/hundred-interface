@@ -31,7 +31,7 @@ const SupplyRateSection:React.FC<Props> = (props: Props) => {
                     <div className="logo-holder">
                         <HuLogo size={"20px"}/>
                     </div>
-                <div className="fill">100 APY</div>
+                <div className="fill">HND APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
                     {`${props.market ? props.market?.supplyPctApy?.mul(BigNumber.from(100)).toFixed(2) : "0"}%`}
                 </div>

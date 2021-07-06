@@ -289,7 +289,6 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
       const calls : Call[] = tokens.map(t => {
         if(t){
           if(t.isNativeToken){
-            console.log("IsNativeToken")
             const call: Call = comptrollerData.ethcallProvider.getEthBalance(userAddress)
             return call
           }

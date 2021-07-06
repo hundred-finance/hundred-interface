@@ -1,15 +1,18 @@
-import React, { useState } from "react"
+import React from "react"
 import './navbarButton.css'
 
 interface Props {
+    menuOpen: boolean
     setMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const NavBarButton: React.FC<Props> = (props: Props) => {
-    const [clicked, setClicked] = useState<boolean>(false)
+    const handleClick = () : void => {
+        props.setMenuOpen(!props.menuOpen)
+    }
 
     return (
-        <div className={`navbar-button ${clicked ? "navbar-button-clicked" : ""}`} onClick={() =>{ setClicked(!clicked); props.setMenuOpen(!clicked)}}>
+        <div className={`navbar-button ${props.menuOpen ? "navbar-button-clicked" : ""}`} onClick={() => handleClick()}>
             <span className="bar bar1"></span>
             <span className="bar bar2"></span>
             <span className="bar bar3"></span>
