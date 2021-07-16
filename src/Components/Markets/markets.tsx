@@ -16,15 +16,14 @@ interface Props{
     darkMode: boolean
 }
 const Markets: React.FC<Props> = (props : Props) => {
-    const [supplyMore, setSupplyMore] = useState<boolean>(false)
-    const [borrowMore, setBorrowMore] = useState<boolean>(false)
+    const [showMore, setShowMore] = useState<boolean>(false)
 
     const handleSupplyMore = () : void => {
-        setSupplyMore(!supplyMore)
+        setShowMore(!showMore)
     }
 
     const handleBorrowMore = () : void => {
-        setBorrowMore(!borrowMore)
+        setShowMore(!showMore)
     }
 
     return (
@@ -35,10 +34,10 @@ const Markets: React.FC<Props> = (props : Props) => {
                     Supply Market
                 </MarketContainerTitle>
                 <SupplyMarket generalData={props.generalData} marketsData = {props.marketsData} enterMarketDialog = {props.enterMarketDialog} 
-                    supplyMarketDialog={props.supplyMarketDialog} more={supplyMore} darkMode={props.darkMode}/>
+                    supplyMarketDialog={props.supplyMarketDialog} more={showMore} darkMode={props.darkMode}/>
                 <MarketContainerShowMore onClick={handleSupplyMore}>
                 {
-                    !supplyMore ? (
+                    !showMore ? (
                           "SHOW MORE"
                     ) : (
                           "SHOW LESS"
@@ -51,10 +50,10 @@ const Markets: React.FC<Props> = (props : Props) => {
                 <MarketContainerTitle>
                     Borrow Market
                 </MarketContainerTitle>
-                <BorrowMarket generalData={props.generalData} marketsData = {props.marketsData} borrowMarketDialog={props.borrowMarketDialog} more={borrowMore}/>
+                <BorrowMarket generalData={props.generalData} marketsData = {props.marketsData} borrowMarketDialog={props.borrowMarketDialog} more={showMore}/>
                 <MarketContainerShowMore onClick={handleBorrowMore}>
                 {
-                    !borrowMore ? (
+                    !showMore ? (
                           "SHOW MORE"
                     ) : (
                           "SHOW LESS"

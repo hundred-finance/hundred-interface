@@ -23,6 +23,7 @@
 
 .market-dialog-button button:disabled{
     border: 1px solid var(--buttonColor);
+    cursor: no-drop;
 }
 
 .market-dialog-button button:hover{

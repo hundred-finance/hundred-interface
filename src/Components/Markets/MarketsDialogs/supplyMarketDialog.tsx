@@ -207,6 +207,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
                             <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"MAX"} 
                                 onClick={()=>getMaxAmount()}/>
+                            <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.walletBalance?.toRound(4)} ${props.market?.symbol}`}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit1}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
@@ -224,13 +225,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                         onClick={() => {props.market ? props.handleEnable(props.market?.symbol,false) : null}}>
                                         {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.symbol}`}
                                     </MarketDialogButton>)}
-
-                            <MarketDialogItem title={"Wallet Ballance"} 
-                                value={`${props.market?.walletBalance?.toRound(4)} ${props.market?.symbol}`}/>
                         </TabContentItem>
                         <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
                             <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"MAX"}
                                 onClick={() => getMaxWithdraw()}/>
+                            <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.symbol}`}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
@@ -246,7 +245,6 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                 }}>
                                 {props.market && props.market.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
                             </MarketDialogButton>
-                            <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.symbol}`}/>
                         </TabContentItem>
                     </TabContent>
                 </Tab>
