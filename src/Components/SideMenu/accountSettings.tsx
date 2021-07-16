@@ -48,7 +48,7 @@ const AccountSettings: React.FC<Props> = (props: Props) => {
             <hr/>
             <div className="account-settings-item">
                 <div className="account-settings-item-label"><label>HND Balance </label><span>{props.hndBalance ? (props.hndBalance.balance.gt(BigNumber.from(0)) ? props.hndBalance.toFixed(2) : "0") : "--"}</span></div>
-                <div className="account-settings-item-label"><label>HND Earned </label><span>{props.hndEarned ? props.hndEarned?.balance.gt(BigNumber.from(0)) ? props.hndEarned?.toFixed(2) : "0" : "--"}</span></div>
+                <div className="account-settings-item-label"><label>HND Earned </label><span>{props.hndEarned ? props.hndEarned?.balance.gt(BigNumber.from(0)) ? props.hndEarned?.toFixed(4) : "0" : "--"}</span></div>
                 <div className={`${props.hndSpinner ? "account-settings-item-button-disabled" : "account-settings-item-button"}`} onClick={() => !props.hndSpinner ? props.handleCollect() : null}>
                     {props.hndSpinner ? (<Spinner size={"25px"}/>) : "Collect"}</div>
             </div>

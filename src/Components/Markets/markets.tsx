@@ -9,10 +9,11 @@ import SupplyMarket from "./SupplyMarkets/supplyMarket"
 
 interface Props{
     generalData: GeneralDetailsData | null,
-    marketsData: (CTokenInfo | null)[] | null,
+    marketsData: (CTokenInfo | null)[] | null | undefined,
     enterMarketDialog: (market: CTokenInfo) => void,
     supplyMarketDialog: (market: CTokenInfo) => void,
     borrowMarketDialog: (market: CTokenInfo) => void,
+    darkMode: boolean
 }
 const Markets: React.FC<Props> = (props : Props) => {
     const [supplyMore, setSupplyMore] = useState<boolean>(false)
@@ -34,7 +35,7 @@ const Markets: React.FC<Props> = (props : Props) => {
                     Supply Market
                 </MarketContainerTitle>
                 <SupplyMarket generalData={props.generalData} marketsData = {props.marketsData} enterMarketDialog = {props.enterMarketDialog} 
-                    supplyMarketDialog={props.supplyMarketDialog} more={supplyMore}/>
+                    supplyMarketDialog={props.supplyMarketDialog} more={supplyMore} darkMode={props.darkMode}/>
                 <MarketContainerShowMore onClick={handleSupplyMore}>
                 {
                     !supplyMore ? (

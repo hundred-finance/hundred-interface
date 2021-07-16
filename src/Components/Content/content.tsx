@@ -41,7 +41,7 @@ interface Props{
 
 const Content: React.FC<Props> = (props : Props) => {
     const [comptrollerData, setComptrollerData] = useState<Comptroller | null>(null)
-    const [marketsData, setMarketsData] = useState<(CTokenInfo | null)[] | null>(null)
+    const [marketsData, setMarketsData] = useState<(CTokenInfo | null)[] | null | undefined>(null)
     const [generalData, setGeneralData] = useState<GeneralDetailsData | null>(null)
     const [selectedMarket, setSelectedMarket] = useState<CTokenInfo | null>(null)
     const [openEnterMarket, setOpenEnterMarket] = useState(false)
@@ -50,14 +50,19 @@ const Content: React.FC<Props> = (props : Props) => {
     const [update, setUpdate] = useState<boolean>(false)
     const [completed, setCompleted] = useState<boolean>(false)
 
+    const [pauseUpdate, setPauseUpdate] = useState<boolean>(false)
+    const [updateCounter, setUpdateCounter] = useState<number>(0)
+    const [updateHandle, setUpdateHandle] = useState<number | null>(null)
+
     const comptrollerDataRef = useRef<Comptroller | null>(null)
     const spinner = useRef<React.Dispatch<React.SetStateAction<boolean>> | null>(null)
     const updateRef = useRef<boolean | null>()
-    const marketsRef = useRef<(CTokenInfo | null)[] | null>(null)
+    const marketsRef = useRef<(CTokenInfo | null)[] | null | undefined>(null)
     const selectedMarketRef = useRef<CTokenInfo | null>(null)
     const provider = useRef<ethers.providers.Web3Provider | null>(null)
     const userAddress = useRef<string | null>(null)
     const network = useRef<Network | null>(null)
+    const updateCounterRef = useRef<number>(0)
 
     provider.current = props.provider
     userAddress.current = props.address
@@ -67,173 +72,178 @@ const Content: React.FC<Props> = (props : Props) => {
     updateRef.current = update
     spinner.current = props.setSpinnerVisible
     selectedMarketRef.current = selectedMarket
+    updateCounterRef.current = updateCounter
 
-    //Get Comptroller Data
     useEffect(() => {
-        const GetData = async () => {
-            if(provider.current && network.current && userAddress.current){
-              const comptroller =  await getComptrollerData(provider.current, userAddress.current, network.current)
-              setComptrollerData(comptroller)    
-            }
-            
-        }
+      updateCounterRef.current = updateCounter
+    },[updateCounter])
 
-        const GetWalletBalances = async () => {
-          if(comptrollerDataRef.current && userAddress.current && marketsData && marketsData.length > 0){
-            const balances = await getTokenBalances(marketsData, comptrollerDataRef.current, userAddress.current)
+
+    const handleUpdate = async (market?: CTokenInfo, spinner?: string) : Promise<void> => {
+      if(market && spinner){
+        if(updateHandle) clearTimeout(updateHandle)
+        setUpdate(true)
+        setPauseUpdate(true)
+        await updateMarket(market, spinner)
+        setPauseUpdate(false)
+      }
+      else if(!pauseUpdate){
+        if(updateCounterRef.current === 12){
+          setUpdate(true)
+          await dataUpdate()
+        }
+        else {
+          setUpdate(true)
+          await GetWalletBalances()
+        }
+      }
+      setUpdateHandle(setTimeout(handleUpdate, 5000))
+    }
+
+    const GetWalletBalances = async () => {
+      try {
+        if(marketsRef.current && comptrollerDataRef.current && userAddress.current && marketsRef.current.length > 0 && !pauseUpdate){
+          const balances = await getTokenBalances(marketsRef.current, comptrollerDataRef.current, userAddress.current)
+          if(!pauseUpdate){
             if(balances){
-              setMarketsData(balances)
+              if(marketsData && marketsRef.current && comptrollerDataRef.current && userAddress.current && marketsData && marketsData.length > 0){
+                setMarketsData(prevState => {
+                  return prevState?.map(el => {
+                    const b = balances.find(x => x?.symbol === el?.symbol)
+                    if(b && el){
+                      return{
+                        ...el,
+                        walletBalance: b.walletBalance
+                      }
+                    }
+                    else{
+                      return el
+                    }
+                  })
+                })
+              }
               if(selectedMarketRef.current && balances){
                 const market = balances.find(x=>x?.symbol === selectedMarketRef.current?.symbol)
                 if (market)
                   setSelectedMarket(market)
               }
             }
+              setUpdateCounter(updateCounterRef.current + 1)
           }
         }
+      } 
+      catch (error) {
+        console.log(error)
+      }
+    }
 
-        const interval = setInterval(() => {
-          try{
-              GetData()
-              setUpdate(true)
+    const dataUpdate = async () => {
+      try {
+        if(provider.current && network.current && userAddress.current){
+          if(!updateRef.current){
+            if(spinner.current) spinner.current(true)
           }
-          catch(err){
-              console.log(err)
+          else{
+            if(spinner.current) spinner.current(false)
           }
-        }, 60000);
 
-        const interval2 = setInterval(() => {
-          try{
-              GetWalletBalances()
-              //setUpdate(true)
-          }
-          catch(err){
-              console.log(err)
-          }
-        }, 5000);
+          const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
+          setComptrollerData(comptroller)
 
-        if(provider.current && network.current && network.current.chainId && userAddress.current && userAddress.current !== ""){
-            try{
-              setUpdate(false)
-              if (spinner.current) spinner.current(true)
-              GetData()
-            }
-            catch(err){
-                console.log(err)
-            }
-            finally{
-              if(spinner.current) spinner.current(false)
-            }
-        }
-        else{
-            try{
-              setUpdate(false)
-              clearInterval(interval)
-              clearInterval(interval2)
-            }
-            catch(err){
+          if(provider.current && comptrollerDataRef.current){
+            const markets = await Promise.all(comptrollerDataRef.current.allMarkets?.filter((a) => {
+              if (a.toLowerCase() === "0xc98182014c90baa26a21e991bfec95f72bd89aed")
+                 return false
+              return true
+                }).map(async (a) => {
+                  const isNativeToken = a.toLowerCase() ===  network?.current?.token
+            
+              //const ctokenInfo = await getCTokenInfo.current(a, isNativeToken)
+              if(provider.current && network.current && userAddress.current && comptrollerDataRef.current)
+                return await getCtokenInfo(a, isNativeToken, provider.current, userAddress.current, comptrollerDataRef.current, network.current)
+            
+              return null
+            }))
 
-            }
-            setComptrollerData(null)
-            setMarketsData(null)
-        }
-
-        return() => {clearInterval(interval); clearInterval(interval2);}
-
-    },[props.provider])
-
-    //GetMarkets Dara 
-    useEffect(() => {
-        const GetMarkets = async() =>{
-          try{
-            if(!updateRef.current)
-              if( spinner.current ) spinner.current(true)
-
-            if(comptrollerData && provider.current){
-              const markets = await Promise.all(comptrollerData.allMarkets?.filter((a) => {
-                if (a.toLowerCase() === "0xc98182014c90baa26a21e991bfec95f72bd89aed")
-                   return false
-                return true
-                  }).map(async (a) => {
-                    const isNativeToken = a.toLowerCase() ===  network?.current?.token
+            if(marketsRef.current){
+               markets.map((m) => {
+                 if(marketsRef.current && m){
+                 const market = marketsRef.current.find(x => x?.symbol === m.symbol)
+                 if (market){
+                   m.spinner = market.spinner
+                   m.supplySpinner = market.supplySpinner
+                   m.withdrawSpinner = market.withdrawSpinner
+                   m.borrowSpinner = market.borrowSpinner
+                   m.repaySpinner = market.repaySpinner
+                 }
+               }
+                 return true
+               })
+             }
               
-                //const ctokenInfo = await getCTokenInfo.current(a, isNativeToken)
-                if(provider.current && network.current && userAddress.current)
-                  return await getCtokenInfo(a, isNativeToken, provider.current, userAddress.current, comptrollerData, network.current)
-              
-                return null
-              }))
-              if(marketsRef.current){
-                markets.map((m) => {
-                  if(marketsRef.current && m){
-                  const market = marketsRef.current.find(x => x?.symbol === m.symbol)
-                  if (market){
-                    m.spinner = market.spinner
-                    m.supplySpinner = market.supplySpinner
-                    m.withdrawSpinner = market.withdrawSpinner
-                    m.borrowSpinner = market.borrowSpinner
-                    m.repaySpinner = market.repaySpinner
-                  }
-                }
-                  return true
-                })
-              }
-              
+            if(!pauseUpdate){
               setMarketsData(markets)
+
+              if(markets){
+                const data = await getGeneralDetails(markets)
+                setGeneralData(data)
+              }
               if(selectedMarketRef.current && markets)
               {
                 const market = markets.find(x=>x?.symbol === selectedMarketRef.current?.symbol)
                 if (market)
                   setSelectedMarket(market)
               }
+              setUpdateCounter(0)
             }
           }
-          catch(err){
-            console.log(err)
-            setUpdate(true)
-            if(provider.current && network.current && userAddress.current){
-              const comptroller =  await getComptrollerData(provider.current, userAddress.current, network.current)
-              setComptrollerData(comptroller) 
-            }
+        } 
+      } catch (error) {
+        console.log(error)
+      }
+      finally{
+        if(spinner.current) spinner.current(false)
+      }
+    }
+
+    //Get Comptroller Data
+    useEffect(() => {
+        const getData= async () => {
+          try{
+            await dataUpdate()
+            setUpdateHandle(setTimeout(handleUpdate, 5000))
           }
-          finally{
-            if(!updateRef.current)
-            if (spinner.current) spinner.current(false)
+          catch(error){
+            console.log(error)
           }
         }
-
-
-        if(comptrollerData){
-            GetMarkets()
-        }
-        else{
-            //setGeneralData(null)
-            setMarketsData(null)
-        }
-    }, [comptrollerData])
-
-    //Get General Data
-    useEffect (() => {
-        const GetGeneral = async () => {
-            if(!updateRef.current)
-            if (spinner.current) spinner.current(true)
-              if(marketsRef.current){
-                const data = await getGeneralDetails(marketsRef.current)
-                setGeneralData(data)
-            
+        if(provider.current && network.current && network.current.chainId && userAddress.current && userAddress.current !== ""){
+            try{
+              if(updateHandle) {
+                clearTimeout(updateHandle)
+                setUpdateCounter(0)
               }
-            if(!updateRef.current)
-            if (spinner.current) spinner.current(false)
-        }
-
-        if (marketsData){
-            GetGeneral()
+              setUpdate(false)
+              getData()
+            }
+            catch(err){
+                console.log(err)
+            }
         }
         else{
+            setComptrollerData(null)
+            setMarketsData(null)
             setGeneralData(null)
+            setSelectedMarket(null)
+            if(updateHandle) clearTimeout(updateHandle)
         }
-    },[marketsData])
-    
+
+        return() => {
+          if(updateHandle) clearTimeout(updateHandle)
+        }
+
+    },[props.provider])
+
     const getMaxAmount = async (market: CTokenInfo, func?: string) : Promise<BigNumber> => {
         if (market.isNativeToken && props.provider) {
           const gasPrice = BigNumber.from((await props.provider.getGasPrice()).toString(), 9)
@@ -266,13 +276,15 @@ const Content: React.FC<Props> = (props : Props) => {
       return market.walletBalance
     }
 
-    const getMaxRepayAmount = (market: CTokenInfo) : BigNumber => {
+    const getMaxRepayAmount = async (market: CTokenInfo) : Promise<BigNumber> => {
       
-      const maxRepayFactor = BigNumber.parseValueSafe("1", market.decimals).add(BigNumber.parseValueSafe(market.borrowApy.toString(), market.decimals, true)) //BigNumber.from("1").add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
-      const amount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mul(maxRepayFactor).toString(), market.decimals)
-      if (market.isNativeToken) {
-        return market.borrowBalanceInTokenUnit//.times(maxRepayFactor).decimalPlaces(18); // Setting it to a bit larger, this makes sure the user can repay 100%.
-      }
+      
+      if(market.isNativeToken) updateMarket(market, "repay")
+      const maxRepayFactor = !market.isNativeToken ? BigNumber.parseValueSafe((1 + +market.borrowRatePerBlock.toString()).noExponents(), market.decimals) :
+       BigNumber.parseValueSafe((1 + +market.borrowRatePerBlock.toString()).noExponents(), market.decimals)//BigNumber.from("1").add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
+      const amount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), market.decimals)
+      console.log(`market.borrowRatePerBlock: ${(+market.borrowRatePerBlock.toString()).noExponents()}\n maxRepayFactor: ${maxRepayFactor.toString()}\nAmount: ${amount}\nmarket.borrowBalanceInTokenUnit: ${market.borrowBalanceInTokenUnit}`)
+      
       return amount // The same as ETH for now. The transaction will use -1 anyway.
     }
 
@@ -285,6 +297,89 @@ const Content: React.FC<Props> = (props : Props) => {
       if(!props.spinnerVisible){
         setOpenEnterMarket(false)
         setSelectedMarket(null)
+      }
+    }
+
+    const updateMarket = async (market : CTokenInfo, spinner: string) : Promise<void>=> {
+      try {
+        if(market && provider.current && userAddress.current && comptrollerDataRef.current && network.current){
+          const ctokenInfo = await getCtokenInfo(market.pTokenAddress, market.isNativeToken, provider.current, userAddress.current, comptrollerDataRef.current, network.current) 
+          if(ctokenInfo){
+            switch (spinner) {
+              case "supply":
+                ctokenInfo.spinner = market.spinner
+                ctokenInfo.supplySpinner = false
+                ctokenInfo.withdrawSpinner = market.withdrawSpinner
+                ctokenInfo.borrowSpinner = market.borrowSpinner
+                ctokenInfo.repaySpinner = market.repaySpinner
+                break;
+              case "withdraw":
+                ctokenInfo.spinner = market.spinner
+                ctokenInfo.supplySpinner = market.supplySpinner
+                ctokenInfo.withdrawSpinner = false
+                ctokenInfo.borrowSpinner = market.borrowSpinner
+                ctokenInfo.repaySpinner = market.repaySpinner
+                break;
+              case "borrow":
+                ctokenInfo.spinner = market.spinner
+                ctokenInfo.supplySpinner = market.supplySpinner
+                ctokenInfo.withdrawSpinner = market.withdrawSpinner
+                ctokenInfo.borrowSpinner = false
+                ctokenInfo.repaySpinner = market.repaySpinner
+                break;
+              case "repay":
+                ctokenInfo.spinner = market.spinner
+                ctokenInfo.supplySpinner = market.supplySpinner
+                ctokenInfo.withdrawSpinner = market.withdrawSpinner
+                ctokenInfo.borrowSpinner = market.borrowSpinner
+                ctokenInfo.repaySpinner = false
+                break;
+              default:
+                break;
+            }
+            if(marketsData){
+              setMarketsData(prevState => {
+                return prevState?.map(el => el?.symbol === ctokenInfo.symbol ? {
+                  ...el,
+                  supplyApy: ctokenInfo.supplyApy,
+                  borrowApy: ctokenInfo.borrowApy,
+                  underlyingAllowance: ctokenInfo.underlyingAllowance,
+                  walletBalance: ctokenInfo.walletBalance,
+                  supplyBalanceInTokenUnit: ctokenInfo.supplyBalanceInTokenUnit,
+                  supplyBalance: ctokenInfo.supplyBalance,
+                  marketTotalSupply: ctokenInfo.marketTotalSupply,
+                  borrowBalanceInTokenUnit: ctokenInfo.borrowBalanceInTokenUnit,
+                  borrowBalance: ctokenInfo.borrowBalance,
+                  marketTotalBorrowInTokenUnit: ctokenInfo.marketTotalBorrowInTokenUnit,
+                  marketTotalBorrow: ctokenInfo.marketTotalBorrow,
+                  isEnterMarket: ctokenInfo.isEnterMarket,
+                  underlyingAmount: ctokenInfo.underlyingAmount,
+                  underlyingPrice: ctokenInfo.underlyingPrice,
+                  liquidity: ctokenInfo.liquidity,
+                  collateralFactor: ctokenInfo.collateralFactor,
+                  pctSpeed: ctokenInfo.pctSpeed,
+                  spinner: ctokenInfo.spinner,
+                  supplySpinner: ctokenInfo.supplySpinner,
+                  withdrawSpinner: ctokenInfo.withdrawSpinner,
+                  borrowSpinner: ctokenInfo.borrowSpinner,
+                  repaySpinner: ctokenInfo.repaySpinner,
+                  supplyPctApy: ctokenInfo.supplyPctApy,
+                  borrowPctApy: ctokenInfo.borrowPctApy,
+                  hndAPR: ctokenInfo.hndAPR
+                } : el)
+              })
+              
+              const data = await getGeneralDetails(marketsData)
+              setGeneralData(data)
+              
+            }
+            if(selectedMarketRef.current && selectedMarketRef.current.symbol === ctokenInfo.symbol){
+              setSelectedMarket(ctokenInfo)
+            }
+          }
+        }
+      } catch (error) {
+        
       }
     }
 
@@ -449,16 +544,17 @@ const Content: React.FC<Props> = (props : Props) => {
           finally{
             if (spinner.current) spinner.current(false)
             market = marketsRef.current.find(x =>x?.symbol === symbol)
-            if(market)
-              market.supplySpinner = false
-
-            setUpdate(true)
-            if(provider.current && network.current && userAddress.current){
-              const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
-              setComptrollerData(comptroller)
+            if(market){
+              await handleUpdate(market, "supply")
             }
-            if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
-              selectedMarketRef.current.supplySpinner = false
+              
+
+            // if(provider.current && network.current && userAddress.current){
+            //   const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
+            //   setComptrollerData(comptroller)
+            // }
+            // if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
+            //   selectedMarketRef.current.supplySpinner = false
           }
         }
       }
@@ -484,7 +580,6 @@ const Content: React.FC<Props> = (props : Props) => {
             if (max){
               const accountSnapshot = await ctoken.getAccountSnapshot(userAddress.current)
               const withdraw = ethers.BigNumber.from(accountSnapshot[1].toString())
-              console.log(withdraw.toString())
               const tx = await ctoken.redeem(withdraw)
               if (spinner.current) spinner.current(false)
               console.log(tx)
@@ -506,16 +601,22 @@ const Content: React.FC<Props> = (props : Props) => {
           }
           finally{
             if (spinner.current) spinner.current(false)
-            market = marketsRef.current.find(x => x?.symbol === symbol)
-            if(market)
-              market.withdrawSpinner = false
-            setUpdate(true)
-            if(provider.current && network.current && userAddress.current){
-              const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
-              setComptrollerData(comptroller)
+            market = marketsRef.current.find(x =>x?.symbol === symbol)
+            if(market){
+              setUpdate(true)
+              await updateMarket(market, "withdraw")
             }
-            if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
-              selectedMarketRef.current.withdrawSpinner = false
+
+            // market = marketsRef.current.find(x => x?.symbol === symbol)
+            // if(market)
+            //   market.withdrawSpinner = false
+            // setUpdate(true)
+            // if(provider.current && network.current && userAddress.current){
+            //   const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
+            //   setComptrollerData(comptroller)
+            // }
+            // if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
+            //   selectedMarketRef.current.withdrawSpinner = false
           }
         }
       }
@@ -561,18 +662,22 @@ const Content: React.FC<Props> = (props : Props) => {
         }
         finally{
           if (spinner.current) spinner.current(false)
-          market = marketsRef.current.find(x => x?.symbol === symbol)
-          if(market)
-            market.borrowSpinner = false
-          setUpdate(true)
-          
-          if(provider.current && network.current && userAddress.current){
-            const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
-            setComptrollerData(comptroller)
+          market = marketsRef.current.find(x =>x?.symbol === symbol)
+          if(market){
+              setUpdate(true)
+              await updateMarket(market, "borrow")
           }
+          // if(market)
+          //   market.borrowSpinner = false
+          // setUpdate(true)
           
-          if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
-            selectedMarketRef.current.borrowSpinner = false
+          // if(provider.current && network.current && userAddress.current){
+          //   const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
+          //   setComptrollerData(comptroller)
+          // }
+          
+          // if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
+          //   selectedMarketRef.current.borrowSpinner = false
         }
       }
     }
@@ -595,9 +700,9 @@ const Content: React.FC<Props> = (props : Props) => {
           const signer = provider.current.getSigner()
           const tokenABI = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
           const ctoken = new ethers.Contract(market.pTokenAddress, tokenABI, signer)
-          const estgas = await ctoken.estimateGas.repayBorrow(am)
-          console.log(estgas)
+          
           const tx = await ctoken.repayBorrow(am)
+          
           if (spinner.current) spinner.current(false)
 
           console.log(tx)
@@ -610,19 +715,23 @@ const Content: React.FC<Props> = (props : Props) => {
         }
         finally{
           if (spinner.current) spinner.current(false)
-          market = marketsRef.current.find(x => x?.symbol === symbol)
-          if(market)
-            market.repaySpinner = false
+          market = marketsRef.current.find(x =>x?.symbol === symbol)
+          if(market){
+              setUpdate(true)
+              await updateMarket(market, "repay")
+            }
+          // if(market)
+          //   market.repaySpinner = false
 
-          setUpdate(true)
+          // setUpdate(true)
 
-          if(provider.current && network.current && userAddress.current){
-            const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
-            setComptrollerData(comptroller)
-          }
+          // if(provider.current && network.current && userAddress.current){
+          //   const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
+          //   setComptrollerData(comptroller)
+          // }
 
-          if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
-            selectedMarketRef.current.repaySpinner = false
+          // if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
+          //   selectedMarketRef.current.repaySpinner = false
         }
       }
     }
@@ -631,8 +740,8 @@ const Content: React.FC<Props> = (props : Props) => {
     return (
         <div className="content">
             <GeneralDetails generalData={generalData}/>
-            <Markets generalData = {generalData} marketsData = {marketsRef.current} enterMarketDialog={enterMarketDialog} 
-              supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog}/>
+            <Markets generalData = {generalData} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} 
+              supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog} darkMode={props.darkMode}/>
               <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
               handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
             <SupplyMarketDialog completed={completed} open={openSupplyMarketDialog} market={selectedMarketRef.current} generalData={generalData} 

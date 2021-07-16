@@ -64,7 +64,7 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
     let totalBorrowLimit = BigNumber.from("0")
     let yearSupplyInterest = BigNumber.from("0")
     let yearBorrowInterest = BigNumber.from("0")
-    const yearSupplyPctRewards = BigNumber.from("0")
+    let yearSupplyPctRewards = BigNumber.from("0")
     const yearBorrowPctRewards = BigNumber.from("0")
     let totalLiquidity = BigNumber.from("0")
     
@@ -82,8 +82,9 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
         }
         totalBorrowLimit = totalBorrowLimit.add(market.isEnterMarket ? market.supplyBalance.mul(market.collateralFactor) : BigNumber.from("0"))
         
-        yearSupplyInterest = yearSupplyInterest.addSafe(market.supplyBalance.mulSafe(market.supplyApy))
-        yearBorrowInterest = yearBorrowInterest.addSafe(market?.borrowBalance.mulSafe(market.borrowApy))
+        yearSupplyInterest = BigNumber.parseValue((+yearSupplyInterest.toString() + (+market.supplyBalance.toString() * (+market.supplyApy.toString() + +market.hndAPR.toString()))).noExponents())
+        yearBorrowInterest = BigNumber.parseValue((+yearBorrowInterest.toString() + (+market.borrowBalance * +market.borrowApy.toString())).noExponents())
+        yearSupplyPctRewards = BigNumber.parseValue((+yearSupplyPctRewards.toString() + +market.hndAPR.toString()).noExponents())
         if (market && market.liquidity.gt(BigNumber.from("0"))) {
             totalLiquidity = totalLiquidity.addSafe(market.liquidity)
         }
@@ -95,6 +96,7 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
     const temp = (totalBorrowBalanceTemp / totalBorrowLimitTemp * 100)
     
     const totalBorrowLimitUsedPercent = totalBorrowLimit.gt(BigNumber.from(0)) ? BigNumber.parseValue(temp.toFixed(18)) : BigNumber.from("0")
+    //console.log(`yearSupply: ${yearSupplyInterest.toString()}\nyrarBorrow: ${yearBorrowInterest.toString()}\ntotalSupply: ${totalSupplyBalance.toString()}`)
     const tempNetApy = +totalSupplyBalance > 0 ? (+yearSupplyInterest.toString() - +yearBorrowInterest.toString()) / +totalSupplyBalance.toString() : 0
     //const netApy = totalSupplyBalance.gt(BigNumber.from("0")) ? (yearSupplyInterest.subSafe(yearBorrowInterest)).divSafe(totalSupplyBalance) : BigNumber.from("0")
     const  netApy = BigNumber.parseValue(tempNetApy.noExponents())
@@ -109,7 +111,7 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
                             yearSupplyInterest,
                             yearBorrowInterest,
                             netApy,
-                            +totalSupplyBalance.toString() > 0 ? BigNumber.parseValue((+yearSupplyPctRewards.toString() / +totalSupplyBalance.toString()).noExponents()) : BigNumber.from(0),
+                            +totalSupplyBalance.toString() > 0 ? BigNumber.parseValue((+yearSupplyPctRewards.toString() / +totalSupplyBalance.toString() * 100).noExponents()) : BigNumber.from(0),
                             +totalBorrowBalance.toString() > 0 ? BigNumber.parseValue((+yearBorrowPctRewards.toString() / +totalBorrowBalance.toString()).noExponents()) : BigNumber.from(0),
                             pctPrice,
                             totalLiquidity)

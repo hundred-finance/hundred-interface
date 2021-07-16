@@ -1,4 +1,5 @@
 import React from "react"
+import { BigNumber } from "../../bigNumber"
 import { GeneralDetailsData } from "../../Classes/generalDetailsClass"
 import Section from "../Section/section"
 import { GeneralDetailsItem, GeneralDetailsItemContent, GeneralDetailsItemContentItem, GeneralDetailsItemTitle } from "./generalDetailsItem"
@@ -37,15 +38,16 @@ const GeneralDetails: React.FC<Props> = ({generalData} : Props) => {
                 </GeneralDetailsItem>
                 
                 <GeneralDetailsItem>
-                    <GeneralDetailsItemTitle  title="Net APY"/>
+                    <GeneralDetailsItemTitle  title="APR"/>
                     <GeneralDetailsItemContent>
-                        <GeneralDetailsItemContentItem className="center"
-                            // Check Number
-                            value={`${generalData ? generalData?.netApy.toRound(2, true) : 0}%`}/> 
-                        <GeneralDetailsItemContentItem label="HND APR:" 
-                            value={`+ ${generalData ? generalData?.totalSupplyPctApy.toRound(2, true) : 0}%`}/>
-                        <GeneralDetailsItemContentItem label="" 
-                            value=""/>
+                        <GeneralDetailsItemContentItem label="Supply + HND"
+                            value={`${generalData && +generalData.totalSupplyBalance.toString() > 0 ? 
+                            BigNumber.parseValue((+generalData?.yearSupplyInterest.toString() / +generalData.totalSupplyBalance.toString()).noExponents()).toRound(3, true) : 0}%`}/> 
+                        <GeneralDetailsItemContentItem label="Borrow:" 
+                            value={`${generalData && +generalData.totalBorrowBalance.toString() > 0 ? 
+                            BigNumber.parseValue((+generalData?.yearBorrowInterest.toString() / +generalData.totalBorrowBalance.toString()).noExponents()).toRound(3, true) : 0}%`}/>
+                        <GeneralDetailsItemContentItem label="Net:" 
+                            value={`${generalData ? generalData?.netApy.toRound(3, true) : 0}%`}/>
                     </GeneralDetailsItemContent>
                 </GeneralDetailsItem>
                 

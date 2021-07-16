@@ -99,6 +99,13 @@ export class BigNumber {
       return this._value.gte(value._value)
     }
 
+    gteSafe = (value: BigNumber) : boolean => {
+      const decimals = this._decimals > value._decimals ? this._decimals : value._decimals
+      const tempNum1 = BigNumber.parseValueSafe(this.toString(), decimals > 18 ? 18 : decimals, decimals > 18 ? true : false)
+      const tempNum2 = BigNumber.parseValueSafe(value.toString(), decimals > 18 ? 18 : decimals, decimals > 18 ? true : false)
+      return tempNum1._value.gte(tempNum2._value)
+    }
+
     lt = (value: BigNumber) : boolean => {
       return this._value.lt(value._value)
     }

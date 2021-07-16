@@ -9,10 +9,11 @@ import ReactTooltip from "react-tooltip"
 
 interface Props{
   generalData: GeneralDetailsData | null,
-  marketsData: (CTokenInfo | null)[] | null,
+  marketsData: (CTokenInfo | null)[] | null | undefined,
   enterMarketDialog: (market: CTokenInfo) => void,
   supplyMarketDialog: (market: CTokenInfo) => void,
-  more: boolean
+  more: boolean,
+  darkMode: boolean,
 }
 
 const SupplyMarket: React.FC<Props> = (props : Props) => {
@@ -22,7 +23,7 @@ const SupplyMarket: React.FC<Props> = (props : Props) => {
     
     return (
         <div className="market-content">
-          <ReactTooltip place="top" effect="solid" />
+          <ReactTooltip place="top" effect="solid" backgroundColor={`${props.darkMode ? "#f9fafb" : ""}`} textColor={`${props.darkMode ? "#101010" : ""}`}/>
             <table className = "market-table">
             <thead className="market-table-header">
                 <tr>

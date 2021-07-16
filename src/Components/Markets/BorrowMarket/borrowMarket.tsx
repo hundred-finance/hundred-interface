@@ -9,7 +9,7 @@ import { BigNumber } from "../../../bigNumber"
 
 interface Props{
   generalData: GeneralDetailsData | null,
-  marketsData: (CTokenInfo | null)[] | null,
+  marketsData: (CTokenInfo | null)[] | null | undefined,
   borrowMarketDialog: (market: CTokenInfo) => void,
   more: boolean
 }

@@ -23,7 +23,7 @@ interface Props{
     darkMode: boolean,
     completed: boolean,
     getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
-    getMaxRepayAmount: (market: CTokenInfo) => BigNumber,
+    getMaxRepayAmount: (market: CTokenInfo) => Promise<BigNumber>,
     handleBorrow: (symbol: string, amount: string) => Promise<void>,
     handleRepay: (symbol: string, amount: string, fullRepay: boolean) => Promise<void>,
     handleEnable: (symbol: string, borrowDialog: boolean) => Promise<void>
@@ -167,15 +167,19 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
     const handleMaxRepay = async () => {
         const maxAffordable = props.market ? await props.getMaxAmount(
             props.market, "repay") : BigNumber.from("0")
-          const fullRepayAmount = props.market ? props.getMaxRepayAmount(
+        const fullRepayAmount = props.market ? await props.getMaxRepayAmount(
             props.market) : BigNumber.from("0")
             
-          const isFull = maxAffordable.gte(fullRepayAmount);
-          setIsFullRepay(isFull);
-          setRepayInput( BigNumber.minimum(
+        //   const isFull = +maxAffordable.toString() >= +fullRepayAmount.toString();
+        const isFull = maxAffordable.gteSafe(fullRepayAmount)
+        console.log(`maxAfforable: ${maxAffordable}\nfullRepay: ${fullRepayAmount}\nFull Repay: ${isFull}`)
+        setIsFullRepay(isFull);
+          
+        setRepayInput( BigNumber.minimum(
               maxAffordable,
               fullRepayAmount
-            ).toString());
+        ).toString()) 
+        // setRepayInput(props.market ? BigNumber.parseValueSafe(BigNumber.minimum(maxAffordable, props.market?.borrowBalanceInTokenUnit).toString(), props.market.decimals).toString() : maxAffordable.toString())
     }
 
     const handleMaxBorrow = async () => {

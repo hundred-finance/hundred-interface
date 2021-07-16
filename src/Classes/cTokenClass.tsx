@@ -11,6 +11,7 @@ const blockTime = 2.1 // seconds
 const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
 const blocksPerDay = (24 * 60 * 60) / blockTime
 const daysPerYear = 365
+const rewardTokenPrice = 1
 
 export class CTokenInfo{
     pTokenAddress: string
@@ -44,6 +45,9 @@ export class CTokenInfo{
 
     supplyPctApy: BigNumber
     borrowPctApy: BigNumber
+    hndAPR: BigNumber
+    borrowRatePerBlock: BigNumber
+   
 
     constructor(pTokenAddress: string,
                 underlyingAddress: string | null,
@@ -67,7 +71,10 @@ export class CTokenInfo{
                 collateralFactor: BigNumber,
                 pctSpeed: BigNumber,
                 decimals: number,
-                isNativeToken: boolean){
+                isNativeToken: boolean,
+                hndAPR: BigNumber,
+                borrowRatePerBlock: BigNumber
+                ){
         this.pTokenAddress= pTokenAddress
         this.underlyingAddress= underlyingAddress
         this.symbol= symbol
@@ -99,6 +106,9 @@ export class CTokenInfo{
 
         this.supplyPctApy = BigNumber.from("0")
         this.borrowPctApy = BigNumber.from("0")
+        this.hndAPR = hndAPR
+        this.borrowRatePerBlock = borrowRatePerBlock
+        
     }
 }
 
@@ -154,15 +164,14 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const accountSnapshot3 = BigNumber.from(accountSnapshot[3].toString(), decimals)
     const supplyBalanceInTokenUnit = accountSnapshot1.mul(accountSnapshot3)
 
-    const supplyBalance = supplyBalanceInTokenUnit.mul(underlyingPrice)
+    const supplyBalance = BigNumber.parseValue((+supplyBalanceInTokenUnit.toString() * +underlyingPrice.toString()).noExponents())
 
     const borrowBalanceInTokenUnit = BigNumber.from(accountSnapshot[2].toString(), decimals)
     const borrowBalance = borrowBalanceInTokenUnit.mul(underlyingPrice)
 
-
-    const cTokenTotalSupply = BigNumber.from(totalSupply, decimals)
     const exchangeRateStored = BigNumber.from(exchangeRate, 18)
-    const marketTotalSupply = cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
+
+    const marketTotalSupply = BigNumber.parseValue((+BigNumber.from(totalSupply, decimals).toString() * +exchangeRateStored.toString() * +underlyingPrice.toString()).noExponents())//cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
 
     const cTokenTotalBorrows = BigNumber.from(totalBorrows, decimals)
     const marketTotalBorrowInTokenUnit = BigNumber.from(cTokenTotalBorrows._value, decimals)
@@ -174,7 +183,7 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
 
     const collateralFactor = BigNumber.from(markets.collateralFactorMantissa.toString(), 18)
     
-    const supplyRatePerBlock = BigNumber.from(supplyRate)
+    const supplyRatePerBlock = BigNumber.from(supplyRate, decimals)
     const supplyApy = BigNumber.parseValue((Math.pow((supplyRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
 
     const borrowRatePerBlock = BigNumber.from(borrowRate, decimals)
@@ -186,10 +195,16 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const liquidity = underlyingAmount.mul(underlyingPrice)
     
     const underlyingAllowance = underlying.allowance
+    const cTokenTVL = +marketTotalSupply.toString()
     
     //const speed = await comptrollerData.comptroller.compSpeeds(address)
-    const pctSpeed = speed;
-
+    const pctSpeed = BigNumber.from(speed, 18);
+    
+    const yearlyRewards = +pctSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * rewardTokenPrice
+    
+    const hndAPR = cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0"
+      // if(underlying.symbol.toLowerCase() === "dai")
+      //   console.log(`HNDAPR: ${hndAPR.toString()}\nTotal Supply: ${totalSupply}\Marlet Total Supply: ${marketTotalSupply.toString()}\nCtokenTVL: ${cTokenTVL.toString()}`)
     return new CTokenInfo(
       address,
       underlyingAddress,
@@ -213,7 +228,9 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
       collateralFactor,
       pctSpeed,
       decimals,
-      isNativeToken
+      isNativeToken,
+      BigNumber.parseValue(hndAPR),
+      borrowRatePerBlock
     )
   }
 
