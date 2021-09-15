@@ -28,7 +28,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         name: "Ethereum",
         token: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
         UNITROLLER_ADDRESS: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
-        HUNDRED_ADDRESS: "0x10010054c81c8c01951e6a631dd228bb02d8d1e5",
+        HUNDRED_ADDRESS: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074"
     },
     "0x64": {

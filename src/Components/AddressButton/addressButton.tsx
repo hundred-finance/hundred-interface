@@ -40,7 +40,7 @@ const AddressButton: React.FC<Props> = (props: Props) => {
                     else
                         props.setAddress("")
                 }) 
-            } catch (error) {
+            } catch (error: any) {
               if (error.code === 4001) {
                 // User rejected request
               }

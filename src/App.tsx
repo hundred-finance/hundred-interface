@@ -95,7 +95,7 @@ const App: React.FC = () => {
             else
               setAddress("")
           })
-        } catch (error) {
+        } catch (error: any) {
           if (error.code === 4001) {
             // User rejected request
           }
