@@ -6,6 +6,10 @@ interface Props {
     network : Network | null
 }
 
+interface SwitchEthereumChainParameter {
+    chainId: string
+}
+
 interface AddEthereumChainParameter {
     chainId: string; // A 0x-prefixed hexadecimal string
     chainName: string;
@@ -20,6 +24,20 @@ interface AddEthereumChainParameter {
   }
 
 const NetworksView : React.FC<Props> = ({network} : Props) => {
+
+    const switchNetwork = async(item: Network):Promise<void> => {
+        try {
+            const net: SwitchEthereumChainParameter = { chainId : item.chainId }
+            if (window.ethereum){
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [net]
+                })
+            }
+        } catch (error) {
+            handleNetworkClick(item)
+        }
+    }
     
     const handleNetworkClick = async (item: Network):Promise<void> => {
         if(item.chainId === "0x1" || item.chainId === "0x2a"){
@@ -56,7 +74,7 @@ const NetworksView : React.FC<Props> = ({network} : Props) => {
             {
                 Object.values(NETWORKS).map(( value, index) => {
                     return(
-                        <div className={`network-item ${value.chainId === network?.chainId ? "network-selected" : ""}`} key={index} onClick={() => handleNetworkClick(value)}>
+                        <div className={`network-item ${value.chainId === network?.chainId ? "network-selected" : ""}`} key={index} onClick={() => value.chainId === network?.chainId ? null : switchNetwork(value)}>
                             <img src={value.logo} className="network-logo" alt="" />
                             <span>{value.network}</span>
                         </div>  
