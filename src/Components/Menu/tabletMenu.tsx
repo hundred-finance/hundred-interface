@@ -59,10 +59,8 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
                 </NavBarRight>
             : null}
             <NavBarLinks>
-                 <NavbarLink link="https://snapshot.org/#/hnd.eth/" target="_blank">Governance</NavbarLink>
-                 <NavbarLink link="https://github.com/chainsulting/Smart-Contract-Security-Audits/blob/master/Percent%20Finance/02_Smart%20Contract%20Audit%20Percent%20Finance.pdf" target="_blank">Audit</NavbarLink>
-                 <NavbarLink link="https://github.com/hundred-finance" target="_blank">Github</NavbarLink>
                  <NavbarLink link="https://dashboard.hundred.finance" target="_blank">Dashboard</NavbarLink>
+                 <NavbarLink link="https://anyswap.exchange/#/router" target="_blank">Bridge</NavbarLink>
              </NavBarLinks>
         </NavbarMobile>
         </>

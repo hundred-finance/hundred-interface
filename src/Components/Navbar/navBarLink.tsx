@@ -11,7 +11,7 @@ const NavbarLink: React.FC<Props> = ({link, target, children} : Props) => {
    
     return (
         <li className="navbar-links-list-item">
-            <a className="nav-link" href={link} target={target ? target : ""}>{children}</a>
+            <a className="nav-link" style={{cursor: "pointer"}} href={link} target={target ? target : ""}>{children}</a>
         </li>
     )
 }

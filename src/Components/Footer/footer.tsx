@@ -26,7 +26,7 @@ const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
                         target="_blank"
                         rel="noopener noreferrer">Audit</a>
                     <a className='footer-link-item' href='https://github.com/hundred-finance' target="_blank" rel="noreferrer">Github</a>
-                    <a className='footer-link-item' href='https://dashboard.hundred.finance' target="_blank" rel="noreferrer">Dashboard</a>
+                    <a className='footer-link-item' href='https://migration.hundred.finance' target="_blank" rel="noreferrer">Migration</a>
                 </div>
                 <div className='footer-right'>
                     <a href='https://medium.com/@hundred_finance' target="_blank" rel="noreferrer">
