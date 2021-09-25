@@ -5,7 +5,7 @@ import {HuLogo} from "../../assets/huIcons/huIcons"
 
 import discord from '../../assets/icons/discord.png'
 import medium from '../../assets/icons/medium.png'
-import github from '../../assets/icons/github.png'
+import twitter from '../../assets/icons/twitter.png'
 
 interface Props{
     isMobile: boolean,
@@ -29,14 +29,14 @@ const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
                     <a className='footer-link-item' href='https://migration.hundred.finance' target="_blank" rel="noreferrer">Migration</a>
                 </div>
                 <div className='footer-right'>
-                    <a href='https://medium.com/@hundred_finance' target="_blank" rel="noreferrer">
+                    <a href='https://hundred-finance.medium.com' target="_blank" rel="noreferrer">
                         <img alt="Medium Icon" src={medium} className='footer-image' />
                     </a>
                     <a href='https://discord.gg/phK668J6dQ' target="_blank" rel="noreferrer">
                         <img alt="Discord Icon" src={discord} className='footer-image' />
                     </a>
-                    <a href='https://github.com/hundred-finance' target="_blank" rel="noreferrer">
-                        <img alt="Github Icon" src={github} className='footer-image' />
+                    <a href='https://twitter.com/HundredFinance' target="_blank" rel="noreferrer">
+                        <img alt="Github Icon" src={twitter} className='footer-image' />
                     </a>
                 </div>
             </div>
