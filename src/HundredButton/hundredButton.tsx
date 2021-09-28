@@ -1,6 +1,7 @@
 import React from "react"
 import { useRef } from "react"
 import { Network } from "../networks"
+import Logos from "../logos"
 import "./hundredButton.css"
 
 interface Props{
@@ -28,7 +29,8 @@ const HundredButton : React.FC<Props> = (props : Props) => {
             <div className="hundred-button" onClick={() => handleOpenHundred()}>
             {
                 <div className="hundred-button-content">
-                    <span className="hundred-name">Hundred</span>
+                    <img src={Logos["HND"]} alt="" className="hundred-logo"/>
+                    <span className="hundred-name">HND</span>
                     <span className="arrow">&#9660;</span>    
                 </div>
             }

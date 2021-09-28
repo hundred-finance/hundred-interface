@@ -22,6 +22,7 @@ import { Contract, Provider } from 'ethcall';
 import HundredMenu from './Components/SideMenu/hundredMenu';
 import { BigNumber } from './bigNumber';
 
+
 declare global {
   interface Window {
     ethereum: any
@@ -151,7 +152,7 @@ const App: React.FC = () => {
       setProvider(null)
     }
     else{
-      try {     
+      try {
         const chain = window.ethereum.chainId
         if(networkRef.current && networkRef.current.chainId === chain){
           try{

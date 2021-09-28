@@ -26,6 +26,7 @@
     "incremental": true, // Enable incremental compilation by reading/writing information from prior compilations to a file on disk
   },
   "include": [
-    "src"
+    "src",
+    "./typings/**/*.ts"
   ]
 }

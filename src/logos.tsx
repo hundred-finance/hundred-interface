@@ -59,6 +59,7 @@ import ZRXlogo from "./assets/images/ZRX-logo.png"
 import KNClogo from "./assets/images/KNC-logo.png"
 import MANAlogo from "./assets/images/MANA-logo.png"
 import ARBITRUMlogo from "./assets/images/ARBITRUM-logo.png"
+import HUNDREDlogo from "./assets/images/HUNDRED-logo.png"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -125,7 +126,8 @@ const Logos: { [key: string]: string } = {
     "ZRX"       : ZRXlogo,
     "KNC"       : KNClogo,
     "MANA"      : MANAlogo,
-    "ARBITRUM"  : ARBITRUMlogo
+    "ARBITRUM"  : ARBITRUMlogo,
+    "HND"       : HUNDREDlogo
 }
 
 export default Logos

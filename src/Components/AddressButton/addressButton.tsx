@@ -1,6 +1,7 @@
 import React, { useRef } from "react"
 import { getShortenAddress } from "../../helpers"
 import {Network, NETWORKS} from "../../networks"
+import Jazzicon, { jsNumberForAddress } from "react-jazzicon"
 import "./style.css"
 
 interface Props{
@@ -61,7 +62,7 @@ const AddressButton: React.FC<Props> = (props: Props) => {
             {
                 props.address ? 
                     (<div className="address">
-                        
+                            <Jazzicon diameter={20} seed={jsNumberForAddress(props.address)} />
                             {getShortenAddress(props.address)}
                             <span className="arrow">&#9660;</span>
                         
