@@ -220,6 +220,7 @@ const Content: React.FC<Props> = (props : Props) => {
         if(provider.current && network.current && network.current.chainId && userAddress.current && userAddress.current !== ""){
             try{
               if(updateHandle) {
+                setUpdate(true)
                 clearTimeout(updateHandle)
                 setUpdateCounter(0)
               }

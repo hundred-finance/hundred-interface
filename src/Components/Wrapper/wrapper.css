@@ -9,7 +9,7 @@
 }
 
 .wrapper-side{
-    left: -220px;
+    left: 0px;
 }
 
 @media (max-width: 615px) {
