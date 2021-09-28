@@ -196,20 +196,21 @@
     justify-content: space-between;
 }
 
-@media (max-width: 644px) {
+@media (max-width: 750px) {
     .navbar-mobile-content-open {
         max-height: calc(100% + 40px);
         height: calc(100% + 40px);
     }
 }
 
-@media (max-width: 443px) {
+@media (max-width: 550px) {
     .navbar-right-content {
         flex-direction: column;
-        height: 10rem;
+        height: 15rem;
         align-items: center;
         padding-bottom: 1rem;
         justify-content: space-around;
+        
     }
 
     .navbar-right-content .theme-switch {

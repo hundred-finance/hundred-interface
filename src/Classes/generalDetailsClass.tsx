@@ -11,9 +11,8 @@ export class GeneralDetailsData{
     yearSupplyInterest: BigNumber
     yearBorrowInterest: BigNumber
     netApy: BigNumber
-    totalSupplyPctApy: BigNumber
-    totalBorrowPctApy: BigNumber
-    pctPrice: number
+    totalSupplyHndApy: BigNumber
+    totalBorrowHndApy: BigNumber
     totalLiquidity: BigNumber
 
     constructor(totalSupplyBalance: BigNumber,
@@ -25,9 +24,8 @@ export class GeneralDetailsData{
                 yearSupplyInterest: BigNumber,
                 yearBorrowInterest: BigNumber,
                 netApy: BigNumber,
-                totalSupplyPctApy: BigNumber,
-                totalBorrowPctApy: BigNumber,
-                pctPrice: number,
+                totalSupplyHndApy: BigNumber,
+                totalBorrowHndApy: BigNumber,
                 totalLiquidity: BigNumber){
         this.totalSupplyBalance = totalSupplyBalance
         this.totalBorrowBalance = totalBorrowBalance
@@ -38,25 +36,13 @@ export class GeneralDetailsData{
         this.yearSupplyInterest = yearSupplyInterest
         this.yearBorrowInterest = yearBorrowInterest
         this.netApy = netApy
-        this.totalSupplyPctApy = totalSupplyPctApy
-        this.totalBorrowPctApy = totalBorrowPctApy
-        this.pctPrice = pctPrice
+        this.totalSupplyHndApy = totalSupplyHndApy
+        this.totalBorrowHndApy = totalBorrowHndApy
         this.totalLiquidity = totalLiquidity
     }
 }
 
-const getPctPrice = async () : Promise<number> => {
-    const response = await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=percent&vs_currencies=usd"
-        // "https://api.coingecko.com/api/v3/simple/price?ids=compound-governance-token&vs_currencies=usd"
-      );
-      const data = await response.json()
-      const usd: number = +data?.percent?.usd
-      return usd
-  }
-
 export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Promise<GeneralDetailsData> => {
-    const pctPrice = await getPctPrice()
     let totalSupplyBalance = BigNumber.from("0")
     let totalBorrowBalance = BigNumber.from("0")
     let allMarketsTotalSupplyBalance = BigNumber.from("0")
@@ -64,8 +50,8 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
     let totalBorrowLimit = BigNumber.from("0")
     let yearSupplyInterest = BigNumber.from("0")
     let yearBorrowInterest = BigNumber.from("0")
-    let yearSupplyPctRewards = BigNumber.from("0")
-    const yearBorrowPctRewards = BigNumber.from("0")
+    let yearSupplyHndRewards = BigNumber.from("0")
+    const yearBorrowHndRewards = BigNumber.from("0")
     let totalLiquidity = BigNumber.from("0")
     
     marketsData.map((market) => {  
@@ -84,7 +70,7 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
         
         yearSupplyInterest = BigNumber.parseValue((+yearSupplyInterest.toString() + (+market.supplyBalance.toString() * (+market.supplyApy.toString() + +market.hndAPR.toString()))).noExponents())
         yearBorrowInterest = BigNumber.parseValue((+yearBorrowInterest.toString() + (+market.borrowBalance.toString() * +market.borrowApy.toString())).noExponents())
-        yearSupplyPctRewards = BigNumber.parseValue((+yearSupplyPctRewards.toString() + +market.hndAPR.toString()).noExponents())
+        yearSupplyHndRewards = BigNumber.parseValue((+yearSupplyHndRewards.toString() + +market.hndAPR.toString()).noExponents())
         if (market && market.liquidity.gt(BigNumber.from("0"))) {
             totalLiquidity = totalLiquidity.addSafe(market.liquidity)
         }
@@ -111,8 +97,7 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
                             yearSupplyInterest,
                             yearBorrowInterest,
                             netApy,
-                            +totalSupplyBalance.toString() > 0 ? BigNumber.parseValue((+yearSupplyPctRewards.toString() / +totalSupplyBalance.toString() * 100).noExponents()) : BigNumber.from(0),
-                            +totalBorrowBalance.toString() > 0 ? BigNumber.parseValue((+yearBorrowPctRewards.toString() / +totalBorrowBalance.toString()).noExponents()) : BigNumber.from(0),
-                            pctPrice,
+                            +totalSupplyBalance.toString() > 0 ? BigNumber.parseValue((+yearSupplyHndRewards.toString() / +totalSupplyBalance.toString() * 100).noExponents()) : BigNumber.from(0),
+                            +totalBorrowBalance.toString() > 0 ? BigNumber.parseValue((+yearBorrowHndRewards.toString() / +totalBorrowBalance.toString()).noExponents()) : BigNumber.from(0),
                             totalLiquidity)
   }

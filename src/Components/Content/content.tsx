@@ -33,6 +33,7 @@ const gasLimit = "250000";
 interface Props{
   network: Network | null,
   setSpinnerVisible: React.Dispatch<React.SetStateAction<boolean>>,
+  setHndPrice: React.Dispatch<React.SetStateAction<number>>,
   address: string,
   provider: ethers.providers.Web3Provider | null,
   spinnerVisible: boolean,
@@ -54,6 +55,8 @@ const Content: React.FC<Props> = (props : Props) => {
     const [updateCounter, setUpdateCounter] = useState<number>(0)
     const [updateHandle, setUpdateHandle] = useState<number | null>(null)
 
+    const [hndPrice, setHndPrice] = useState<number>(0)
+
     const comptrollerDataRef = useRef<Comptroller | null>(null)
     const spinner = useRef<React.Dispatch<React.SetStateAction<boolean>> | null>(null)
     const updateRef = useRef<boolean | null>()
@@ -63,6 +66,7 @@ const Content: React.FC<Props> = (props : Props) => {
     const userAddress = useRef<string | null>(null)
     const network = useRef<Network | null>(null)
     const updateCounterRef = useRef<number>(0)
+    const hndPriceRef = useRef<number>(0)
 
     provider.current = props.provider
     userAddress.current = props.address
@@ -73,11 +77,24 @@ const Content: React.FC<Props> = (props : Props) => {
     spinner.current = props.setSpinnerVisible
     selectedMarketRef.current = selectedMarket
     updateCounterRef.current = updateCounter
+    hndPriceRef.current = hndPrice
 
     useEffect(() => {
       updateCounterRef.current = updateCounter
     },[updateCounter])
 
+
+    const getHndPrice = async ()  => {
+      const response = await fetch(
+          "https://api.coingecko.com/api/v3/simple/price?ids=hundred-finance&vs_currencies=usd"
+        );
+        const data = await response.json()
+        const hnd = data ? data["hundred-finance"] : null
+        const usd: number = hnd ? +hnd.usd : 0
+       
+        setHndPrice(usd)
+        props.setHndPrice(usd)
+    }
 
     const handleUpdate = async (market?: CTokenInfo, spinner?: string) : Promise<void> => {
       if(market && spinner){
@@ -147,6 +164,8 @@ const Content: React.FC<Props> = (props : Props) => {
             if(spinner.current) spinner.current(false)
           }
 
+          await getHndPrice()
+
           const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
           setComptrollerData(comptroller)
 
@@ -160,7 +179,7 @@ const Content: React.FC<Props> = (props : Props) => {
             
               //const ctokenInfo = await getCTokenInfo.current(a, isNativeToken)
               if(provider.current && network.current && userAddress.current && comptrollerDataRef.current)
-                return await getCtokenInfo(a, isNativeToken, provider.current, userAddress.current, comptrollerDataRef.current, network.current)
+                return await getCtokenInfo(a, isNativeToken, provider.current, userAddress.current, comptrollerDataRef.current, network.current, hndPriceRef.current)
             
               return null
             }))
@@ -304,7 +323,7 @@ const Content: React.FC<Props> = (props : Props) => {
     const updateMarket = async (market : CTokenInfo, spinner: string) : Promise<void>=> {
       try {
         if(market && provider.current && userAddress.current && comptrollerDataRef.current && network.current){
-          const ctokenInfo = await getCtokenInfo(market.pTokenAddress, market.isNativeToken, provider.current, userAddress.current, comptrollerDataRef.current, network.current) 
+          const ctokenInfo = await getCtokenInfo(market.pTokenAddress, market.isNativeToken, provider.current, userAddress.current, comptrollerDataRef.current, network.current, hndPriceRef.current) 
           if(ctokenInfo){
             switch (spinner) {
               case "supply":

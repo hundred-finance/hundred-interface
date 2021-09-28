@@ -11,7 +11,7 @@ import { Call } from "ethcall/lib/call"
 const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
 // const blocksPerDay = (24 * 60 * 60) / blockTime
 // const daysPerYear = 365
-const rewardTokenPrice = 1
+// const rewardTokenPrice = 1
 
 export class CTokenInfo{
     pTokenAddress: string
@@ -137,7 +137,7 @@ class UnderlyingInfo{
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getCtokenInfo = async (address : string, isNativeToken : boolean, provider: any, userAddress: string, comptrollerData: Comptroller, network: Network) : Promise<CTokenInfo>=> {
+export const getCtokenInfo = async (address : string, isNativeToken : boolean, provider: any, userAddress: string, comptrollerData: Comptroller, network: Network, hndPrice: number) : Promise<CTokenInfo>=> {
     const [markets, speed] = await comptrollerData.ethcallProvider.all([comptrollerData.ethcallComptroller.markets(address), comptrollerData.ethcallComptroller.compSpeeds(address)])
     
     const cToken = new Contract(address, CTOKEN_ABI)
@@ -201,11 +201,10 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     //const speed = await comptrollerData.comptroller.compSpeeds(address)
     const pctSpeed = BigNumber.from(speed, 18);
     
-    const yearlyRewards = +pctSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * rewardTokenPrice
+    const yearlyRewards = +pctSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
     
-    const hndAPR = cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0"
-      // if(underlying.symbol.toLowerCase() === "dai")
-      //   console.log(`HNDAPR: ${hndAPR.toString()}\nTotal Supply: ${totalSupply}\Marlet Total Supply: ${marketTotalSupply.toString()}\nCtokenTVL: ${cTokenTVL.toString()}`)
+    const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
+      
     return new CTokenInfo(
       address,
       underlyingAddress,
@@ -230,7 +229,7 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
       pctSpeed,
       decimals,
       isNativeToken,
-      BigNumber.parseValue(hndAPR),
+      hndAPR,
       borrowRatePerBlock
     )
   }

@@ -1,16 +1,11 @@
-import { BigNumber } from "@ethersproject/bignumber"
-import { toDecimalPlaces } from "../helpers"
+import { BigNumber } from "../bigNumber"
+
 
 export class HundredBalance{
   balance: BigNumber
-  decimals: number
   symbol: string
-  constructor(balance: BigNumber, decimals: number, symbol: string){
-      this.balance = balance
-      this.decimals = decimals
+  constructor(balance: string, decimals: number, symbol: string){
+      this.balance = BigNumber.from(balance, decimals)
       this.symbol = symbol
-  }
-  toFixed(dp: number): string {
-    return toDecimalPlaces(this.balance, this.decimals, dp)
   }
 }

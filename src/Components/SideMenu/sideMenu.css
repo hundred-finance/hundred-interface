@@ -19,7 +19,8 @@
 }
 
 .sideMenu .sideMenu-wrapper{
-    width: 220px;
+    min-width: 220px;
+    max-width: 300px;
     height: 100%;
     background-color: var(--navBackground);
     color: var(--text);

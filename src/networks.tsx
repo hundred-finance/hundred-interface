@@ -9,10 +9,14 @@ type Network = {
     logo: string,
     name: string,
     blocksPerYear: number,
+    addLiquidity?: string,
+    trade?: string,
+    stakeLp?: string,
     token: string,
     UNITROLLER_ADDRESS: string,
     HUNDRED_ADDRESS: string,
-    COMPOUND_LENS_ADDRESS: string
+    COMPOUND_LENS_ADDRESS: string,
+    HUNDRED_CONTRACT_ADDRESS?: string
 }
 
 type NetworkData = {
@@ -27,6 +31,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         logo: Logos["ETH"],
         name: "Ethereum",
         blocksPerYear: 24*60*60/13.5*365,
+        trade: "https://app.balancer.fi/#/trade",
+        addLiquidity: "https://app.balancer.fi/#/pool/0x56b2811bf75bb258d2234af4f43b479bb55c3b46000200000000000000000091",
         token: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
         UNITROLLER_ADDRESS: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         HUNDRED_ADDRESS: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
@@ -41,10 +47,14 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         logo: Logos["ARBITRUM"],
         name: "AETH",
         blocksPerYear: 24*60*60/13.5*365,
+        addLiquidity: "https://app.dodoex.io/pool/list?network=arbitrum",
+        trade: "https://app.dodoex.io/exchange/WETH-HND?network=arbitrum",
+        stakeLp:"https://app.dodoex.io/mining?network=arbitrum",
         token: "0x8e15a22853a0a60a0fbb0d875055a8e66cff0235",
         UNITROLLER_ADDRESS: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         HUNDRED_ADDRESS: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        HUNDRED_CONTRACT_ADDRESS: "0x65E17c52128396443d4A9A61EaCf0970F05F8a20"
     },
     // "0x64": {
     //     chainId: "0x64",

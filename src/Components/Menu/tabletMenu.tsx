@@ -11,6 +11,7 @@ import NavBarRight from "../Navbar/navBarRight"
 import ThemeSwitch from "../Navbar/themeSwitch"
 import { Network } from "../../networks"
 import NetworkButton from "../NetworkButton/networkButton"
+import HundredButton from "../../HundredButton/hundredButton"
 // import SideMenuButton from "../Navbar/sideMenuButton"
 
 interface Props{
@@ -27,6 +28,7 @@ interface Props{
     setNetwork: React.Dispatch<React.SetStateAction<Network | null>>,
     network: Network | null,
     setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>,
+    setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 const TabletMenu: React.FC<Props> = (props: Props) => {
@@ -40,6 +42,7 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
                     <NavBarRight>
                     {props.isTablet && !props.isMobile ?
                         <>
+                            <HundredButton network={props.network} address={props.address} setOpenHundred={props.setOpenHundred} setSideMenu={props.setSideMenu}/>
                             <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
                             <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
                             setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
@@ -52,6 +55,7 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
             <NavbarMobile menuOpen={menuOpen}>
             {props.isMobile ? 
                 <NavBarRight className="navbar-right-content">
+                    <HundredButton network={props.network} address={props.address} setOpenHundred={props.setOpenHundred} setSideMenu={props.setSideMenu}/>
                     <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
                     <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
                      setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>

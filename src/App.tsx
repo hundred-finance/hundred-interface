@@ -19,6 +19,8 @@ import { ToastContainer, toast } from 'react-toastify'
 import ReactToolTip from 'react-tooltip'
 import 'react-toastify/dist/ReactToastify.css'
 import { Contract, Provider } from 'ethcall';
+import HundredMenu from './Components/SideMenu/hundredMenu';
+import { BigNumber } from './bigNumber';
 
 declare global {
   interface Window {
@@ -29,10 +31,12 @@ declare global {
 const App: React.FC = () => {
   const [address, setAddress] = useState<string>("")
   const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null)
+  const [hundredBalance, setHundredBalace] = useState<BigNumber | null>(null)
   const [hndBalance, setHndBalance] = useState<HundredBalance | null>(null)
   const [hndEarned, setHndEarned] = useState<HundredBalance |null>(null)
   const [hndSpinner, setHndSpinner] = useState<boolean>(false)
   const [network, setNetwork] = useState<Network | null>(null)
+  const [hndPrice, setHndPrice] = useState<number>(0)
 
   // const addressRef = useRef<string>(address)
   // const setAddressRef = useRef<React.Dispatch<React.SetStateAction<string>>>(setAddress)
@@ -50,9 +54,10 @@ const App: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(lightTheme)
   const [openAddress, setOpenAddress] = useState<boolean>(false)
   const [openNetwork, setOpenNetwork] = useState<boolean>(false)
+  const [openHundred, setOpenHundred] = useState<boolean>(false)
 
   useEffect(() => {
-    if (document.documentElement.clientWidth < 645){
+    if (document.documentElement.clientWidth < 750){
       setIsMobile(true)
       setIsTablet(false)
     }
@@ -66,7 +71,7 @@ const App: React.FC = () => {
     setShow(true)
 
     window.addEventListener('resize', ()=>{
-      if (document.documentElement.clientWidth < 645){
+      if (document.documentElement.clientWidth < 750){
         setIsMobile(true)
         setIsTablet(false)
       }
@@ -192,10 +197,23 @@ const App: React.FC = () => {
         await ethcallProvider.init(prv)
         const balanceContract = new Contract(network.HUNDRED_ADDRESS, HUNDRED_ABI)
         const earnedContract = new Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI)
-        const [balance, decimals, symbol, earned] = await ethcallProvider.all(
+        
+        let [balance, decimals, symbol, earned, hndBalance] = ["", 0, "", "", null]
+
+        network.HUNDRED_CONTRACT_ADDRESS ? [balance, decimals, symbol, earned, hndBalance] = await ethcallProvider.all(
+          [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol(), earnedContract.compAccrued(address), balanceContract.balanceOf(network.HUNDRED_CONTRACT_ADDRESS)])
+        : [balance, decimals, symbol, earned] = await ethcallProvider.all(
           [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol(), earnedContract.compAccrued(address)])
-          setHndBalance(new HundredBalance( balance, decimals, symbol))
-          setHndEarned(new HundredBalance( earned, 18, "HND"))
+        
+        if(hndBalance) setHundredBalace(BigNumber.from(hndBalance, 18))
+        else setHundredBalace(null)
+
+        
+        
+        hundredBalance ? console.log(hundredBalance.toString()) : console.log("null")
+
+        setHndBalance(new HundredBalance( balance, decimals, symbol))
+        setHndEarned(new HundredBalance( earned, 18, "HND"))
       } catch (error) {
         console.log(error)
         setHndBalance(null)
@@ -243,7 +261,7 @@ const App: React.FC = () => {
     return(
       <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
         <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-          spinnerVisible={spinnerVisible} darkMode={darkMode} />
+          spinnerVisible={spinnerVisible} darkMode={darkMode} setHndPrice={setHndPrice}/>
       </ErrorBoundary>
     )
   }
@@ -253,25 +271,25 @@ const App: React.FC = () => {
     <div className={`App scroller ${darkMode ? "App-dark" : ""}`}>
       <Wrapper sideMenu={sideMenu}>
         {!isTablet && !isMobile ? 
-          <Menu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network}
+          <Menu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network} setOpenHundred={setOpenHundred}
             address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} setOpenNetwork={setOpenNetwork}/>
           : <TabletMenu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network}
               address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} 
-              setOpenNetwork={setOpenNetwork} setShow={setShow}/>
+              setOpenNetwork={setOpenNetwork} setShow={setShow} setOpenHundred={setOpenHundred}/>
         }
         <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
           <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-            spinnerVisible={spinnerVisible} darkMode={darkMode} />
+            spinnerVisible={spinnerVisible} darkMode={darkMode} setHndPrice={setHndPrice}/>
         </ErrorBoundary>
         <ToastContainer/>
       </Wrapper>
       <Footer darkMode={darkMode} isMobile={isMobile}/>
       <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress} setOpenNetwork={setOpenNetwork}>
         { openAddress ? 
-          <AccountSettings address={address} setAddress={setAddress} provider={provider} setSideMenu={setSideMenu} 
-            setOpenAddress={setOpenAddress} hndBalance={hndBalance} getHndBalances={getHndBalances} hndEarned={hndEarned} hndSpinner={hndSpinner}
-            handleCollect={handleCollect} network={network}/> : 
-            (openNetwork ? <NetworksView network={network}/> : null)
+          <AccountSettings address={address} setAddress={setAddress} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}/> : 
+            (openNetwork ? <NetworksView network={network}/> : openHundred ? 
+            <HundredMenu provider={provider} network={network} hndBalance={hndBalance} getHndBalances={getHndBalances} hndEarned={hndEarned} hndSpinner={hndSpinner}
+              handleCollect={handleCollect} setOpenHundred={setOpenHundred} setSideMenu={setSideMenu} address={address} hndPrice={hndPrice} hundredBalance={hundredBalance}/> : null)
         }
       </SideMenu>
       <ReactToolTip id="tooltip" effect="solid"/>

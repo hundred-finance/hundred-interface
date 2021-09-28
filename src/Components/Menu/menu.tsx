@@ -1,4 +1,5 @@
 import React from "react"
+import HundredButton from "../../HundredButton/hundredButton"
 import { Network } from "../../networks"
 import AddressButton from "../AddressButton/addressButton"
 import Navbar from "../Navbar/navbar"
@@ -23,6 +24,7 @@ interface Props {
   setNetwork: React.Dispatch<React.SetStateAction<Network | null>>,
   network: Network | null,
   setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>
+  setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const Menu : React.FC<Props> = (props: Props) => {
@@ -37,6 +39,7 @@ const Menu : React.FC<Props> = (props: Props) => {
                   </NavBarLinks>
                 </NavbarLeft>
                 <NavBarRight>
+                  <HundredButton network={props.network} address={props.address} setOpenHundred={props.setOpenHundred} setSideMenu={props.setSideMenu}/>
                   <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/>
                   <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
                      setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
