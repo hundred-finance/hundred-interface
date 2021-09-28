@@ -62,7 +62,7 @@ const AddressButton: React.FC<Props> = (props: Props) => {
             {
                 props.address ? 
                     (<div className="address">
-                            <Jazzicon diameter={20} seed={jsNumberForAddress(props.address)} />
+                            <Jazzicon diameter={30} seed={jsNumberForAddress(props.address)} />
                             {getShortenAddress(props.address)}
                             <span className="arrow">&#9660;</span>
                         
