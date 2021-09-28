@@ -83,7 +83,7 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
         totalBorrowLimit = totalBorrowLimit.add(market.isEnterMarket ? market.supplyBalance.mul(market.collateralFactor) : BigNumber.from("0"))
         
         yearSupplyInterest = BigNumber.parseValue((+yearSupplyInterest.toString() + (+market.supplyBalance.toString() * (+market.supplyApy.toString() + +market.hndAPR.toString()))).noExponents())
-        yearBorrowInterest = BigNumber.parseValue((+yearBorrowInterest.toString() + (+market.borrowBalance * +market.borrowApy.toString())).noExponents())
+        yearBorrowInterest = BigNumber.parseValue((+yearBorrowInterest.toString() + (+market.borrowBalance.toString() * +market.borrowApy.toString())).noExponents())
         yearSupplyPctRewards = BigNumber.parseValue((+yearSupplyPctRewards.toString() + +market.hndAPR.toString()).noExponents())
         if (market && market.liquidity.gt(BigNumber.from("0"))) {
             totalLiquidity = totalLiquidity.addSafe(market.liquidity)

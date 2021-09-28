@@ -7,10 +7,10 @@ import { Network } from "../networks"
 import { Comptroller } from "./comptrollerClass"
 import { Call } from "ethcall/lib/call"
 
-const blockTime = 2.1 // seconds
+// const blockTime = 2.1 // seconds
 const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
-const blocksPerDay = (24 * 60 * 60) / blockTime
-const daysPerYear = 365
+// const blocksPerDay = (24 * 60 * 60) / blockTime
+// const daysPerYear = 365
 const rewardTokenPrice = 1
 
 export class CTokenInfo{
@@ -184,10 +184,11 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const collateralFactor = BigNumber.from(markets.collateralFactorMantissa.toString(), 18)
     
     const supplyRatePerBlock = BigNumber.from(supplyRate, decimals)
-    const supplyApy = BigNumber.parseValue((Math.pow((supplyRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
-
+    //const supplyApy = BigNumber.parseValue((Math.pow((supplyRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
+    const supplyApy = BigNumber.parseValue((Math.pow((1 + supplyRatePerBlock.toNumber() / mantissa), network.blocksPerYear) -1 ).noExponents())
     const borrowRatePerBlock = BigNumber.from(borrowRate, decimals)
-    const borrowApy = BigNumber.parseValue((Math.pow((borrowRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
+    
+    const borrowApy = BigNumber.parseValue((Math.pow((1 + borrowRatePerBlock.toNumber() / mantissa), network.blocksPerYear) -1).noExponents())
 
     const cash = BigNumber.from(getCash, decimals) 
     const underlyingAmount = cash;
