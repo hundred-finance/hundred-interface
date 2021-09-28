@@ -42,12 +42,12 @@ const GeneralDetails: React.FC<Props> = ({generalData} : Props) => {
                     <GeneralDetailsItemContent>
                         <GeneralDetailsItemContentItem label="Supply + HND"
                             value={`${generalData && +generalData.totalSupplyBalance.toString() > 0 ? 
-                            BigNumber.parseValue((+generalData?.yearSupplyInterest.toString() / +generalData.totalSupplyBalance.toString()).noExponents()).toRound(3, true) : 0}%`}/> 
+                            BigNumber.parseValue((+generalData?.yearSupplyInterest.toString() / +generalData.totalSupplyBalance.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/> 
                         <GeneralDetailsItemContentItem label="Borrow:" 
                             value={`${generalData && +generalData.totalBorrowBalance.toString() > 0 ? 
-                            BigNumber.parseValue((+generalData?.yearBorrowInterest.toString() / +generalData.totalBorrowBalance.toString()).noExponents()).toRound(3, true) : 0}%`}/>
+                            BigNumber.parseValue((+generalData?.yearBorrowInterest.toString() / +generalData.totalBorrowBalance.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/>
                         <GeneralDetailsItemContentItem label="Net:" 
-                            value={`${generalData ? generalData?.netApy.toRound(3, true) : 0}%`}/>
+                            value={`${generalData ? +generalData?.netApy.toRound(3, true) * 100 : 0}%`}/>
                     </GeneralDetailsItemContent>
                 </GeneralDetailsItem>
                 
