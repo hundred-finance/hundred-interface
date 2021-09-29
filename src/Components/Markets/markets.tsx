@@ -35,7 +35,7 @@ const Markets: React.FC<Props> = (props : Props) => {
                 </MarketContainerTitle>
                 <SupplyMarket generalData={props.generalData} marketsData = {props.marketsData} enterMarketDialog = {props.enterMarketDialog} 
                     supplyMarketDialog={props.supplyMarketDialog} more={showMore} darkMode={props.darkMode}/>
-                <MarketContainerShowMore onClick={handleSupplyMore}>
+                {props.marketsData && props.marketsData.length > 6 ? <MarketContainerShowMore onClick={handleSupplyMore}>
                 {
                     !showMore ? (
                           "SHOW MORE"
@@ -43,7 +43,7 @@ const Markets: React.FC<Props> = (props : Props) => {
                           "SHOW LESS"
                     )
                   }
-                </MarketContainerShowMore>
+                </MarketContainerShowMore> : null}
             </MarketContainer>
             
             <MarketContainer>
@@ -51,7 +51,7 @@ const Markets: React.FC<Props> = (props : Props) => {
                     Borrow Market
                 </MarketContainerTitle>
                 <BorrowMarket generalData={props.generalData} marketsData = {props.marketsData} borrowMarketDialog={props.borrowMarketDialog} more={showMore}/>
-                <MarketContainerShowMore onClick={handleBorrowMore}>
+                {props.marketsData && props.marketsData.length > 6 ?<MarketContainerShowMore onClick={handleBorrowMore}>
                 {
                     !showMore ? (
                           "SHOW MORE"
@@ -59,7 +59,7 @@ const Markets: React.FC<Props> = (props : Props) => {
                           "SHOW LESS"
                     )
                   }
-                </MarketContainerShowMore>
+                </MarketContainerShowMore> : null}
             </MarketContainer>
             
         </div>
