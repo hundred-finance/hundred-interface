@@ -209,10 +209,6 @@ const App: React.FC = () => {
         if(hndBalance) setHundredBalace(BigNumber.from(hndBalance, 18))
         else setHundredBalace(null)
 
-        
-        
-        hundredBalance ? console.log(hundredBalance.toString()) : console.log("null")
-
         setHndBalance(new HundredBalance( balance, decimals, symbol))
         setHndEarned(new HundredBalance( earned, 18, "HND"))
       } catch (error) {
