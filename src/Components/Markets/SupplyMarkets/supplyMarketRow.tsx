@@ -31,7 +31,7 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         </td>
         <td onClick={() => props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null} className={props.details ? (+props.details?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}>
           
-            {`${ props.details && +props?.details?.totalSupplyApy?.toRound(2) > 0 ? (+props.details.totalSupplyApy.toRound(2) * 100).toFixed(2) : "0.00"}%`}
+            {`${ props.details && +props?.details?.totalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.totalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
         </td>
         <td onClick={() => props.details && !props?.details.spinner ? props.supplyMarketDialog(props?.details) : null}>
           <span data-tip={props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? BigNumber.parseValueSafe(props.details.supplyBalanceInTokenUnit.toString(), props.details.decimals).toString() : null}>

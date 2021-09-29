@@ -209,6 +209,12 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
 
     const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
+
+    if(underlying.symbol === "USDT"){
+      console.log(`supplyApy: ${BigNumber.parseValue((+supplyApy.toString() * 100).noExponents()).toRound(2,false,true)}`)
+      console.log(`hndApr: ${hndAPR.toString()}`)
+      console.log(`TotalSupplyApy: ${totalSupplyApy.toString()}`)
+    }
       
     return new CTokenInfo(
       address,

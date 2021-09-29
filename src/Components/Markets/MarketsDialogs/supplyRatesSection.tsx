@@ -24,7 +24,7 @@ const SupplyRateSection:React.FC<Props> = (props: Props) => {
                     </div>
                 <div className="fill">Supply APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${props.market ? (+props.market?.supplyApy?.toRound(2) * 100).toFixed(2) : "0.00"}%`}
+                    {`${props.market ? BigNumber.parseValue((+props.market?.supplyApy.toString() * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
                 </div>
             </div>
             <div className="dialog-section-content">
@@ -33,7 +33,7 @@ const SupplyRateSection:React.FC<Props> = (props: Props) => {
                     </div>
                 <div className="fill">HND APR</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${props.market ? props.market?.hndAPR?.mul(BigNumber.from(100)).toFixed(2) : "0"}%`}
+                    {`${props.market ? BigNumber.parseValue((+props.market?.hndAPR.toString() * 100).noExponents()).toRound(2, false, true) : "0"}%`}
                 </div>
             </div>
         </div>
