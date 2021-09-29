@@ -259,9 +259,21 @@ const App: React.FC = () => {
     return(
       <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
         <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-          spinnerVisible={spinnerVisible} darkMode={darkMode} setHndPrice={setHndPrice}/>
+          spinnerVisible={spinnerVisible} darkMode={darkMode} setHndPrice={setHndPrice} toastError={toastError}/>
       </ErrorBoundary>
     )
+  }
+
+  const toastError = (error: string) => {
+    toast.error(error, {
+      position: "top-right",
+      autoClose: 10000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      });
   }
 
   return (
@@ -277,7 +289,7 @@ const App: React.FC = () => {
         }
         <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
           <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-            spinnerVisible={spinnerVisible} darkMode={darkMode} setHndPrice={setHndPrice}/>
+            spinnerVisible={spinnerVisible} darkMode={darkMode} setHndPrice={setHndPrice} toastError={toastError}/>
         </ErrorBoundary>
         <ToastContainer/>
       </Wrapper>

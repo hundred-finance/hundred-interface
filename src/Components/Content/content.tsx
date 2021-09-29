@@ -30,6 +30,17 @@ const gasLimit = "250000";
 // const gasLimitRepaySusd = "400000";
 // const gasLimitEnterMarket = "112020";
 
+type MetamaskError = {
+  code: number;
+  data: any;
+  message: string;
+};
+
+type Data = {
+  code: number;
+  message: string;
+}
+
 interface Props{
   network: Network | null,
   setSpinnerVisible: React.Dispatch<React.SetStateAction<boolean>>,
@@ -37,7 +48,8 @@ interface Props{
   address: string,
   provider: ethers.providers.Web3Provider | null,
   spinnerVisible: boolean,
-  darkMode: boolean
+  darkMode: boolean,
+  toastError: (error: string) => void
 }
 
 const Content: React.FC<Props> = (props : Props) => {
@@ -528,6 +540,8 @@ const Content: React.FC<Props> = (props : Props) => {
             }
           }
           catch(err){
+            const error = err as MetamaskError
+            props.toastError(`${error.message.replace(".", "")} on Approve\n${error.data.message}`)
             console.log(err)
 
           }

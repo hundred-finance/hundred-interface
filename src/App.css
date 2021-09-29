@@ -92,3 +92,7 @@ html{
 ::-webkit-scrollbar-thumb:hover {
   background: #555; 
 }
+
+.Toastify__toast-body{
+  white-space: pre-line;
+}
