@@ -78,7 +78,7 @@ const SupplyMarket: React.FC<Props> = (props : Props) => {
                   {props.marketsData?.filter((item) => item?.supplyBalance?.lte(BigNumber.from("0")))
                     .sort(compareSymbol)
                     .map((details, index) => {
-                      if(props.more || (!props.more && index < 4)) 
+                      if(props.more || (!props.more && index < 6)) 
                         return (
                           <SupplyMarketRow key={index} tooltip={`not-supply-${index}`} details={details} enterMarketDialog={props.enterMarketDialog} 
                            supplyMarketDialog={props.supplyMarketDialog}/>

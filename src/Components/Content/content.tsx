@@ -270,25 +270,28 @@ const Content: React.FC<Props> = (props : Props) => {
           let gaslimit = BigNumber.from(gasLimit)
           if(func === "repay" && provider.current){
             const value = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.toString(), market.decimals)
-            const am = {value: value._value} 
+            if (value.gt(BigNumber.from("0"))){
+              const am = {value: value._value} 
           
-            const signer = provider.current.getSigner()
-            const tokenABI = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
-            const ctoken = new ethers.Contract(market.pTokenAddress, tokenABI, signer)
-            gaslimit = BigNumber.from(await ctoken.estimateGas.repayBorrow(am)).mul(BigNumber.from("12"))
+              const signer = provider.current.getSigner()
+              const tokenABI = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
+              const ctoken = new ethers.Contract(market.pTokenAddress, tokenABI, signer)
+              gaslimit = BigNumber.from(await ctoken.estimateGas.repayBorrow(am)).mul(BigNumber.from("12"))
+            }
           }
           else if(func === "supply" && provider.current){
             const tempPrice = BigNumber.from((gasPrice.mul(gaslimit))._value, 18)
             const tempBalance = market.walletBalance.sub(tempPrice)
-
-            const value = BigNumber.parseValueSafe(tempBalance.toString(), market.decimals)
-            const am = {value: value._value}
-            const signer = provider.current.getSigner()
-            const ctoken = new ethers.Contract(market.pTokenAddress, CETHER_ABI, signer)
-            gaslimit = BigNumber.from(await ctoken.estimateGas.mint(am)).mul(BigNumber.from("12"))
+            if(tempBalance.gt(BigNumber.from("0"))){
+              const value = BigNumber.parseValueSafe(tempBalance.toString(), market.decimals)
+              const am = {value: value._value}
+              const signer = provider.current.getSigner()
+              const ctoken = new ethers.Contract(market.pTokenAddress, CETHER_ABI, signer)
+              gaslimit = BigNumber.from(await ctoken.estimateGas.mint(am)).mul(BigNumber.from("12"))
+            }
           }
           const price = BigNumber.from((gasPrice.mul(gaslimit))._value, 18)
-          const balance = market.walletBalance.sub(price)
+          const balance = market.walletBalance.gt(BigNumber.from("0")) ? market.walletBalance.sub(price) : market.walletBalance
          
           return balance
         }
@@ -377,15 +380,15 @@ const Content: React.FC<Props> = (props : Props) => {
                   underlyingPrice: ctokenInfo.underlyingPrice,
                   liquidity: ctokenInfo.liquidity,
                   collateralFactor: ctokenInfo.collateralFactor,
-                  pctSpeed: ctokenInfo.pctSpeed,
+                  hndSpeed: ctokenInfo.hndSpeed,
                   spinner: ctokenInfo.spinner,
                   supplySpinner: ctokenInfo.supplySpinner,
                   withdrawSpinner: ctokenInfo.withdrawSpinner,
                   borrowSpinner: ctokenInfo.borrowSpinner,
                   repaySpinner: ctokenInfo.repaySpinner,
-                  supplyPctApy: ctokenInfo.supplyPctApy,
-                  borrowPctApy: ctokenInfo.borrowPctApy,
-                  hndAPR: ctokenInfo.hndAPR
+                  borrowHndApy: ctokenInfo.borrowHndApy,
+                  hndAPR: ctokenInfo.hndAPR,
+                  totalSupplyApy: ctokenInfo.totalSupplyApy
                 } : el)
               })
               

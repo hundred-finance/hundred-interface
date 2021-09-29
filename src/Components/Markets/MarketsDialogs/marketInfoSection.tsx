@@ -16,7 +16,7 @@ const DialogMarketInfoSection : React.FC<Props> = (props : Props) => {
             let value = marketTotalBorrowInTokenUnit / (marketTotalBorrowInTokenUnit + underlyingAmount) * 100
             if (isNaN(value)) value = 0
             //else value = Math.round((value + Number.EPSILON) * Math.pow(10, 18)) / Math.pow(10, 18)
-            return BigNumber.parseValue(value.toFixed(18)).toRound(2)+"%"
+            return BigNumber.parseValue(value.toFixed(18)).toRound(2, false, true)+"%"
         }
         return "0%"
     }
@@ -31,7 +31,7 @@ const DialogMarketInfoSection : React.FC<Props> = (props : Props) => {
                     <span>{props.collateralFactorText}</span>
                 </div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${props.market ? props.market?.collateralFactor?.mul(BigNumber.from(100)).toRound(0) : "0"}%`}
+                    {`${props.market ? props.market?.collateralFactor?.mul(BigNumber.from(100)).toRound(2, false, true) : "0.00"}%`}
                 </div>
             </div>
             <div className="dialog-section-content">

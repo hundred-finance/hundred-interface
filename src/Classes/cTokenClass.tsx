@@ -34,7 +34,7 @@ export class CTokenInfo{
     underlyingPrice: BigNumber
     liquidity: BigNumber
     collateralFactor: BigNumber
-    pctSpeed: BigNumber
+    hndSpeed: BigNumber
     decimals: number
     spinner: boolean
     supplySpinner: boolean
@@ -43,10 +43,12 @@ export class CTokenInfo{
     repaySpinner: boolean
     isNativeToken: boolean
 
-    supplyPctApy: BigNumber
-    borrowPctApy: BigNumber
+    
+    borrowHndApy: BigNumber
     hndAPR: BigNumber
     borrowRatePerBlock: BigNumber
+
+    totalSupplyApy: BigNumber
    
 
     constructor(pTokenAddress: string,
@@ -69,11 +71,12 @@ export class CTokenInfo{
                 underlyingPrice: BigNumber,
                 liquidity: BigNumber,
                 collateralFactor: BigNumber,
-                pctSpeed: BigNumber,
+                hndSpeed: BigNumber,
                 decimals: number,
                 isNativeToken: boolean,
                 hndAPR: BigNumber,
-                borrowRatePerBlock: BigNumber
+                borrowRatePerBlock: BigNumber,
+                totalSupplyApy: BigNumber
                 ){
         this.pTokenAddress= pTokenAddress
         this.underlyingAddress= underlyingAddress
@@ -95,7 +98,7 @@ export class CTokenInfo{
         this.underlyingPrice= underlyingPrice
         this.liquidity= liquidity
         this.collateralFactor= collateralFactor
-        this.pctSpeed= pctSpeed
+        this.hndSpeed= hndSpeed
         this.decimals= decimals
         this.isNativeToken = isNativeToken
         this.spinner = false
@@ -104,10 +107,10 @@ export class CTokenInfo{
         this.borrowSpinner = false
         this.repaySpinner = false
 
-        this.supplyPctApy = BigNumber.from("0")
-        this.borrowPctApy = BigNumber.from("0")
+        this.borrowHndApy = BigNumber.from("0")
         this.hndAPR = hndAPR
         this.borrowRatePerBlock = borrowRatePerBlock
+        this.totalSupplyApy = totalSupplyApy
         
     }
 }
@@ -199,11 +202,13 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const cTokenTVL = +marketTotalSupply.toString()
     
     //const speed = await comptrollerData.comptroller.compSpeeds(address)
-    const pctSpeed = BigNumber.from(speed, 18);
+    const hndSpeed = BigNumber.from(speed, 18);
     
-    const yearlyRewards = +pctSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
+    const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
     
     const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
+
+    const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
       
     return new CTokenInfo(
       address,
@@ -226,11 +231,12 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
       underlyingPrice,
       liquidity,
       collateralFactor,
-      pctSpeed,
+      hndSpeed,
       decimals,
       isNativeToken,
       hndAPR,
-      borrowRatePerBlock
+      borrowRatePerBlock,
+      totalSupplyApy
     )
   }
 

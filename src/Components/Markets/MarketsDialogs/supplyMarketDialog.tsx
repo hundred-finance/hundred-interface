@@ -149,6 +149,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
 
     const getMaxAmount = async () : Promise<void> => {
         const amount = props.market ? await props.getMaxAmount(props.market, "supply") : 0
+        
         setSupplyInput(amount.toString())
     }
 
@@ -207,7 +208,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
                             <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"MAX"} 
                                 onClick={()=>getMaxAmount()}/>
-                            <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.walletBalance?.toRound(4)} ${props.market?.symbol}`}/>
+                            <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.walletBalance?.toRound(4, true)} ${props.market?.symbol}`}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit1}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>

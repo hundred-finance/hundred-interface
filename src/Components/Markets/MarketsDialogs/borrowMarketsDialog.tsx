@@ -221,7 +221,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                             <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
                                 <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={borrowDisabled} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"MAX"}
                                 onClick={ () => handleMaxBorrow()}/>
-                                <MarketDialogItem title={"You Borrowed"} value={`${props.market?.borrowBalanceInTokenUnit?.toRound(4)} ${props.market?.symbol}`}/>
+                                <MarketDialogItem title={"You Borrowed"} value={`${props.market?.borrowBalanceInTokenUnit?.toRound(4, true)} ${props.market?.symbol}`}/>
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                     borrowAmount={borrowInput} repayAmount={"0"}/>
@@ -238,7 +238,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                             <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
                                 <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={repayDisabled} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"MAX"}
                                  onClick={ ()=> handleMaxRepay()} onChange={()=>setIsFullRepay(false)}/>
-                                 <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.walletBalance?.toRound(4)} ${props.market?.symbol}`}/>
+                                 <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.walletBalance?.toRound(4, true)} ${props.market?.symbol}`}/>
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                     borrowAmount={"0"} repayAmount={repayInput}/>

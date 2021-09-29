@@ -56,13 +56,13 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
                 </div>
                 <div className="dialog-section-content-value">
                     <span>
-                        {`$${props.generalData?.totalBorrowBalance ? props.generalData?.totalBorrowBalance.toRound(2) : 0}`}
+                        {`$${props.generalData?.totalBorrowBalance ? props.generalData?.totalBorrowBalance.toRound(2, false, true) : 0}`}
                     </span>
                     <span className={`dialog-section-arrow ${ borrowBalance.gt(BigNumber.from("0")) ? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
                         {borrowBalance.gt(BigNumber.from("0")) ? (
                     
                         <span>
-                            {`$${borrowBalance.toRound(2)}`}
+                            {`$${borrowBalance.toRound(2, false, true)}`}
                         </span>
                     ) : null}
                 </div>
@@ -73,13 +73,13 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
                 </div>
                 <div className="dialog-section-content-value">
                     <span>{`${props.generalData?.totalBorrowLimitUsedPercent ? 
-                        props.generalData?.totalBorrowLimitUsedPercent.toRound(2) : 0}%`}
+                        props.generalData?.totalBorrowLimitUsedPercent.toRound(2, false, true) : 0}%`}
                     </span>
                     <span className={`dialog-section-arrow ${borrowLimit.gt(BigNumber.from("0")) ? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
                     {borrowLimit.gt(BigNumber.from("0")) ? 
                         (
                             <span style={{color: (+borrowLimit.toString() > 100) ? "red" : ""}}>
-                                {`${borrowLimit.toRound(2)}%`}
+                                {`${borrowLimit.toRound(2, false, true)}%`}
                             </span>
                         ) : null}
                 </div>

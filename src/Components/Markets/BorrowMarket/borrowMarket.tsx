@@ -72,7 +72,7 @@ const BorrowMarket: React.FC<Props> = (props : Props) => {
                   {props.marketsData?.filter((item) => item?.borrowBalance?.lte(BigNumber.from("0")))
                     .sort(compareSymbol)
                     .map((details, index) => {
-                      if(props.more || (!props.more && index < 4))
+                      if(props.more || (!props.more && index < 6))
                         return (
                           <BorrowMarketRow key={index} details={details} borrowMarketDialog={props.borrowMarketDialog} />
                         )
