@@ -36,11 +36,6 @@ type MetamaskError = {
   message: string;
 };
 
-type Data = {
-  code: number;
-  message: string;
-}
-
 interface Props{
   network: Network | null,
   setSpinnerVisible: React.Dispatch<React.SetStateAction<boolean>>,
