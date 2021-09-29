@@ -523,15 +523,15 @@ const Content: React.FC<Props> = (props : Props) => {
             if (spinner.current) spinner.current(false)
             market = marketsRef.current.find(x =>x?.symbol === symbol)
             if(market)
-              borrowDialog ? market.repaySpinner = false : market.supplySpinner = false
+              borrowDialog ? await handleUpdate(market, "repay") : await handleUpdate(market, "supply")
 
-            setUpdate(true)
-            if(provider.current && network.current && userAddress.current){
-              const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
-              setComptrollerData(comptroller)
-            }
-            if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
-              borrowDialog ? selectedMarketRef.current.repaySpinner = false : selectedMarketRef.current.supplySpinner = false
+            // setUpdate(true)
+            // if(provider.current && network.current && userAddress.current){
+            //   const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
+            //   setComptrollerData(comptroller)
+            // }
+            // if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
+            //   borrowDialog ? selectedMarketRef.current.repaySpinner = false : selectedMarketRef.current.supplySpinner = false
           }
         }
       }
