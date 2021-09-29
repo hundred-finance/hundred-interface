@@ -166,8 +166,15 @@ const Content: React.FC<Props> = (props : Props) => {
 
           await getHndPrice()
 
-          const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
-          setComptrollerData(comptroller)
+          let comptroller = null
+
+          if(comptrollerData) 
+            comptroller = comptrollerData
+          else
+          {
+            comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
+            setComptrollerData(comptroller)
+          }
 
           if(provider.current && comptrollerDataRef.current){
             const markets = await Promise.all(comptrollerDataRef.current.allMarkets?.filter((a) => {
@@ -218,6 +225,7 @@ const Content: React.FC<Props> = (props : Props) => {
           }
         } 
       } catch (error) {
+        dataUpdate()
         console.log(error)
       }
       finally{
@@ -233,6 +241,7 @@ const Content: React.FC<Props> = (props : Props) => {
             setUpdateHandle(setTimeout(handleUpdate, 5000))
           }
           catch(error){
+            console.log("retry 1")
             console.log(error)
           }
         }
@@ -243,10 +252,12 @@ const Content: React.FC<Props> = (props : Props) => {
                 clearTimeout(updateHandle)
                 setUpdateCounter(0)
               }
+              props.setSpinnerVisible(true)
               setUpdate(false)
               getData()
             }
             catch(err){
+                console.log("retry 2")
                 console.log(err)
             }
         }
@@ -502,15 +513,16 @@ const Content: React.FC<Props> = (props : Props) => {
         let market = marketsRef.current.find(x=> x?.symbol === symbol)
         if(market && provider.current && network.current && userAddress.current){
           try{
-            borrowDialog ? market.repaySpinner = true : market.supplySpinner = true
-            if(selectedMarketRef.current)
-              borrowDialog ? selectedMarketRef.current.repaySpinner = true : selectedMarketRef.current.supplySpinner = true
             const signer = provider.current.getSigner()
             if(market.underlyingAddress){
               const contract = new ethers.Contract(market.underlyingAddress, TOKEN_ABI, signer);
               const tx = await contract.approve(market.pTokenAddress, MaxUint256._value)
               if (spinner.current) spinner.current(false)
               console.log(tx)
+              borrowDialog ? market.repaySpinner = true : market.supplySpinner = true
+              if(selectedMarketRef.current)
+                borrowDialog ? selectedMarketRef.current.repaySpinner = true : selectedMarketRef.current.supplySpinner = true
+            
               const receipt = await tx.wait()
               console.log(receipt)
             }

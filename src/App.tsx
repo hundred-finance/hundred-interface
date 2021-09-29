@@ -180,6 +180,7 @@ const App: React.FC = () => {
       setSideMenu(false)
       try{
         const prov = new ethers.providers.Web3Provider(window.ethereum)
+        if(address) setSpinnerVisible(true)
         setProvider(prov)
       }
       catch(err){

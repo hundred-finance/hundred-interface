@@ -141,23 +141,18 @@ class UnderlyingInfo{
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const getCtokenInfo = async (address : string, isNativeToken : boolean, provider: any, userAddress: string, comptrollerData: Comptroller, network: Network, hndPrice: number) : Promise<CTokenInfo>=> {
-    const [markets, speed] = await comptrollerData.ethcallProvider.all([comptrollerData.ethcallComptroller.markets(address), comptrollerData.ethcallComptroller.compSpeeds(address)])
-    
     const cToken = new Contract(address, CTOKEN_ABI)
 
-    let [accountSnapshot, totalSupply, exchangeRate, totalBorrows, supplyRate, borrowRate, getCash, underlyingAddress] = ["", "", "", "", "", "", "", null]
-    if (isNativeToken)
-       [accountSnapshot, totalSupply, exchangeRate, totalBorrows, supplyRate, borrowRate, getCash] = await comptrollerData.ethcallProvider.all([cToken.getAccountSnapshot(userAddress), 
-                                                                                                                          cToken.totalSupply(), cToken.exchangeRateStored(), cToken.totalBorrows(),
-                                                                                                                          cToken.supplyRatePerBlock(), cToken.borrowRatePerBlock(), cToken.getCash()])
-    else
-      [accountSnapshot, totalSupply, exchangeRate, totalBorrows, supplyRate, borrowRate, getCash, underlyingAddress] = await comptrollerData.ethcallProvider.all([cToken.getAccountSnapshot(userAddress), 
-        cToken.totalSupply(), cToken.exchangeRateStored(), cToken.totalBorrows(),
-        cToken.supplyRatePerBlock(), cToken.borrowRatePerBlock(), cToken.getCash(), cToken.underlying()])
+    const calls = [comptrollerData.ethcallComptroller.markets(address), comptrollerData.ethcallComptroller.compSpeeds(address), 
+      comptrollerData.ethcallComptroller.compSupplyState(address), comptrollerData.ethcallComptroller.compSupplierIndex(address, userAddress), cToken.getAccountSnapshot(userAddress), 
+      cToken.totalSupply(), cToken.exchangeRateStored(), cToken.totalBorrows(), cToken.supplyRatePerBlock(), cToken.borrowRatePerBlock(), cToken.getCash(), cToken.balanceOf(userAddress)]
+
+      if(!isNativeToken) calls.push(cToken.underlying())
+
+      const [markets, compSpeed, supplyState, supplierIndex, accountSnapshot, totalSupply, exchangeRate, totalBorrows, supplyRate, borrowRate, getCash, cTokenBalanceOfUser, underlyingAddress] = await comptrollerData.ethcallProvider.all(calls)
     
         //const ctoken = new ethers.Contract(address, CTOKEN_ABI, provider)
     //console.log(`underlyingAddress: ${underlyingAddress}\naccountSnapshot:${accountSnapshot}\ntotalSupply:${totalSupply}\nexchangeRate: ${exchangeRate}\ntotalBorrows: ${totalBorrows}\nsupplyRate: ${supplyRate}\nborrowRate:${borrowRate}\ngetCash: ${getCash}`)
-    
     const underlying = await getUnderlying(underlyingAddress, address, comptrollerData, provider, userAddress, network)
     
     const decimals = underlying.decimals
@@ -202,13 +197,22 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const cTokenTVL = +marketTotalSupply.toString()
     
     //const speed = await comptrollerData.comptroller.compSpeeds(address)
-    const hndSpeed = BigNumber.from(speed, 18);
+    const hndSpeed = BigNumber.from(compSpeed, 18);
     
     const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
     
     const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
 
     const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
+
+    
+    const blockNum = await provider.getBlockNumber()
+
+    // console.log(`${underlying.symbol}\nSupplyState.Index: ${supplyState.index}\nBlockNum: ${blockNum}\nSupplyState.block: ${supplyState.block}\ncompSpeed: ${compSpeed}\nTotalSupply: ${totalSupply}\nSupplierIndex: ${supplierIndex}`)
+    const newSupplyIndex = supplyState.index + (blockNum - supplyState.block) * compSpeed * 1e36 / +totalSupply;
+    // console.log(`newSupplyIndex: ${newSupplyIndex}`)
+    
+    const accrued = (newSupplyIndex - supplierIndex) * +cTokenBalanceOfUser / 1e36
 
     return new CTokenInfo(
       address,
