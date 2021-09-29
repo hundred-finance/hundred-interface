@@ -47,7 +47,7 @@ const GeneralDetails: React.FC<Props> = ({generalData} : Props) => {
                             value={`${generalData && +generalData.totalBorrowBalance.toString() > 0 ? 
                             BigNumber.parseValue((+generalData?.yearBorrowInterest.toString() / +generalData.totalBorrowBalance.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/>
                         <GeneralDetailsItemContentItem label="Net:" 
-                            value={`${generalData ? +generalData?.netApy.toRound(3, true) * 100 : 0}%`}/>
+                            value={`${generalData ? BigNumber.parseValue((+generalData?.netApy.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/>
                     </GeneralDetailsItemContent>
                 </GeneralDetailsItem>
                 
