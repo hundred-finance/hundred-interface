@@ -252,10 +252,6 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
 
     const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
-
-    console.log(`TVL: ${cTokenTVL.toString()}`)
-    console.log(`hndApr: ${hndAPR.toString()}`)
-    console.log(`totalSupplyApy: ${totalSupplyApy.toString()}`)
     
     const blockNum = await provider.getBlockNumber()
 

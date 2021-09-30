@@ -74,12 +74,16 @@ const Content: React.FC<Props> = (props : Props) => {
     const network = useRef<Network | null>(null)
     const updateErrorCounterRef = useRef<number>(0)
 
+    const hndPriceRef = useRef<number>(0)
+
     provider.current = props.provider
     userAddress.current = props.address
     network.current = props.network
     comptrollerDataRef.current = comptrollerData
     marketsRef.current = marketsData
     generalDataRef.current = generalData
+
+    hndPriceRef.current = props.hndPrice
     
     updateRef.current = update
     spinner.current = props.setSpinnerVisible
@@ -89,6 +93,10 @@ const Content: React.FC<Props> = (props : Props) => {
     useEffect(() => {
       updateErrorCounterRef.current = updateErrorCounter
     },[updateErrorCounter])
+
+    useEffect(() => {
+      hndPriceRef.current = props.hndPrice
+    },[props.hndPrice])
 
     const updateMarkets = (markets: CTokenInfo[], cToken?: CTokenInfo, spinner?: string): void =>{
       if(marketsRef.current){
@@ -133,7 +141,7 @@ const Content: React.FC<Props> = (props : Props) => {
           setComptrollerData(comptroller)
         }
         if(provider.current && comptrollerDataRef.current){
-          const markets = await fetchData(comptrollerDataRef.current.allMarkets, userAddress.current, comptrollerDataRef.current, network.current, marketsRef.current, provider.current, props.hndPrice)
+          const markets = await fetchData(comptrollerDataRef.current.allMarkets, userAddress.current, comptrollerDataRef.current, network.current, marketsRef.current, provider.current, hndPriceRef.current)
           
           updateMarkets(markets.markets, cToken, spinnerUpdate)
         }
