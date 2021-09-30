@@ -5,12 +5,13 @@ import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI } from "../../abi"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import { Network } from "../../networks"
 import { Comptroller, getComptrollerData } from "../../Classes/comptrollerClass"
-import { CTokenInfo, getCtokenInfo, getTokenBalances } from "../../Classes/cTokenClass"
+import { CTokenInfo} from "../../Classes/cTokenClass"
 import { GeneralDetailsData, getGeneralDetails } from "../../Classes/generalDetailsClass"
 import Markets from "../Markets/markets"
 import EnterMarketDialog from "../Markets/MarketsDialogs/enterMarketDialog"
 import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import SupplyMarketDialog from "../Markets/MarketsDialogs/supplyMarketDialog"
+import { fetchData } from "./fetchData"
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
@@ -39,7 +40,7 @@ type MetamaskError = {
 interface Props{
   network: Network | null,
   setSpinnerVisible: React.Dispatch<React.SetStateAction<boolean>>,
-  setHndPrice: React.Dispatch<React.SetStateAction<number>>,
+  hndPrice: number,
   address: string,
   provider: ethers.providers.Web3Provider | null,
   spinnerVisible: boolean,
@@ -58,222 +59,125 @@ const Content: React.FC<Props> = (props : Props) => {
     const [update, setUpdate] = useState<boolean>(false)
     const [completed, setCompleted] = useState<boolean>(false)
 
-    const [pauseUpdate, setPauseUpdate] = useState<boolean>(false)
-    const [updateCounter, setUpdateCounter] = useState<number>(0)
+    const [updateErrorCounter, setUpdateErrorCounter] = useState<number>(0)
     const [updateHandle, setUpdateHandle] = useState<number | null>(null)
-
-    const [hndPrice, setHndPrice] = useState<number>(0)
 
     const comptrollerDataRef = useRef<Comptroller | null>(null)
     const spinner = useRef<React.Dispatch<React.SetStateAction<boolean>> | null>(null)
     const updateRef = useRef<boolean | null>()
     const marketsRef = useRef<(CTokenInfo | null)[] | null | undefined>(null)
+    const generalDataRef = useRef<GeneralDetailsData | null>(null)
+
     const selectedMarketRef = useRef<CTokenInfo | null>(null)
     const provider = useRef<ethers.providers.Web3Provider | null>(null)
     const userAddress = useRef<string | null>(null)
     const network = useRef<Network | null>(null)
-    const updateCounterRef = useRef<number>(0)
-    const hndPriceRef = useRef<number>(0)
+    const updateErrorCounterRef = useRef<number>(0)
 
     provider.current = props.provider
     userAddress.current = props.address
     network.current = props.network
     comptrollerDataRef.current = comptrollerData
     marketsRef.current = marketsData
+    generalDataRef.current = generalData
+    
     updateRef.current = update
     spinner.current = props.setSpinnerVisible
     selectedMarketRef.current = selectedMarket
-    updateCounterRef.current = updateCounter
-    hndPriceRef.current = hndPrice
+    updateErrorCounterRef.current = updateErrorCounter
 
     useEffect(() => {
-      updateCounterRef.current = updateCounter
-    },[updateCounter])
+      updateErrorCounterRef.current = updateErrorCounter
+    },[updateErrorCounter])
 
-
-    const getHndPrice = async ()  => {
-      const response = await fetch(
-          "https://api.coingecko.com/api/v3/simple/price?ids=hundred-finance&vs_currencies=usd"
-        );
-        const data = await response.json()
-        const hnd = data ? data["hundred-finance"] : null
-        const usd: number = hnd ? +hnd.usd : 0
-       
-        setHndPrice(usd)
-        props.setHndPrice(usd)
-    }
-
-    const handleUpdate = async (market?: CTokenInfo, spinner?: string) : Promise<void> => {
-      if(market && spinner){
-        if(updateHandle) clearTimeout(updateHandle)
-        setUpdate(true)
-        setPauseUpdate(true)
-        await updateMarket(market, spinner)
-        setPauseUpdate(false)
-      }
-      else if(!pauseUpdate){
-        if(updateCounterRef.current === 12){
-          setUpdate(true)
-          await dataUpdate()
-        }
-        else {
-          setUpdate(true)
-          await GetWalletBalances()
-        }
-      }
-      setUpdateHandle(setTimeout(handleUpdate, 5000))
-    }
-
-    const GetWalletBalances = async () => {
-      try {
-        if(marketsRef.current && comptrollerDataRef.current && userAddress.current && marketsRef.current.length > 0 && !pauseUpdate){
-          const balances = await getTokenBalances(marketsRef.current, comptrollerDataRef.current, userAddress.current)
-          if(!pauseUpdate){
-            if(balances){
-              if(marketsData && marketsRef.current && comptrollerDataRef.current && userAddress.current && marketsData && marketsData.length > 0){
-                setMarketsData(prevState => {
-                  return prevState?.map(el => {
-                    const b = balances.find(x => x?.symbol === el?.symbol)
-                    if(b && el){
-                      return{
-                        ...el,
-                        walletBalance: b.walletBalance
-                      }
-                    }
-                    else{
-                      return el
-                    }
-                  })
-                })
+    const updateMarkets = (markets: CTokenInfo[], cToken?: CTokenInfo, spinner?: string): void =>{
+      if(marketsRef.current){
+        markets.map((m) => {
+          if(marketsRef.current && m){
+            const market = marketsRef.current.find(x => x?.symbol === m.symbol)
+            if (market){
+              if(cToken && market.symbol === cToken.symbol && spinner){
+                m.spinner = market.spinner
+                m.supplySpinner = spinner==="supply" ? false : market.supplySpinner
+                m.withdrawSpinner = spinner === "withdraw" ? false : market.withdrawSpinner
+                m.borrowSpinner = spinner === "borrow" ? false : market.borrowSpinner
+                m.repaySpinner = spinner === "repay" ? false : market.repaySpinner
               }
-              if(selectedMarketRef.current && balances){
-                const market = balances.find(x=>x?.symbol === selectedMarketRef.current?.symbol)
-                if (market)
-                  setSelectedMarket(market)
+              else{
+                m.spinner = market.spinner
+                m.supplySpinner = market.supplySpinner
+                m.withdrawSpinner = market.withdrawSpinner
+                m.borrowSpinner = market.borrowSpinner
+                m.repaySpinner = market.repaySpinner
               }
             }
-              setUpdateCounter(updateCounterRef.current + 1)
           }
+          return true
+        })
+      }
+      const data = getGeneralDetails(markets)
+      setMarketsData(markets)
+      setGeneralData(data)
+      if(selectedMarketRef.current && markets){
+        const market = markets.find(x=>x?.symbol === selectedMarketRef.current?.symbol)
+        if (market){
+          setSelectedMarket(market)
         }
+      }
+    }
+
+    const dataUpdate = async (cToken?: CTokenInfo, spinnerUpdate?:string) => {
+      if(provider.current && network.current && userAddress.current){
+        if(!comptrollerDataRef.current){
+          const comptroller = await getComptrollerData(provider.current, network.current)
+          setComptrollerData(comptroller)
+        }
+        if(provider.current && comptrollerDataRef.current){
+          const markets = await fetchData(comptrollerDataRef.current.allMarkets, userAddress.current, comptrollerDataRef.current, network.current, marketsRef.current, provider.current, props.hndPrice)
+          
+          updateMarkets(markets.markets, cToken, spinnerUpdate)
+        }
+      }
+    }
+
+    const handleUpdate = async (market?: CTokenInfo, spinnerUpdate?: string) : Promise<void> => {
+      try {
+        console.log(`Update every: ${updateErrorCounterRef.current * 10 + 10}sec`)
+        if(updateHandle) clearTimeout(updateHandle)
+        if(!updateRef.current){
+          if(spinner.current) spinner.current(true)
+        }
+        
+        await dataUpdate(market, spinnerUpdate)
+
+        if(spinner.current && !updateRef.current) spinner.current(false)
+        setUpdate(true)
+
+        setUpdateErrorCounter(0) 
+        setUpdateHandle(setTimeout(handleUpdate, 10000))
       } 
       catch (error) {
-        console.log(error)
-      }
-    }
-
-    const dataUpdate = async () => {
-      try {
-        if(provider.current && network.current && userAddress.current){
-          if(!updateRef.current){
-            if(spinner.current) spinner.current(true)
-          }
-          else{
-            if(spinner.current) spinner.current(false)
-          }
-
-          await getHndPrice()
-
-          let comptroller = null
-
-          if(comptrollerData) 
-            comptroller = comptrollerData
-          else
-          {
-            comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
-            setComptrollerData(comptroller)
-          }
-
-          if(provider.current && comptrollerDataRef.current){
-            const markets = await Promise.all(comptrollerDataRef.current.allMarkets?.filter((a) => {
-              if (a.toLowerCase() === "0xc98182014c90baa26a21e991bfec95f72bd89aed")
-                 return false
-              return true
-                }).map(async (a) => {
-                  const isNativeToken = a.toLowerCase() ===  network?.current?.token
-            
-              //const ctokenInfo = await getCTokenInfo.current(a, isNativeToken)
-              if(provider.current && network.current && userAddress.current && comptrollerDataRef.current)
-                return await getCtokenInfo(a, isNativeToken, provider.current, userAddress.current, comptrollerDataRef.current, network.current, hndPriceRef.current)
-            
-              return null
-            }))
-
-            if(marketsRef.current){
-               markets.map((m) => {
-                 if(marketsRef.current && m){
-                 const market = marketsRef.current.find(x => x?.symbol === m.symbol)
-                 if (market){
-                   m.spinner = market.spinner
-                   m.supplySpinner = market.supplySpinner
-                   m.withdrawSpinner = market.withdrawSpinner
-                   m.borrowSpinner = market.borrowSpinner
-                   m.repaySpinner = market.repaySpinner
-                 }
-               }
-                 return true
-               })
-             }
-              
-            if(!pauseUpdate){
-              setMarketsData(markets)
-
-              if(markets){
-                const data = await getGeneralDetails(markets)
-                setGeneralData(data)
-              }
-              if(selectedMarketRef.current && markets)
-              {
-                const market = markets.find(x=>x?.symbol === selectedMarketRef.current?.symbol)
-                if (market)
-                  setSelectedMarket(market)
-              }
-              setUpdateCounter(0)
-            }
-          }
-        } 
-      } catch (error) {
-        dataUpdate()
-        console.log(error)
-      }
-      finally{
-        if(spinner.current) spinner.current(false)
+        setUpdateHandle(setTimeout(handleUpdate, (updateErrorCounterRef.current < 2 ? updateErrorCounterRef.current + 1 : updateErrorCounterRef.current) * 10000 + 10000))
+        setUpdateErrorCounter(updateErrorCounterRef.current+1)
       }
     }
 
     //Get Comptroller Data
     useEffect(() => {
         const getData= async () => {
-          try{
-            await dataUpdate()
-            setUpdateHandle(setTimeout(handleUpdate, 5000))
-          }
-          catch(error){
-            console.log("retry 1")
-            console.log(error)
-          }
+            await handleUpdate()
         }
+        setComptrollerData(null)
+        setMarketsData(null)
+        setGeneralData(null)
+        setSelectedMarket(null)
+        if(updateHandle) clearTimeout(updateHandle)
+        props.setSpinnerVisible(true)
+        setUpdate(false)
+
         if(provider.current && network.current && network.current.chainId && userAddress.current && userAddress.current !== ""){
-            try{
-              if(updateHandle) {
-                setUpdate(true)
-                clearTimeout(updateHandle)
-                setUpdateCounter(0)
-              }
-              props.setSpinnerVisible(true)
-              setUpdate(false)
-              getData()
-            }
-            catch(err){
-                console.log("retry 2")
-                console.log(err)
-            }
-        }
-        else{
-            setComptrollerData(null)
-            setMarketsData(null)
-            setGeneralData(null)
-            setSelectedMarket(null)
-            if(updateHandle) clearTimeout(updateHandle)
+          console.log("provider")
+          getData()
         }
 
         return() => {
@@ -320,7 +224,7 @@ const Content: React.FC<Props> = (props : Props) => {
     const getMaxRepayAmount = async (market: CTokenInfo) : Promise<BigNumber> => {
       
       
-      if(market.isNativeToken) updateMarket(market, "repay")
+      if(market.isNativeToken) handleUpdate(market, "repay")
       const maxRepayFactor = !market.isNativeToken ? BigNumber.parseValueSafe((1 + +market.borrowRatePerBlock.toString()).noExponents(), market.decimals) :
        BigNumber.parseValueSafe((1 + +market.borrowRatePerBlock.toString()).noExponents(), market.decimals)//BigNumber.from("1").add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
       const amount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), market.decimals)
@@ -338,89 +242,6 @@ const Content: React.FC<Props> = (props : Props) => {
       if(!props.spinnerVisible){
         setOpenEnterMarket(false)
         setSelectedMarket(null)
-      }
-    }
-
-    const updateMarket = async (market : CTokenInfo, spinner: string) : Promise<void>=> {
-      try {
-        if(market && provider.current && userAddress.current && comptrollerDataRef.current && network.current){
-          const ctokenInfo = await getCtokenInfo(market.pTokenAddress, market.isNativeToken, provider.current, userAddress.current, comptrollerDataRef.current, network.current, hndPriceRef.current) 
-          if(ctokenInfo){
-            switch (spinner) {
-              case "supply":
-                ctokenInfo.spinner = market.spinner
-                ctokenInfo.supplySpinner = false
-                ctokenInfo.withdrawSpinner = market.withdrawSpinner
-                ctokenInfo.borrowSpinner = market.borrowSpinner
-                ctokenInfo.repaySpinner = market.repaySpinner
-                break;
-              case "withdraw":
-                ctokenInfo.spinner = market.spinner
-                ctokenInfo.supplySpinner = market.supplySpinner
-                ctokenInfo.withdrawSpinner = false
-                ctokenInfo.borrowSpinner = market.borrowSpinner
-                ctokenInfo.repaySpinner = market.repaySpinner
-                break;
-              case "borrow":
-                ctokenInfo.spinner = market.spinner
-                ctokenInfo.supplySpinner = market.supplySpinner
-                ctokenInfo.withdrawSpinner = market.withdrawSpinner
-                ctokenInfo.borrowSpinner = false
-                ctokenInfo.repaySpinner = market.repaySpinner
-                break;
-              case "repay":
-                ctokenInfo.spinner = market.spinner
-                ctokenInfo.supplySpinner = market.supplySpinner
-                ctokenInfo.withdrawSpinner = market.withdrawSpinner
-                ctokenInfo.borrowSpinner = market.borrowSpinner
-                ctokenInfo.repaySpinner = false
-                break;
-              default:
-                break;
-            }
-            if(marketsData){
-              setMarketsData(prevState => {
-                return prevState?.map(el => el?.symbol === ctokenInfo.symbol ? {
-                  ...el,
-                  supplyApy: ctokenInfo.supplyApy,
-                  borrowApy: ctokenInfo.borrowApy,
-                  underlyingAllowance: ctokenInfo.underlyingAllowance,
-                  walletBalance: ctokenInfo.walletBalance,
-                  supplyBalanceInTokenUnit: ctokenInfo.supplyBalanceInTokenUnit,
-                  supplyBalance: ctokenInfo.supplyBalance,
-                  marketTotalSupply: ctokenInfo.marketTotalSupply,
-                  borrowBalanceInTokenUnit: ctokenInfo.borrowBalanceInTokenUnit,
-                  borrowBalance: ctokenInfo.borrowBalance,
-                  marketTotalBorrowInTokenUnit: ctokenInfo.marketTotalBorrowInTokenUnit,
-                  marketTotalBorrow: ctokenInfo.marketTotalBorrow,
-                  isEnterMarket: ctokenInfo.isEnterMarket,
-                  underlyingAmount: ctokenInfo.underlyingAmount,
-                  underlyingPrice: ctokenInfo.underlyingPrice,
-                  liquidity: ctokenInfo.liquidity,
-                  collateralFactor: ctokenInfo.collateralFactor,
-                  hndSpeed: ctokenInfo.hndSpeed,
-                  spinner: ctokenInfo.spinner,
-                  supplySpinner: ctokenInfo.supplySpinner,
-                  withdrawSpinner: ctokenInfo.withdrawSpinner,
-                  borrowSpinner: ctokenInfo.borrowSpinner,
-                  repaySpinner: ctokenInfo.repaySpinner,
-                  borrowHndApy: ctokenInfo.borrowHndApy,
-                  hndAPR: ctokenInfo.hndAPR,
-                  totalSupplyApy: ctokenInfo.totalSupplyApy
-                } : el)
-              })
-              
-              const data = await getGeneralDetails(marketsData)
-              setGeneralData(data)
-              
-            }
-            if(selectedMarketRef.current && selectedMarketRef.current.symbol === ctokenInfo.symbol){
-              setSelectedMarket(ctokenInfo)
-            }
-          }
-        }
-      } catch (error) {
-        
       }
     }
 
@@ -454,7 +275,7 @@ const Content: React.FC<Props> = (props : Props) => {
             const market = marketsRef.current.find(x=> x?.symbol === symbol)
             if (market) market.spinner = false
             setUpdate(true)
-            const comptroller =  await getComptrollerData(provider.current, userAddress.current, network.current)
+            const comptroller =  await getComptrollerData(provider.current, network.current)
             setComptrollerData(comptroller)  
             if (selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
               selectedMarketRef.current.spinner = false
@@ -493,7 +314,7 @@ const Content: React.FC<Props> = (props : Props) => {
             const market = marketsRef.current.find(x=> x?.symbol === symbol)
             if (market) market.spinner = false
             setUpdate(true)
-            const comptroller =  await getComptrollerData(provider.current, userAddress.current, network.current)
+            const comptroller =  await getComptrollerData(provider.current, network.current)
             setComptrollerData(comptroller)  
             if (selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
               selectedMarketRef.current.spinner = false
@@ -536,7 +357,7 @@ const Content: React.FC<Props> = (props : Props) => {
           }
           catch(err){
             const error = err as MetamaskError
-            props.toastError(`${error.message.replace(".", "")} on Approve\n${error.data.message}`)
+            props.toastError(`${error?.message.replace(".", "")} on Approve\n${error?.data?.message}`)
             console.log(err)
 
           }
@@ -648,7 +469,7 @@ const Content: React.FC<Props> = (props : Props) => {
             market = marketsRef.current.find(x =>x?.symbol === symbol)
             if(market){
               setUpdate(true)
-              await updateMarket(market, "withdraw")
+              await handleUpdate(market, "withdraw")
             }
 
             // market = marketsRef.current.find(x => x?.symbol === symbol)
@@ -709,7 +530,7 @@ const Content: React.FC<Props> = (props : Props) => {
           market = marketsRef.current.find(x =>x?.symbol === symbol)
           if(market){
               setUpdate(true)
-              await updateMarket(market, "borrow")
+              await handleUpdate(market, "borrow")
           }
           // if(market)
           //   market.borrowSpinner = false
@@ -762,7 +583,7 @@ const Content: React.FC<Props> = (props : Props) => {
           market = marketsRef.current.find(x =>x?.symbol === symbol)
           if(market){
               setUpdate(true)
-              await updateMarket(market, "repay")
+              await handleUpdate(market, "repay")
             }
           // if(market)
           //   market.repaySpinner = false
@@ -784,7 +605,7 @@ const Content: React.FC<Props> = (props : Props) => {
     return (
         <div className="content">
             <GeneralDetails generalData={generalData}/>
-            <Markets generalData = {generalData} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} 
+            <Markets generalData = {generalDataRef.current} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} 
               supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog} darkMode={props.darkMode}/>
               <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
               handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>

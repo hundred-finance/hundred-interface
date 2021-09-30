@@ -42,12 +42,12 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         <td onClick={() => props.details &&  !props.details.spinner ? props.supplyMarketDialog(props.details) : null}>
             <i
               className={`circle${
-                props.details && +props.details.walletBalance.toFixed(4) <= 0
+                props.details && +props.details.walletBalance.toRound(3) <= 0
                   ? "-o"
                   : ""
               } text-c-green f-10 m-r-15`}
             />
-            {props.details ? props.details.walletBalance.toFixed(4) : "0"}
+            {props.details ? props.details.walletBalance.toRound(3) : "0"}
           
         </td>
         <td>

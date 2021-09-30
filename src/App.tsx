@@ -56,6 +56,7 @@ const App: React.FC = () => {
   const [openAddress, setOpenAddress] = useState<boolean>(false)
   const [openNetwork, setOpenNetwork] = useState<boolean>(false)
   const [openHundred, setOpenHundred] = useState<boolean>(false)
+  const [updatePrice, setUpdatePrice] = useState<number | null>(null)
 
   useEffect(() => {
     if (document.documentElement.clientWidth < 750){
@@ -181,16 +182,46 @@ const App: React.FC = () => {
       try{
         const prov = new ethers.providers.Web3Provider(window.ethereum)
         if(address) setSpinnerVisible(true)
+        getHndPrice()
         setProvider(prov)
       }
       catch(err){
         console.log(err)
       }
     }
-    else
+    else{
       setProvider(null)
+      if(updatePrice) window.clearTimeout(updatePrice)
+    }
 
   }, [network])
+
+  const getHndPrice = async () : Promise<void>  => {
+    if(updatePrice) window.clearTimeout(updatePrice)
+    try{
+      console.log("Get HND Price")
+        const url =  "https://api.coingecko.com/api/v3/simple/price?ids=hundred-finance&vs_currencies=usd"
+        const headers = {}
+        const response = await fetch(url,
+            {
+                method: "GET",
+                mode: 'cors',
+                headers: headers
+            }
+          )
+          const data = await response.json()
+          const hnd = data ? data["hundred-finance"] : null
+          const usd: number = hnd ? +hnd.usd : 0
+    
+          setHndPrice(usd)
+    }
+    catch(err){
+        console.log(err)
+    }
+    finally{
+      setUpdatePrice(window.setTimeout(getHndPrice, 60000))
+    }
+  }
 
   const getHndBalances = async (prv : any) : Promise<void> => {
     if(network && prv){
@@ -259,7 +290,7 @@ const App: React.FC = () => {
     return(
       <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
         <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-          spinnerVisible={spinnerVisible} darkMode={darkMode} setHndPrice={setHndPrice} toastError={toastError}/>
+          spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError}/>
       </ErrorBoundary>
     )
   }
@@ -289,7 +320,7 @@ const App: React.FC = () => {
         }
         <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
           <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-            spinnerVisible={spinnerVisible} darkMode={darkMode} setHndPrice={setHndPrice} toastError={toastError}/>
+            spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError}/>
         </ErrorBoundary>
         <ToastContainer/>
       </Wrapper>

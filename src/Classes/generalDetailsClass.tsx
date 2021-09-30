@@ -42,7 +42,7 @@ export class GeneralDetailsData{
     }
 }
 
-export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Promise<GeneralDetailsData> => {
+export const getGeneralDetails = (marketsData: (CTokenInfo | null)[]) : GeneralDetailsData => {
     let totalSupplyBalance = BigNumber.from("0")
     let totalBorrowBalance = BigNumber.from("0")
     let allMarketsTotalSupplyBalance = BigNumber.from("0")
@@ -58,7 +58,7 @@ export const getGeneralDetails = async (marketsData: (CTokenInfo | null)[]) : Pr
       if(market){
         totalSupplyBalance = BigNumber.parseValue((+totalSupplyBalance.toString() + +market.supplyBalance.toString()).noExponents())
         totalBorrowBalance = BigNumber.parseValue((+totalBorrowBalance.toString() + +market.borrowBalance.toString()).noExponents())
-      
+
         if (+market?.marketTotalSupply?.toString() > 0) {
           allMarketsTotalSupplyBalance = BigNumber.parseValue((+allMarketsTotalSupplyBalance.toString() + +market.marketTotalSupply.toString()).noExponents())
         }

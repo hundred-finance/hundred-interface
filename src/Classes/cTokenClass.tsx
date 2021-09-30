@@ -4,7 +4,7 @@ import {BigNumber} from "../bigNumber"
 import { CTOKEN_ABI, MKR_TOKEN_ABI, TOKEN_ABI } from "../abi"
 import Logos from "../logos"
 import { Network } from "../networks"
-import { Comptroller } from "./comptrollerClass"
+import { Comptroller, Comptroller2 } from "./comptrollerClass"
 import { Call } from "ethcall/lib/call"
 
 // const blockTime = 2.1 // seconds
@@ -140,16 +140,38 @@ class UnderlyingInfo{
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getCtokenInfo = async (address : string, isNativeToken : boolean, provider: any, userAddress: string, comptrollerData: Comptroller, network: Network, hndPrice: number) : Promise<CTokenInfo>=> {
+export const getCtokenInfo = async (address : string, isNativeToken : boolean, provider: any, userAddress: string, comptrollerData: Comptroller2, network: Network, hndPrice: number) : Promise<CTokenInfo>=> {
     const cToken = new Contract(address, CTOKEN_ABI)
 
-    const calls = [comptrollerData.ethcallComptroller.markets(address), comptrollerData.ethcallComptroller.compSpeeds(address), 
-      comptrollerData.ethcallComptroller.compSupplyState(address), comptrollerData.ethcallComptroller.compSupplierIndex(address, userAddress), cToken.getAccountSnapshot(userAddress), 
-      cToken.totalSupply(), cToken.exchangeRateStored(), cToken.totalBorrows(), cToken.supplyRatePerBlock(), cToken.borrowRatePerBlock(), cToken.getCash(), cToken.balanceOf(userAddress)]
+    const calls = [ 
+      cToken.getAccountSnapshot(userAddress), 
+      cToken.exchangeRateStored(),
+      cToken.totalSupply(),  
+      cToken.totalBorrows(), 
+      cToken.supplyRatePerBlock(), 
+      cToken.borrowRatePerBlock(), 
+      cToken.getCash(), 
+      cToken.balanceOf(userAddress),
+      comptrollerData.ethcallComptroller.markets(address), 
+      comptrollerData.ethcallComptroller.compSpeeds(address), 
+      comptrollerData.ethcallComptroller.compSupplyState(address), 
+      comptrollerData.ethcallComptroller.compSupplierIndex(address, userAddress),]
 
       if(!isNativeToken) calls.push(cToken.underlying())
 
-      const [markets, compSpeed, supplyState, supplierIndex, accountSnapshot, totalSupply, exchangeRate, totalBorrows, supplyRate, borrowRate, getCash, cTokenBalanceOfUser, underlyingAddress] = await comptrollerData.ethcallProvider.all(calls)
+      const [accountSnapshot,
+            exchangeRate, 
+            totalSupply, 
+            totalBorrows, 
+            supplyRate, 
+            borrowRate, 
+            getCash, 
+            cTokenBalanceOfUser,
+            markets, 
+            compSpeed, 
+            supplyState, 
+            supplierIndex, 
+            underlyingAddress] = await comptrollerData.ethcallProvider.all(calls)
     
         //const ctoken = new ethers.Contract(address, CTOKEN_ABI, provider)
     //console.log(`underlyingAddress: ${underlyingAddress}\naccountSnapshot:${accountSnapshot}\ntotalSupply:${totalSupply}\nexchangeRate: ${exchangeRate}\ntotalBorrows: ${totalBorrows}\nsupplyRate: ${supplyRate}\nborrowRate:${borrowRate}\ngetCash: ${getCash}`)
@@ -192,6 +214,12 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     const underlyingAmount = cash;
 
     const liquidity = underlyingAmount.mul(underlyingPrice)
+
+    if (underlying.symbol === "USDC")
+    {
+        console.log(`Old Amount: ${underlyingAmount.toString()}\nOld Price: ${underlyingPrice.toString()}\nOld Liquidity: ${liquidity.toString()}}`)
+    }
+    
     
     const underlyingAllowance = underlying.allowance
     const cTokenTVL = +marketTotalSupply.toString()
@@ -244,7 +272,7 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     )
   }
 
-  const getUnderlying = async (underlyingAddress: string | null, ptoken: string, comptrollerData: Comptroller, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) => {  
+  const getUnderlying = async (underlyingAddress: string | null, ptoken: string, comptrollerData: Comptroller2, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) => {  
     
     if (!underlyingAddress)
       return await getNativeTokenInfo(ptoken, comptrollerData, provider, userAddress, network)
@@ -254,7 +282,7 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
       return await getTokenInfo(underlyingAddress, ptoken, comptrollerData, userAddress)
   }
 
-  const getNativeTokenInfo = async (ptoken: string, comptrollerData: Comptroller, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) : Promise<UnderlyingInfo> => {
+  const getNativeTokenInfo = async (ptoken: string, comptrollerData: Comptroller2, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) : Promise<UnderlyingInfo> => {
     return new UnderlyingInfo(
       "0x0",
       network.symbol,
@@ -268,7 +296,7 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     )
   }
 
-  const getTokenInfo = async(address: string, ptoken: string, comptrollerData: Comptroller, userAddress: string) : Promise<UnderlyingInfo> => {
+  const getTokenInfo = async(address: string, ptoken: string, comptrollerData: Comptroller2, userAddress: string) : Promise<UnderlyingInfo> => {
     const contract = new Contract(address, TOKEN_ABI)
     const [symbol, name, decimals, totalSupply, balanceOf, allowance] = await comptrollerData.ethcallProvider.all([ contract.symbol(), contract.name(), contract.decimals(), contract.totalSupply(), contract.balanceOf(userAddress), contract.allowance(userAddress, ptoken)])
     const logo = Logos[symbol]
@@ -294,7 +322,7 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
     return token
   }
 
-  const getMakerInfo = async (address: string, ptoken: string, comptrollerData: Comptroller, userAddress: string): Promise<UnderlyingInfo> => {
+  const getMakerInfo = async (address: string, ptoken: string, comptrollerData: Comptroller2, userAddress: string): Promise<UnderlyingInfo> => {
     const contract = new Contract(address, MKR_TOKEN_ABI)
     const [symbol, name, decimals, totalSupply, balanceOf, allowance] = await comptrollerData.ethcallProvider.all([ contract.symbol(), contract.name(), contract.decimals(), contract.totalSupply(), contract.balanceOf(userAddress), contract.allowance(userAddress, ptoken)])
     return new UnderlyingInfo(
