@@ -253,6 +253,8 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
 
     const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
 
+    console.log(`hndApr: ${hndAPR.toString()}`)
+    console.log(`totalSupplyApy: ${totalSupplyApy.toString()}`)
     
     const blockNum = await provider.getBlockNumber()
 
