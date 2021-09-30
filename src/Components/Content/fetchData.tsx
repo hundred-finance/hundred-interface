@@ -146,8 +146,8 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     const tokens = []
     
     if(res && res.length === notNativeMarkets.length * 19 + 14){
-        const enteredMarkets = res.splice(0, 1)
-        
+        const enteredMarkets = res[0].map((x: string)=> {return x})
+        res.splice(0, 1)
         if(nativeToken){
             const native = res.splice(0, 13)
             tokens.push(await getTokenData(native, true, network, provider, userAddress, "0x0", enteredMarkets, nativeToken))
@@ -172,6 +172,7 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
  const getTokenData = async(tokenData: any[], native: boolean, network: Network, provider: ethers.providers.Web3Provider, 
                             userAddress: string, underlyingAddress: string, enteredMarkets: string[], tokenAddress: string): Promise<Token> =>{
     const isMaker = underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? true : false
+    
     const token: Token = {
         accountSnapshot: tokenData[0],
         exchangeRate: tokenData[1],

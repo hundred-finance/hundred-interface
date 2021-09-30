@@ -77,7 +77,7 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[]) : GeneralD
         }
       }          
     })
-    
+
     const totalBorrowLimitTemp: number = +totalBorrowLimit.toFixed(18)
     const totalBorrowBalanceTemp: number = +totalBorrowBalance.toFixed(18)
     const temp = (totalBorrowBalanceTemp / totalBorrowLimitTemp * 100)

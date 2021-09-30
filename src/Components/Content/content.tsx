@@ -186,6 +186,8 @@ const Content: React.FC<Props> = (props : Props) => {
         if(provider.current && network.current && network.current.chainId && userAddress.current && userAddress.current !== ""){
           getData()
         }
+        else props.setSpinnerVisible(false)
+
 
         return() => {
           if(updateHandle) clearTimeout(updateHandle)
