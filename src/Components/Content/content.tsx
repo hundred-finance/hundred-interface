@@ -142,7 +142,7 @@ const Content: React.FC<Props> = (props : Props) => {
 
     const handleUpdate = async (market?: CTokenInfo, spinnerUpdate?: string) : Promise<void> => {
       try {
-        console.log(`Update every: ${updateErrorCounterRef.current * 10 + 10}sec`)
+        //console.log(`Update every: ${updateErrorCounterRef.current * 10 + 10}sec`)
         if(updateHandle) clearTimeout(updateHandle)
         if(!updateRef.current){
           if(spinner.current) spinner.current(true)
@@ -176,7 +176,6 @@ const Content: React.FC<Props> = (props : Props) => {
         setUpdate(false)
 
         if(provider.current && network.current && network.current.chainId && userAddress.current && userAddress.current !== ""){
-          console.log("provider")
           getData()
         }
 

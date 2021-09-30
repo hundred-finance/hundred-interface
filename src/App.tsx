@@ -199,7 +199,6 @@ const App: React.FC = () => {
   const getHndPrice = async () : Promise<void>  => {
     if(updatePrice) window.clearTimeout(updatePrice)
     try{
-      console.log("Get HND Price")
         const url =  "https://api.coingecko.com/api/v3/simple/price?ids=hundred-finance&vs_currencies=usd"
         const headers = {}
         const response = await fetch(url,
