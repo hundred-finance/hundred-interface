@@ -165,7 +165,16 @@ const Content: React.FC<Props> = (props : Props) => {
         setUpdateHandle(setTimeout(handleUpdate, 10000))
       } 
       catch (error) {
-        setUpdateHandle(setTimeout(handleUpdate, (updateErrorCounterRef.current < 2 ? updateErrorCounterRef.current + 1 : updateErrorCounterRef.current) * 10000 + 10000))
+        if(marketsRef.current)
+          setUpdateHandle(setTimeout(handleUpdate, (updateErrorCounterRef.current < 2 ? updateErrorCounterRef.current + 1 : updateErrorCounterRef.current) * 10000 + 10000))
+        else{
+          if(updateErrorCounterRef.current < 2)
+            setUpdateHandle(setTimeout(handleUpdate, (updateErrorCounterRef.current + 1) * 1000 ))
+          else if (updateErrorCounterRef.current === 3)
+            setUpdateHandle(setTimeout(handleUpdate, 5000 ))
+          else 
+            setUpdateHandle(setTimeout(handleUpdate, 10000 ))
+        }
         setUpdateErrorCounter(updateErrorCounterRef.current+1)
       }
     }
