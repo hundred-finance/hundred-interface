@@ -2,14 +2,13 @@ import React, { useEffect, useState} from "react"
 import "./hundredMenu.css"
 import {ethers} from "ethers"
 import { Spinner } from "../../assets/huIcons/huIcons"
-import {HundredBalance} from "../../Classes/hundredClass"
 import { Network } from "../../networks"
 import { BigNumber } from "../../bigNumber"
 
 interface Props{
     hndPrice: number,
-    hndBalance: HundredBalance | null,
-    hndEarned: HundredBalance | null,
+    hndBalance: BigNumber | null,
+    hndEarned: BigNumber | null,
     hndSpinner: boolean,
     address: string,
     provider: ethers.providers.Web3Provider | null,
@@ -17,22 +16,12 @@ interface Props{
     setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
     setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>,
     handleCollect: () => Promise<void>,
-    getHndBalances: (prv: any) => Promise<void>,
     hundredBalance: BigNumber | null,
 }
 
 
 const HundredMenu: React.FC<Props> = (props: Props) => {
     const [tvl, setTvl] = useState<BigNumber | null>(null)
-
-    useEffect(() => {
-        const getPctBalances = async() => {
-            props.getHndBalances(props.provider)
-        }
-
-        if (props.provider && props.address!=="")
-            getPctBalances()
-    }, [])
 
     useEffect(() => {
         if(props.network  && props.network.HUNDRED_CONTRACT_ADDRESS && props.hundredBalance){
@@ -54,8 +43,8 @@ const HundredMenu: React.FC<Props> = (props: Props) => {
             </div>
             <div className="hundred-menu-item">
                 <hr/>
-                <div className="hundred-menu-item-label"><label>HND Balance </label><span>{props.hndBalance ? (props.hndBalance.balance.gt(BigNumber.from(0)) ? props.hndBalance.balance.toRound(2, true) : "0") : "--"}</span></div>
-                <div className="hundred-menu-item-label"><label>HND Earned </label><span>{props.hndEarned ? props.hndEarned?.balance.gt(BigNumber.from(0)) ? props.hndEarned?.balance.toRound(2, true) : "0" : "--"}</span></div>
+                <div className="hundred-menu-item-label"><label>HND Balance </label><span>{props.hndBalance ? (props.hndBalance.gt(BigNumber.from(0)) ? props.hndBalance.toRound(2, true) : "0") : "--"}</span></div>
+                <div className="hundred-menu-item-label"><label>HND Earned </label><span>{props.hndEarned ? props.hndEarned?.gt(BigNumber.from(0)) ? props.hndEarned?.toRound(2, true) : "0" : "--"}</span></div>
                 <div className={`${props.hndSpinner ? "hundred-menu-item-button-disabled" : "hundred-menu-item-button"}`} onClick={() => !props.hndSpinner ? props.handleCollect() : null}>
                     {props.hndSpinner ? (<Spinner size={"25px"}/>) : "Collect"}</div>
             </div>

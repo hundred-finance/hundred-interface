@@ -1,6 +1,6 @@
 import { Call, Contract } from "ethcall"
 import { ethers } from "ethers"
-import { COMPTROLLER_ABI, CTOKEN_ABI, TOKEN_ABI } from "../../abi"
+import { COMPTROLLER_ABI, CTOKEN_ABI, HUNDRED_ABI, TOKEN_ABI } from "../../abi"
 import { BigNumber } from "../../bigNumber"
 import { Comptroller } from "../../Classes/comptrollerClass"
 import { CTokenInfo } from "../../Classes/cTokenClass"
@@ -59,6 +59,8 @@ type CheckValidData ={
 
 export type MarketDataType = {
     hndPrice: number,
+    hndBalance: BigNumber,
+    hundredBalace: BigNumber,
     markets: CTokenInfo[]
 }
   
@@ -66,6 +68,10 @@ export type MarketDataType = {
 export const fetchData = async(allMarkets:string[], userAddress: string, comptrollerData: Comptroller, network: Network, marketsData: (CTokenInfo | null)[] | null | undefined, provider: any, hndPrice: number) : Promise<MarketDataType> => {
     const ethcallComptroller = new Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI)
     const calls= [ethcallComptroller.getAssetsIn(userAddress)]
+
+    const balanceContract = new Contract(network.HUNDRED_ADDRESS, HUNDRED_ABI)
+    calls.push(balanceContract.balanceOf(userAddress))
+    if(network.HUNDRED_CONTRACT_ADDRESS) calls.push(balanceContract.balanceOf(network.HUNDRED_CONTRACT_ADDRESS))
 
     const markets = allMarkets.filter((a) => {
       if (a.toLowerCase() === "0xc98182014c90baa26a21e991bfec95f72bd89aed")
@@ -144,10 +150,21 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     const res = await comptrollerData.ethcallProvider.all(calls)
     
     const tokens = []
+    let hndBalance = BigNumber.from("0")
+    let hundredBalace = BigNumber.from("0")
+
+    const compareLength = network.HUNDRED_CONTRACT_ADDRESS ? notNativeMarkets.length * 19 + 16 : notNativeMarkets.length * 19 + 15
     
-    if(res && res.length === notNativeMarkets.length * 19 + 14){
-        const enteredMarkets = res[0].map((x: string)=> {return x})
-        res.splice(0, 1)
+    if(res && res.length === compareLength){
+        
+      const enteredMarkets = res[0].map((x: string)=> {return x})
+        hndBalance = BigNumber.from(res[1], 18)
+        if(network.HUNDRED_CONTRACT_ADDRESS){
+          hundredBalace = BigNumber.from(res[2], 18)
+          res.splice(0, 3)
+        }
+        else res.splice(0, 2)
+       
         if(nativeToken){
             const native = res.splice(0, 13)
             tokens.push(await getTokenData(native, true, network, provider, userAddress, "0x0", enteredMarkets, nativeToken))
@@ -162,11 +179,14 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
         }
     }
 
+    const blockProvider : ethers.providers.Web3Provider = network.blockRpc ? new ethers.providers.JsonRpcProvider(network.blockRpc) : provider
+    const blockNum = await blockProvider.getBlockNumber()
+
     const tokensInfo = await Promise.all(tokens.map(async(t)=>{
-        return await getCtokenInfo(t, network, hndPrice, provider)
+        return await getCtokenInfo(t, network, hndPrice, blockNum)
     }))
 
-    return {hndPrice: hndPrice, markets: tokensInfo}
+    return {hndPrice: hndPrice, markets: tokensInfo, hndBalance: hndBalance, hundredBalace: hundredBalace}
   }
 
  const getTokenData = async(tokenData: any[], native: boolean, network: Network, provider: ethers.providers.Web3Provider, 
@@ -204,7 +224,7 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     return token
   }
 
-  const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, provider: ethers.providers.Web3Provider) : Promise<CTokenInfo> => {
+  const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, blockNum: number) : Promise<CTokenInfo> => {
     
     const decimals = token.underlying.decimals
     const underlyingPrice = BigNumber.from(token.underlying.price, 36-decimals)
@@ -256,9 +276,6 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     
     let accrued  = 0
     if(+token.totalSupply > 0){
-      const blockProvider = network.blockRpc ? new ethers.providers.JsonRpcProvider(network.blockRpc) : provider
-      const blockNum = await blockProvider.getBlockNumber()
-
       const newSupplyIndex = +token.compSupplyState.index + (blockNum - token.compSupplyState.block) * +token.compSpeeds * 1e36 / +token.totalSupply;
     
       accrued = (+newSupplyIndex - +token.compSupplierIndex) * +token.cTokenBalanceOfUser / 1e36 

@@ -8,17 +8,15 @@ import {NETWORKS, Network} from './networks'
 import TabletMenu from './Components/Menu/tabletMenu';
 import SideMenu from './Components/SideMenu/sideMenu';
 import AccountSettings from './Components/SideMenu/accountSettings';
-import { HundredBalance } from './Classes/hundredClass';
 import Footer from './Components/Footer/footer';
 import Spinner from './Components/Spinner/spinner';
 import Content from './Components/Content/content';
 import NetworksView from './Components/SideMenu/networksView';
-import { COMPTROLLER_ABI, HUNDRED_ABI } from './abi';
+import { COMPTROLLER_ABI } from './abi';
 import {ErrorBoundary} from "react-error-boundary"
 import { ToastContainer, toast } from 'react-toastify'
 import ReactToolTip from 'react-tooltip'
 import 'react-toastify/dist/ReactToastify.css'
-import { Contract, Provider } from 'ethcall';
 import HundredMenu from './Components/SideMenu/hundredMenu';
 import { BigNumber } from './bigNumber';
 
@@ -33,8 +31,8 @@ const App: React.FC = () => {
   const [address, setAddress] = useState<string>("")
   const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null)
   const [hundredBalance, setHundredBalace] = useState<BigNumber | null>(null)
-  const [hndBalance, setHndBalance] = useState<HundredBalance | null>(null)
-  const [hndEarned, setHndEarned] = useState<HundredBalance |null>(null)
+  const [hndBalance, setHndBalance] = useState<BigNumber | null>(null)
+  const [hndEarned, setHndEarned] = useState<BigNumber |null>(null)
   const [hndSpinner, setHndSpinner] = useState<boolean>(false)
   const [network, setNetwork] = useState<Network | null>(null)
   const [hndPrice, setHndPrice] = useState<number>(0)
@@ -158,6 +156,7 @@ const App: React.FC = () => {
         const chain = window.ethereum.chainId
         if(networkRef.current && networkRef.current.chainId === chain){
           try{
+            setAddress("0x87616fA850c87a78f307878f32D808dad8f4d401")
             const prov = new ethers.providers.Web3Provider(window.ethereum)
             setProvider(prov)
           }
@@ -223,52 +222,59 @@ const App: React.FC = () => {
     }
   }
 
-  const getHndBalances = async (prv : any) : Promise<void> => {
-    if(network && prv){
-      try {
-        const ethcallProvider = new Provider()
-        await ethcallProvider.init(prv)
-        const balanceContract = new Contract(network.HUNDRED_ADDRESS, HUNDRED_ABI)
-        //const earnedContract = new Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI)
+  // const getHndBalances = async (prv : any) : Promise<void> => {
+  //   if(network && prv){
+  //     try {
+  //       const ethcallProvider = new Provider()
+  //       await ethcallProvider.init(prv)
+  //       const balanceContract = new Contract(network.HUNDRED_ADDRESS, HUNDRED_ABI)
+  //       //const earnedContract = new Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI)
         
-        let [balance, decimals, symbol, hndBalance] = ["", 0, "", "", null]
+  //       let [balance, decimals, symbol, hndBalance] = ["", 0, "", "", null]
 
-        network.HUNDRED_CONTRACT_ADDRESS ? [balance, decimals, symbol, hndBalance] = await ethcallProvider.all(
-          [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol(), balanceContract.balanceOf(network.HUNDRED_CONTRACT_ADDRESS)])
-        : [balance, decimals, symbol] = await ethcallProvider.all(
-          [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol()])
+  //       network.HUNDRED_CONTRACT_ADDRESS ? [balance, decimals, symbol, hndBalance] = await ethcallProvider.all(
+  //         [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol(), 
+  //           balanceContract.balanceOf(network.HUNDRED_CONTRACT_ADDRESS)])
+  //       : [balance, decimals, symbol] = await ethcallProvider.all(
+  //         [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol()])
         
-        if(hndBalance) setHundredBalace(BigNumber.from(hndBalance, 18))
-        else setHundredBalace(null)
+  //       if(hndBalance) setHundredBalace(BigNumber.from(hndBalance, 18))
+  //       else setHundredBalace(null)
 
-        setHndBalance(new HundredBalance(BigNumber.from(balance, decimals), symbol))
-        //setHndEarned(new HundredBalance( earned, 18, "HND"))
-      } catch (error) {
-        console.log(error)
-        setHndBalance(null)
-        //setHndEarned(null)
-      }
+  //       setHndBalance(new HundredBalance(BigNumber.from(balance, decimals), symbol))
+  //       //setHndEarned(new HundredBalance( earned, 18, "HND"))
+  //     } catch (error) {
+  //       console.log(error)
+  //       setHndBalance(null)
+  //       //setHndEarned(null)
+  //     }
+  //   }
+  // }
+  useEffect(() => {
+    if(!updateEarned){
+      setHndSpinner(false)
     }
-  }
+  }, [updateEarned])
 
   const handleCollect = async (): Promise<void> => {
     if(provider && network){
       try{
         setHndSpinner(true)
+        setSpinnerVisible(true)
         const signer = provider.getSigner()
         const comptroller = new ethers.Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI, signer)
         const tx = await comptroller.claimComp(address)
+        setSpinnerVisible(false)
         console.log(tx)
         const receipt = await tx.wait()
         console.log(receipt)
         setUpdateEarned(true)
-        await getHndBalances(provider)
+        //await getHndBalances(provider)
       }
       catch(err){
         console.log(err)
-      }
-      finally{
         setHndSpinner(false)
+        setSpinnerVisible(false)
       }
     }
   }
@@ -292,7 +298,7 @@ const App: React.FC = () => {
       <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
         <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
           spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError} 
-          setHndEarned={setHndEarned} updateEarned={updateEarned} setUpdateEarned={setUpdateEarned}/>
+          setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} updateEarned={updateEarned} setUpdateEarned={setUpdateEarned}/>
       </ErrorBoundary>
     )
   }
@@ -323,7 +329,8 @@ const App: React.FC = () => {
         <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
           <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
             spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError} 
-            setHndEarned={setHndEarned} updateEarned={updateEarned} setUpdateEarned={setUpdateEarned}/>
+            setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} 
+            updateEarned={updateEarned} setUpdateEarned={setUpdateEarned}/>
         </ErrorBoundary>
         <ToastContainer/>
       </Wrapper>
@@ -332,7 +339,7 @@ const App: React.FC = () => {
         { openAddress ? 
           <AccountSettings address={address} setAddress={setAddress} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}/> : 
             (openNetwork ? <NetworksView network={network}/> : openHundred ? 
-            <HundredMenu provider={provider} network={network} hndBalance={hndBalance} getHndBalances={getHndBalances} hndEarned={hndEarned} hndSpinner={hndSpinner}
+            <HundredMenu provider={provider} network={network} hndBalance={hndBalance} hndEarned={hndEarned} hndSpinner={hndSpinner}
               handleCollect={handleCollect} setOpenHundred={setOpenHundred} setSideMenu={setSideMenu} address={address} hndPrice={hndPrice} hundredBalance={hundredBalance}/> : null)
         }
       </SideMenu>

@@ -11,8 +11,7 @@ import Markets from "../Markets/markets"
 import EnterMarketDialog from "../Markets/MarketsDialogs/enterMarketDialog"
 import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import SupplyMarketDialog from "../Markets/MarketsDialogs/supplyMarketDialog"
-import { fetchData } from "./fetchData"
-import { HundredBalance } from "../../Classes/hundredClass"
+import { fetchData} from "./fetchData"
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
@@ -47,7 +46,9 @@ interface Props{
   spinnerVisible: boolean,
   darkMode: boolean,
   toastError: (error: string) => void,
-  setHndEarned: React.Dispatch<React.SetStateAction<HundredBalance | null>>,
+  setHndEarned: React.Dispatch<React.SetStateAction<BigNumber | null>>,
+  setHndBalance: React.Dispatch<React.SetStateAction<BigNumber | null>>
+  setHundredBalance: React.Dispatch<React.SetStateAction<BigNumber | null>>
   updateEarned: boolean,
   setUpdateEarned: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -78,6 +79,7 @@ const Content: React.FC<Props> = (props : Props) => {
     const network = useRef<Network | null>(null)
     const updateErrorCounterRef = useRef<number>(0)
 
+    const updateEarnedRef = useRef<boolean>(false)
     const hndPriceRef = useRef<number>(0)
 
     provider.current = props.provider
@@ -93,6 +95,7 @@ const Content: React.FC<Props> = (props : Props) => {
     spinner.current = props.setSpinnerVisible
     selectedMarketRef.current = selectedMarket
     updateErrorCounterRef.current = updateErrorCounter
+    updateEarnedRef.current = props.updateEarned
 
     useEffect(() => {
       updateErrorCounterRef.current = updateErrorCounter
@@ -105,14 +108,14 @@ const Content: React.FC<Props> = (props : Props) => {
     useEffect(() => {
       const callUpdate = async () => {
         await dataUpdate()
-        props.setUpdateEarned(false)
       }
 
+      updateEarnedRef.current = props.updateEarned
       if(props.updateEarned)
         callUpdate()
     },[props.updateEarned])
 
-    const updateMarkets = (markets: CTokenInfo[], cToken?: CTokenInfo, spinner?: string): void =>{
+    const updateMarkets = (markets: CTokenInfo[], hndBalance: BigNumber, hundredBalace: BigNumber, cToken?: CTokenInfo, spinner?: string): void =>{
       if(marketsRef.current){
         markets.map((m) => {
           if(marketsRef.current && m){
@@ -140,7 +143,9 @@ const Content: React.FC<Props> = (props : Props) => {
       const data = getGeneralDetails(markets)
       setMarketsData(markets)
       setGeneralData(data)
-      props.setHndEarned(new HundredBalance( data.earned, "HND"))
+      props.setHndEarned(data.earned)
+      props.setHndBalance(hndBalance)
+      props.setHundredBalance(hundredBalace)
       if(selectedMarketRef.current && markets){
         const market = markets.find(x=>x?.symbol === selectedMarketRef.current?.symbol)
         if (market){
@@ -158,7 +163,7 @@ const Content: React.FC<Props> = (props : Props) => {
         if(provider.current && comptrollerDataRef.current){
           const markets = await fetchData(comptrollerDataRef.current.allMarkets, userAddress.current, comptrollerDataRef.current, network.current, marketsRef.current, provider.current, hndPriceRef.current)
           
-          updateMarkets(markets.markets, cToken, spinnerUpdate)
+          updateMarkets(markets.markets, markets.hndBalance, markets.hundredBalace, cToken, spinnerUpdate)
         }
       }
     }
@@ -176,6 +181,7 @@ const Content: React.FC<Props> = (props : Props) => {
         if(spinner.current && !updateRef.current) spinner.current(false)
         setUpdate(true)
 
+        props.setUpdateEarned(false)
         setUpdateErrorCounter(0) 
         setUpdateHandle(setTimeout(handleUpdate, 10000))
       } 
