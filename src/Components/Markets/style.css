@@ -18,7 +18,9 @@
     font-size: 1.2rem;
     border-radius: 4px 4px 0 0;
     background-color: var(--boxBackground);
+    
     color: var(--secondaryText);
+    
     border-bottom: 2px solid var(--borderBottom);
 }
 
@@ -132,7 +134,8 @@
 
 .rounded-circle{
     border-radius: 50%;
-    background-color: white;
+    background-color: var(--logoBackground);
+    border: none;
 }
 
 .market-table .market-table-content .showMoreRow {

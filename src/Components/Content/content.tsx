@@ -194,7 +194,13 @@ const Content: React.FC<Props> = (props : Props) => {
             setUpdateHandle(setTimeout(handleUpdate, (updateErrorCounterRef.current + 1) * 1000 ))
           else if (updateErrorCounterRef.current === 3)
             setUpdateHandle(setTimeout(handleUpdate, 5000 ))
-          else 
+          else if (updateErrorCounterRef.current === 7)
+          {
+            if(spinner.current && !updateRef.current) spinner.current(false)
+            const err = error as MetamaskError
+            props.toastError(`${err?.message.replace(".", "")} on Page Load\n${err?.data?.message}\nPlease refresh the page after a few minutes.`)
+          }
+          else
             setUpdateHandle(setTimeout(handleUpdate, 10000 ))
         }
         setUpdateErrorCounter(updateErrorCounterRef.current+1)

@@ -302,15 +302,16 @@ const App: React.FC = () => {
     )
   }
 
-  const toastError = (error: string) => {
+  const toastError = (error: string, autoClose = true) => {
     toast.error(error, {
       position: "top-right",
-      autoClose: 10000,
-      hideProgressBar: false,
+      autoClose: autoClose ? 10000 : false,
+      hideProgressBar: autoClose ? false : true,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
+      icon: true
       });
   }
 

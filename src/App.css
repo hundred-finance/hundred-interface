@@ -22,6 +22,7 @@ html{
   text-align: center;
   --navBackground: #111111;
   --background: #f9fafb;
+  --logoBackground: #f9fafb;
   --sectionBackground: #101010;
   --secondaryBackground: #f9fafb;
   --boxBackground: #fff;
@@ -52,6 +53,7 @@ html{
 .App-dark{
   --navBackground: #101010;
   --background: #101010;
+  --logoBackground: hsla(210, 20%, 98%, 0.9);
   --sectionBackground: #101010;
   --secondaryBackground: #101010;
   --boxBackground: #000;
