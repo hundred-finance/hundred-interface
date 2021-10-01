@@ -23,6 +23,10 @@ interface AddEthereumChainParameter {
     iconUrls?: string[]; // Currently ignored.
   }
 
+  type errorType = {
+      code: number
+  }
+
 const NetworksView : React.FC<Props> = ({network} : Props) => {
 
     const switchNetwork = async(item: Network):Promise<void> => {
@@ -35,13 +39,13 @@ const NetworksView : React.FC<Props> = ({network} : Props) => {
                 })
             }
         } catch (error) {
-            handleNetworkClick(item)
+            if((error as errorType).code !== 4001)
+                handleNetworkClick(item)
         }
     }
     
     const handleNetworkClick = async (item: Network):Promise<void> => {
         if(item.chainId === "0x1" || item.chainId === "0x2a"){
-            alert(`Please switch to ${item.network} from Metamask.`)
             return
         }
 
