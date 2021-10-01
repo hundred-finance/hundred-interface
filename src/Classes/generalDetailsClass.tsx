@@ -14,6 +14,7 @@ export class GeneralDetailsData{
     totalSupplyHndApy: BigNumber
     totalBorrowHndApy: BigNumber
     totalLiquidity: BigNumber
+    earned: BigNumber
 
     constructor(totalSupplyBalance: BigNumber,
                 totalBorrowBalance: BigNumber,
@@ -26,7 +27,8 @@ export class GeneralDetailsData{
                 netApy: BigNumber,
                 totalSupplyHndApy: BigNumber,
                 totalBorrowHndApy: BigNumber,
-                totalLiquidity: BigNumber){
+                totalLiquidity: BigNumber,
+                earned: BigNumber){
         this.totalSupplyBalance = totalSupplyBalance
         this.totalBorrowBalance = totalBorrowBalance
         this.allMarketsTotalSupplyBalance = allMarketsTotalSupplyBalance
@@ -39,6 +41,7 @@ export class GeneralDetailsData{
         this.totalSupplyHndApy = totalSupplyHndApy
         this.totalBorrowHndApy = totalBorrowHndApy
         this.totalLiquidity = totalLiquidity
+        this.earned = earned
     }
 }
 
@@ -53,6 +56,7 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[]) : GeneralD
     let yearSupplyHndRewards = BigNumber.from("0")
     const yearBorrowHndRewards = BigNumber.from("0")
     let totalLiquidity = BigNumber.from("0")
+    let totalAccrued = 0
     
     marketsData.map((market) => {  
       if(market){
@@ -75,6 +79,8 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[]) : GeneralD
         if (market && market.liquidity.gt(BigNumber.from("0"))) {
             totalLiquidity = totalLiquidity.addSafe(market.liquidity)
         }
+
+        totalAccrued += market.accrued
       }          
     })
 
@@ -100,5 +106,6 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[]) : GeneralD
                             netApy,
                             +totalSupplyBalance.toString() > 0 ? BigNumber.parseValue((+yearSupplyHndRewards.toString() / +totalSupplyBalance.toString() * 100).noExponents()) : BigNumber.from(0),
                             +totalBorrowBalance.toString() > 0 ? BigNumber.parseValue((+yearBorrowHndRewards.toString() / +totalBorrowBalance.toString()).noExponents()) : BigNumber.from(0),
-                            totalLiquidity)
+                            totalLiquidity,
+                            BigNumber.from(totalAccrued.noExponents(), 18))
   }

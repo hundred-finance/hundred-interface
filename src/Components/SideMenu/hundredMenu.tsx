@@ -18,7 +18,7 @@ interface Props{
     setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>,
     handleCollect: () => Promise<void>,
     getHndBalances: (prv: any) => Promise<void>,
-    hundredBalance: BigNumber | null
+    hundredBalance: BigNumber | null,
 }
 
 

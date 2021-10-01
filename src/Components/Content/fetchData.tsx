@@ -254,14 +254,16 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
 
     const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
     
-    const blockNum = await provider.getBlockNumber()
+    let accrued  = 0
+    if(+token.totalSupply > 0){
+      const blockProvider = network.blockRpc ? new ethers.providers.JsonRpcProvider(network.blockRpc) : provider
+      const blockNum = await blockProvider.getBlockNumber()
 
-    // console.log(`${underlying.symbol}\nSupplyState.Index: ${supplyState.index}\nBlockNum: ${blockNum}\nSupplyState.block: ${supplyState.block}\ncompSpeed: ${compSpeed}\nTotalSupply: ${totalSupply}\nSupplierIndex: ${supplierIndex}`)
-    const newSupplyIndex = +token.compSupplyState.index + (blockNum - token.compSupplyState.block) * +token.compSpeeds * 1e36 / +token.totalSupply;
-    // console.log(`newSupplyIndex: ${newSupplyIndex}`)
+      const newSupplyIndex = +token.compSupplyState.index + (blockNum - token.compSupplyState.block) * +token.compSpeeds * 1e36 / +token.totalSupply;
     
-    const accrued = (newSupplyIndex - +token.compSupplierIndex) * +token.cTokenBalanceOfUser / 1e36
-
+      accrued = (+newSupplyIndex - +token.compSupplierIndex) * +token.cTokenBalanceOfUser / 1e36 
+    }
+    
     return new CTokenInfo(
       token.tokenAddress,
       token.underlying.address,
@@ -288,7 +290,8 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
       token.isNative,
       hndAPR,
       borrowRatePerBlock,
-      totalSupplyApy
+      totalSupplyApy,
+      accrued 
     )
   }
 

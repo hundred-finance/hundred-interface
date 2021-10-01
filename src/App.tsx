@@ -57,6 +57,7 @@ const App: React.FC = () => {
   const [openNetwork, setOpenNetwork] = useState<boolean>(false)
   const [openHundred, setOpenHundred] = useState<boolean>(false)
   const [updatePrice, setUpdatePrice] = useState<number | null>(null)
+  const [updateEarned, setUpdateEarned] = useState<boolean>(false)
 
   useEffect(() => {
     if (document.documentElement.clientWidth < 750){
@@ -175,10 +176,10 @@ const App: React.FC = () => {
   }, [address])
 
   useEffect(() => {
+    setSideMenu(false)
     if(networkRef.current)
     {
       setOpenNetwork(false)
-      setSideMenu(false)
       try{
         const prov = new ethers.providers.Web3Provider(window.ethereum)
         if(address) setSpinnerVisible(true)
@@ -228,24 +229,24 @@ const App: React.FC = () => {
         const ethcallProvider = new Provider()
         await ethcallProvider.init(prv)
         const balanceContract = new Contract(network.HUNDRED_ADDRESS, HUNDRED_ABI)
-        const earnedContract = new Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI)
+        //const earnedContract = new Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI)
         
-        let [balance, decimals, symbol, earned, hndBalance] = ["", 0, "", "", null]
+        let [balance, decimals, symbol, hndBalance] = ["", 0, "", "", null]
 
-        network.HUNDRED_CONTRACT_ADDRESS ? [balance, decimals, symbol, earned, hndBalance] = await ethcallProvider.all(
-          [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol(), earnedContract.compAccrued(address), balanceContract.balanceOf(network.HUNDRED_CONTRACT_ADDRESS)])
-        : [balance, decimals, symbol, earned] = await ethcallProvider.all(
-          [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol(), earnedContract.compAccrued(address)])
+        network.HUNDRED_CONTRACT_ADDRESS ? [balance, decimals, symbol, hndBalance] = await ethcallProvider.all(
+          [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol(), balanceContract.balanceOf(network.HUNDRED_CONTRACT_ADDRESS)])
+        : [balance, decimals, symbol] = await ethcallProvider.all(
+          [balanceContract.balanceOf(address), balanceContract.decimals(), balanceContract.symbol()])
         
         if(hndBalance) setHundredBalace(BigNumber.from(hndBalance, 18))
         else setHundredBalace(null)
 
-        setHndBalance(new HundredBalance( balance, decimals, symbol))
-        setHndEarned(new HundredBalance( earned, 18, "HND"))
+        setHndBalance(new HundredBalance(BigNumber.from(balance, decimals), symbol))
+        //setHndEarned(new HundredBalance( earned, 18, "HND"))
       } catch (error) {
         console.log(error)
         setHndBalance(null)
-        setHndEarned(null)
+        //setHndEarned(null)
       }
     }
   }
@@ -260,6 +261,7 @@ const App: React.FC = () => {
         console.log(tx)
         const receipt = await tx.wait()
         console.log(receipt)
+        setUpdateEarned(true)
         await getHndBalances(provider)
       }
       catch(err){
@@ -289,7 +291,8 @@ const App: React.FC = () => {
     return(
       <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
         <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-          spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError}/>
+          spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError} 
+          setHndEarned={setHndEarned} updateEarned={updateEarned} setUpdateEarned={setUpdateEarned}/>
       </ErrorBoundary>
     )
   }
@@ -319,7 +322,8 @@ const App: React.FC = () => {
         }
         <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
           <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-            spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError}/>
+            spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError} 
+            setHndEarned={setHndEarned} updateEarned={updateEarned} setUpdateEarned={setUpdateEarned}/>
         </ErrorBoundary>
         <ToastContainer/>
       </Wrapper>

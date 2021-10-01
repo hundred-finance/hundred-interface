@@ -12,6 +12,7 @@ import EnterMarketDialog from "../Markets/MarketsDialogs/enterMarketDialog"
 import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import SupplyMarketDialog from "../Markets/MarketsDialogs/supplyMarketDialog"
 import { fetchData } from "./fetchData"
+import { HundredBalance } from "../../Classes/hundredClass"
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
@@ -45,7 +46,10 @@ interface Props{
   provider: ethers.providers.Web3Provider | null,
   spinnerVisible: boolean,
   darkMode: boolean,
-  toastError: (error: string) => void
+  toastError: (error: string) => void,
+  setHndEarned: React.Dispatch<React.SetStateAction<HundredBalance | null>>,
+  updateEarned: boolean,
+  setUpdateEarned: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const Content: React.FC<Props> = (props : Props) => {
@@ -98,6 +102,16 @@ const Content: React.FC<Props> = (props : Props) => {
       hndPriceRef.current = props.hndPrice
     },[props.hndPrice])
 
+    useEffect(() => {
+      const callUpdate = async () => {
+        await dataUpdate()
+        props.setUpdateEarned(false)
+      }
+
+      if(props.updateEarned)
+        callUpdate()
+    },[props.updateEarned])
+
     const updateMarkets = (markets: CTokenInfo[], cToken?: CTokenInfo, spinner?: string): void =>{
       if(marketsRef.current){
         markets.map((m) => {
@@ -126,6 +140,7 @@ const Content: React.FC<Props> = (props : Props) => {
       const data = getGeneralDetails(markets)
       setMarketsData(markets)
       setGeneralData(data)
+      props.setHndEarned(new HundredBalance( data.earned, "HND"))
       if(selectedMarketRef.current && markets){
         const market = markets.find(x=>x?.symbol === selectedMarketRef.current?.symbol)
         if (market){
@@ -165,6 +180,7 @@ const Content: React.FC<Props> = (props : Props) => {
         setUpdateHandle(setTimeout(handleUpdate, 10000))
       } 
       catch (error) {
+        console.log(error)
         if(marketsRef.current)
           setUpdateHandle(setTimeout(handleUpdate, (updateErrorCounterRef.current < 2 ? updateErrorCounterRef.current + 1 : updateErrorCounterRef.current) * 10000 + 10000))
         else{

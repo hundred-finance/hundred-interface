@@ -4,8 +4,8 @@ import { BigNumber } from "../bigNumber"
 export class HundredBalance{
   balance: BigNumber
   symbol: string
-  constructor(balance: string, decimals: number, symbol: string){
-      this.balance = BigNumber.from(balance, decimals)
+  constructor(balance:BigNumber, symbol: string){
+      this.balance = balance
       this.symbol = symbol
   }
 }

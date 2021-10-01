@@ -49,6 +49,8 @@ export class CTokenInfo{
     borrowRatePerBlock: BigNumber
 
     totalSupplyApy: BigNumber
+
+    accrued: number
    
 
     constructor(pTokenAddress: string,
@@ -76,7 +78,8 @@ export class CTokenInfo{
                 isNativeToken: boolean,
                 hndAPR: BigNumber,
                 borrowRatePerBlock: BigNumber,
-                totalSupplyApy: BigNumber
+                totalSupplyApy: BigNumber,
+                accrued: number
                 ){
         this.pTokenAddress= pTokenAddress
         this.underlyingAddress= underlyingAddress
@@ -112,6 +115,7 @@ export class CTokenInfo{
         this.borrowRatePerBlock = borrowRatePerBlock
         this.totalSupplyApy = totalSupplyApy
         
+        this.accrued = accrued
     }
 }
 
@@ -268,7 +272,8 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
       isNativeToken,
       hndAPR,
       borrowRatePerBlock,
-      totalSupplyApy
+      totalSupplyApy,
+      accrued
     )
   }
 
