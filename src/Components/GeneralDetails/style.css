@@ -13,7 +13,8 @@
     content: "";
     position: absolute;
     width: 100%;
-    height: 85%;
+    /* height: 85%; */
+    height: 100%;
     background-color: var(--sectionBackground);
     top: 0;
     left: 0;
@@ -133,6 +134,7 @@
 @media (min-width: 998px){
     
     .general-details-section::after{
-        height: 65%;
+        /* height: 65%; */
+        height: 100%;
     }
 }
