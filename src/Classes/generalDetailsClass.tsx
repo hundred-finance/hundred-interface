@@ -83,8 +83,9 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], compAccrue
         totalAccrued += market.accrued
       }          
     })
-
-    totalAccrued += +compAccrued.toString()
+    
+    totalAccrued += +compAccrued._value
+    
 
     const totalBorrowLimitTemp: number = +totalBorrowLimit.toFixed(18)
     const totalBorrowBalanceTemp: number = +totalBorrowBalance.toFixed(18)
