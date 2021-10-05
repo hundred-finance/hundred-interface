@@ -32,7 +32,7 @@ const GeneralDetails: React.FC<Props> = ({generalData} : Props) => {
                             <GeneralDetailsItemContentItem label="Borrow:" 
                                 value={`$${generalData ? generalData?.totalBorrowBalance.toRound(2, true) : '0'}`}/>
                             <GeneralDetailsItemContentItem label="Borrow Limit:" 
-                                value={`$${generalData ? generalData?.totalBorrowLimit.toRound(2, true) : '0'}`}
+                                value={`$${generalData ? generalData?.totalBorrowLimit.toRound(2, true, true) : '0'}`}
                                 valueDetails={`(${generalData ? generalData?.totalBorrowLimitUsedPercent.toRound(2) : '0'}% Used)`}/>
                         </GeneralDetailsItemContent>
                 </GeneralDetailsItem>

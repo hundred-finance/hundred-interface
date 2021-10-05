@@ -131,14 +131,20 @@ export class BigNumber {
     toRound = (places: number, seperated?: boolean, fixed?:boolean) : string => {
       const num = +ethers.utils.formatUnits(this._value, this._decimals)
       const rounded = Math.round((num + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places)
-      if(seperated) return this.valueSeperated(rounded.noExponents())
+      if(seperated) {
+        if(fixed)
+          return this.valueSeperated((+rounded.noExponents()).toFixed(places))
+        return this.valueSeperated(rounded.noExponents())
+      }
       if(fixed)
         return (+rounded.noExponents()).toFixed(places)
       return rounded.noExponents()
     }
 
     private valueSeperated = (value: string) : string =>{
-      return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+      const parts = value.split(".")
+      const temp = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+      return parts.length === 2 ? temp + "." + parts[1] : temp 
     }
 
     toNumber = () : number => {

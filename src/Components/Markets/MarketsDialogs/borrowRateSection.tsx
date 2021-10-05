@@ -1,5 +1,6 @@
 import React from "react"
 import { HuLogo } from "../../../assets/huIcons/huIcons"
+import { BigNumber } from "../../../bigNumber"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
 import "./dialogSection.css"
 
@@ -24,7 +25,7 @@ const BorrowRateSection: React.FC<Props> = (props : Props) => {
                 </div>
                 <div className="fill">Borrow APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${props.market ? (+props.market?.borrowApy?.toRound(2) * 100).toFixed(2) : "0.00"}%`}
+                    {`${props.market ? props.market?.borrowApy.mul(BigNumber.from("100")).toFixed(2) : "0.00"}%`}
                 </div>
             </div>
             <div className="dialog-section-content">
@@ -33,7 +34,7 @@ const BorrowRateSection: React.FC<Props> = (props : Props) => {
                     </div>
                 <div className="fill">HND APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${props.market ? (+props.market?.borrowHndApy?.toRound(2) * 100).toFixed(2) : "0.00"}%`}
+                    {`${props.market ? (+props.market?.borrowHndApy * 100).toFixed(2) : "0.00"}%`}
                 </div>
             </div>
         </div>

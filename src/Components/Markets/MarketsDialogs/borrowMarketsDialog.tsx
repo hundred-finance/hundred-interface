@@ -123,6 +123,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
         }
         else{
             document.getElementsByTagName("body")[0].style.overflow = 'auto'
+            CloseDialog()
         }
 
         function handleClickOutside(event : any) : void {
@@ -137,7 +138,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
             // Unbind the event listener on clean up
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [ref, props]);
+    }, [ref, props.open]);
 
     useEffect(()=>{
         if(props.market){
@@ -167,8 +168,11 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
     const handleMaxRepay = async () => {
         const maxAffordable = props.market ? await props.getMaxAmount(
             props.market, "repay") : BigNumber.from("0")
+
         const fullRepayAmount = props.market ? await props.getMaxRepayAmount(
             props.market) : BigNumber.from("0")
+
+        
             
         const isFull = maxAffordable.gteSafe(fullRepayAmount)
         console.log(`maxAfforable: ${maxAffordable}\nfullRepay: ${fullRepayAmount}\nFull Repay: ${isFull}`)

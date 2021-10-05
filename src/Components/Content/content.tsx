@@ -15,7 +15,7 @@ import { fetchData} from "./fetchData"
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
-const gasLimit = "250000";
+//const gasLimit = "150000";
 // const gasLimitSupplyDai = "535024";
 // const gasLimitSupplySnx = "450000";
 // const gasLimitSupplySusd = "450000";
@@ -216,6 +216,8 @@ const Content: React.FC<Props> = (props : Props) => {
         setMarketsData(null)
         setGeneralData(null)
         setSelectedMarket(null)
+        setOpenBorrowMarketDialog(false)
+        setOpenSupplyDialog(false)
         if(updateHandle) clearTimeout(updateHandle)
         props.setSpinnerVisible(true)
         setUpdate(false)
@@ -234,47 +236,30 @@ const Content: React.FC<Props> = (props : Props) => {
 
     const getMaxAmount = async (market: CTokenInfo, func?: string) : Promise<BigNumber> => {
         if (market.isNativeToken && props.provider) {
-          const gasPrice = BigNumber.from((await props.provider.getGasPrice()).toString(), 9)
-          let gaslimit = BigNumber.from(gasLimit)
-          if(func === "repay" && provider.current){
-            const value = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.toString(), market.decimals)
-            if (value.gt(BigNumber.from("0"))){
-              const am = {value: value._value} 
+          const gasRemainder = BigNumber.parseValue("0.1")
           
-              const signer = provider.current.getSigner()
-              const tokenABI = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
-              const ctoken = new ethers.Contract(market.pTokenAddress, tokenABI, signer)
-              gaslimit = BigNumber.from(await ctoken.estimateGas.repayBorrow(am)).mul(BigNumber.from("12"))
-            }
+          if(func === "repay" && provider.current){
+            const balance = market.borrowBalanceInTokenUnit.subSafe(gasRemainder)
+            return balance.gt(BigNumber.from("0")) ? balance : BigNumber.from("0") 
           }
           else if(func === "supply" && provider.current){
-            const tempPrice = BigNumber.from((gasPrice.mul(gaslimit))._value, 18)
-            const tempBalance = market.walletBalance.sub(tempPrice)
-            if(tempBalance.gt(BigNumber.from("0"))){
-              const value = BigNumber.parseValueSafe(tempBalance.toString(), market.decimals)
-              const am = {value: value._value}
-              const signer = provider.current.getSigner()
-              const ctoken = new ethers.Contract(market.pTokenAddress, CETHER_ABI, signer)
-              gaslimit = BigNumber.from(await ctoken.estimateGas.mint(am)).mul(BigNumber.from("12"))
-            }
+            const balance = market.walletBalance.gt(BigNumber.from("0")) ? market.walletBalance.sub(gasRemainder) : market.walletBalance
+          
+            return balance.gt(BigNumber.from("0")) ? balance : BigNumber.from("0") 
           }
-          const price = BigNumber.from((gasPrice.mul(gaslimit))._value, 18)
-          const balance = market.walletBalance.gt(BigNumber.from("0")) ? market.walletBalance.sub(price) : market.walletBalance
-         
-          return balance
         }
         
       return market.walletBalance
     }
 
     const getMaxRepayAmount = async (market: CTokenInfo) : Promise<BigNumber> => {
-      
-      
       if(market.isNativeToken) handleUpdate(market, "repay")
-      const maxRepayFactor = !market.isNativeToken ? BigNumber.parseValueSafe((1 + +market.borrowRatePerBlock.toString()).noExponents(), market.decimals) :
-       BigNumber.parseValueSafe((1 + +market.borrowRatePerBlock.toString()).noExponents(), market.decimals)//BigNumber.from("1").add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
-      const amount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), market.decimals)
-      console.log(`market.borrowRatePerBlock: ${(+market.borrowRatePerBlock.toString()).noExponents()}\n maxRepayFactor: ${maxRepayFactor.toString()}\nAmount: ${amount}\nmarket.borrowBalanceInTokenUnit: ${market.borrowBalanceInTokenUnit}`)
+      
+      const maxRepayFactor = BigNumber.from("1").addSafe(market.borrowRatePerBlock)//BigNumber.from("1").add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
+      
+       const amount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), market.decimals)
+      
+       console.log(`market.borrowRatePerBlock: ${(+market.borrowRatePerBlock.toString()).noExponents()}\n maxRepayFactor: ${maxRepayFactor.toString()}\nAmount: ${amount}\nmarket.borrowBalanceInTokenUnit: ${market.borrowBalanceInTokenUnit}\nDecimals: ${market.decimals}`)
       
       return amount // The same as ETH for now. The transaction will use -1 anyway.
     }

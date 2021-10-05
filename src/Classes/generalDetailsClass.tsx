@@ -93,7 +93,7 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], compAccrue
     
     const totalBorrowLimitUsedPercent = totalBorrowLimit.gt(BigNumber.from(0)) ? BigNumber.parseValue(temp.toFixed(18)) : BigNumber.from("0")
     //console.log(`yearSupply: ${yearSupplyInterest.toString()}\nyrarBorrow: ${yearBorrowInterest.toString()}\ntotalSupply: ${totalSupplyBalance.toString()}`)
-    const tempNetApy = +totalSupplyBalance > 0 ? (+yearSupplyInterest.toString() - +yearBorrowInterest.toString()) / +totalSupplyBalance.toString() : 0
+    const tempNetApy = +totalSupplyBalance.toString() - +totalBorrowBalance.toString() > 0 ? (+yearSupplyInterest.toString() - +yearBorrowInterest.toString()) / (+totalSupplyBalance.toString() - +totalBorrowBalance.toString()) : 0
     //const netApy = totalSupplyBalance.gt(BigNumber.from("0")) ? (yearSupplyInterest.subSafe(yearBorrowInterest)).divSafe(totalSupplyBalance) : BigNumber.from("0")
     const  netApy = BigNumber.parseValue(tempNetApy.noExponents())
 
