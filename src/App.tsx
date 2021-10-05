@@ -154,7 +154,6 @@ const App: React.FC = () => {
     else{
       try {
         const chain = window.ethereum.chainId
-        setAddress("0x87616fA850c87a78f307878f32D808dad8f4d401")
         if(networkRef.current && networkRef.current.chainId === chain){
           try{
             const prov = new ethers.providers.Web3Provider(window.ethereum)

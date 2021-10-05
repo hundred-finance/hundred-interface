@@ -76,6 +76,7 @@
 .general-details-item .general-details-item-content .general-details-item-content-item label{
     opacity: 0.7;
     font-size: 1rem;
+    position: relative;
 }
 
 .general-details-item .general-details-item-content .general-details-item-content-item span{
@@ -97,6 +98,11 @@
 .general-details-item .general-details-item-content .general-details-item-content-item .value-details{
     font-size: 0.8rem;
     opacity: 0.7;
+}
+
+
+.info-circle{
+    margin-left: 5px;
 }
 
 @media (max-width: 274px){
