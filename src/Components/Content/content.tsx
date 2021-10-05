@@ -243,7 +243,7 @@ const Content: React.FC<Props> = (props : Props) => {
             return balance.gt(BigNumber.from("0")) ? balance : BigNumber.from("0") 
           }
           else if(func === "supply" && provider.current){
-            const balance = market.walletBalance.gt(BigNumber.from("0")) ? market.walletBalance.sub(gasRemainder) : market.walletBalance
+            const balance = market.walletBalance.gt(BigNumber.from("0")) ? market.walletBalance.subSafe(gasRemainder) : market.walletBalance
           
             return balance.gt(BigNumber.from("0")) ? balance : BigNumber.from("0") 
           }
