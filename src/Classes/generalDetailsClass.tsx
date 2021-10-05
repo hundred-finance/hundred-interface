@@ -45,7 +45,7 @@ export class GeneralDetailsData{
     }
 }
 
-export const getGeneralDetails = (marketsData: (CTokenInfo | null)[]) : GeneralDetailsData => {
+export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], compAccrued: BigNumber) : GeneralDetailsData => {
     let totalSupplyBalance = BigNumber.from("0")
     let totalBorrowBalance = BigNumber.from("0")
     let allMarketsTotalSupplyBalance = BigNumber.from("0")
@@ -83,6 +83,8 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[]) : GeneralD
         totalAccrued += market.accrued
       }          
     })
+
+    totalAccrued += +compAccrued.toString()
 
     const totalBorrowLimitTemp: number = +totalBorrowLimit.toFixed(18)
     const totalBorrowBalanceTemp: number = +totalBorrowBalance.toFixed(18)

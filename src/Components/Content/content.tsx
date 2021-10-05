@@ -115,7 +115,7 @@ const Content: React.FC<Props> = (props : Props) => {
         callUpdate()
     },[props.updateEarned])
 
-    const updateMarkets = (markets: CTokenInfo[], hndBalance: BigNumber, hundredBalace: BigNumber, cToken?: CTokenInfo, spinner?: string): void =>{
+    const updateMarkets = (markets: CTokenInfo[], hndBalance: BigNumber, hundredBalace: BigNumber, compAccrued: BigNumber, cToken?: CTokenInfo, spinner?: string): void =>{
       if(marketsRef.current){
         markets.map((m) => {
           if(marketsRef.current && m){
@@ -140,7 +140,7 @@ const Content: React.FC<Props> = (props : Props) => {
           return true
         })
       }
-      const data = getGeneralDetails(markets)
+      const data = getGeneralDetails(markets, compAccrued)
       setMarketsData(markets)
       setGeneralData(data)
       props.setHndEarned(data.earned)
@@ -163,7 +163,7 @@ const Content: React.FC<Props> = (props : Props) => {
         if(provider.current && comptrollerDataRef.current){
           const markets = await fetchData(comptrollerDataRef.current.allMarkets, userAddress.current, comptrollerDataRef.current, network.current, marketsRef.current, provider.current, hndPriceRef.current)
           
-          updateMarkets(markets.markets, markets.hndBalance, markets.hundredBalace, cToken, spinnerUpdate)
+          updateMarkets(markets.markets, markets.hndBalance, markets.hundredBalace, markets.comAccrued, cToken, spinnerUpdate)
         }
       }
     }
