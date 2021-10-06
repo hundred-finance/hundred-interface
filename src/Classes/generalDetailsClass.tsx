@@ -83,7 +83,7 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], compAccrue
         totalAccrued += market.accrued
       }          
     })
-    
+
     totalAccrued += +compAccrued._value
     
 
@@ -110,5 +110,5 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], compAccrue
                             +totalSupplyBalance.toString() > 0 ? BigNumber.parseValue((+yearSupplyHndRewards.toString() / +totalSupplyBalance.toString() * 100).noExponents()) : BigNumber.from(0),
                             +totalBorrowBalance.toString() > 0 ? BigNumber.parseValue((+yearBorrowHndRewards.toString() / +totalBorrowBalance.toString()).noExponents()) : BigNumber.from(0),
                             totalLiquidity,
-                            BigNumber.from(totalAccrued.noExponents(), 18))
+                            BigNumber.parseValue((totalAccrued/1e18).noExponents()))
   }
