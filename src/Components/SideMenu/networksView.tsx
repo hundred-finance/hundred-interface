@@ -57,7 +57,7 @@ const NetworksView : React.FC<Props> = ({network} : Props) => {
                                                     decimals: 18
                                                 },
                                                 rpcUrls: item.rpcUrls ? item.rpcUrls : [],
-                                                blockExplorerUrls: item.blockExplorelUrls ? item.blockExplorelUrls : []
+                                                blockExplorerUrls: item.blockExplorerUrls ? item.blockExplorerUrls : []
                                             }
         
         if (window.ethereum) {

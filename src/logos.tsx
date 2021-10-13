@@ -127,7 +127,9 @@ const Logos: { [key: string]: string } = {
     "KNC"       : KNClogo,
     "MANA"      : MANAlogo,
     "ARBITRUM"  : ARBITRUMlogo,
-    "HND"       : HUNDREDlogo
+    "HND"       : HUNDREDlogo,
+    "ONE"       : ETHlogo,
+    "tUSDC"     : USDClogo
 }
 
 export default Logos

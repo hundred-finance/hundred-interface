@@ -67,14 +67,14 @@ export type MarketDataType = {
   
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const fetchData = async(allMarkets:string[], userAddress: string, comptrollerData: Comptroller, network: Network, marketsData: (CTokenInfo | null)[] | null | undefined, provider: any, hndPrice: number) : Promise<MarketDataType> => {
-    const ethcallComptroller = new Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI)
+    const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
     const calls= [ethcallComptroller.getAssetsIn(userAddress)]
 
     calls.push(ethcallComptroller.compAccrued(userAddress))
 
-    const balanceContract = new Contract(network.HUNDRED_ADDRESS, HUNDRED_ABI)
+    const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI)
     calls.push(balanceContract.balanceOf(userAddress))
-    if(network.HUNDRED_CONTRACT_ADDRESS) calls.push(balanceContract.balanceOf(network.HUNDRED_CONTRACT_ADDRESS))
+    if(network.hundredLiquidityPoolAddress) calls.push(balanceContract.balanceOf(network.hundredLiquidityPoolAddress))
 
     const markets = allMarkets.filter((a) => {
       if (a.toLowerCase() === "0xc98182014c90baa26a21e991bfec95f72bd89aed")
@@ -82,7 +82,7 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
       return true
     })
   
-    const nativeToken = markets.find(a => a.toLowerCase() === network.token.toLowerCase())
+    const nativeToken = markets.find(a => a.toLowerCase() === network.nativeTokenMarketAddress.toLowerCase())
     if (nativeToken){
       const cToken = new Contract(nativeToken, CTOKEN_ABI)
       calls.push(cToken.getAccountSnapshot(userAddress),
@@ -101,7 +101,7 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     }
     
     const notNativeMarkets = markets.filter((a) => {
-      if (a.toLowerCase() === network.token.toLowerCase()) 
+      if (a.toLowerCase() === network.nativeTokenMarketAddress.toLowerCase()) 
         return false
       return true  
     })
@@ -157,7 +157,7 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     let hndBalance = BigNumber.from("0")
     let hundredBalace = BigNumber.from("0")
 
-    const compareLength = network.HUNDRED_CONTRACT_ADDRESS ? notNativeMarkets.length * 19 + 17 : notNativeMarkets.length * 19 + 16
+    const compareLength = network.hundredLiquidityPoolAddress ? notNativeMarkets.length * 19 + 17 : notNativeMarkets.length * 19 + 16
     
     if(res && res.length === compareLength){
         
@@ -166,7 +166,7 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
       compAccrued = BigNumber.from(res[1], 18)
       hndBalance = BigNumber.from(res[2], 18)
 
-      if(network.HUNDRED_CONTRACT_ADDRESS){
+      if(network.hundredLiquidityPoolAddress){
           hundredBalace = BigNumber.from(res[3], 18)
           res.splice(0, 4)
       }

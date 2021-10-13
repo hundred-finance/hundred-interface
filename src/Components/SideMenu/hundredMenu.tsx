@@ -24,7 +24,7 @@ const HundredMenu: React.FC<Props> = (props: Props) => {
     const [tvl, setTvl] = useState<BigNumber | null>(null)
 
     useEffect(() => {
-        if(props.network  && props.network.HUNDRED_CONTRACT_ADDRESS && props.hundredBalance){
+        if(props.network  && props.network.hundredLiquidityPoolAddress && props.hundredBalance){
             const temp = +props.hundredBalance.toString() * 2 * props.hndPrice
             setTvl(BigNumber.parseValue(temp.noExponents()))
         }

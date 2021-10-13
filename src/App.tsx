@@ -261,7 +261,7 @@ const App: React.FC = () => {
         setHndSpinner(true)
         setSpinnerVisible(true)
         const signer = provider.getSigner()
-        const comptroller = new ethers.Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI, signer)
+        const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, signer)
         const tx = await comptroller.claimComp(address)
         setSpinnerVisible(false)
         console.log(tx)

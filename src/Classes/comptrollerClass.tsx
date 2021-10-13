@@ -45,30 +45,33 @@ export class Comptroller{
 export const getComptrollerData = async (provider: any, network: Network): Promise<Comptroller> => {
     const ethcallProvider = new Provider()
     await ethcallProvider.init(provider)
-    const ethcallComptroller = new Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI)
+    if(network.multicallAddress) {
+        ethcallProvider.multicallAddress = network.multicallAddress
+    }
+    const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
 
     const [oracleAddress, allMarkets] = await ethcallProvider.all([ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets()]) 
-    const comptroller = new ethers.Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI, provider)
+    const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
     //   const oracleAddress = await comptroller.oracle()
        const oracle = new Contract(oracleAddress, ORACLE_ABI)
     //   const allMarkets =  await comptroller.getAllMarkets()
     //   const enteredMarkets = await comptroller.getAssetsIn(userAddress)
    
-    return new Comptroller(network.UNITROLLER_ADDRESS, ethcallComptroller, comptroller, oracle, allMarkets, ethcallProvider)
+    return new Comptroller(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets, ethcallProvider)
   }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const getComptrollerData2 = async (provider: any, userAddress: string, network: Network): Promise<Comptroller2> => {
     const ethcallProvider = new Provider()
     await ethcallProvider.init(provider)
-    const ethcallComptroller = new Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI)
+    const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
 
     const [oracleAddress, allMarkets, enteredMarkets] = await ethcallProvider.all([ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets(), ethcallComptroller.getAssetsIn(userAddress)]) 
-    const comptroller = new ethers.Contract(network.UNITROLLER_ADDRESS, COMPTROLLER_ABI, provider)
+    const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
     //   const oracleAddress = await comptroller.oracle()
        const oracle = new ethers.Contract(oracleAddress, ORACLE_ABI, provider)
     //   const allMarkets =  await comptroller.getAllMarkets()
     //   const enteredMarkets = await comptroller.getAssetsIn(userAddress)
    
-    return new Comptroller2(network.UNITROLLER_ADDRESS, ethcallComptroller, comptroller, oracle, allMarkets, enteredMarkets, ethcallProvider)
+    return new Comptroller2(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets, enteredMarkets, ethcallProvider)
   }
