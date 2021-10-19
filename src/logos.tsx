@@ -60,6 +60,7 @@ import KNClogo from "./assets/images/KNC-logo.png"
 import MANAlogo from "./assets/images/MANA-logo.png"
 import ARBITRUMlogo from "./assets/images/ARBITRUM-logo.png"
 import HUNDREDlogo from "./assets/images/HUNDRED-logo.png"
+import ONElogo from "./assets/images/ONE-logo.svg"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -128,7 +129,7 @@ const Logos: { [key: string]: string } = {
     "MANA"      : MANAlogo,
     "ARBITRUM"  : ARBITRUMlogo,
     "HND"       : HUNDREDlogo,
-    "ONE"       : ETHlogo,
+    "ONE"       : ONElogo,
     "tUSDC"     : USDClogo
 }
 

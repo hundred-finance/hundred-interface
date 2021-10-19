@@ -1,5 +1,5 @@
 import React from "react"
-import HundredButton from "../../HundredButton/hundredButton"
+import HundredButton from "../HundredButton/hundredButton"
 import { Network } from "../../networks"
 import AddressButton from "../AddressButton/addressButton"
 import Navbar from "../Navbar/navbar"

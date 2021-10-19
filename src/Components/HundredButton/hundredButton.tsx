@@ -1,7 +1,7 @@
 import React from "react"
 import { useRef } from "react"
-import { Network } from "../networks"
-import Logos from "../logos"
+import { Network } from "../../networks"
+import Logos from "../../logos"
 import "./hundredButton.css"
 
 interface Props{

@@ -139,7 +139,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         symbol: "ONE",
         rpcUrls: ["https://api.s0.b.hmny.io"],
         blockExplorerUrls: ["https://explorer.testnet.harmony.one/"],
-        logo: Logos["ETH"],
+        logo: Logos["ONE"],
         name: "ONE",
         blocksPerYear: 15017140,
         nativeTokenMarketAddress: "0xfCD8570AD81e6c77b8D252bEbEBA62ed980BD64D",

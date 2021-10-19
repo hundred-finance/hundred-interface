@@ -11,7 +11,7 @@ import NavBarRight from "../Navbar/navBarRight"
 import ThemeSwitch from "../Navbar/themeSwitch"
 import { Network } from "../../networks"
 import NetworkButton from "../NetworkButton/networkButton"
-import HundredButton from "../../HundredButton/hundredButton"
+import HundredButton from "../HundredButton/hundredButton"
 // import SideMenuButton from "../Navbar/sideMenuButton"
 
 interface Props{

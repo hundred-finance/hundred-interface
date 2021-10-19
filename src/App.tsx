@@ -20,7 +20,6 @@ import 'react-toastify/dist/ReactToastify.css'
 import HundredMenu from './Components/SideMenu/hundredMenu';
 import { BigNumber } from './bigNumber';
 
-
 declare global {
   interface Window {
     ethereum: any
@@ -41,7 +40,7 @@ const App: React.FC = () => {
   // const setAddressRef = useRef<React.Dispatch<React.SetStateAction<string>>>(setAddress)
   // const setProviderRef = useRef<React.Dispatch<React.SetStateAction<ethers.providers.Web3Provider | null>>>(setProvider)
   const networkRef = useRef<Network | null>(null)
-
+ 
   networkRef.current = network
 
   const [sideMenu, setSideMenu] = useState<boolean>(false)
@@ -178,6 +177,9 @@ const App: React.FC = () => {
     if(networkRef.current)
     {
       setOpenNetwork(false)
+      // if(networkRef.current.chainId !== "0xa4b1")
+      //   if(messageRef.current)
+      //     messageRef.current.show()
       try{
         const prov = new ethers.providers.Web3Provider(window.ethereum)
         if(address) setSpinnerVisible(true)
@@ -345,6 +347,7 @@ const App: React.FC = () => {
       </SideMenu>
       <ReactToolTip id="tooltip" effect="solid"/>
       <Spinner open={spinnerVisible} theme={theme}/>
+      {/* <MessageModal ref={messageRef} showNetworks={setOpenNetwork}/> */}
     </div>
     : <div className="App">
       </div>
