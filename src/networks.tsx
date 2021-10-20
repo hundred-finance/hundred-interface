@@ -136,7 +136,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
     {
         chainId: "0x6357d2e0",
         network: "Harmony Testnet Shard 0",
-        symbol: "ONE",
+        symbol: "ETH",
         rpcUrls: ["https://api.s0.b.hmny.io"],
         blockExplorerUrls: ["https://explorer.testnet.harmony.one/"],
         logo: Logos["ONE"],
