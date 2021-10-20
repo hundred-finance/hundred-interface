@@ -61,6 +61,8 @@ import MANAlogo from "./assets/images/MANA-logo.png"
 import ARBITRUMlogo from "./assets/images/ARBITRUM-logo.png"
 import HUNDREDlogo from "./assets/images/HUNDRED-logo.png"
 import ONElogo from "./assets/images/ONE-logo.svg"
+import OPTlogo from "./assets/images/OPT-logo.png"
+import IOTXlogo from "./assets/images/IOTX-logo.svg"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -130,7 +132,10 @@ const Logos: { [key: string]: string } = {
     "ARBITRUM"  : ARBITRUMlogo,
     "HND"       : HUNDREDlogo,
     "ONE"       : ONElogo,
-    "tUSDC"     : USDClogo
+    "tUSDC"     : USDClogo,
+    "OPT"       : OPTlogo,
+    "IOTX"      : IOTXlogo,
+    "IOTX-T"    : IOTXlogo
 }
 
 export default Logos

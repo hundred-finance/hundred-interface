@@ -147,6 +147,38 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         multicallAddress: "0xd078799c53396616844e2fa97f0dd2b4c145a685"
+    },
+    "0x45":
+    {
+        chainId: "0x45",
+        network: "Optimism Kovan",
+        symbol: "ETH",
+        rpcUrls: ["https://api.s0.b.hmny.io"],
+        blockExplorerUrls: ["https://explorer.testnet.harmony.one/"],
+        logo: Logos["OPT"],
+        name: "OPT",
+        blocksPerYear: 15017140,
+        nativeTokenMarketAddress: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
+        unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
+        hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
+        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        multicallAddress: "0x19ead25619352ea106f25a1c870c0a4df65faa75"
+    },
+    "0x1252":
+    {
+        chainId: "0x1252",
+        network: "IoTeX Testnet",
+        symbol: "IOTX",
+        rpcUrls: ["https://babel-api.testnet.iotex.io"],
+        blockExplorerUrls: ["https://testnet.iotexscan.io/"],
+        logo: Logos["IOTX"],
+        name: "IOTX-T",
+        blocksPerYear: 6307200,
+        nativeTokenMarketAddress: "",
+        unitrollerAddress: "0x8c6139ff1e9d7c1e32bdafd79948d0895ba0a831",
+        hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
+        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        multicallAddress: "0x25bb701a0ce238faecaec56b437460a372d7f139"
     }
 }
 
