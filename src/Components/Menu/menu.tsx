@@ -36,6 +36,7 @@ const Menu : React.FC<Props> = (props: Props) => {
                   <NavBarLinks>
                     <NavbarLink link="https://dashboard.hundred.finance" target="_blank">Dashboard</NavbarLink>
                     <NavbarLink link="https://anyswap.exchange/#/router" target="_blank">Bridge</NavbarLink>
+                    <NavbarLink link="https://docs.hundred.finance" target="_blank">Docs</NavbarLink>
                   </NavBarLinks>
                 </NavbarLeft>
                 <NavBarRight>
