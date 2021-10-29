@@ -63,6 +63,10 @@ import HUNDREDlogo from "./assets/images/HUNDRED-logo.png"
 import ONElogo from "./assets/images/ONE-logo.svg"
 import OPTlogo from "./assets/images/OPT-logo.png"
 import IOTXlogo from "./assets/images/IOTX-logo.svg"
+import MIMlogo from "./assets/images/MIM-logo.svg"
+import FRAXlogo from "./assets/images/FRAX-logo.svg"
+import SPELLlogo from "./assets/images/SPELL-logo.svg"
+import DODOlogo from "./assets/images/DODO-logo.svg"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -135,7 +139,11 @@ const Logos: { [key: string]: string } = {
     "tUSDC"     : USDClogo,
     "OPT"       : OPTlogo,
     "IOTX"      : IOTXlogo,
-    "IOTX-T"    : IOTXlogo
+    "IOTX-T"    : IOTXlogo,
+    "MIM"       : MIMlogo,
+    "FRAX"      : FRAXlogo,
+    "SPELL"     : SPELLlogo,
+    "DODO"      : DODOlogo
 }
 
 export default Logos
