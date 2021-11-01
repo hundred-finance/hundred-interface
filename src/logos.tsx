@@ -34,7 +34,7 @@ import ATOMlogo from "./assets/images/ATOM-logo.png"
 import AUTOlogo from "./assets/images/AUTO-logo.png"
 import BANDlogo from "./assets/images/BAND-logo.png"
 import BCHlogo from "./assets/images/BCH-logo.png"
-import BTCBlogo from "./assets/images/BTCB-logo.png"
+// import BTCBlogo from "./assets/images/BTCB-logo.png"
 import CAKElogo from "./assets/images/CAKE-logo.png"
 import CREAMlogo from "./assets/images/CREAM-logo.png"
 import DFlogo from "./assets/images/DF-logo.png"
@@ -68,6 +68,7 @@ import FRAXlogo from "./assets/images/FRAX-logo.svg"
 import SPELLlogo from "./assets/images/SPELL-logo.svg"
 import DODOlogo from "./assets/images/DODO-logo.svg"
 import FTMlogo from "./assets/images/FTM-logo\.svg"
+import BTClogo from "./assets/images/BTC-logo.svg"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -110,7 +111,7 @@ const Logos: { [key: string]: string } = {
     "AUTO"      : AUTOlogo,
     "BAND"      : BANDlogo,
     "BCH"       : BCHlogo,
-    "BTCB"      : BTCBlogo,
+    "BTCB"      : BTClogo,
     "Cake"      : CAKElogo,
     "CREAM"     : CREAMlogo,
     "DF"        : DFlogo,
@@ -146,7 +147,8 @@ const Logos: { [key: string]: string } = {
     "SPELL"     : SPELLlogo,
     "DODO"      : DODOlogo,
     "FTM"       : FTMlogo,
-    "fUSDT"     : USDTlogo
+    "fUSDT"     : USDTlogo,
+    "BTC"       : BTClogo
 }
 
 export default Logos
