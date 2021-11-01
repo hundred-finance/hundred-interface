@@ -67,6 +67,7 @@ import MIMlogo from "./assets/images/MIM-logo.svg"
 import FRAXlogo from "./assets/images/FRAX-logo.svg"
 import SPELLlogo from "./assets/images/SPELL-logo.svg"
 import DODOlogo from "./assets/images/DODO-logo.svg"
+import FTMlogo from "./assets/images/FTM-logo\.svg"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -143,7 +144,8 @@ const Logos: { [key: string]: string } = {
     "MIM"       : MIMlogo,
     "FRAX"      : FRAXlogo,
     "SPELL"     : SPELLlogo,
-    "DODO"      : DODOlogo
+    "DODO"      : DODOlogo,
+    "FTM"       : FTMlogo
 }
 
 export default Logos
