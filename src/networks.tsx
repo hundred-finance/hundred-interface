@@ -59,6 +59,22 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         hundredLiquidityPoolAddress: "0x65E17c52128396443d4A9A61EaCf0970F05F8a20"
     },
+    "0xfa": {
+        chainId: "0xfa",
+        network: "Fantom Opera", 
+        symbol: "FTM",
+        rpcUrls: ["https://rpc.ftm.tools/"],
+        blockExplorerUrls: ["https://ftmscan.com/"],
+        logo: Logos["FTM"],
+        name: "FTM",
+        blocksPerYear: 24*60*60*365,
+        nativeTokenMarketAddress: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
+        blockRpc: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+        unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
+        hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
+        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        hundredLiquidityPoolAddress: "0x65E17c52128396443d4A9A61EaCf0970F05F8a20"
+    }
     // "0x64": {
     //     chainId: "0x64",
     //     network: "xDai", 

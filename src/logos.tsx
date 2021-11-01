@@ -145,7 +145,8 @@ const Logos: { [key: string]: string } = {
     "FRAX"      : FRAXlogo,
     "SPELL"     : SPELLlogo,
     "DODO"      : DODOlogo,
-    "FTM"       : FTMlogo
+    "FTM"       : FTMlogo,
+    "fUSDT"     : USDTlogo
 }
 
 export default Logos
