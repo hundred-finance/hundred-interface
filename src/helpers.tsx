@@ -96,4 +96,12 @@ export const compareSymbol = (a: CTokenInfo | null, b: CTokenInfo | null): numbe
   return 0;
 }
 
-
+export const compareLiquidity = (a: CTokenInfo | null, b: CTokenInfo | null): number => {
+  if(a && b){
+    if(+a.liquidity.toString() > +b.liquidity.toString())
+      return -1
+    else if(+a.liquidity.toString() < +b.liquidity.toString())
+      return 1
+  }
+  return 0
+}

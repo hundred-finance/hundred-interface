@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import "../style.css"
 import SupplyMarketRow from "./supplyMarketRow"
-import {compareSymbol} from "../../../helpers"
+import {compareSymbol, compareLiquidity} from "../../../helpers"
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
 import { BigNumber } from "../../../bigNumber"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
@@ -53,7 +53,7 @@ const SupplyMarket: React.FC<Props> = (props : Props) => {
                     </tr>
                   )}
                   {props.marketsData?.filter((item) => item?.supplyBalance?.gt(BigNumber.from("0")))
-                    .sort(compareSymbol)
+                    .sort(compareSymbol).sort(compareLiquidity)
                     .map((details, index) => (
                       <SupplyMarketRow key={index} tooltip={`supply-${index}`} details={details} enterMarketDialog={props.enterMarketDialog} 
                         supplyMarketDialog={props.supplyMarketDialog}/>
@@ -76,7 +76,7 @@ const SupplyMarket: React.FC<Props> = (props : Props) => {
                     </tr>
                   )}
                   {props.marketsData?.filter((item) => item?.supplyBalance?.lte(BigNumber.from("0")))
-                    .sort(compareSymbol)
+                    .sort(compareSymbol).sort(compareLiquidity)
                     .map((details, index) => {
                       if(props.more || (!props.more && index < 6)) 
                         return (

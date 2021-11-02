@@ -1,6 +1,6 @@
 import React from "react"
 import BorrowMarketRow from "./borrowMarketRow"
-import {compareSymbol} from "../../../helpers"
+import {compareLiquidity, compareSymbol} from "../../../helpers"
 
 import "../style.css"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
@@ -47,7 +47,7 @@ const BorrowMarket: React.FC<Props> = (props : Props) => {
                     </tr>
                   )}
                   {props.marketsData?.filter((item) => item?.borrowBalance?.gt(BigNumber.from("0")))
-                    .sort(compareSymbol)
+                    .sort(compareSymbol).sort(compareLiquidity)
                     .map((details, index) => (
                       <BorrowMarketRow key={index} details={details} borrowMarketDialog={props.borrowMarketDialog}/>
                     ))}
@@ -70,7 +70,7 @@ const BorrowMarket: React.FC<Props> = (props : Props) => {
                     </tr>
                   )}
                   {props.marketsData?.filter((item) => item?.borrowBalance?.lte(BigNumber.from("0")))
-                    .sort(compareSymbol)
+                    .sort(compareSymbol).sort(compareLiquidity)
                     .map((details, index) => {
                       if(props.more || (!props.more && index < 6))
                         return (
