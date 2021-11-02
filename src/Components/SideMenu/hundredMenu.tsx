@@ -35,8 +35,8 @@ const HundredMenu: React.FC<Props> = (props: Props) => {
         <div className="hundred-menu">
             <hr/>
             <div className="hundred-menu-item">
-                <div className="hundred-menu-item-label"><label>HND Price </label><span>${BigNumber.parseValue(props.hndPrice.toString()).toRound(2, true)}</span></div>
-                {tvl ? <div className="hundred-menu-item-label"><label>TVL</label><span>${tvl.toRound(2, true)}</span></div> : null}
+                <div className="hundred-menu-item-label"><label>HND Price </label><span>${BigNumber.parseValue(props.hndPrice.toString()).toRound(2, true, true)}</span></div>
+                {tvl ? <div className="hundred-menu-item-label"><label>TVL</label><span>${tvl.toRound(2, true, true)}</span></div> : null}
                 {props.network  && props.network.trade ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={props.network.trade} target="_blank" rel="noreferrer">Trade</a></div> : null}
                 {props.network  && props.network.addLiquidity ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={props.network.addLiquidity} target="_blank" rel="noreferrer">Add Liquidity</a></div> : null}
                 {props.network  && props.network.stakeLp ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={props.network.stakeLp} target="_blank" rel="noreferrer">Stake LP</a></div> : null}

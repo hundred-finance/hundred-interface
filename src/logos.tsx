@@ -148,7 +148,7 @@ const Logos: { [key: string]: string } = {
     "DODO"      : DODOlogo,
     "FTM"       : FTMlogo,
     "fUSDT"     : USDTlogo,
-    "BTC"       : BTClogo
+    "BTC"       : WBTClogo
 }
 
 export default Logos
