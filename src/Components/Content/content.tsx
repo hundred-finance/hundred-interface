@@ -122,7 +122,7 @@ const Content: React.FC<Props> = (props : Props) => {
             const market = marketsRef.current.find(x => x?.symbol === m.symbol)
             if (market){
               if(cToken && market.symbol === cToken.symbol && spinner){
-                m.spinner = market.spinner
+                m.spinner = spinner === "spinner" ? false : market.spinner
                 m.supplySpinner = spinner==="supply" ? false : market.supplySpinner
                 m.withdrawSpinner = spinner === "withdraw" ? false : market.withdrawSpinner
                 m.borrowSpinner = spinner === "borrow" ? false : market.borrowSpinner
@@ -188,12 +188,12 @@ const Content: React.FC<Props> = (props : Props) => {
       catch (error) {
         console.log(error)
         if(marketsRef.current)
-          setUpdateHandle(setTimeout(handleUpdate, (updateErrorCounterRef.current < 2 ? updateErrorCounterRef.current + 1 : updateErrorCounterRef.current) * 10000 + 10000))
+          setUpdateHandle(setTimeout(handleUpdate, (updateErrorCounterRef.current < 2 ? updateErrorCounterRef.current + 1 : updateErrorCounterRef.current) * 10000 + 10000, market, spinnerUpdate))
         else{
           if(updateErrorCounterRef.current < 2)
-            setUpdateHandle(setTimeout(handleUpdate, (updateErrorCounterRef.current + 1) * 1000 ))
+            setUpdateHandle(setTimeout(handleUpdate, (updateErrorCounterRef.current + 1) * 1000, market, spinnerUpdate ))
           else if (updateErrorCounterRef.current === 3)
-            setUpdateHandle(setTimeout(handleUpdate, 5000 ))
+            setUpdateHandle(setTimeout(handleUpdate, 5000, market, spinnerUpdate))
           else if (updateErrorCounterRef.current === 7)
           {
             if(spinner.current && !updateRef.current) spinner.current(false)
@@ -201,7 +201,7 @@ const Content: React.FC<Props> = (props : Props) => {
             props.toastError(`${err?.message.replace(".", "")} on Page Load\n${err?.data?.message}\nPlease refresh the page after a few minutes.`)
           }
           else
-            setUpdateHandle(setTimeout(handleUpdate, 10000 ))
+            setUpdateHandle(setTimeout(handleUpdate, 10000, market, spinnerUpdate))
         }
         setUpdateErrorCounter(updateErrorCounterRef.current+1)
       }
@@ -278,38 +278,30 @@ const Content: React.FC<Props> = (props : Props) => {
 
     const handleEnterMarket = async(symbol: string): Promise<void> => {
       if(marketsRef.current){
-        const market = marketsRef.current.find(m => m?.symbol === symbol)
+        let market = marketsRef.current.find(m => m?.symbol === symbol)
         if (market && provider.current && comptrollerDataRef.current && network.current && userAddress.current){
           try{
             if (spinner.current) spinner.current(true)
-            if(selectedMarketRef.current) selectedMarketRef.current.spinner = true
             const addr = [market.pTokenAddress]
             const signer = provider.current.getSigner()
             const signedComptroller = comptrollerDataRef.current.comptroller.connect(signer)
             const tx = await signedComptroller.enterMarkets(addr)
             if (spinner.current) spinner.current(false)
-            setOpenEnterMarket(false)
+            market = marketsRef.current.find(m => m?.symbol === symbol)
+            if(market) market.spinner = true
             console.log(tx)
+            setOpenEnterMarket(false)
             const receipt = await tx.wait()
             console.log(receipt)
-            if(receipt.status === 1){
-              const market = marketsRef.current.find(m => m?.symbol === symbol)
-              if(market)
-                market.isEnterMarket = true
-            }
           }
           catch (err){
             console.log(err)
           }
           finally{
             if (spinner.current) spinner.current(false)
-            const market = marketsRef.current.find(x=> x?.symbol === symbol)
-            if (market) market.spinner = false
-            setUpdate(true)
-            const comptroller =  await getComptrollerData(provider.current, network.current)
-            setComptrollerData(comptroller)  
-            if (selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
-              selectedMarketRef.current.spinner = false
+            market = marketsRef.current.find(x=> x?.symbol === symbol)
+            if (market) 
+              await handleUpdate(market, "spinner")
           }
         }
       }
@@ -324,31 +316,21 @@ const Content: React.FC<Props> = (props : Props) => {
             const signer = provider.current.getSigner()
             const signedComptroller = comptrollerDataRef.current.comptroller.connect(signer)
             const tx = await signedComptroller.exitMarket(market.pTokenAddress)
-            market = marketsRef.current.find(m => m?.symbol === symbol)
-            if (market) market.spinner = true
-            console.log(tx)
             if(spinner.current) spinner.current(false)
+            market.spinner = true
+            console.log(tx)
             setOpenEnterMarket(false)
             const receipt = await tx.wait() 
             console.log(receipt)
-            if(receipt.status === 1){
-              const market = marketsRef.current.find(m => m?.symbol === symbol)
-              if(market)
-                market.isEnterMarket = false
-            }
           }
           catch (err){
             console.log(err)
           }
           finally{
             if (spinner.current) spinner.current(false)
-            const market = marketsRef.current.find(x=> x?.symbol === symbol)
-            if (market) market.spinner = false
-            setUpdate(true)
-            const comptroller =  await getComptrollerData(provider.current, network.current)
-            setComptrollerData(comptroller)  
-            if (selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
-              selectedMarketRef.current.spinner = false
+            market = marketsRef.current.find(x=> x?.symbol === symbol)
+            if (market) 
+              await handleUpdate(market, "spinner")
           }
         }
       }
@@ -395,8 +377,9 @@ const Content: React.FC<Props> = (props : Props) => {
           finally{
             if (spinner.current) spinner.current(false)
             market = marketsRef.current.find(x =>x?.symbol === symbol)
-            if(market)
+            if(market){
               borrowDialog ? await handleUpdate(market, "repay") : await handleUpdate(market, "supply")
+            }
 
             // setUpdate(true)
             // if(provider.current && network.current && userAddress.current){
@@ -638,7 +621,7 @@ const Content: React.FC<Props> = (props : Props) => {
             <GeneralDetails generalData={generalData}/>
             <Markets generalData = {generalDataRef.current} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} 
               supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog} darkMode={props.darkMode}/>
-              <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
+            <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
               handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
             <SupplyMarketDialog completed={completed} open={openSupplyMarketDialog} market={selectedMarketRef.current} generalData={generalData} 
               closeSupplyMarketDialog = {closeSupplyMarketDialog} darkMode={props.darkMode} 

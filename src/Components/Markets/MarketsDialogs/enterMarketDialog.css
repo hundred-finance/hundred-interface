@@ -16,8 +16,8 @@
 }
 
 .dialog-box{
-    max-width: 60%;
-    min-width: 200px;
+    max-width: 400px;
+    min-width: 305px;
     min-height: 350px;
     -webkit-box-shadow: var(--boxShadow);
     box-shadow: var(--boxShadow);

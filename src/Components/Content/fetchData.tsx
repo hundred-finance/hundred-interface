@@ -99,8 +99,6 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
                  comptrollerData.ethcallComptroller.compSupplierIndex(nativeToken, userAddress),
                  comptrollerData.oracle.getUnderlyingPrice(nativeToken))
     }
-
-    console.log(network.nativeTokenMarketAddress)
     
     const notNativeMarkets = markets.filter((a) => {
       if (a.toLowerCase() === network.nativeTokenMarketAddress.toLowerCase()) 
