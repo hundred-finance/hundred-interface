@@ -34,7 +34,7 @@ const Menu : React.FC<Props> = (props: Props) => {
                 <NavbarLeft>
                   <NavbarLogo isMobile={props.isMobile}/>
                   <NavBarLinks>
-                    <NavbarLink link="https://staging-dash.hundred.finance" target="_blank">Dashboard</NavbarLink>
+                    <NavbarLink link="https://dashboard.hundred.finance" target="_blank">Dashboard</NavbarLink>
                     <NavbarLink link="https://anyswap.exchange/#/router" target="_blank">Bridge</NavbarLink>
                     <NavbarLink link="https://docs.hundred.finance" target="_blank">Docs</NavbarLink>
                   </NavBarLinks>
