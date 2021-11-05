@@ -29,7 +29,7 @@ const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
                     <a className='footer-link-item' href='https://migration.hundred.finance' target="_blank" rel="noreferrer">Migration</a>
                 </div>
                 <div className='footer-right'>
-                    <a href='https://hundred-finance.medium.com' target="_blank" rel="noreferrer">
+                    <a href='https://blog.hundred.finance' target="_blank" rel="noreferrer">
                         <img alt="Medium Icon" src={medium} className='footer-image' />
                     </a>
                     <a href='https://discord.gg/phK668J6dQ' target="_blank" rel="noreferrer">
