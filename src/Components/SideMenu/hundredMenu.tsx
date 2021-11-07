@@ -25,8 +25,14 @@ const HundredMenu: React.FC<Props> = (props: Props) => {
 
     useEffect(() => {
         if(props.network  && props.network.hundredLiquidityPoolAddress && props.hundredBalance){
-            const temp = +props.hundredBalance.toString() * 2 * props.hndPrice
-            setTvl(BigNumber.parseValue(temp.noExponents()))
+            if(props.network.liquidity){
+                const temp = +props.hundredBalance.toString() / (props.network.hndPoolPercent ? props.network.hndPoolPercent : 1) * props.hndPrice
+                setTvl(BigNumber.parseValue(temp.noExponents()))
+            }
+            else{
+                const temp = +props.hundredBalance.toString() * 2 * props.hndPrice
+                setTvl(BigNumber.parseValue(temp.noExponents()))
+            }
         }
         else setTvl(null)
     }, [props.hndPrice, props.hundredBalance])
@@ -36,7 +42,7 @@ const HundredMenu: React.FC<Props> = (props: Props) => {
             <hr/>
             <div className="hundred-menu-item">
                 <div className="hundred-menu-item-label"><label>HND Price </label><span>${BigNumber.parseValue(props.hndPrice.toString()).toRound(2, true, true)}</span></div>
-                {tvl ? <div className="hundred-menu-item-label"><label>TVL</label><span>${tvl.toRound(2, true, true)}</span></div> : null}
+                {tvl ? <div className="hundred-menu-item-label"><label>{props.network?.liquidity ? "Liquidity" : "TVL"}</label><span>${tvl.toRound(2, true, true)}</span></div> : null}
                 {props.network  && props.network.trade ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={props.network.trade} target="_blank" rel="noreferrer">Trade</a></div> : null}
                 {props.network  && props.network.addLiquidity ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={props.network.addLiquidity} target="_blank" rel="noreferrer">Add Liquidity</a></div> : null}
                 {props.network  && props.network.stakeLp ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={props.network.stakeLp} target="_blank" rel="noreferrer">Stake LP</a></div> : null}
