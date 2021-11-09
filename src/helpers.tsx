@@ -105,3 +105,13 @@ export const compareLiquidity = (a: CTokenInfo | null, b: CTokenInfo | null): nu
   }
   return 0
 }
+
+export const compareHndAPR = (a: CTokenInfo | null, b: CTokenInfo | null): number => {
+  if(a && b){
+    if(+a.hndAPR.toString() > +b.hndAPR.toString())
+      return -1
+    else if(+a.hndAPR.toString() < +b.hndAPR.toString())
+      return 1
+  }
+  return 0
+}

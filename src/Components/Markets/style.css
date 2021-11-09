@@ -149,6 +149,12 @@
     font-weight: bold;
 }
 
+.supply-apy{
+    display: flex;
+    align-items: flex-end;
+    justify-content: right;
+}
+
 @media (min-width: 900px){
     .markets{
         display: flex;
