@@ -1,7 +1,8 @@
 .star{
     padding: 0;
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 15px;
+    height: 15px;
     padding-right: 3px;
     margin-right: 2px;
+    margin-bottom: 2px;
 }
