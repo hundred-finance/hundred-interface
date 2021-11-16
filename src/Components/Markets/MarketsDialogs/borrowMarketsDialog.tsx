@@ -12,6 +12,8 @@ import { CTokenInfo } from "../../../Classes/cTokenClass";
 import { BigNumber } from "../../../bigNumber";
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
 import closeIcon from "../../../assets/icons/closeIcon.png"
+import ReactToolTip from 'react-tooltip'
+
 
 
 interface Props{
@@ -75,28 +77,24 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
 
     useEffect(()=>{
         const handleRepayAmountChange = () => {
-            if(repayInput===""){
+            if(repayInput ===""){
                 setRepayValidation("")
                 return
             }
-            
+            console.log(+repayInput)
             if(isNaN(+repayInput)){
                 setRepayValidation("Amount must be a number")
-                return
             }
-            const amount = BigNumber.parseValue(repayInput)
-            if (+repayInput <= 0) {
+            else if (+repayInput <= 0) {
                 setRepayValidation("Amount must be > 0");
-            } else if (!isFullRepay && props.market &&
-                amount.gt(props.market?.borrowBalanceInTokenUnit)) {
+            } else if (!isFullRepay && props.market && BigNumber.parseValue(repayInput).gt(props.market?.borrowBalanceInTokenUnit)) {
                 setRepayValidation("Amount must be <= your borrow balance");
-              } else if (props.market && amount.gt(props.market?.walletBalance)) {
+              } else if (props.market && BigNumber.parseValue(repayInput).gt(props.market?.walletBalance)) {
                 setRepayValidation("Amount must be <= balance");
               } else {
                 setRepayValidation("");
               }
         };
-        
         handleRepayAmountChange()
           // eslint-disable-next-line
     }, [repayInput])
@@ -223,8 +221,8 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                         </TabHeader>
                         <TabContent>
                             <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
-                                <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={borrowDisabled} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"MAX"}
-                                onClick={ () => handleMaxBorrow()}/>
+                                <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={borrowDisabled} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"Safe Max"}
+                                buttonTooltip="50% of borrow limit" onClick={ () => handleMaxBorrow()}/>
                                 <MarketDialogItem title={"You Borrowed"} value={`${props.market?.borrowBalanceInTokenUnit?.toRound(4, true)} ${props.market?.symbol}`}/>
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
@@ -240,7 +238,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                                 </MarketDialogButton>
                             </TabContentItem>
                             <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
-                                <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={repayDisabled} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"MAX"}
+                                <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={repayDisabled} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"Max"}
                                  onClick={ ()=> handleMaxRepay()} onChange={()=>setIsFullRepay(false)}/>
                                  <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.walletBalance?.toRound(4, true)} ${props.market?.symbol}`}/>
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
@@ -249,7 +247,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                                 <DialogMarketInfoSection market={props.market} collateralFactorText={"Liquidation Threshold"}/>
     
                                     {props.market && props.market?.underlyingAllowance?.gt(BigNumber.from("0")) &&
-                                     props.market?.underlyingAllowance?.gte(repayInput==="" ? BigNumber.from("0") : BigNumber.parseValue(repayInput)) ? 
+                                     props.market?.underlyingAllowance?.gte(repayInput==="" || isNaN(+repayInput) ? BigNumber.from("0") : BigNumber.parseValue(repayInput)) ? 
                                      (
                                         <MarketDialogButton disabled={(!repayInput || repayValidation || props.market?.repaySpinner) ? true : false}
                                             onClick={() => {props.market ? props.handleRepay(
@@ -266,6 +264,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                             </TabContentItem>
                         </TabContent>
                     </Tab>
+                    <ReactToolTip id="borrow-dialog-tooltip" effect="solid"/>
                 </div>
             </div>) : null
     )

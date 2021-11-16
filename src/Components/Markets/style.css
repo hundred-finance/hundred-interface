@@ -155,6 +155,15 @@
     justify-content: right;
 }
 
+.bpro-asset{
+    margin-left: 100px;
+    text-align: right;
+}
+
+.bpro-asset div{
+    padding-left: calc(30px + 1rem);
+}
+
 @media (min-width: 900px){
     .markets{
         display: flex;

@@ -1,12 +1,12 @@
 import React from "react"
-import "./star.css"
+import "./starBpro.css"
 import star from "../../assets/icons/rating-star.svg"
 
 interface Props {
     active: boolean
 }
 
-const Star: React.FC<Props> = (props: Props) =>{
+const StarBpro: React.FC<Props> = (props: Props) =>{
     return(
         props.active ?
             <img className="star" src={star}/>
@@ -14,4 +14,4 @@ const Star: React.FC<Props> = (props: Props) =>{
     )
 }
 
-export default Star
+export default StarBpro

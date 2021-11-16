@@ -5,6 +5,7 @@ interface Props{
     disabled: boolean,
     checked?: boolean,
     onClick?: () => void
+    switchToolTip?: string | null
 }
 
 const SwitchButton: React.FC<Props> = (props : Props) => {
@@ -15,8 +16,15 @@ const SwitchButton: React.FC<Props> = (props : Props) => {
     }
     
     return (
-        <div className={`switch ${props.checked ? "switch-checked" : ""} ${props.disabled ? "switch-button-disable" : ""}`}  onClick={handleClick}>
-            <div className={`switch-button `}>
+        props.switchToolTip ? 
+        <div data-tip={props.switchToolTip} className={`switch ${props.checked ? "switch-checked" : ""} ${props.disabled ? "switch-button-disable" : "switch-button-enabled"}`}  onClick={handleClick}>
+            <div className={`switch-button`}>
+
+            </div>
+        </div>
+        :
+        <div className={`switch ${props.checked ? "switch-checked" : ""} ${props.disabled ? "switch-button-disable" : "switch-button-enabled"}`}  onClick={handleClick}>
+            <div className={`switch-button`}>
 
             </div>
         </div>

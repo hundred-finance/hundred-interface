@@ -68,7 +68,7 @@
 
 .textbox .textbox-button .input-button{
     position: absolute;
-    width:50px;
+    width:66px;
     padding: 0 5px;
     line-height: 43px;
     text-align: center;
@@ -92,7 +92,7 @@
 }
 
 .textbox .textbox-button input{
-    padding-right: 50px;
+    padding-right: 70px;
 }
 
 

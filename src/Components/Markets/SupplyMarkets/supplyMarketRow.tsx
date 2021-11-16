@@ -5,7 +5,7 @@ import { CTokenInfo } from "../../../Classes/cTokenClass"
 import SwitchButton from "../../Switch/switch"
 
 import "../style.css"
-import Star from "../../Star/star"
+import StarBpro from "../../StarBpro/starBpro"
 
 interface Props{
   tooltip?: string,
@@ -16,12 +16,7 @@ interface Props{
 
 const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
     return (
-        <tr className={props.details?.spinner ? "disable-row" : ""}
-        /*onClick={() => {
-          setSupplyDialogOpen(true);
-          setSelectedMarketDetails(props.details);
-        }}*/
-      >
+        <tr className={props.details?.spinner ? "disable-row" : ""}>
         <td onClick={() =>props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null}>
           <div className="asset"> 
               <div className="asset-logo">
@@ -30,9 +25,9 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
               <span>{props?.details?.symbol}</span>
           </div>
         </td>
-        <td onClick={() => props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null} className={props.details ? (+props.details?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}>
+        <td onClick={() => props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null} className={`apy ${props.details ? (+props.details?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`}>
             <div className="supply-apy">
-              <Star active={props.details && +props.details?.hndAPR.toString() > 0 ? true : false}/>
+              <StarBpro active={props.details && +props.details?.hndAPR.toString() > 0 ? true : false}/>
               {`${ props.details && +props?.details?.totalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.totalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
             </div>
         </td>
@@ -40,7 +35,6 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
           <span data-tip={props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? BigNumber.parseValueSafe(props.details.supplyBalanceInTokenUnit.toString(), props.details.decimals).toString() : null}>
               {props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? BigNumber.parseValueSafe(props.details.supplyBalanceInTokenUnit.toString(), props.details.decimals).toFixed(4) : 0}
             </span>
-            {/* { props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? props.details.supplyBalanceInTokenUnit.toFixed(4) : 0} */}
         </td>
         <td onClick={() => props.details &&  !props.details.spinner ? props.supplyMarketDialog(props.details) : null}>
             <i
@@ -55,9 +49,9 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         </td>
         <td>
           <div className="spinner-container">
-            {props.details ? 
+            {props.details && +props.details.collateralFactor.toString() > 0? 
               <SwitchButton disabled={props.details.spinner} checked={props?.details?.isEnterMarket} onClick={()=>{props.details ? props.enterMarketDialog(props.details) : null}}/>
-              : <SwitchButton disabled={false}/>
+              : <SwitchButton disabled={true} switchToolTip={props.details ? +props.details.collateralFactor.toString() > 0 ? null : "Assets that earn HND can't be used as collateral": null }/>
             }
             {(props?.details?.spinner || props?.details?.supplySpinner || props?.details?.withdrawSpinner)? (<Spinner size={"20px"}/>) : null}
           </div>

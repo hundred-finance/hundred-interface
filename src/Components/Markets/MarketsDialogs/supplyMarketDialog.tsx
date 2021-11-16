@@ -117,8 +117,10 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                 if (newBorrowLimit2.gt(BigNumber.from("0"))) 
                                 console.log(`totalBorrow: ${props.generalData?.totalBorrowBalance}\nborrowLimit: ${newBorrowLimit2}\npercent${props.generalData?.totalBorrowBalance.divSafe(newBorrowLimit2).toString()}`)
             }
+
         
           handleWithdrawAmountChange()
+
           // eslint-disable-next-line
     }, [withdrawInput])
 
@@ -206,7 +208,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                     </TabHeader>
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
-                            <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"MAX"} 
+                            <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
                                 onClick={()=>getMaxAmount()}/>
                             <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.walletBalance?.toRound(4, true)} ${props.market?.symbol}`}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
@@ -228,7 +230,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                     </MarketDialogButton>)}
                         </TabContentItem>
                         <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
-                            <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"MAX"}
+                            <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"Max"}
                                 onClick={() => getMaxWithdraw()}/>
                             <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.symbol}`}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
@@ -236,7 +238,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                             <MarketDialogButton disabled={withdrawInput==="" || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData && 
                             +newBorrowLimit2.toString() > 0 && 
-                                        +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 ? true: false)}
+                                        +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && +newBorrowLimit2.toString() > +props.generalData.totalBorrowLimit.toString() ? true: false)}
                                 onClick={() => {    props.market ?
                                                     props.handleWithdraw(
                                                         props.market?.symbol,
