@@ -1,3 +1,9 @@
+# Running the testnet locally
+
+After install dependencies and building, use:
+
+### `REACT_APP_TEST_NETWORK=1 npm run start`
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
