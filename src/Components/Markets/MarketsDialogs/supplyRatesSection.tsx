@@ -19,7 +19,7 @@ const SupplyRateSection:React.FC<Props> = (props: Props) => {
                     <div className="logo-holder">
                         <img className="rounded-circle"
                             style={{ width: "20px", height: "20px", margin: "0px 0px 0px 0px" }}
-                            src={props.market?.logoSource}
+                            src={props.market?.underlying.logo}
                         alt=""/>
                     </div>
                 <div className="fill">Supply APY</div>

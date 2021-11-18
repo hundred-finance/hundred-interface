@@ -8,11 +8,11 @@ export const getMaxAmount = async (market: CTokenInfo, provider: ethers.provider
     if (market.isNativeToken) {
       const gasPrice = BigNumber.from(await provider.getGasPrice())
       const price = gasPrice.mul(BigNumber.from(gasLimit))
-      const balance = market.walletBalance.sub(price)
+      const balance = market.underlying.walletBalance.sub(price)
       return balance
     } 
     
-      return market.walletBalance
+      return market.underlying.walletBalance
   }
 
   export const getMaxRepayAmount = (market: CTokenInfo) : BigNumber => {

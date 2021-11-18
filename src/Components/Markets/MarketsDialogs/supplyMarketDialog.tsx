@@ -69,7 +69,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                 return;
             }else if (+supplyInput <= 0) {
               setSupplyValidation("Amount must be > 0");
-            } else if (props.market && +supplyInput > +props.market?.walletBalance) {
+            } else if (props.market && +supplyInput > +props.market?.underlying.walletBalance) {
               setSupplyValidation("Amount must be <= balance");
             }else{
                 setSupplyValidation("");
@@ -77,7 +77,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
 
             setNewBorrowLimit1( props.generalData && props.market ?
               props?.generalData.totalBorrowLimit?.addSafe(props.market?.isEnterMarket ? BigNumber.parseValue(supplyInput!=="" ? supplyInput : "0").
-                mulSafe(props.market?.underlyingPrice).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
+                mulSafe(props.market?.underlying.price).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
             }
         
           handleSupplyAmountChange()
@@ -99,12 +99,12 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                 setWithdrawValidation("Amount must be > 0")
             } else if (props.market && +withdrawInput > +props.market?.supplyBalanceInTokenUnit) {
                 setWithdrawValidation("Amount must be <= your supply balance")
-            } else if (props.market && +withdrawInput > +props.market?.underlyingAmount) {
+            } else if (props.market && +withdrawInput > +props.market?.cash) {
                 setWithdrawValidation("Amount must be <= liquidity")
             }else{
                 setWithdrawValidation("");
                 if(withdrawMax && props.market){
-                    if(BigNumber.parseValueSafe(props.market?.supplyBalanceInTokenUnit.toString(), props.market?.decimals).toString() !==  withdrawInput.toString())
+                    if(BigNumber.parseValueSafe(props.market?.supplyBalanceInTokenUnit.toString(), props.market?.underlying.decimals).toString() !==  withdrawInput.toString())
                     {
                         setWithdrawMax(false)
                     }
@@ -113,7 +113,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
 
             setNewBorrowLimit2(props.market && props.generalData ? 
                 props.generalData.totalBorrowLimit?.subSafe(props.market?.isEnterMarket? BigNumber.parseValue(withdrawInput.trim()!=="" ? withdrawInput : "0").
-                                mulSafe(props.market?.underlyingPrice).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0))
+                                mulSafe(props.market?.underlying.price).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0))
             
                                 if (newBorrowLimit2.gt(BigNumber.from("0"))) 
                                 console.log(`totalBorrow: ${props.generalData?.totalBorrowBalance}\nborrowLimit: ${newBorrowLimit2}\npercent${props.generalData?.totalBorrowBalance.divSafe(newBorrowLimit2).toString()}`)
@@ -142,11 +142,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     useEffect(() => {
         setNewBorrowLimit1( props.generalData && props.market ?
             props?.generalData.totalBorrowLimit?.addSafe(props.market?.isEnterMarket ? BigNumber.parseValue(supplyInput!=="" ? supplyInput : "0").
-              mulSafe(props.market?.underlyingPrice).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
+              mulSafe(props.market?.underlying.price).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
           
         setNewBorrowLimit2(props.market && props.generalData ? props.generalData.totalBorrowLimit?.
             subSafe(props.market?.isEnterMarket? BigNumber.parseValue(withdrawInput!=="" ? withdrawInput : "0").
-            mulSafe(props.market?.underlyingPrice).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
+            mulSafe(props.market?.underlying.price).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
     },[props.generalData])
     
 
@@ -158,8 +158,8 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
 
     const getMaxWithdraw = () : void=> {
         setWithdrawMax(true)
-        props.market ? setWithdrawInput(BigNumber.minimum(BigNumber.parseValueSafe(props.market?.supplyBalanceInTokenUnit.toString(), props.market.decimals),
-         BigNumber.parseValueSafe(props.market?.underlyingAmount.toString(), props.market.decimals)).toString()) : setWithdrawInput("0")
+        props.market ? setWithdrawInput(BigNumber.minimum(BigNumber.parseValueSafe(props.market?.supplyBalanceInTokenUnit.toString(), props.market.underlying.decimals),
+         BigNumber.parseValueSafe(props.market?.cash.toString(), props.market.underlying.decimals)).toString()) : setWithdrawInput("0")
     }
 
     useEffect(() => {
@@ -194,13 +194,13 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             <div className="supply-box">
             <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>CloseDialog()} />  
                 <div className="dialog-title">
-                    {props.market?.symbol && (
+                    {props.market?.underlying.symbol && (
                     <img
                         className="rounded-circle"
                         style={{ width: "30px", margin: "0px 10px 0px 0px" }}
-                        src={props.market?.logoSource}
+                        src={props.market?.underlying.logo}
                         alt=""/>)}
-                    {`${props.market?.symbol}`}
+                    {`${props.market?.underlying.symbol}`}
                 </div>
                 <Tab>
                         {props.market?.backstop ?
@@ -217,31 +217,31 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             }
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
-                            <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
+                            <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
                                 onClick={()=>getMaxAmount()}/>
-                            <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.walletBalance?.toRound(4, true)} ${props.market?.symbol}`}/>
+                            <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit1}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                            
-                            {props.market?.underlyingAllowance?.gt(BigNumber.from(0)) &&
-                                props.market?.underlyingAllowance?.gte(supplyInput.trim() === "" || !isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? BigNumber.from("0") 
+                            {props.market?.underlying.allowance?.gt(BigNumber.from(0)) &&
+                                props.market?.underlying.allowance?.gte(supplyInput.trim() === "" || !isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? BigNumber.from("0") 
                                 : BigNumber.parseValue(supplyInput)) 
                                 ? (
                                     <MarketDialogButton disabled={supplyInput==="" || supplyValidation!="" || props.market?.supplySpinner}
-                                        onClick={() => {   props.market ? props.handleSupply(props.market?.symbol,supplyInput) : null}}>
+                                        onClick={() => {   props.market ? props.handleSupply(props.market?.underlying.symbol,supplyInput) : null}}>
                                         {props.market.supplySpinner ? (<Spinner size={"20px"}/>) : "Supply"}
                                     </MarketDialogButton>
                                 ) : (
                                     <MarketDialogButton disabled={!props.market || (props.market && props.market?.supplySpinner)}
-                                        onClick={() => {props.market ? props.handleEnable(props.market?.symbol,false) : null}}>
-                                        {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.symbol}`}
+                                        onClick={() => {props.market ? props.handleEnable(props.market?.underlying.symbol,false) : null}}>
+                                        {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.underlying.symbol}`}
                                     </MarketDialogButton>)}
                         </TabContentItem>
                         <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
-                            <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"Max"}
+                            <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"Max"}
                                 onClick={() => getMaxWithdraw()}/>
-                            <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.symbol}`}/>
+                            <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.underlying.symbol}`}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
@@ -250,7 +250,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                         +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && +newBorrowLimit2.toString() > +props.generalData.totalBorrowLimit.toString() ? true: false)}
                                 onClick={() => {    props.market ?
                                                     props.handleWithdraw(
-                                                        props.market?.symbol,
+                                                        props.market?.underlying.symbol,
                                                         withdrawInput,
                                                         withdrawMax
                                                     ) : null
@@ -261,22 +261,22 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                         {
                             props.market?.backstop ? 
                             <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
-                                <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.walletBalance?.toRound(4, true)} ${props.market?.symbol}`}/>
+                                <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
                                 <BackstopSection market={props.market}/>
-                                <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
+                                <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
                                 onClick={()=>getMaxAmount()} validationCollapse={true}/>
-                                {props.market?.underlyingAllowance?.gt(BigNumber.from(0)) &&
-                                props.market?.underlyingAllowance?.gte(supplyInput.trim() === "" || isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? BigNumber.from("0") 
+                                {props.market?.underlying.allowance?.gt(BigNumber.from(0)) &&
+                                props.market?.underlying.allowance?.gte(supplyInput.trim() === "" || isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? BigNumber.from("0") 
                                 : BigNumber.parseValue(supplyInput)) 
                                 ? (
                                     <MarketDialogButton disabled={supplyInput==="" || supplyValidation!="" || props.market?.supplySpinner}
-                                        onClick={() => {   props.market ? props.handleSupply(props.market?.symbol,supplyInput) : null}}>
+                                        onClick={() => {   props.market ? props.handleSupply(props.market?.underlying.symbol,supplyInput) : null}}>
                                         {props.market.supplySpinner ? (<Spinner size={"20px"}/>) : "Deposit"}
                                     </MarketDialogButton>
                                 ) : (
                                     <MarketDialogButton disabled={!props.market || (props.market && props.market?.supplySpinner)}
-                                        onClick={() => {props.market ? props.handleEnable(props.market?.symbol,false) : null}}>
-                                        {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.symbol}`}
+                                        onClick={() => {props.market ? props.handleEnable(props.market?.underlying.symbol,false) : null}}>
+                                        {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.underlying.symbol}`}
                                     </MarketDialogButton>)}
                                 <TextBox placeholder={`0 ${props.market.backstop.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"Max"}
                                 onClick={() => getMaxWithdraw()} validationCollapse={true}/>
@@ -285,7 +285,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                         +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && +newBorrowLimit2.toString() > +props.generalData.totalBorrowLimit.toString() ? true: false)}
                                 onClick={() => {    props.market ?
                                                     props.handleWithdraw(
-                                                        props.market?.symbol,
+                                                        props.market?.underlying.symbol,
                                                         withdrawInput,
                                                         withdrawMax
                                                     ) : null

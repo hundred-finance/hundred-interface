@@ -86,10 +86,10 @@ export const zeroStringIfNullish = (value: BigNumber, decimals: number, dp:numbe
 
 export const compareSymbol = (a: CTokenInfo | null, b: CTokenInfo | null): number => {
   if (a && b){
-    if (a.symbol < b.symbol) {
+    if (a.underlying.symbol < b.underlying.symbol) {
       return -1;
     }
-    if (a.symbol > b.symbol) {
+    if (a.underlying.symbol > b.underlying.symbol) {
       return 1;
     }
   }  

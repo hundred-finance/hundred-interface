@@ -3,7 +3,7 @@ import { ethers } from "ethers"
 import { BPRO_ABI, COMPTROLLER_ABI, CTOKEN_ABI, HUNDRED_ABI, TOKEN_ABI } from "../../abi"
 import { BigNumber } from "../../bigNumber"
 import { Comptroller } from "../../Classes/comptrollerClass"
-import { CTokenInfo, Backstop } from "../../Classes/cTokenClass"
+import { CTokenInfo, Backstop, Underlying } from "../../Classes/cTokenClass"
 import Logos from "../../logos"
 import { Network } from "../../networks"
 
@@ -20,12 +20,12 @@ type CompSupplyState = {
     index: ethers.BigNumber
 }
 
-type Underlying = {
+type UnderlyingType = {
     price: ethers.BigNumber
     symbol: string,
     name: string,
     decimals: number,
-    totalSupply: number
+    totalSupply: ethers.BigNumber
     allowance: ethers.BigNumber
     walletBalance: ethers.BigNumber
     address: string,
@@ -54,7 +54,7 @@ type Token ={
     compSpeeds: ethers.BigNumber
     compSupplyState: CompSupplyState,
     compSupplierIndex: ethers.BigNumber
-    underlying: Underlying,
+    underlying: UnderlyingType,
     enteredMarkets: string[],
     tokenAddress: string,
     isNative: boolean,
@@ -131,7 +131,7 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
         if(x?.isNativeToken) return false
          return true
       }).map(x=> {
-        if (x?.underlyingAddress) underlyingAddresses.push(x.underlyingAddress)
+        if (x?.underlying.address) underlyingAddresses.push(x.underlying.address)
       })
     }
 
@@ -263,26 +263,29 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
   }
 
   const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, blockNum: number) : Promise<CTokenInfo> => {
-    
+
     const decimals = token.underlying.decimals
-    const underlyingPrice = BigNumber.from(token.underlying.price, 36-decimals)
+
+    const underlying = new Underlying(token.underlying.address, token.underlying.symbol, token.underlying.name, token.underlying.logo, token.underlying.decimals,
+                                      token.underlying.totalSupply, token.underlying.price, token.underlying.walletBalance, token.underlying.allowance)
+
   
     const accountSnapshot1 = BigNumber.from(token.accountSnapshot[1].toString(), 18)
     const accountSnapshot3 = BigNumber.from(token.accountSnapshot[3].toString(), decimals)
     const supplyBalanceInTokenUnit = accountSnapshot1.mul(accountSnapshot3)
 
-    const supplyBalance = BigNumber.parseValue((+supplyBalanceInTokenUnit.toString() * +underlyingPrice.toString()).noExponents())
+    const supplyBalance = BigNumber.parseValue((+supplyBalanceInTokenUnit.toString() * +underlying.price.toString()).noExponents())
 
     const borrowBalanceInTokenUnit = BigNumber.from(token.accountSnapshot[2].toString(), decimals)
-    const borrowBalance = borrowBalanceInTokenUnit.mul(underlyingPrice)
+    const borrowBalance = borrowBalanceInTokenUnit.mul(underlying.price)
 
     const exchangeRateStored = BigNumber.from(token.exchangeRate, 18)
 
-    const marketTotalSupply = BigNumber.parseValue((+BigNumber.from(token.totalSupply, decimals).toString() * +exchangeRateStored.toString() * +underlyingPrice.toString()).noExponents())//cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
+    const marketTotalSupply = BigNumber.parseValue((+BigNumber.from(token.totalSupply, decimals).toString() * +exchangeRateStored.toString() * +underlying.price.toString()).noExponents())//cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
 
     const cTokenTotalBorrows = BigNumber.from(token.totalBorrows, decimals)
     const marketTotalBorrowInTokenUnit = BigNumber.from(cTokenTotalBorrows._value, decimals)
-    const marketTotalBorrow = cTokenTotalBorrows?.mul(underlyingPrice)
+    const marketTotalBorrow = cTokenTotalBorrows?.mul(underlying.price)
 
     const isEnterMarket = token.enteredMarkets.includes(token.tokenAddress);
 
@@ -296,11 +299,10 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     const borrowApy = BigNumber.parseValue((Math.pow((1 + borrowRatePerBlock.toNumber() / mantissa), network.blocksPerYear) -1).noExponents())
 
     
-    const underlyingAmount = BigNumber.from(token.cash, decimals)
+    const cash = BigNumber.from(token.cash, decimals)
 
-    const liquidity = underlyingAmount.mul(underlyingPrice)
+    const liquidity = cash.mul(underlying.price)
 
-    const underlyingAllowance = BigNumber.from(token.underlying.allowance, decimals)
     const cTokenTVL = +marketTotalSupply.toString()
     
     //const speed = await comptrollerData.comptroller.compSpeeds(address)
@@ -327,13 +329,9 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     
     return new CTokenInfo(
       token.tokenAddress,
-      token.underlying.address,
-      token.underlying.symbol,
-      token.underlying.logo,
+      underlying,
       supplyApy,
       borrowApy,
-      underlyingAllowance,
-      BigNumber.from(token.underlying.walletBalance, decimals),
       supplyBalanceInTokenUnit,
       supplyBalance,
       marketTotalSupply,
@@ -342,12 +340,10 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
       marketTotalBorrowInTokenUnit,
       marketTotalBorrow,
       isEnterMarket,
-      underlyingAmount,
-      underlyingPrice,
+      cash,
       liquidity,
       collateralFactor,
       hndSpeed,
-      decimals,
       token.isNative,
       hndAPR,
       borrowRatePerBlock,
@@ -361,26 +357,26 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     console.log("\n-------------------------------------------------------------------------------------------\n")
                   
     const compare: CheckValidData[] = []
-    const m = oldMarkets.find(n => n?.symbol === "USDC")
-    const nm = newMarkets.find(n => n.symbol === "USDC")
+    const m = oldMarkets.find(n => n?.underlying.symbol === "USDC")
+    const nm = newMarkets.find(n => n.underlying.symbol === "USDC")
 
     
     
     let c: CheckValidData = {name: "Address", oldData: m ? m.pTokenAddress : "", newData: nm ? nm.pTokenAddress : ""}
     compare.push(c)
-    c = {name: "UnderlyingAddress", oldData: m && m.underlyingAddress? m.underlyingAddress : "", newData: nm && nm.underlyingAddress? nm.underlyingAddress : "",}
+    c = {name: "UnderlyingAddress", oldData: m && m.underlying.address? m.underlying.address : "", newData: nm && nm.underlying.address? nm.underlying.address : "",}
     compare.push(c)
-    c = {name: "Symbol", oldData: m && m.symbol? m.symbol : "", newData: nm && nm.symbol? nm.symbol : "",}
+    c = {name: "Symbol", oldData: m && m.underlying.symbol? m.underlying.symbol : "", newData: nm && nm.underlying.symbol? nm.underlying.symbol : "",}
     compare.push(c)
-    c = {name: "Logo", oldData: m && m.logoSource? m.logoSource : "", newData: nm && nm.logoSource? nm.logoSource : "",}
+    c = {name: "Logo", oldData: m && m.underlying.logo? m.underlying.logo : "", newData: nm && nm.underlying.logo? nm.underlying.logo : "",}
     compare.push(c)
     c = {name: "SupplyApy", oldData: m && m.supplyApy ? m.supplyApy.toString() : "", newData: nm && nm.supplyApy ? nm.supplyApy.toString() : "",}
     compare.push(c)
     c = {name: "BorrowApy", oldData: m && m.borrowApy ? m.borrowApy.toString() : "", newData: nm && nm.borrowApy ? nm.borrowApy.toString() : "",}
     compare.push(c)
-    c = {name: "UnderlyingAllowance", oldData: m && m.underlyingAllowance ? m.underlyingAllowance.toString() : "", newData: nm && nm.underlyingAllowance ? nm.underlyingAllowance.toString() : "",}
+    c = {name: "UnderlyingAllowance", oldData: m && m.underlying.allowance ? m.underlying.allowance.toString() : "", newData: nm && nm.underlying.allowance ? nm.underlying.allowance.toString() : "",}
     compare.push(c)
-    c = {name: "WalletBalance", oldData: m && m.walletBalance ? m.walletBalance.toString() : "", newData: nm && nm.walletBalance ? nm.walletBalance.toString() : "",}
+    c = {name: "WalletBalance", oldData: m && m.underlying.walletBalance ? m.underlying.walletBalance.toString() : "", newData: nm && nm.underlying.walletBalance ? nm.underlying.walletBalance.toString() : "",}
     compare.push(c)
     c = {name: "SupplyBalanceInTokenUnit", oldData: m && m.supplyBalanceInTokenUnit ? m.supplyBalanceInTokenUnit.toString() : "", newData: nm && nm.supplyBalanceInTokenUnit ? nm.supplyBalanceInTokenUnit.toString() : "",}
     compare.push(c)
@@ -398,9 +394,9 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     compare.push(c)
     c = {name: "IsEnterMarket", oldData: m && m.isEnterMarket ? m.isEnterMarket.toString() : "", newData: nm && nm.isEnterMarket ? nm.isEnterMarket.toString() : "",}
     compare.push(c)
-    c = {name: "UnderlyingAmount", oldData: m && m.underlyingAmount ? m.underlyingAmount.toString() : "", newData: nm && nm.underlyingAmount ? nm.underlyingAmount.toString() : "",}
+    c = {name: "UnderlyingAmount", oldData: m && m.cash ? m.cash.toString() : "", newData: nm && nm.cash ? nm.cash.toString() : "",}
     compare.push(c)
-    c = {name: "UnderlyingPrice", oldData: m && m.underlyingPrice ? m.underlyingPrice.toString() : "", newData: nm && nm.underlyingPrice ? nm.underlyingPrice.toString() : "",}
+    c = {name: "UnderlyingPrice", oldData: m && m.underlying.price ? m.underlying.price.toString() : "", newData: nm && nm.underlying.price ? nm.underlying.price.toString() : "",}
     compare.push(c)
     c = {name: "Liquidity", oldData: m && m.liquidity ? m.liquidity.toString() : "", newData: nm && nm.liquidity ? nm.liquidity.toString() : "",}
     compare.push(c)
@@ -408,7 +404,7 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     compare.push(c)
     c = {name: "HndSpeed", oldData: m && m.hndSpeed ? m.hndSpeed.toString() : "", newData: nm && nm.hndSpeed ? nm.hndSpeed.toString() : "",}
     compare.push(c)
-    c = {name: "Decimals", oldData: m && m.decimals ? m.decimals.toString() : "", newData: nm && nm.decimals ? nm.decimals.toString() : "",}
+    c = {name: "Decimals", oldData: m && m.underlying.decimals ? m.underlying.decimals.toString() : "", newData: nm && nm.underlying.decimals ? nm.underlying.decimals.toString() : "",}
     compare.push(c)
     c = {name: "IsNativeToken", oldData: m && m.isNativeToken ? m.isNativeToken.toString() : "", newData: nm && nm.isNativeToken ? nm.isNativeToken.toString() : "",}
     compare.push(c)

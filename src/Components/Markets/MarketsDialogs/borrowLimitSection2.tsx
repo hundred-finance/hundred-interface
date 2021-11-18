@@ -23,7 +23,7 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
                     props.generalData.totalBorrowBalance,
                     props.borrowAmount,
                     props.repayAmount,
-                    props.market?.underlyingPrice)
+                    props.market?.underlying.price)
             }
             else{
                 setBorrowBalance(BigNumber.from(0))
