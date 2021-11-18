@@ -116,10 +116,10 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                 mulSafe(props.market?.underlyingPrice).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0))
             
                                 if (newBorrowLimit2.gt(BigNumber.from("0"))) 
-                                console.log(`totalBorrow: ${props.generalData?.totalBorrowBalance}\nborrowLimit: ${newBorrowLimit2}\npercent${props.generalData?.totalBorrowBalance.divSafe(newBorrowLimit2).toString()}`)
+                                console.log(`totalBorrow: ${props.generalData?.totalBorrowLimit}\nborrowLimit: ${newBorrowLimit2}\npercent${props.generalData?.totalBorrowBalance.divSafe(newBorrowLimit2).toString()}`)
             }
 
-        
+            
           handleWithdrawAmountChange()
 
           // eslint-disable-next-line
@@ -225,7 +225,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                            
                             {props.market?.underlyingAllowance?.gt(BigNumber.from(0)) &&
-                                props.market?.underlyingAllowance?.gte(supplyInput.trim() === "" || !isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? BigNumber.from("0") 
+                                props.market?.underlyingAllowance?.gte(supplyInput.trim() === "" || isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? BigNumber.from("0") 
                                 : BigNumber.parseValue(supplyInput)) 
                                 ? (
                                     <MarketDialogButton disabled={supplyInput==="" || supplyValidation!="" || props.market?.supplySpinner}
@@ -245,9 +245,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
-                            <MarketDialogButton disabled={withdrawInput==="" || !isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData && 
+                            <MarketDialogButton disabled={withdrawInput==="" || isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData && 
                             +newBorrowLimit2.toString() > 0 && 
-                                        +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && +newBorrowLimit2.toString() > +props.generalData.totalBorrowLimit.toString() ? true: false)}
+                                        +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent) ? true: false}
                                 onClick={() => {    props.market ?
                                                     props.handleWithdraw(
                                                         props.market?.symbol,
