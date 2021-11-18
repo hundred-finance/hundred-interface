@@ -4,6 +4,10 @@
     height: 60px;
 }
 
+.validation-collapse {
+    height: 50px;
+}
+
 .textbox .validation{
     color: red;
     font-size: 0.8rem;
@@ -11,6 +15,10 @@
     position: absolute;
     bottom: -9px;
     left:0;
+}
+
+.validation-collapse .validation{
+    display: none;
 }
 
 .textbox div{

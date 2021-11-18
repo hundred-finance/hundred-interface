@@ -1,9 +1,9 @@
 import { Call, Contract } from "ethcall"
 import { ethers } from "ethers"
-import { COMPTROLLER_ABI, CTOKEN_ABI, HUNDRED_ABI, TOKEN_ABI } from "../../abi"
+import { BPRO_ABI, COMPTROLLER_ABI, CTOKEN_ABI, HUNDRED_ABI, TOKEN_ABI } from "../../abi"
 import { BigNumber } from "../../bigNumber"
 import { Comptroller } from "../../Classes/comptrollerClass"
-import { CTokenInfo } from "../../Classes/cTokenClass"
+import { CTokenInfo, Backstop } from "../../Classes/cTokenClass"
 import Logos from "../../logos"
 import { Network } from "../../networks"
 
@@ -32,6 +32,15 @@ type Underlying = {
     logo: string
 }
 
+type BackstopType = {
+  userBalance: ethers.BigNumber,
+  totalSuplly: ethers.BigNumber,
+  underlyingBalance: ethers.BigNumber,
+  decimals: number,
+  symbol: string,
+  allowance: ethers.BigNumber
+}
+
 type Token ={
     accountSnapshot: string[],
     exchangeRate: ethers.BigNumber
@@ -48,7 +57,8 @@ type Token ={
     underlying: Underlying,
     enteredMarkets: string[],
     tokenAddress: string,
-    isNative: boolean
+    isNative: boolean,
+    backstop?: BackstopType
 }
 
 type CheckValidData ={
@@ -148,6 +158,13 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
                    contract.totalSupply(), 
                    contract.allowance(userAddress, a), 
                    contract.balanceOf(userAddress))
+        if(network.backstop){
+          const bstop = network.backstop.find(x=>x.hToken.toLowerCase() === a.toLowerCase())
+          if(bstop){
+            const bStopContract = new Contract(bstop.address, BPRO_ABI)
+            calls.push(bStopContract.balanceOf(userAddress), bStopContract.totalSupply(), contract.balanceOf(bstop.address), bStopContract.decimals(), bStopContract.symbol(), contract.allowance(userAddress, bstop.address))
+          }
+        }
     })
     
     const res = await comptrollerData.ethcallProvider.all(calls)
@@ -157,7 +174,8 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     let hndBalance = BigNumber.from("0")
     let hundredBalace = BigNumber.from("0")
 
-    const compareLength = network.hundredLiquidityPoolAddress ? notNativeMarkets.length * 19 + 17 : notNativeMarkets.length * 19 + 16
+    let compareLength = network.hundredLiquidityPoolAddress ? notNativeMarkets.length * 19 + 17 : notNativeMarkets.length * 19 + 16
+    compareLength = network.backstop ? compareLength + network.backstop.length * 6 : compareLength
     
     if(res && res.length === compareLength){
         
@@ -174,14 +192,15 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
        
         if(nativeToken){
             const native = res.splice(0, 13)
-            tokens.push(await getTokenData(native, true, network, provider, userAddress, "0x0", enteredMarkets, nativeToken))
+            tokens.push(await getTokenData(native, true, network, provider, userAddress, "0x0", enteredMarkets, nativeToken, false))
         }
 
         let i = 0
 
         while (res.length){
-            const token = res.splice(0,19)
-            tokens.push(await getTokenData(token, false, network, provider, userAddress, underlyingAddresses[i], enteredMarkets, notNativeMarkets[i]))
+            const backstop = network.backstop?.find(x=> x.hToken.toLowerCase() === notNativeMarkets[i].toLowerCase())
+            const token = backstop? res.splice(0, 25) : res.splice(0,19)
+            tokens.push(await getTokenData(token, false, network, provider, userAddress, underlyingAddresses[i], enteredMarkets, notNativeMarkets[i], backstop ? true : false))
             i+=1
         }
     }
@@ -190,14 +209,16 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     const blockNum = await blockProvider.getBlockNumber()
 
     const tokensInfo = await Promise.all(tokens.map(async(t)=>{
-        return await getCtokenInfo(t, network, hndPrice, blockNum)
+        const tokenInfo = await getCtokenInfo(t, network, hndPrice, blockNum)
+        console.log(tokenInfo)
+        return tokenInfo
     }))
 
     return {hndPrice: hndPrice, markets: tokensInfo, hndBalance: hndBalance, hundredBalace: hundredBalace, comAccrued: compAccrued}
   }
 
  const getTokenData = async(tokenData: any[], native: boolean, network: Network, provider: ethers.providers.Web3Provider, 
-                            userAddress: string, underlyingAddress: string, enteredMarkets: string[], tokenAddress: string): Promise<Token> =>{
+                            userAddress: string, underlyingAddress: string, enteredMarkets: string[], tokenAddress: string, backstop: boolean): Promise<Token> =>{
     const isMaker = underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? true : false
     
     const token: Token = {
@@ -227,6 +248,16 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
         isNative: native,
         enteredMarkets: enteredMarkets,
         tokenAddress: tokenAddress
+    }
+    if(backstop){
+      token.backstop = {
+        userBalance : tokenData[19],
+        totalSuplly : tokenData[20],
+        underlyingBalance : tokenData[21],
+        decimals: tokenData[22],
+        symbol: tokenData[23],
+        allowance: tokenData[24]
+      }
     }
     return token
   }
@@ -287,6 +318,12 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
     
       accrued = (+newSupplyIndex - +token.compSupplierIndex) * +token.cTokenBalanceOfUser / 1e36 
     }
+
+    const backstop = token.backstop ? new Backstop(BigNumber.from(token.backstop.userBalance, token.backstop.decimals), BigNumber.from(token.backstop.totalSuplly, token.backstop.decimals), 
+                                                   BigNumber.from(token.backstop.underlyingBalance, decimals), token.backstop.decimals, token.backstop.symbol, BigNumber.from(token.backstop.allowance, decimals)) : null
+    if(token.backstop){
+      console.log(`userBalance: ${backstop?.userBalance}\ntotal Supply: ${backstop?.totalSupply}\nunderlyingBalance: ${backstop?.underlyingBalance}`)
+    }
     
     return new CTokenInfo(
       token.tokenAddress,
@@ -315,7 +352,8 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
       hndAPR,
       borrowRatePerBlock,
       totalSupplyApy,
-      accrued 
+      accrued,
+      backstop
     )
   }
 

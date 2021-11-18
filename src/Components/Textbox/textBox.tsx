@@ -10,7 +10,8 @@ interface Props{
     value: string,
     disabled: boolean,
     onChange?: () => void,
-    buttonTooltip?: string
+    buttonTooltip?: string,
+    validationCollapse?: boolean
 }
 
 const TextBox : React.FC<Props> = (props : Props) => {
@@ -26,7 +27,7 @@ const TextBox : React.FC<Props> = (props : Props) => {
     }
 
     return(
-        <div className="textbox">
+        <div className={`textbox ${props.validation.trim() === "" && props.validationCollapse ? "validation-collapse" : ""}`}>
             <div className={props.button ? "textbox-button" : ""} 
             style={{borderColor: focus ? '#427af1' : '#646464'}}>
                 <input type="text" disabled={props.disabled} required value={props.value} onChange={handleChange} onFocus={()=>setFocus(true)} onBlur={()=>setFocus(false)}/>
@@ -36,7 +37,7 @@ const TextBox : React.FC<Props> = (props : Props) => {
                     <span className={`input-button ${props.disabled ? "input-button-disabled" : ""}`} onClick={props.onClick}>{props.button}</span>
                     :""}
             </div>
-            <span className="validation">{props.validation}</span>
+            <span className={`validation`}>{props.validation}</span>
         </div>
     )
 }

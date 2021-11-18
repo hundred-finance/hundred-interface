@@ -1,8 +1,14 @@
-.star{
+/* .star{
     padding: 0;
     width: 15px;
     height: 15px;
     padding-right: 3px;
     margin-right: 2px;
     margin-bottom: 2px;
+} */
+
+.star-bpro-icons img{
+    width:16px;
+    height: 16px;
+    padding-right: 3px;
 }

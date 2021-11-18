@@ -12,6 +12,47 @@ const mantissa = 1e18 // mantissa is the same even the underlying asset has diff
 // const blocksPerDay = (24 * 60 * 60) / blockTime
 // const daysPerYear = 365
 // const rewardTokenPrice = 1
+export class Backstop{
+  userBalance: BigNumber
+  totalSupply: BigNumber
+  underlyingBalance: BigNumber
+  decimals: number
+  sharePrice: BigNumber
+  symbol: string
+  allowance: BigNumber
+
+  constructor(userBalance : BigNumber, totalSupply : BigNumber, underlyingBalance: BigNumber, decimals: number, symbol: string, allowance: BigNumber){
+    this.userBalance = userBalance
+    this.totalSupply = totalSupply
+    this.underlyingBalance = underlyingBalance
+    this.decimals = decimals
+    this.sharePrice = underlyingBalance.divSafe(totalSupply)
+    this.symbol = symbol
+    this.allowance = allowance
+  }
+}
+
+export class Underlying{
+  address: string | null
+  symbol: string
+  name:  string
+  logo: string
+  allowance: BigNumber
+  price: BigNumber
+  wallletBalance: BigNumber
+  totalSupply: BigNumber
+
+  constructor(address: string | null, symbol: string, name:  string, logo: string, allowance: BigNumber, price: BigNumber, wallletBalance: BigNumber, totalSupply: BigNumber){
+    this.address = address
+    this.symbol = symbol
+    this.name = name
+    this.logo = logo
+    this.allowance = allowance
+    this.price = price
+    this.wallletBalance = wallletBalance
+    this.totalSupply = totalSupply
+  }
+}
 
 export class CTokenInfo{
     pTokenAddress: string
@@ -51,6 +92,8 @@ export class CTokenInfo{
     totalSupplyApy: BigNumber
 
     accrued: number
+
+    backstop: Backstop | null
    
 
     constructor(pTokenAddress: string,
@@ -79,7 +122,8 @@ export class CTokenInfo{
                 hndAPR: BigNumber,
                 borrowRatePerBlock: BigNumber,
                 totalSupplyApy: BigNumber,
-                accrued: number
+                accrued: number,
+                backstop: Backstop | null
                 ){
         this.pTokenAddress= pTokenAddress
         this.underlyingAddress= underlyingAddress
@@ -116,6 +160,8 @@ export class CTokenInfo{
         this.totalSupplyApy = totalSupplyApy
         
         this.accrued = accrued
+
+        this.backstop = backstop
     }
 }
 
@@ -273,7 +319,8 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
       hndAPR,
       borrowRatePerBlock,
       totalSupplyApy,
-      accrued
+      accrued,
+      null
     )
   }
 

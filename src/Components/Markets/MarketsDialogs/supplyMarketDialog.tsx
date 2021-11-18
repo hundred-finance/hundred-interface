@@ -12,6 +12,7 @@ import { Spinner } from "../../../assets/huIcons/huIcons";
 import { CTokenInfo } from "../../../Classes/cTokenClass";
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass";
 import closeIcon from "../../../assets/icons/closeIcon.png"
+import BackstopSection from "./backstopSection";
 
 interface Props{
     spinnerVisible: boolean,
@@ -202,10 +203,18 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                     {`${props.market?.symbol}`}
                 </div>
                 <Tab>
-                    <TabHeader tabChange = {tabChange}>
-                        <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                        <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                    </TabHeader>
+                        {props.market?.backstop ?
+                            <TabHeader tabChange = {tabChange}>
+                                <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={3} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                            </TabHeader>
+                            :
+                            <TabHeader tabChange = {tabChange}>
+                                <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                            </TabHeader>
+                            }
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
                             <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
@@ -216,7 +225,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                            
                             {props.market?.underlyingAllowance?.gt(BigNumber.from(0)) &&
-                                props.market?.underlyingAllowance?.gte(supplyInput.trim() === "" || isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? BigNumber.from("0") 
+                                props.market?.underlyingAllowance?.gte(supplyInput.trim() === "" || !isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? BigNumber.from("0") 
                                 : BigNumber.parseValue(supplyInput)) 
                                 ? (
                                     <MarketDialogButton disabled={supplyInput==="" || supplyValidation!="" || props.market?.supplySpinner}
@@ -236,7 +245,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
-                            <MarketDialogButton disabled={withdrawInput==="" || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData && 
+                            <MarketDialogButton disabled={withdrawInput==="" || !isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData && 
                             +newBorrowLimit2.toString() > 0 && 
                                         +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && +newBorrowLimit2.toString() > +props.generalData.totalBorrowLimit.toString() ? true: false)}
                                 onClick={() => {    props.market ?
@@ -249,6 +258,44 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                 {props.market && props.market.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
                             </MarketDialogButton>
                         </TabContentItem>
+                        {
+                            props.market?.backstop ? 
+                            <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
+                                <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.walletBalance?.toRound(4, true)} ${props.market?.symbol}`}/>
+                                <BackstopSection market={props.market}/>
+                                <TextBox placeholder={`0 ${props.market?.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
+                                onClick={()=>getMaxAmount()} validationCollapse={true}/>
+                                {props.market?.underlyingAllowance?.gt(BigNumber.from(0)) &&
+                                props.market?.underlyingAllowance?.gte(supplyInput.trim() === "" || isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? BigNumber.from("0") 
+                                : BigNumber.parseValue(supplyInput)) 
+                                ? (
+                                    <MarketDialogButton disabled={supplyInput==="" || supplyValidation!="" || props.market?.supplySpinner}
+                                        onClick={() => {   props.market ? props.handleSupply(props.market?.symbol,supplyInput) : null}}>
+                                        {props.market.supplySpinner ? (<Spinner size={"20px"}/>) : "Deposit"}
+                                    </MarketDialogButton>
+                                ) : (
+                                    <MarketDialogButton disabled={!props.market || (props.market && props.market?.supplySpinner)}
+                                        onClick={() => {props.market ? props.handleEnable(props.market?.symbol,false) : null}}>
+                                        {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.symbol}`}
+                                    </MarketDialogButton>)}
+                                <TextBox placeholder={`0 ${props.market.backstop.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"Max"}
+                                onClick={() => getMaxWithdraw()} validationCollapse={true}/>
+                                <MarketDialogButton className="backstop-dialog-button" disabled={withdrawInput==="" || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData && 
+                            +newBorrowLimit2.toString() > 0 && 
+                                        +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && +newBorrowLimit2.toString() > +props.generalData.totalBorrowLimit.toString() ? true: false)}
+                                onClick={() => {    props.market ?
+                                                    props.handleWithdraw(
+                                                        props.market?.symbol,
+                                                        withdrawInput,
+                                                        withdrawMax
+                                                    ) : null
+                                                }}>
+                                {props.market && props.market.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
+                            </MarketDialogButton>
+                            </TabContentItem>
+                            : <></>
+                        }
+                        
                     </TabContent>
                 </Tab>
             </div>

@@ -27,7 +27,7 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         </td>
         <td onClick={() => props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null} className={`apy ${props.details ? (+props.details?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`}>
             <div className="supply-apy">
-              <StarBpro active={props.details && +props.details?.hndAPR.toString() > 0 ? true : false}/>
+              <StarBpro active={props.details && +props.details?.hndAPR.toString() > 0 ? true : false} backstop={props.details?.backstop ? true : false}/>
               {`${ props.details && +props?.details?.totalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.totalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
             </div>
         </td>

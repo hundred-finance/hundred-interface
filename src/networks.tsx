@@ -26,7 +26,8 @@ type Network = {
 
 type Backstop = {
     symbol: string,
-    address: string
+    address: string,
+    hToken: string,
 }
 
 type NetworkData = {
@@ -66,9 +67,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         hundredLiquidityPoolAddress: "0x65E17c52128396443d4A9A61EaCf0970F05F8a20",
-        backstop:[
-            {symbol: "USDT", address: "0x24099000AE45558Ce4D049ad46DDaaf71429b168"}
-        ]
+        
     },
     "0xfa": {
         chainId: "0xfa",
