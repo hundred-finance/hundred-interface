@@ -48,7 +48,7 @@ export class Underlying{
     this.logo = logo 
     this.decimals = decimals 
     this.totalSupply = BigNumber.from(totalSupply, decimals) 
-    this.price = BigNumber.from(price)
+    this.price = BigNumber.from(price, 36-decimals)
     this.walletBalance = BigNumber.from(walletBalance, decimals) 
     this.allowance = BigNumber.from(allowance, decimals)
   }
@@ -76,6 +76,8 @@ export class CTokenInfo{
     withdrawSpinner: boolean
     borrowSpinner: boolean
     repaySpinner: boolean
+    backstopDepositSpinner: boolean
+    backstopWithdrawSpinner: boolean
     isNativeToken: boolean
 
     
@@ -135,6 +137,8 @@ export class CTokenInfo{
         this.withdrawSpinner = false
         this.borrowSpinner = false
         this.repaySpinner = false
+        this.backstopDepositSpinner = false
+        this.backstopWithdrawSpinner = false
 
         this.borrowHndApy = BigNumber.from("0")
         this.hndAPR = hndAPR

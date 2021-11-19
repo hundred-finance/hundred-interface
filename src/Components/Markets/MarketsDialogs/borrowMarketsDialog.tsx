@@ -81,7 +81,6 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                 setRepayValidation("")
                 return
             }
-            console.log(+repayInput)
             if(isNaN(+repayInput)){
                 setRepayValidation("Amount must be a number")
             }
@@ -173,7 +172,6 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
         
             
         const isFull = maxAffordable.gteSafe(fullRepayAmount)
-        console.log(`maxAfforable: ${maxAffordable}\nfullRepay: ${fullRepayAmount}\nFull Repay: ${isFull}`)
         setIsFullRepay(isFull);
           
         setRepayInput( BigNumber.minimum(

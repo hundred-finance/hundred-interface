@@ -1,7 +1,7 @@
 import { ethers} from "ethers"
 import { BigNumber } from "../../bigNumber"
 import React, { useEffect,  useRef, useState } from "react"
-import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI } from "../../abi"
+import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BPRO_ABI } from "../../abi"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import { Network } from "../../networks"
 import { Comptroller, getComptrollerData } from "../../Classes/comptrollerClass"
@@ -127,6 +127,10 @@ const Content: React.FC<Props> = (props : Props) => {
                 m.withdrawSpinner = spinner === "withdraw" ? false : market.withdrawSpinner
                 m.borrowSpinner = spinner === "borrow" ? false : market.borrowSpinner
                 m.repaySpinner = spinner === "repay" ? false : market.repaySpinner
+                if(market.backstop && m.backstop){
+                  m.backstopDepositSpinner = spinner === "deposit" ? false : market.backstopDepositSpinner
+                  m.backstopWithdrawSpinner = spinner === "backstopWithdraw" ? false : market.backstopWithdrawSpinner
+                }
               }
               else{
                 m.spinner = market.spinner
@@ -134,6 +138,10 @@ const Content: React.FC<Props> = (props : Props) => {
                 m.withdrawSpinner = market.withdrawSpinner
                 m.borrowSpinner = market.borrowSpinner
                 m.repaySpinner = market.repaySpinner
+                if(m.backstop && market.backstop){
+                  m.backstopDepositSpinner = market.backstopDepositSpinner  
+                  m.backstopWithdrawSpinner = market.backstopWithdrawSpinner
+                }
               }
             }
           }
@@ -257,9 +265,7 @@ const Content: React.FC<Props> = (props : Props) => {
       
       const maxRepayFactor = BigNumber.from("1").addSafe(market.borrowRatePerBlock)//BigNumber.from("1").add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
       
-       const amount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), market.underlying.decimals)
-      
-       console.log(`market.borrowRatePerBlock: ${(+market.borrowRatePerBlock.toString()).noExponents()}\n maxRepayFactor: ${maxRepayFactor.toString()}\nAmount: ${amount}\nmarket.borrowBalanceInTokenUnit: ${market.borrowBalanceInTokenUnit}\nDecimals: ${market.underlying.decimals}`)
+      const amount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), market.underlying.decimals)
       
       return amount // The same as ETH for now. The transaction will use -1 anyway.
     }
@@ -599,38 +605,143 @@ const Content: React.FC<Props> = (props : Props) => {
               setUpdate(true)
               await handleUpdate(market, "repay")
             }
-          // if(market)
-          //   market.repaySpinner = false
-
-          // setUpdate(true)
-
-          // if(provider.current && network.current && userAddress.current){
-          //   const comptroller = await getComptrollerData(provider.current, userAddress.current, network.current)
-          //   setComptrollerData(comptroller)
-          // }
-
-          // if(selectedMarketRef.current && selectedMarketRef.current.symbol === symbol)
-          //   selectedMarketRef.current.repaySpinner = false
         }
       }
     }
   }
+
+  const handleApproveBackstop = async (symbol: string): Promise<void> => {
+    if (spinner.current) spinner.current(true)
+    if(marketsRef.current){
+      let market = marketsRef.current.find(x=> x?.underlying.symbol === symbol)
+      if(market && market.backstop && provider.current && network.current && userAddress.current){
+        try{
+          const backstop = network.current.backstop?.find(x=>x.symbol === symbol)
+          const signer = provider.current.getSigner()
+          if(market.underlying.address && backstop){
+            const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
+            const tx = await contract.approve(backstop.address, MaxUint256._value)
+            if (spinner.current) spinner.current(false)
+            console.log(tx)
+            market.backstopDepositSpinner = true
+            if(selectedMarketRef.current && selectedMarketRef.current.backstop)
+              selectedMarketRef.current.backstopDepositSpinner = true
+          
+            const receipt = await tx.wait()
+            console.log(receipt)
+          }
+        }
+        catch(err){
+          const error = err as MetamaskError
+          props.toastError(`${error?.message.replace(".", "")} on Approve\n${error?.data?.message}`)
+          console.log(err)
+
+        }
+        finally{
+          if (spinner.current) spinner.current(false)
+          market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+          if(market && market.backstop){
+            await handleUpdate(market, "deposit")
+          }
+        }
+      }
+    }
+  }
+
+  const handleBackstopDeposit = async (symbol: string, amount: string) : Promise<void> => {
+    if (marketsRef.current && network.current && network.current.backstop){
+      if (spinner.current) spinner.current(true)
+      let market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+      const backstopAddress = network.current?.backstop.find(x=>x.symbol === symbol)
+      if(market && market.backstop && provider.current && backstopAddress){
+        try{
+          setCompleted(false)
+          const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
+          const am = value._value
+          if(selectedMarketRef.current && selectedMarketRef.current.backstop)
+            selectedMarketRef.current.backstopDepositSpinner = true
+          market.backstopDepositSpinner = true
+
+          const signer = provider.current.getSigner()
+          const backstop = new ethers.Contract(backstopAddress.address, BPRO_ABI, signer)
+          const tx = await backstop.deposit(am)
+
+          if (spinner.current) spinner.current(false)
+
+          console.log(tx)
+          const receipt = await tx.wait()
+          console.log(receipt)
+        }
+        catch(err){
+          console.log(err)
+        }
+        finally{
+          if (spinner.current) spinner.current(false)
+          market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+          if(market){
+            await handleUpdate(market, "deposit")
+          }
+          setCompleted(true)
+        }
+      }
+    }
+  }
+
+  const handleBackstopWithdraw = async (symbol: string, amount: string) : Promise<void> => {
+    if (marketsRef.current && network.current && network.current.backstop){
+      if (spinner.current) spinner.current(true)
+      let market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+      const backstopAddress = network.current?.backstop.find(x=>x.symbol === symbol)
+      if(market && market.backstop && provider.current && backstopAddress){
+        try{
+          setCompleted(false)
+          market.backstopWithdrawSpinner = true
+          if(selectedMarketRef.current && selectedMarketRef.current.backstop)
+            selectedMarketRef.current.backstopWithdrawSpinner = true
+          const value = BigNumber.parseValueSafe(amount, market.backstop.decimals)
+          const am = value._value
+          const signer = provider.current.getSigner()
+          const backstop = new ethers.Contract(backstopAddress.address, BPRO_ABI, signer)
+          const tx = await backstop.withdraw(am)
+
+          if (spinner.current) spinner.current(false)
+
+          console.log(tx)
+          const receipt = await tx.wait()
+          console.log(receipt)
+        }
+        catch(err){
+          console.log(err)
+        }
+        finally{
+          if (spinner.current) spinner.current(false)
+          market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+          if(market){
+            await handleUpdate(market, "backstopWithdraw")
+          }
+          setCompleted(true)
+        }
+      }
+    }
+  }
+
+  
     
-    return (
-        <div className="content">
-            <GeneralDetails generalData={generalData}/>
-            <Markets generalData = {generalDataRef.current} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} 
-              supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog} darkMode={props.darkMode}/>
-            <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
-              handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
-            <SupplyMarketDialog completed={completed} open={openSupplyMarketDialog} market={selectedMarketRef.current} generalData={generalData} 
-              closeSupplyMarketDialog = {closeSupplyMarketDialog} darkMode={props.darkMode} 
-              handleEnable = {handleEnable} handleSupply={handleSupply} handleWithdraw={handleWithdraw} getMaxAmount={getMaxAmount} spinnerVisible={props.spinnerVisible}/>
-            <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
-              closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}
-              handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={props.spinnerVisible}/> 
-        </div>
-    )
+  return (
+      <div className="content">
+          <GeneralDetails generalData={generalData}/>
+          <Markets generalData = {generalDataRef.current} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} 
+            supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog} darkMode={props.darkMode}/>
+          <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
+            handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
+          <SupplyMarketDialog completed={completed} open={openSupplyMarketDialog} market={selectedMarketRef.current} generalData={generalData} 
+            closeSupplyMarketDialog = {closeSupplyMarketDialog} darkMode={props.darkMode} handleApproveBackstop={handleApproveBackstop} handleBackstopDeposit={handleBackstopDeposit}
+            handleBackstopWithdraw={handleBackstopWithdraw} handleEnable = {handleEnable} handleSupply={handleSupply} handleWithdraw={handleWithdraw} getMaxAmount={getMaxAmount} spinnerVisible={props.spinnerVisible}/>
+          <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
+            closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}
+            handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={props.spinnerVisible}/> 
+      </div>
+  )
 }
 
 export default Content

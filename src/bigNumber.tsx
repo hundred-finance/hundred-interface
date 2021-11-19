@@ -41,7 +41,6 @@ export class BigNumber {
           return tempNum1.div(tempNum2)
         }
         default : 
-        console.log("default")
           return BigNumber.from(0)
       }
     }
@@ -64,7 +63,7 @@ export class BigNumber {
     }
 
     divSafe = (value: BigNumber) : BigNumber => {
-      return this.safeOperation(this, value, "div", true)
+      return this.safeOperation(this, value, "div")
     }
 
     sub = (value: BigNumber) : BigNumber => {

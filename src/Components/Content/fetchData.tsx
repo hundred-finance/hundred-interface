@@ -210,7 +210,6 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
 
     const tokensInfo = await Promise.all(tokens.map(async(t)=>{
         const tokenInfo = await getCtokenInfo(t, network, hndPrice, blockNum)
-        console.log(tokenInfo)
         return tokenInfo
     }))
 
@@ -323,9 +322,6 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
 
     const backstop = token.backstop ? new Backstop(BigNumber.from(token.backstop.userBalance, token.backstop.decimals), BigNumber.from(token.backstop.totalSuplly, token.backstop.decimals), 
                                                    BigNumber.from(token.backstop.underlyingBalance, decimals), token.backstop.decimals, token.backstop.symbol, BigNumber.from(token.backstop.allowance, decimals)) : null
-    if(token.backstop){
-      console.log(`userBalance: ${backstop?.userBalance}\ntotal Supply: ${backstop?.totalSupply}\nunderlyingBalance: ${backstop?.underlyingBalance}`)
-    }
     
     return new CTokenInfo(
       token.tokenAddress,

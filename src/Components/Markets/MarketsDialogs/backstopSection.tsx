@@ -37,7 +37,7 @@ const BackstopSection:React.FC<Props> = (props : Props) => {
                 </div>
                 <div className="dialog-section-content-value">
                     {props.market.backstop?.totalSupply.toRound(2, true)} {props.market.backstop?.symbol} (
-                        {props.market.backstop ? BigNumber.from((+props.market.backstop.totalSupply.toString() * +props.market.backstop.sharePrice.toString()).toString()).toRound(2, true) : 0} {props.market.underlying.symbol})
+                        {props.market.backstop ? BigNumber.parseValue((+props.market.backstop.totalSupply.toString() * +props.market.backstop.sharePrice.toString()).toString()).toRound(2, true) : 0} {props.market.underlying.symbol})
                 </div>
             </div>
         </div>
