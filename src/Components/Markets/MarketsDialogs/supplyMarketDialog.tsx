@@ -315,13 +315,21 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={3} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                                <TabHeaderItem tabId={4} title="Farm" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                {
+                                    props.gaugeV4 ?
+                                        <TabHeaderItem tabId={4} title="Farm" tabChange={tabChange}
+                                                       setTabChange={setTabChange}/> : ''
+                                }
                             </TabHeader>
                             :
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                {
+                                    props.gaugeV4 ?
                                 <TabHeaderItem tabId={3} title="Farm" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                        : ''
+                                }
                             </TabHeader>
                             }
                     <TabContent>
@@ -403,95 +411,114 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                     {props.market && props.market.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
                                 </MarketDialogButton>
                                 </TabContentItem>
-                                <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
-                                    <MarketDialogItem
-                                        title={"You Staked"}
-                                        value={`${formatBalance(props.gaugeV4?.userStakeBalance).toFixed(4)} h${props.market?.symbol}`}
-                                    />
-                                    <MarketDialogItem
-                                        title={"Claimable"}
-                                        value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
-                                    />
-                                    <TextBox
-                                        placeholder={`0 h${props.market?.symbol}`}
-                                        disabled={stakeDisabled}
-                                        value={stakeInput}
-                                        setInput={setStakeInput}
-                                        validation={stakeValidation}
-                                        button={"Max"}
-                                        onClick={() => getMaxStake()}
-                                    />
-                                    <MarketDialogButton disabled={stakeInput==="" || stakeValidation!=="" }
-                                                        onClick={() => props.handleStake(props.market?.symbol, props?.gaugeV4, stakeInput) }
-                                    >
-                                        {props.market && props.market.stakeSpinner ? (<Spinner size={"20px"}/>) : "Stake"}
-                                    </MarketDialogButton>
-                                    <TextBox
-                                        placeholder={`0 h${props.market?.symbol}`}
-                                        disabled={unstakeDisabled}
-                                        value={unstakeInput}
-                                        setInput={setUnstakeInput}
-                                        validation={unstakeValidation}
-                                        button={"Max"}
-                                        onClick={() => getMaxUnstake()}
-                                    />
-                                    <MarketDialogButton disabled={unstakeInput==="" || unstakeValidation!=="" }
-                                                        onClick={() => props.handleUnstake(props.market?.symbol, props?.gaugeV4, unstakeInput) }
-                                    >
-                                        {props.market && props.market.unstakeSpinner ? (<Spinner size={"20px"}/>) : "Exit stake"}
-                                    </MarketDialogButton>
-                                    <MarketDialogButton disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0))}
-                                                        onClick={() => props.handleMint(props.market?.symbol, props?.gaugeV4) }
-                                    >
-                                        {props.market && props.market.mintSpinner ? (<Spinner size={"20px"}/>) : "Claim HND"}
-                                    </MarketDialogButton>
-                                </TabContentItem>
+                                {
+                                    props.gaugeV4 ?
+                                        <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
+                                            <MarketDialogItem
+                                                title={"You Staked"}
+                                                value={`${formatBalance(props.gaugeV4?.userStakeBalance).toFixed(4)} h${props.market?.symbol}`}
+                                            />
+                                            <MarketDialogItem
+                                                title={"Claimable"}
+                                                value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
+                                            />
+                                            <TextBox
+                                                placeholder={`0 h${props.market?.symbol}`}
+                                                disabled={stakeDisabled}
+                                                value={stakeInput}
+                                                setInput={setStakeInput}
+                                                validation={stakeValidation}
+                                                button={"Max"}
+                                                onClick={() => getMaxStake()}
+                                            />
+                                            <MarketDialogButton disabled={stakeInput === "" || stakeValidation !== ""}
+                                                                onClick={() => props.handleStake(props.market?.symbol, props?.gaugeV4, stakeInput)}
+                                            >
+                                                {props.market && props.market.stakeSpinner ? (
+                                                    <Spinner size={"20px"}/>) : "Stake"}
+                                            </MarketDialogButton>
+                                            <TextBox
+                                                placeholder={`0 h${props.market?.symbol}`}
+                                                disabled={unstakeDisabled}
+                                                value={unstakeInput}
+                                                setInput={setUnstakeInput}
+                                                validation={unstakeValidation}
+                                                button={"Max"}
+                                                onClick={() => getMaxUnstake()}
+                                            />
+                                            <MarketDialogButton
+                                                disabled={unstakeInput === "" || unstakeValidation !== ""}
+                                                onClick={() => props.handleUnstake(props.market?.symbol, props?.gaugeV4, unstakeInput)}
+                                            >
+                                                {props.market && props.market.unstakeSpinner ? (
+                                                    <Spinner size={"20px"}/>) : "Exit stake"}
+                                            </MarketDialogButton>
+                                            <MarketDialogButton
+                                                disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0))}
+                                                onClick={() => props.handleMint(props.market?.symbol, props?.gaugeV4)}
+                                            >
+                                                {props.market && props.market.mintSpinner ? (
+                                                    <Spinner size={"20px"}/>) : "Claim HND"}
+                                            </MarketDialogButton>
+                                        </TabContentItem>
+                                        : ''
+                                }
                             </>
                             :
                                 <>
-                                    <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
-                                        <MarketDialogItem
-                                            title={"You Staked"}
-                                            value={`${formatBalance(props.gaugeV4?.userStakeBalance).toFixed(4)} h${props.market?.symbol}`}
-                                        />
-                                        <MarketDialogItem
-                                            title={"Claimable"}
-                                            value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
-                                        />
-                                        <TextBox
-                                            placeholder={`0 h${props.market?.symbol}`}
-                                            disabled={stakeDisabled}
-                                            value={stakeInput}
-                                            setInput={setStakeInput}
-                                            validation={stakeValidation}
-                                            button={"Max"}
-                                            onClick={() => getMaxStake()}
-                                        />
-                                        <MarketDialogButton disabled={stakeInput==="" || stakeValidation!=="" }
-                                                            onClick={() => props.handleStake(props.market?.symbol, props?.gaugeV4, stakeInput) }
-                                        >
-                                            {props.market && props.market.stakeSpinner ? (<Spinner size={"20px"}/>) : "Stake"}
-                                        </MarketDialogButton>
-                                        <TextBox
-                                            placeholder={`0 h${props.market?.symbol}`}
-                                            disabled={unstakeDisabled}
-                                            value={unstakeInput}
-                                            setInput={setUnstakeInput}
-                                            validation={unstakeValidation}
-                                            button={"Max"}
-                                            onClick={() => getMaxUnstake()}
-                                        />
-                                        <MarketDialogButton disabled={unstakeInput==="" || unstakeValidation!=="" }
-                                                            onClick={() => props.handleUnstake(props.market?.symbol, props?.gaugeV4, unstakeInput) }
-                                        >
-                                            {props.market && props.market.unstakeSpinner ? (<Spinner size={"20px"}/>) : "Exit stake"}
-                                        </MarketDialogButton>
-                                        <MarketDialogButton disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0))}
-                                                            onClick={() => props.handleMint(props.market?.symbol, props?.gaugeV4) }
-                                        >
-                                            {props.market && props.market.mintSpinner ? (<Spinner size={"20px"}/>) : "Claim HND"}
-                                        </MarketDialogButton>
-                                    </TabContentItem>
+                                    {
+                                        props.gaugeV4 ?
+                                            <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
+                                                <MarketDialogItem
+                                                    title={"You Staked"}
+                                                    value={`${formatBalance(props.gaugeV4?.userStakeBalance).toFixed(4)} h${props.market?.symbol}`}
+                                                />
+                                                <MarketDialogItem
+                                                    title={"Claimable"}
+                                                    value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
+                                                />
+                                                <TextBox
+                                                    placeholder={`0 h${props.market?.symbol}`}
+                                                    disabled={stakeDisabled}
+                                                    value={stakeInput}
+                                                    setInput={setStakeInput}
+                                                    validation={stakeValidation}
+                                                    button={"Max"}
+                                                    onClick={() => getMaxStake()}
+                                                />
+                                                <MarketDialogButton
+                                                    disabled={stakeInput === "" || stakeValidation !== ""}
+                                                    onClick={() => props.handleStake(props.market?.symbol, props?.gaugeV4, stakeInput)}
+                                                >
+                                                    {props.market && props.market.stakeSpinner ? (
+                                                        <Spinner size={"20px"}/>) : "Stake"}
+                                                </MarketDialogButton>
+                                                <TextBox
+                                                    placeholder={`0 h${props.market?.symbol}`}
+                                                    disabled={unstakeDisabled}
+                                                    value={unstakeInput}
+                                                    setInput={setUnstakeInput}
+                                                    validation={unstakeValidation}
+                                                    button={"Max"}
+                                                    onClick={() => getMaxUnstake()}
+                                                />
+                                                <MarketDialogButton
+                                                    disabled={unstakeInput === "" || unstakeValidation !== ""}
+                                                    onClick={() => props.handleUnstake(props.market?.symbol, props?.gaugeV4, unstakeInput)}
+                                                >
+                                                    {props.market && props.market.unstakeSpinner ? (
+                                                        <Spinner size={"20px"}/>) : "Exit stake"}
+                                                </MarketDialogButton>
+                                                <MarketDialogButton
+                                                    disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0))}
+                                                    onClick={() => props.handleMint(props.market?.symbol, props?.gaugeV4)}
+                                                >
+                                                    {props.market && props.market.mintSpinner ? (
+                                                        <Spinner size={"20px"}/>) : "Claim HND"}
+                                                </MarketDialogButton>
+                                            </TabContentItem>
+                                            : ''
+                                    }
 
                                 </>
                         }
