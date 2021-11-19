@@ -21,7 +21,9 @@ type Network = {
     hndPoolPercent?: number,
     liquidity?: boolean, 
     multicallAddress?: string,
-    backstop?:[Backstop]    
+    backstop?:[Backstop],
+    minterAddress?: string
+    gaugeControllerAddress?: string
 }
 
 type Backstop = {
@@ -161,6 +163,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010054c81c8c01951E6A631dD228bB02d8D1e5",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        minterAddress: "0x89fC1cc860dDF4fb91A7C52b12d5343bB03C332E",
+        gaugeControllerAddress: "0xFa0F5d0cA1031aC6A47CA8Db9cf9dcfd45B3659a"
     },
     "0x6357d2e0":
     {

@@ -82,6 +82,9 @@ export class CTokenInfo{
     withdrawSpinner: boolean
     borrowSpinner: boolean
     repaySpinner: boolean
+    stakeSpinner: boolean
+    unstakeSpinner: boolean
+    mintSpinner: boolean
     isNativeToken: boolean
 
     
@@ -153,6 +156,9 @@ export class CTokenInfo{
         this.withdrawSpinner = false
         this.borrowSpinner = false
         this.repaySpinner = false
+        this.stakeSpinner = false
+        this.unstakeSpinner = false
+        this.mintSpinner = false
 
         this.borrowHndApy = BigNumber.from("0")
         this.hndAPR = hndAPR

@@ -12,6 +12,7 @@ import EnterMarketDialog from "../Markets/MarketsDialogs/enterMarketDialog"
 import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import SupplyMarketDialog from "../Markets/MarketsDialogs/supplyMarketDialog"
 import { fetchData} from "./fetchData"
+import {GaugeV4, getGaugesData} from "../../Classes/gaugeV4Class";
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
@@ -56,6 +57,7 @@ interface Props{
 const Content: React.FC<Props> = (props : Props) => {
     const [comptrollerData, setComptrollerData] = useState<Comptroller | null>(null)
     const [marketsData, setMarketsData] = useState<(CTokenInfo | null)[] | null | undefined>(null)
+    const [gaugesV4Data, setGaugesV4Data] = useState<(GaugeV4 | null)[] | null | undefined>(null)
     const [generalData, setGeneralData] = useState<GeneralDetailsData | null>(null)
     const [selectedMarket, setSelectedMarket] = useState<CTokenInfo | null>(null)
     const [openEnterMarket, setOpenEnterMarket] = useState(false)
@@ -127,6 +129,9 @@ const Content: React.FC<Props> = (props : Props) => {
                 m.withdrawSpinner = spinner === "withdraw" ? false : market.withdrawSpinner
                 m.borrowSpinner = spinner === "borrow" ? false : market.borrowSpinner
                 m.repaySpinner = spinner === "repay" ? false : market.repaySpinner
+                m.stakeSpinner = spinner === "stake" ? false : market.stakeSpinner
+                m.unstakeSpinner = spinner === "unstake" ? false : market.unstakeSpinner
+                m.mintSpinner = spinner === "mint" ? false : market.mintSpinner
               }
               else{
                 m.spinner = market.spinner
@@ -134,6 +139,9 @@ const Content: React.FC<Props> = (props : Props) => {
                 m.withdrawSpinner = market.withdrawSpinner
                 m.borrowSpinner = market.borrowSpinner
                 m.repaySpinner = market.repaySpinner
+                m.stakeSpinner = market.stakeSpinner
+                m.unstakeSpinner = market.unstakeSpinner
+                m.mintSpinner = market.mintSpinner
               }
             }
           }
@@ -164,6 +172,10 @@ const Content: React.FC<Props> = (props : Props) => {
           const markets = await fetchData(comptrollerDataRef.current.allMarkets, userAddress.current, comptrollerDataRef.current, network.current, marketsRef.current, provider.current, hndPriceRef.current)
           
           updateMarkets(markets.markets, markets.hndBalance, markets.hundredBalace, markets.comAccrued, cToken, spinnerUpdate)
+        }
+        if (provider.current) {
+            const gauges = await getGaugesData(provider.current, userAddress.current, network.current)
+            setGaugesV4Data(gauges)
         }
       }
     }
@@ -218,6 +230,7 @@ const Content: React.FC<Props> = (props : Props) => {
         setSelectedMarket(null)
         setOpenBorrowMarketDialog(false)
         setOpenSupplyDialog(false)
+        setGaugesV4Data(null)
         if(updateHandle) clearTimeout(updateHandle)
         props.setSpinnerVisible(true)
         setUpdate(false)
@@ -615,17 +628,139 @@ const Content: React.FC<Props> = (props : Props) => {
       }
     }
   }
+
+  const handleStake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined, amount: string) => {
+      if(marketsRef.current){
+          if (spinner.current) spinner.current(true)
+          let market = marketsRef.current.find(x => x?.symbol === symbol)
+          if(market && provider.current){
+              try{
+                  setCompleted(false)
+
+                  if(selectedMarketRef.current)
+                      selectedMarketRef.current.stakeSpinner = true
+
+                  market.stakeSpinner = true
+
+                  await gaugeV4?.stakeCall(amount)
+
+                  if (spinner.current) spinner.current(false)
+
+                  setCompleted(true)
+              }
+              catch(err){
+                  console.log(err)
+              }
+              finally{
+                  if (spinner.current) spinner.current(false)
+                  market = marketsRef.current.find(x =>x?.symbol === symbol)
+                  if(market){
+                      setUpdate(true)
+                      await handleUpdate(market, "stake")
+                  }
+              }
+          }
+      }
+  }
+
+    const handleUnstake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined, amount: string) => {
+        if(marketsRef.current){
+            if (spinner.current) spinner.current(true)
+            let market = marketsRef.current.find(x => x?.symbol === symbol)
+            if(market && provider.current){
+                try{
+                    setCompleted(false)
+
+                    if(selectedMarketRef.current)
+                        selectedMarketRef.current.unstakeSpinner = true
+
+                    market.unstakeSpinner = true
+
+                    await gaugeV4?.unstakeCall(amount)
+
+                    if (spinner.current) spinner.current(false)
+
+                    setCompleted(true)
+                }
+                catch(err){
+                    console.log(err)
+                }
+                finally{
+                    if (spinner.current) spinner.current(false)
+                    market = marketsRef.current.find(x =>x?.symbol === symbol)
+                    if(market){
+                        setUpdate(true)
+                        await handleUpdate(market, "unstake")
+                    }
+                }
+            }
+        }
+    }
+
+    const handleMint = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined) => {
+        if(marketsRef.current){
+            if (spinner.current) spinner.current(true)
+            let market = marketsRef.current.find(x => x?.symbol === symbol)
+            if(market && provider.current){
+                try{
+                    setCompleted(false)
+
+                    if(selectedMarketRef.current)
+                        selectedMarketRef.current.mintSpinner = true
+
+                    market.mintSpinner = true
+
+                    await gaugeV4?.mintCall()
+
+                    if (spinner.current) spinner.current(false)
+
+                    setCompleted(true)
+                }
+                catch(err){
+                    console.log(err)
+                }
+                finally{
+                    if (spinner.current) spinner.current(false)
+                    market = marketsRef.current.find(x =>x?.symbol === symbol)
+                    if(market){
+                        setUpdate(true)
+                        await handleUpdate(market, "mint")
+                    }
+                }
+            }
+        }
+    }
     
     return (
         <div className="content">
             <GeneralDetails generalData={generalData}/>
-            <Markets generalData = {generalDataRef.current} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} 
-              supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog} darkMode={props.darkMode}/>
+            <Markets
+                generalData = {generalDataRef.current}
+                marketsData = {marketsData}
+                enterMarketDialog={enterMarketDialog}
+                supplyMarketDialog={supplyMarketDialog}
+                borrowMarketDialog={borrowMarketDialog}
+                darkMode={props.darkMode}
+            />
             <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
               handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
-            <SupplyMarketDialog completed={completed} open={openSupplyMarketDialog} market={selectedMarketRef.current} generalData={generalData} 
-              closeSupplyMarketDialog = {closeSupplyMarketDialog} darkMode={props.darkMode} 
-              handleEnable = {handleEnable} handleSupply={handleSupply} handleWithdraw={handleWithdraw} getMaxAmount={getMaxAmount} spinnerVisible={props.spinnerVisible}/>
+            <SupplyMarketDialog
+                completed={completed}
+                open={openSupplyMarketDialog}
+                market={selectedMarketRef.current}
+                generalData={generalData}
+                closeSupplyMarketDialog={closeSupplyMarketDialog}
+                darkMode={props.darkMode}
+                handleEnable = {handleEnable}
+                handleSupply={handleSupply}
+                handleWithdraw={handleWithdraw}
+                handleStake={handleStake}
+                handleUnstake={handleUnstake}
+                handleMint={handleMint}
+                getMaxAmount={getMaxAmount}
+                spinnerVisible={props.spinnerVisible}
+                gaugeV4={gaugesV4Data?.find(g => g?.lpToken.toLowerCase() === selectedMarketRef.current?.pTokenAddress.toLowerCase())}
+            />
             <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
               closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}
               handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={props.spinnerVisible}/> 
