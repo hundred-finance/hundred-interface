@@ -471,7 +471,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                             <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
                                                 <MarketDialogItem
                                                     title={"You Staked"}
-                                                    value={`${formatBalance(props.gaugeV4?.userStakeBalance).toFixed(4)} h${props.market?.symbol}`}
+                                                    value={`${formatBalance(props.gaugeV4?.userStakehTokenBalance).toFixed(4)} h${props.market?.symbol}`}
                                                 />
                                                 <MarketDialogItem
                                                     title={"Claimable"}

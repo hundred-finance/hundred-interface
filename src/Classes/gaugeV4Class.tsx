@@ -1,13 +1,15 @@
 import { Contract, Provider } from 'ethcall'
-import {CTOKEN_ABI, GAUGE_CONTROLLER_ABI, GAUGE_V4_ABI, MINTER_ABI} from '../abi'
+import {CTOKEN_ABI, GAUGE_CONTROLLER_ABI, GAUGE_V4_ABI, MINTER_ABI, TOKEN_ABI} from '../abi'
 import { Network } from '../networks'
 import {BigNumber} from "../bigNumber";
 import {ethers} from "ethers";
+import _ from "lodash";
 
 export class GaugeV4{
     address : string
     lpToken: string
     userStakeBalance: BigNumber
+    userStakehTokenBalance: BigNumber
     userLpBalance: BigNumber
     userClaimableHnd: BigNumber
     stakeCall: (amount: string) => void
@@ -26,7 +28,8 @@ export class GaugeV4{
     ){
         this.address = address
         this.lpToken = lpToken
-        this.userStakeBalance = BigNumber.from(userStakeBalance.toString(), 8)
+        this.userStakeBalance = BigNumber.from(userStakeBalance.toString(), 18)
+        this.userStakehTokenBalance = BigNumber.from(userStakeBalance.toString(), 8)
         this.userLpBalance = BigNumber.from(userLpBalance.toString(), 8)
         this.userClaimableHnd = BigNumber.from(userClaimableHnd.toString(), 18)
         this.stakeCall = stakeCall
@@ -45,25 +48,30 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
             ethcallProvider.multicallAddress = network.multicallAddress
         }
         const ethcallGaugeController = new Contract(network.gaugeControllerAddress, GAUGE_CONTROLLER_ABI)
+
         const [nbGauges] = await ethcallProvider.all([ethcallGaugeController.n_gauges()])
         const gauges = await ethcallProvider.all(Array.from(Array(nbGauges).keys()).map(i => ethcallGaugeController.gauges(i)))
         const gaugeLpTokens = await ethcallProvider.all(gauges.map(i => new Contract(i, GAUGE_V4_ABI).lp_token()))
-        const userStakedBalances = await ethcallProvider.all(gauges.map(i => new Contract(i, GAUGE_V4_ABI).balanceOf(userAddress)))
-        const userLpBalances = await ethcallProvider.all(gaugeLpTokens.map(i => new Contract(i, CTOKEN_ABI).balanceOf(userAddress)))
-        const totalMintable = await ethcallProvider.all(gauges.map(i => new Contract(i, GAUGE_V4_ABI).integrate_fraction(userAddress)))
         const minters = await ethcallProvider.all(gauges.map(i => new Contract(i, GAUGE_V4_ABI).minter()))
-        const minted = await ethcallProvider.all(minters.map((i, index) => new Contract(i, MINTER_ABI).minted(userAddress, gauges[index])))
 
-        // total_mint: uint256 = LiquidityGauge(gauge_addr).integrate_fraction(_for)
-        // to_mint: uint256 = total_mint - self.minted[_for][gauge_addr]
+        const info = await ethcallProvider.all(
+            gauges.flatMap((g, index) => [
+                new Contract(g, GAUGE_V4_ABI).balanceOf(userAddress),
+                new Contract(g, GAUGE_V4_ABI).integrate_fraction(userAddress),
+                new Contract(gaugeLpTokens[index], CTOKEN_ABI).balanceOf(userAddress),
+                new Contract(minters[index], MINTER_ABI).minted(userAddress, g)
+            ])
+        )
+
+        const infoChunks = _.chunk(info, 4);
 
         return gauges.map((g, index) => new GaugeV4(
                 g,
                 gaugeLpTokens[index],
-                userStakedBalances[index],
-                userLpBalances[index],
-                totalMintable[index].sub(minted[index]),
-                (amount: string) => stake(provider, g, amount),
+                infoChunks[index][0],
+                infoChunks[index][2],
+                infoChunks[index][1].sub(infoChunks[index][3]),
+                (amount: string) => stake(provider, userAddress, g, gaugeLpTokens[index], amount),
                 (amount: string) => unstake(provider, g, amount),
             () => mint(provider, g)
             )
@@ -73,9 +81,19 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
     return []
   }
 
-const stake = async (provider: any, address: string, amount: string) => {
+const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
+
+const stake = async (provider: any, userAddress: string, gaugeAddress: string, lpTokenAddress: string, amount: string) => {
+    const depositAmount = ethers.utils.parseUnits(amount, 8);
     const signer = provider.getSigner()
-    const gauge = new ethers.Contract(address, GAUGE_V4_ABI, signer)
+    const gauge = new ethers.Contract(gaugeAddress, GAUGE_V4_ABI, signer)
+
+    const contract = new ethers.Contract(lpTokenAddress, TOKEN_ABI, signer);
+    const approval = await contract.allowance(userAddress, gaugeAddress);
+    if (approval.lt(depositAmount)) {
+        const approveTx = await contract.approve(gaugeAddress, MaxUint256._value)
+        await approveTx.wait();
+    }
     const tx = await gauge.deposit(ethers.utils.parseUnits(amount, 8))
     await tx.wait()
 }
@@ -83,7 +101,7 @@ const stake = async (provider: any, address: string, amount: string) => {
 const unstake = async (provider: any, address: string, amount: string) => {
     const signer = provider.getSigner()
     const gauge = new ethers.Contract(address, GAUGE_V4_ABI, signer)
-    const tx = await gauge.withdraw(ethers.utils.parseUnits(amount, 8))
+    const tx = await gauge.withdraw(ethers.utils.parseUnits(amount, 18))
     await tx.wait()
 }
 
