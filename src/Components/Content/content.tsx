@@ -172,10 +172,8 @@ const Content: React.FC<Props> = (props : Props) => {
           const markets = await fetchData(comptrollerDataRef.current.allMarkets, userAddress.current, comptrollerDataRef.current, network.current, marketsRef.current, provider.current, hndPriceRef.current)
           
           updateMarkets(markets.markets, markets.hndBalance, markets.hundredBalace, markets.comAccrued, cToken, spinnerUpdate)
-        }
-        if (provider.current) {
-            const gauges = await getGaugesData(provider.current, userAddress.current, network.current)
-            setGaugesV4Data(gauges)
+          const gauges = await getGaugesData(provider.current, userAddress.current, network.current, markets.gauges)
+          setGaugesV4Data(gauges)
         }
       }
     }
@@ -759,7 +757,7 @@ const Content: React.FC<Props> = (props : Props) => {
                 handleMint={handleMint}
                 getMaxAmount={getMaxAmount}
                 spinnerVisible={props.spinnerVisible}
-                gaugeV4={gaugesV4Data?.find(g => g?.lpToken.toLowerCase() === selectedMarketRef.current?.pTokenAddress.toLowerCase())}
+                gaugeV4={gaugesV4Data?.find(g => g?.generalData.lpToken.toLowerCase() === selectedMarketRef.current?.pTokenAddress.toLowerCase())}
             />
             <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
               closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}

@@ -1,11 +1,21 @@
 import { Call, Contract } from "ethcall"
 import { ethers } from "ethers"
-import { BPRO_ABI, COMPTROLLER_ABI, CTOKEN_ABI, HUNDRED_ABI, TOKEN_ABI } from "../../abi"
+import {
+    BPRO_ABI,
+    COMPTROLLER_ABI,
+    CTOKEN_ABI,
+    GAUGE_CONTROLLER_ABI,
+    GAUGE_V4_ABI,
+    HUNDRED_ABI,
+    TOKEN_ABI
+} from "../../abi"
 import { BigNumber } from "../../bigNumber"
 import { Comptroller } from "../../Classes/comptrollerClass"
 import { CTokenInfo, Backstop } from "../../Classes/cTokenClass"
 import Logos from "../../logos"
 import { Network } from "../../networks"
+import {GaugeV4GeneralData} from "../../Classes/gaugeV4Class";
+import _ from "lodash";
 
 const mantissa = 1e18
 
@@ -72,11 +82,20 @@ export type MarketDataType = {
     hndBalance: BigNumber,
     hundredBalace: BigNumber,
     comAccrued: BigNumber,
-    markets: CTokenInfo[]
+    markets: CTokenInfo[],
+    gauges: GaugeV4GeneralData[]
 }
   
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const fetchData = async(allMarkets:string[], userAddress: string, comptrollerData: Comptroller, network: Network, marketsData: (CTokenInfo | null)[] | null | undefined, provider: any, hndPrice: number) : Promise<MarketDataType> => {
+export const fetchData = async(
+    allMarkets:string[],
+    userAddress: string,
+    comptrollerData: Comptroller,
+    network: Network,
+    marketsData: (CTokenInfo | null)[] | null | undefined,
+    provider: any,
+    hndPrice: number
+) : Promise<MarketDataType> => {
     const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
     const calls= [ethcallComptroller.getAssetsIn(userAddress)]
 
@@ -84,6 +103,12 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
 
     const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI)
     calls.push(balanceContract.balanceOf(userAddress))
+
+    if (network?.gaugeControllerAddress) {
+        const ethcallGaugeController = new Contract(network.gaugeControllerAddress, GAUGE_CONTROLLER_ABI)
+        calls.push(ethcallGaugeController.n_gauges())
+    }
+
     if(network.hundredLiquidityPoolAddress) calls.push(balanceContract.balanceOf(network.hundredLiquidityPoolAddress))
 
     const markets = allMarkets.filter((a) => {
@@ -166,17 +191,20 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
           }
         }
     })
-    
+
     const res = await comptrollerData.ethcallProvider.all(calls)
     
     const tokens = []
     let compAccrued = BigNumber.from("0")
     let hndBalance = BigNumber.from("0")
     let hundredBalace = BigNumber.from("0")
+    let gaugesGeneralData: Array<GaugeV4GeneralData> = []
+    let nbGauges = 0
 
     let compareLength = network.hundredLiquidityPoolAddress ? notNativeMarkets.length * 19 + 17 : notNativeMarkets.length * 19 + 16
     compareLength = network.backstop ? compareLength + network.backstop.length * 6 : compareLength
-    
+    compareLength = network?.gaugeControllerAddress ? compareLength + 1 : compareLength
+
     if(res && res.length === compareLength){
         
       const enteredMarkets = res[0].map((x: string)=> {return x})
@@ -184,11 +212,17 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
       compAccrued = BigNumber.from(res[1], 18)
       hndBalance = BigNumber.from(res[2], 18)
 
+      if (network?.gaugeControllerAddress) {
+          nbGauges = res[3].toNumber()
+          res.splice(0, 4)
+      } else {
+          res.splice(0, 3)
+      }
+
       if(network.hundredLiquidityPoolAddress){
           hundredBalace = BigNumber.from(res[3], 18)
-          res.splice(0, 4)
+          res.splice(0, 1)
       }
-      else res.splice(0, 3)
        
         if(nativeToken){
             const native = res.splice(0, 13)
@@ -203,6 +237,27 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
             tokens.push(await getTokenData(token, false, network, provider, userAddress, underlyingAddresses[i], enteredMarkets, notNativeMarkets[i], backstop ? true : false))
             i+=1
         }
+
+        if (nbGauges && network.gaugeControllerAddress) {
+            const ethcallGaugeController = new Contract(network.gaugeControllerAddress, GAUGE_CONTROLLER_ABI)
+            const gauges = await comptrollerData.ethcallProvider.all(Array.from(Array(nbGauges).keys()).map(i => ethcallGaugeController.gauges(i)))
+
+            const lpAndMinterAddresses = await comptrollerData.ethcallProvider.all(
+                gauges.flatMap((g) => [
+                    new Contract(g, GAUGE_V4_ABI).lp_token(),
+                    new Contract(g, GAUGE_V4_ABI).minter()
+                ])
+            )
+
+            gaugesGeneralData = _.chunk(lpAndMinterAddresses, 2).map((c, index) => {
+                return {
+                    address: gauges[index],
+                    lpToken: c[0],
+                    minter: c[1]
+                }
+            })
+
+        }
     }
 
     const blockProvider : ethers.providers.Web3Provider = network.blockRpc ? new ethers.providers.JsonRpcProvider(network.blockRpc) : provider
@@ -214,7 +269,14 @@ export const fetchData = async(allMarkets:string[], userAddress: string, comptro
         return tokenInfo
     }))
 
-    return {hndPrice: hndPrice, markets: tokensInfo, hndBalance: hndBalance, hundredBalace: hundredBalace, comAccrued: compAccrued}
+    return {
+        hndPrice: hndPrice,
+        markets: tokensInfo,
+        hndBalance: hndBalance,
+        hundredBalace: hundredBalace,
+        comAccrued: compAccrued,
+        gauges: gaugesGeneralData
+    }
   }
 
  const getTokenData = async(tokenData: any[], native: boolean, network: Network, provider: ethers.providers.Web3Provider, 
