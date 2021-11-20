@@ -33,8 +33,14 @@ const Markets: React.FC<Props> = (props : Props) => {
                 <MarketContainerTitle>
                     Supply Market
                 </MarketContainerTitle>
-                <SupplyMarket generalData={props.generalData} marketsData = {props.marketsData} enterMarketDialog = {props.enterMarketDialog} 
-                    supplyMarketDialog={props.supplyMarketDialog} more={showMore} darkMode={props.darkMode}/>
+                <SupplyMarket
+                    generalData={props.generalData}
+                    marketsData = {props.marketsData}
+                    enterMarketDialog = {props.enterMarketDialog}
+                    supplyMarketDialog={props.supplyMarketDialog}
+                    more={showMore}
+                    darkMode={props.darkMode}
+                />
                 {props.marketsData && props.marketsData.length > 6 ? <MarketContainerShowMore onClick={handleSupplyMore}>
                 {
                     !showMore ? (

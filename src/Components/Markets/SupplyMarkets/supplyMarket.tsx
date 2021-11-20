@@ -55,8 +55,13 @@ const SupplyMarket: React.FC<Props> = (props : Props) => {
                   {props.marketsData?.filter((item) => item?.supplyBalance?.gt(BigNumber.from("0")))
                     .sort(compareSymbol).sort(compareLiquidity).sort(compareHndAPR)
                     .map((details, index) => (
-                      <SupplyMarketRow key={index} tooltip={`supply-${index}`} details={details} enterMarketDialog={props.enterMarketDialog} 
-                        supplyMarketDialog={props.supplyMarketDialog}/>
+                      <SupplyMarketRow
+                          key={index}
+                          tooltip={`supply-${index}`}
+                          details={details}
+                          enterMarketDialog={props.enterMarketDialog}
+                          supplyMarketDialog={props.supplyMarketDialog}
+                      />
                     ))}
                   {props.generalData?.totalSupplyBalance.gt(BigNumber.from("0")) && (
                     <tr>
@@ -80,8 +85,13 @@ const SupplyMarket: React.FC<Props> = (props : Props) => {
                     .map((details, index) => {
                       if(props.more || (!props.more && index < 6)) 
                         return (
-                          <SupplyMarketRow key={index} tooltip={`not-supply-${index}`} details={details} enterMarketDialog={props.enterMarketDialog} 
-                           supplyMarketDialog={props.supplyMarketDialog}/>
+                          <SupplyMarketRow
+                              key={index}
+                              tooltip={`not-supply-${index}`}
+                              details={details}
+                              enterMarketDialog={props.enterMarketDialog}
+                              supplyMarketDialog={props.supplyMarketDialog}
+                          />
                         )
                       else return null
                   })}
