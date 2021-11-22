@@ -24,7 +24,7 @@ export class Backstop{
     this.totalSupply = totalSupply
     this.underlyingBalance = underlyingBalance
     this.decimals = decimals
-    this.sharePrice = underlyingBalance.divSafe(totalSupply)
+    this.sharePrice = BigNumber.parseValue((+underlyingBalance.toString()/+totalSupply.toString()).toString())
     this.symbol = symbol
     this.allowance = allowance
   }
