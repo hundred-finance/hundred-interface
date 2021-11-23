@@ -12,7 +12,7 @@ const DialogMarketInfoSection : React.FC<Props> = (props : Props) => {
     const getSupplyBorrowed = () : string => {
         if (props.market){
             const marketTotalBorrowInTokenUnit = +props.market?.marketTotalBorrowInTokenUnit.toString()
-            const underlyingAmount = +props.market?.underlyingAmount.toString()
+            const underlyingAmount = +props.market?.cash.toString()
             let value = marketTotalBorrowInTokenUnit / (marketTotalBorrowInTokenUnit + underlyingAmount) * 100
             if (isNaN(value)) value = 0
             //else value = Math.round((value + Number.EPSILON) * Math.pow(10, 18)) / Math.pow(10, 18)

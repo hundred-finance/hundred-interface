@@ -16,9 +16,9 @@ const BorrowMarketRow: React.FC<Props> = (props : Props) => {
         <td>
           <div className="asset"> 
                 <div className="asset-logo">
-                  <img className="rounded-circle" src={props?.details?.logoSource} alt=""/>
+                  <img className="rounded-circle" src={props?.details?.underlying.logo} alt=""/>
                 </div>
-                <span>{props?.details?.symbol}</span>
+                <span>{props?.details?.underlying.symbol}</span>
             </div>
         </td>
         <td className={props.details && +props.details.borrowApy.toFixed(2) > 0 ? "positive" : ""}>
@@ -35,7 +35,7 @@ const BorrowMarketRow: React.FC<Props> = (props : Props) => {
         </td>
         
         <td>
-            {props.details ? +props.details.walletBalance.toFixed(4).toString() : "0"}
+            {props.details ? +props.details.underlying.walletBalance.toFixed(4).toString() : "0"}
         </td>
         <td>
           <div className="spinner-container">

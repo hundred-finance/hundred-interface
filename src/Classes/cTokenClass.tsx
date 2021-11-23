@@ -1,14 +1,12 @@
 import { ethers} from "ethers"
 import { Contract} from 'ethcall'
 import {BigNumber} from "../bigNumber"
-import { CTOKEN_ABI, MKR_TOKEN_ABI, TOKEN_ABI } from "../abi"
-import Logos from "../logos"
-import { Network } from "../networks"
-import { Comptroller, Comptroller2 } from "./comptrollerClass"
+import { MKR_TOKEN_ABI, TOKEN_ABI } from "../abi"
+import { Comptroller} from "./comptrollerClass"
 import { Call } from "ethcall/lib/call"
 
 // const blockTime = 2.1 // seconds
-const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
+//const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
 // const blocksPerDay = (24 * 60 * 60) / blockTime
 // const daysPerYear = 365
 // const rewardTokenPrice = 1
@@ -26,43 +24,41 @@ export class Backstop{
     this.totalSupply = totalSupply
     this.underlyingBalance = underlyingBalance
     this.decimals = decimals
-    this.sharePrice = underlyingBalance.divSafe(totalSupply)
+    this.sharePrice = BigNumber.parseValue((+underlyingBalance.toString()/+totalSupply.toString()).toString())
     this.symbol = symbol
     this.allowance = allowance
   }
 }
 
 export class Underlying{
-  address: string | null
+  address: string
   symbol: string
-  name:  string
-  logo: string
-  allowance: BigNumber
-  price: BigNumber
-  wallletBalance: BigNumber
+  name: string
+  decimals: number
   totalSupply: BigNumber
+  logo: string
+  price: BigNumber
+  walletBalance: BigNumber
+  allowance: BigNumber
 
-  constructor(address: string | null, symbol: string, name:  string, logo: string, allowance: BigNumber, price: BigNumber, wallletBalance: BigNumber, totalSupply: BigNumber){
-    this.address = address
+  constructor(address: string, symbol: string, name: string, logo: string, decimals: number, totalSupply: ethers.BigNumber, price: ethers.BigNumber, walletBalance: ethers.BigNumber, allowance: ethers.BigNumber){
+    this.address = address 
     this.symbol = symbol
-    this.name = name
-    this.logo = logo
-    this.allowance = allowance
-    this.price = price
-    this.wallletBalance = wallletBalance
-    this.totalSupply = totalSupply
+    this.name = name 
+    this.logo = logo 
+    this.decimals = decimals 
+    this.totalSupply = BigNumber.from(totalSupply, decimals) 
+    this.price = BigNumber.from(price, 36-decimals)
+    this.walletBalance = BigNumber.from(walletBalance, decimals) 
+    this.allowance = BigNumber.from(allowance, decimals)
   }
 }
 
 export class CTokenInfo{
     pTokenAddress: string
-    underlyingAddress: string | null
-    symbol: string
-    logoSource: string
+    underlying: Underlying
     supplyApy: BigNumber
     borrowApy: BigNumber
-    underlyingAllowance: BigNumber
-    walletBalance: BigNumber
     supplyBalanceInTokenUnit: BigNumber
     supplyBalance: BigNumber
     marketTotalSupply: BigNumber
@@ -71,12 +67,10 @@ export class CTokenInfo{
     marketTotalBorrowInTokenUnit: BigNumber
     marketTotalBorrow: BigNumber
     isEnterMarket: boolean
-    underlyingAmount: BigNumber
-    underlyingPrice: BigNumber
+    cash: BigNumber
     liquidity: BigNumber
     collateralFactor: BigNumber
     hndSpeed: BigNumber
-    decimals: number
     spinner: boolean
     supplySpinner: boolean
     withdrawSpinner: boolean
@@ -85,6 +79,8 @@ export class CTokenInfo{
     stakeSpinner: boolean
     unstakeSpinner: boolean
     mintSpinner: boolean
+    backstopDepositSpinner: boolean
+    backstopWithdrawSpinner: boolean
     isNativeToken: boolean
 
     
@@ -100,13 +96,9 @@ export class CTokenInfo{
    
 
     constructor(pTokenAddress: string,
-                underlyingAddress: string | null,
-                symbol: string,
-                logoSource: string,
+                underlying: Underlying,
                 supplyApy: BigNumber,
                 borrowApy: BigNumber,
-                underlyingAllowance: BigNumber,
-                walletBalance: BigNumber,
                 supplyBalanceInTokenUnit: BigNumber,
                 supplyBalance: BigNumber,
                 marketTotalSupply: BigNumber,
@@ -115,12 +107,10 @@ export class CTokenInfo{
                 marketTotalBorrowInTokenUnit: BigNumber,
                 marketTotalBorrow: BigNumber,
                 isEnterMarket: boolean,
-                underlyingAmount: BigNumber,
-                underlyingPrice: BigNumber,
+                cash: BigNumber,
                 liquidity: BigNumber,
                 collateralFactor: BigNumber,
                 hndSpeed: BigNumber,
-                decimals: number,
                 isNativeToken: boolean,
                 hndAPR: BigNumber,
                 borrowRatePerBlock: BigNumber,
@@ -129,13 +119,9 @@ export class CTokenInfo{
                 backstop: Backstop | null
                 ){
         this.pTokenAddress= pTokenAddress
-        this.underlyingAddress= underlyingAddress
-        this.symbol= symbol
-        this.logoSource= logoSource
+        this.underlying = underlying
         this.supplyApy= supplyApy
         this.borrowApy= borrowApy
-        this.underlyingAllowance= underlyingAllowance
-        this.walletBalance= walletBalance
         this.supplyBalanceInTokenUnit= supplyBalanceInTokenUnit
         this.supplyBalance= supplyBalance
         this.marketTotalSupply= marketTotalSupply
@@ -144,12 +130,10 @@ export class CTokenInfo{
         this.marketTotalBorrowInTokenUnit= marketTotalBorrowInTokenUnit
         this.marketTotalBorrow= marketTotalBorrow
         this.isEnterMarket= isEnterMarket
-        this.underlyingAmount= underlyingAmount
-        this.underlyingPrice= underlyingPrice
+        this.cash= cash
         this.liquidity= liquidity
         this.collateralFactor= collateralFactor
         this.hndSpeed= hndSpeed
-        this.decimals= decimals
         this.isNativeToken = isNativeToken
         this.spinner = false
         this.supplySpinner = false
@@ -159,6 +143,8 @@ export class CTokenInfo{
         this.stakeSpinner = false
         this.unstakeSpinner = false
         this.mintSpinner = false
+        this.backstopDepositSpinner = false
+        this.backstopWithdrawSpinner = false
 
         this.borrowHndApy = BigNumber.from("0")
         this.hndAPR = hndAPR
@@ -171,230 +157,206 @@ export class CTokenInfo{
     }
 }
 
-class UnderlyingInfo{
-      address: string
-      symbol: string
-      name: string
-      decimals: number
-      totalSupply: number
-      logo: string
-      price: BigNumber
-      walletBalance: BigNumber
-      allowance: BigNumber
+// // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+// export const getCtokenInfo = async (address : string, isNativeToken : boolean, provider: any, userAddress: string, comptrollerData: Comptroller2, network: Network, hndPrice: number) : Promise<CTokenInfo>=> {
+//     const cToken = new Contract(address, CTOKEN_ABI)
 
-      constructor(address: string, symbol: string, name: string, decimals: number, totalSupply: number, logo: string, price: BigNumber, walletBalance: ethers.BigNumber, allowance: ethers.BigNumber){
-        this.address = address 
-        this.symbol = symbol
-        this.name = name 
-        this.decimals = decimals 
-        this.totalSupply = totalSupply 
-        this.logo = logo 
-        this.price = price
-        this.walletBalance = BigNumber.from(walletBalance, decimals) 
-        this.allowance = BigNumber.from(allowance, decimals)
-      }
-}
+//     const calls = [ 
+//       cToken.getAccountSnapshot(userAddress), 
+//       cToken.exchangeRateStored(),
+//       cToken.totalSupply(),  
+//       cToken.totalBorrows(), 
+//       cToken.supplyRatePerBlock(), 
+//       cToken.borrowRatePerBlock(), 
+//       cToken.getCash(), 
+//       cToken.balanceOf(userAddress),
+//       comptrollerData.ethcallComptroller.markets(address), 
+//       comptrollerData.ethcallComptroller.compSpeeds(address), 
+//       comptrollerData.ethcallComptroller.compSupplyState(address), 
+//       comptrollerData.ethcallComptroller.compSupplierIndex(address, userAddress),]
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getCtokenInfo = async (address : string, isNativeToken : boolean, provider: any, userAddress: string, comptrollerData: Comptroller2, network: Network, hndPrice: number) : Promise<CTokenInfo>=> {
-    const cToken = new Contract(address, CTOKEN_ABI)
+//       if(!isNativeToken) calls.push(cToken.underlying())
 
-    const calls = [ 
-      cToken.getAccountSnapshot(userAddress), 
-      cToken.exchangeRateStored(),
-      cToken.totalSupply(),  
-      cToken.totalBorrows(), 
-      cToken.supplyRatePerBlock(), 
-      cToken.borrowRatePerBlock(), 
-      cToken.getCash(), 
-      cToken.balanceOf(userAddress),
-      comptrollerData.ethcallComptroller.markets(address), 
-      comptrollerData.ethcallComptroller.compSpeeds(address), 
-      comptrollerData.ethcallComptroller.compSupplyState(address), 
-      comptrollerData.ethcallComptroller.compSupplierIndex(address, userAddress),]
-
-      if(!isNativeToken) calls.push(cToken.underlying())
-
-      const [accountSnapshot,
-            exchangeRate, 
-            totalSupply, 
-            totalBorrows, 
-            supplyRate, 
-            borrowRate, 
-            getCash, 
-            cTokenBalanceOfUser,
-            markets, 
-            compSpeed, 
-            supplyState, 
-            supplierIndex, 
-            underlyingAddress] = await comptrollerData.ethcallProvider.all(calls)
+//       const [accountSnapshot,
+//             exchangeRate, 
+//             totalSupply, 
+//             totalBorrows, 
+//             supplyRate, 
+//             borrowRate, 
+//             getCash, 
+//             cTokenBalanceOfUser,
+//             markets, 
+//             compSpeed, 
+//             supplyState, 
+//             supplierIndex, 
+//             underlyingAddress] = await comptrollerData.ethcallProvider.all(calls)
     
-        //const ctoken = new ethers.Contract(address, CTOKEN_ABI, provider)
-    //console.log(`underlyingAddress: ${underlyingAddress}\naccountSnapshot:${accountSnapshot}\ntotalSupply:${totalSupply}\nexchangeRate: ${exchangeRate}\ntotalBorrows: ${totalBorrows}\nsupplyRate: ${supplyRate}\nborrowRate:${borrowRate}\ngetCash: ${getCash}`)
-    const underlying = await getUnderlying(underlyingAddress, address, comptrollerData, provider, userAddress, network)
+//         //const ctoken = new ethers.Contract(address, CTOKEN_ABI, provider)
+//     //console.log(`underlyingAddress: ${underlyingAddress}\naccountSnapshot:${accountSnapshot}\ntotalSupply:${totalSupply}\nexchangeRate: ${exchangeRate}\ntotalBorrows: ${totalBorrows}\nsupplyRate: ${supplyRate}\nborrowRate:${borrowRate}\ngetCash: ${getCash}`)
+//     const underlying = await getUnderlying(underlyingAddress, address, comptrollerData, provider, userAddress, network)
     
-    const decimals = underlying.decimals
-    const underlyingPrice = BigNumber.from(underlying.price, 36-decimals)
+//     const decimals = underlying.decimals
+//     const underlyingPrice = BigNumber.from(underlying.price, 36-decimals)
   
-    const accountSnapshot1 = BigNumber.from(accountSnapshot[1].toString(), 18)
-    const accountSnapshot3 = BigNumber.from(accountSnapshot[3].toString(), decimals)
-    const supplyBalanceInTokenUnit = accountSnapshot1.mul(accountSnapshot3)
+//     const accountSnapshot1 = BigNumber.from(accountSnapshot[1].toString(), 18)
+//     const accountSnapshot3 = BigNumber.from(accountSnapshot[3].toString(), decimals)
+//     const supplyBalanceInTokenUnit = accountSnapshot1.mul(accountSnapshot3)
 
-    const supplyBalance = BigNumber.parseValue((+supplyBalanceInTokenUnit.toString() * +underlyingPrice.toString()).noExponents())
+//     const supplyBalance = BigNumber.parseValue((+supplyBalanceInTokenUnit.toString() * +underlyingPrice.toString()).noExponents())
 
-    const borrowBalanceInTokenUnit = BigNumber.from(accountSnapshot[2].toString(), decimals)
-    const borrowBalance = borrowBalanceInTokenUnit.mul(underlyingPrice)
+//     const borrowBalanceInTokenUnit = BigNumber.from(accountSnapshot[2].toString(), decimals)
+//     const borrowBalance = borrowBalanceInTokenUnit.mul(underlyingPrice)
 
-    const exchangeRateStored = BigNumber.from(exchangeRate, 18)
+//     const exchangeRateStored = BigNumber.from(exchangeRate, 18)
 
-    const marketTotalSupply = BigNumber.parseValue((+BigNumber.from(totalSupply, decimals).toString() * +exchangeRateStored.toString() * +underlyingPrice.toString()).noExponents())//cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
+//     const marketTotalSupply = BigNumber.parseValue((+BigNumber.from(totalSupply, decimals).toString() * +exchangeRateStored.toString() * +underlyingPrice.toString()).noExponents())//cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
 
-    const cTokenTotalBorrows = BigNumber.from(totalBorrows, decimals)
-    const marketTotalBorrowInTokenUnit = BigNumber.from(cTokenTotalBorrows._value, decimals)
-    const marketTotalBorrow = cTokenTotalBorrows?.mul(underlyingPrice)
+//     const cTokenTotalBorrows = BigNumber.from(totalBorrows, decimals)
+//     const marketTotalBorrowInTokenUnit = BigNumber.from(cTokenTotalBorrows._value, decimals)
+//     const marketTotalBorrow = cTokenTotalBorrows?.mul(underlyingPrice)
 
-    const isEnterMarket = comptrollerData.enteredMarkets.includes(address);
+//     const isEnterMarket = comptrollerData.enteredMarkets.includes(address);
 
-    //const markets = await comptrollerData.comptroller.markets(address)
+//     //const markets = await comptrollerData.comptroller.markets(address)
 
-    const collateralFactor = BigNumber.from(markets.collateralFactorMantissa.toString(), 18)
+//     const collateralFactor = BigNumber.from(markets.collateralFactorMantissa.toString(), 18)
     
-    const supplyRatePerBlock = BigNumber.from(supplyRate, decimals)
-    //const supplyApy = BigNumber.parseValue((Math.pow((supplyRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
-    const supplyApy = BigNumber.parseValue((Math.pow((1 + supplyRatePerBlock.toNumber() / mantissa), network.blocksPerYear) -1 ).noExponents())
-    const borrowRatePerBlock = BigNumber.from(borrowRate, decimals)
+//     const supplyRatePerBlock = BigNumber.from(supplyRate, decimals)
+//     //const supplyApy = BigNumber.parseValue((Math.pow((supplyRatePerBlock.toNumber() / mantissa) * blocksPerDay + 1, daysPerYear - 1) - 1).toFixed(36-decimals), 36-decimals)
+//     const supplyApy = BigNumber.parseValue((Math.pow((1 + supplyRatePerBlock.toNumber() / mantissa), network.blocksPerYear) -1 ).noExponents())
+//     const borrowRatePerBlock = BigNumber.from(borrowRate, decimals)
     
-    const borrowApy = BigNumber.parseValue((Math.pow((1 + borrowRatePerBlock.toNumber() / mantissa), network.blocksPerYear) -1).noExponents())
+//     const borrowApy = BigNumber.parseValue((Math.pow((1 + borrowRatePerBlock.toNumber() / mantissa), network.blocksPerYear) -1).noExponents())
 
-    const cash = BigNumber.from(getCash, decimals) 
-    const underlyingAmount = cash;
+//     const cash = BigNumber.from(getCash, decimals) 
+//     const underlyingAmount = cash;
 
-    const liquidity = underlyingAmount.mul(underlyingPrice)
+//     const liquidity = underlyingAmount.mul(underlyingPrice)
 
-    if (underlying.symbol === "USDC")
-    {
-        console.log(`Old Amount: ${underlyingAmount.toString()}\nOld Price: ${underlyingPrice.toString()}\nOld Liquidity: ${liquidity.toString()}}`)
-    }
+//     if (underlying.symbol === "USDC")
+//     {
+//         console.log(`Old Amount: ${underlyingAmount.toString()}\nOld Price: ${underlyingPrice.toString()}\nOld Liquidity: ${liquidity.toString()}}`)
+//     }
     
     
-    const underlyingAllowance = underlying.allowance
-    const cTokenTVL = +marketTotalSupply.toString()
+//     const underlyingAllowance = underlying.allowance
+//     const cTokenTVL = +marketTotalSupply.toString()
     
-    //const speed = await comptrollerData.comptroller.compSpeeds(address)
-    const hndSpeed = BigNumber.from(compSpeed, 18);
+//     //const speed = await comptrollerData.comptroller.compSpeeds(address)
+//     const hndSpeed = BigNumber.from(compSpeed, 18);
     
-    const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
+//     const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
     
-    const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
+//     const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
 
-    const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
+//     const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
 
     
-    const blockNum = await provider.getBlockNumber()
+//     const blockNum = await provider.getBlockNumber()
 
-    // console.log(`${underlying.symbol}\nSupplyState.Index: ${supplyState.index}\nBlockNum: ${blockNum}\nSupplyState.block: ${supplyState.block}\ncompSpeed: ${compSpeed}\nTotalSupply: ${totalSupply}\nSupplierIndex: ${supplierIndex}`)
-    const newSupplyIndex = supplyState.index + (blockNum - supplyState.block) * compSpeed * 1e36 / +totalSupply;
-    // console.log(`newSupplyIndex: ${newSupplyIndex}`)
+//     // console.log(`${underlying.symbol}\nSupplyState.Index: ${supplyState.index}\nBlockNum: ${blockNum}\nSupplyState.block: ${supplyState.block}\ncompSpeed: ${compSpeed}\nTotalSupply: ${totalSupply}\nSupplierIndex: ${supplierIndex}`)
+//     const newSupplyIndex = supplyState.index + (blockNum - supplyState.block) * compSpeed * 1e36 / +totalSupply;
+//     // console.log(`newSupplyIndex: ${newSupplyIndex}`)
     
-    const accrued = (newSupplyIndex - supplierIndex) * +cTokenBalanceOfUser / 1e36
+//     const accrued = (newSupplyIndex - supplierIndex) * +cTokenBalanceOfUser / 1e36
 
-    return new CTokenInfo(
-      address,
-      underlyingAddress,
-      underlying.symbol,
-      underlying.logo,
-      supplyApy,
-      borrowApy,
-      underlyingAllowance,
-      underlying.walletBalance,
-      supplyBalanceInTokenUnit,
-      supplyBalance,
-      marketTotalSupply,
-      borrowBalanceInTokenUnit,
-      borrowBalance,
-      marketTotalBorrowInTokenUnit,
-      marketTotalBorrow,
-      isEnterMarket,
-      underlyingAmount,
-      underlyingPrice,
-      liquidity,
-      collateralFactor,
-      hndSpeed,
-      decimals,
-      isNativeToken,
-      hndAPR,
-      borrowRatePerBlock,
-      totalSupplyApy,
-      accrued,
-      null
-    )
-  }
+//     return new CTokenInfo(
+//       address,
+//       underlyingAddress,
+//       underlying.symbol,
+//       underlying.logo,
+//       supplyApy,
+//       borrowApy,
+//       underlyingAllowance,
+//       underlying.walletBalance,
+//       supplyBalanceInTokenUnit,
+//       supplyBalance,
+//       marketTotalSupply,
+//       borrowBalanceInTokenUnit,
+//       borrowBalance,
+//       marketTotalBorrowInTokenUnit,
+//       marketTotalBorrow,
+//       isEnterMarket,
+//       underlyingAmount,
+//       underlyingPrice,
+//       liquidity,
+//       collateralFactor,
+//       hndSpeed,
+//       decimals,
+//       isNativeToken,
+//       hndAPR,
+//       borrowRatePerBlock,
+//       totalSupplyApy,
+//       accrued,
+//       null
+//     )
+//   }
 
-  const getUnderlying = async (underlyingAddress: string | null, ptoken: string, comptrollerData: Comptroller2, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) => {  
+//   const getUnderlying = async (underlyingAddress: string | null, ptoken: string, comptrollerData: Comptroller2, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) => {  
     
-    if (!underlyingAddress)
-      return await getNativeTokenInfo(ptoken, comptrollerData, provider, userAddress, network)
-    else if (underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2")
-      return await getMakerInfo(underlyingAddress, ptoken, comptrollerData, userAddress)
-    else 
-      return await getTokenInfo(underlyingAddress, ptoken, comptrollerData, userAddress)
-  }
+//     if (!underlyingAddress)
+//       return await getNativeTokenInfo(ptoken, comptrollerData, provider, userAddress, network)
+//     else if (underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2")
+//       return await getMakerInfo(underlyingAddress, ptoken, comptrollerData, userAddress)
+//     else 
+//       return await getTokenInfo(underlyingAddress, ptoken, comptrollerData, userAddress)
+//   }
 
-  const getNativeTokenInfo = async (ptoken: string, comptrollerData: Comptroller2, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) : Promise<UnderlyingInfo> => {
-    return new UnderlyingInfo(
-      "0x0",
-      network.symbol,
-      network.name,
-      18,
-      0,
-      Logos[network.symbol],
-      await comptrollerData.oracle.getUnderlyingPrice(ptoken),
-      await provider.getBalance(userAddress),
-      ethers.constants.MaxUint256,
-    )
-  }
+//   const getNativeTokenInfo = async (ptoken: string, comptrollerData: Comptroller2, provider: ethers.providers.Web3Provider, userAddress: string, network: Network) : Promise<UnderlyingInfo> => {
+//     return new UnderlyingInfo(
+//       "0x0",
+//       network.symbol,
+//       network.name,
+//       18,
+//       0,
+//       Logos[network.symbol],
+//       await comptrollerData.oracle.getUnderlyingPrice(ptoken),
+//       await provider.getBalance(userAddress),
+//       ethers.constants.MaxUint256,
+//     )
+//   }
 
-  const getTokenInfo = async(address: string, ptoken: string, comptrollerData: Comptroller2, userAddress: string) : Promise<UnderlyingInfo> => {
-    const contract = new Contract(address, TOKEN_ABI)
-    const [symbol, name, decimals, totalSupply, balanceOf, allowance] = await comptrollerData.ethcallProvider.all([ contract.symbol(), contract.name(), contract.decimals(), contract.totalSupply(), contract.balanceOf(userAddress), contract.allowance(userAddress, ptoken)])
-    const logo = Logos[symbol]
-    let price = BigNumber.from("0")
-    try{
-      price = await comptrollerData.oracle.getUnderlyingPrice(ptoken)
-    }
-    catch(err){
-      console.log(address)
-      console.log(err)
-    }
-    const token = new UnderlyingInfo(
-      address,
-      symbol,
-      name,
-      decimals,
-      totalSupply,
-      logo, //`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`,
-      price,
-      balanceOf,
-      allowance
-    )
-    return token
-  }
+//   const getTokenInfo = async(address: string, ptoken: string, comptrollerData: Comptroller2, userAddress: string) : Promise<UnderlyingInfo> => {
+//     const contract = new Contract(address, TOKEN_ABI)
+//     const [symbol, name, decimals, totalSupply, balanceOf, allowance] = await comptrollerData.ethcallProvider.all([ contract.symbol(), contract.name(), contract.decimals(), contract.totalSupply(), contract.balanceOf(userAddress), contract.allowance(userAddress, ptoken)])
+//     const logo = Logos[symbol]
+//     let price = BigNumber.from("0")
+//     try{
+//       price = await comptrollerData.oracle.getUnderlyingPrice(ptoken)
+//     }
+//     catch(err){
+//       console.log(address)
+//       console.log(err)
+//     }
+//     const token = new UnderlyingInfo(
+//       address,
+//       symbol,
+//       name,
+//       decimals,
+//       totalSupply,
+//       logo, //`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`,
+//       price,
+//       balanceOf,
+//       allowance
+//     )
+//     return token
+//   }
 
-  const getMakerInfo = async (address: string, ptoken: string, comptrollerData: Comptroller2, userAddress: string): Promise<UnderlyingInfo> => {
-    const contract = new Contract(address, MKR_TOKEN_ABI)
-    const [symbol, name, decimals, totalSupply, balanceOf, allowance] = await comptrollerData.ethcallProvider.all([ contract.symbol(), contract.name(), contract.decimals(), contract.totalSupply(), contract.balanceOf(userAddress), contract.allowance(userAddress, ptoken)])
-    return new UnderlyingInfo(
-      address,
-      ethers.utils.parseBytes32String(symbol),
-      ethers.utils.parseBytes32String(name),
-      decimals/1,
-      totalSupply,
-      Logos["MKR"],
-      await comptrollerData.oracle.getUnderlyingPrice(ptoken),
-      balanceOf,
-      allowance
-    )
-  }
+//   const getMakerInfo = async (address: string, ptoken: string, comptrollerData: Comptroller2, userAddress: string): Promise<UnderlyingInfo> => {
+//     const contract = new Contract(address, MKR_TOKEN_ABI)
+//     const [symbol, name, decimals, totalSupply, balanceOf, allowance] = await comptrollerData.ethcallProvider.all([ contract.symbol(), contract.name(), contract.decimals(), contract.totalSupply(), contract.balanceOf(userAddress), contract.allowance(userAddress, ptoken)])
+//     return new UnderlyingInfo(
+//       address,
+//       ethers.utils.parseBytes32String(symbol),
+//       ethers.utils.parseBytes32String(name),
+//       decimals/1,
+//       totalSupply,
+//       Logos["MKR"],
+//       await comptrollerData.oracle.getUnderlyingPrice(ptoken),
+//       balanceOf,
+//       allowance
+//     )
+//   }
 
 
   export const getTokenBalances = async (tokens: (CTokenInfo | null)[], comptrollerData: Comptroller, userAddress: string) : Promise<(CTokenInfo | null)[] | null> =>{
@@ -405,9 +367,9 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
             const call: Call = comptrollerData.ethcallProvider.getEthBalance(userAddress)
             return call
           }
-          else if(t.underlyingAddress){
-            const c = t.underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? 
-                    new Contract(t.underlyingAddress, MKR_TOKEN_ABI) : new Contract(t.underlyingAddress, TOKEN_ABI)
+          else if(t.underlying.address){
+            const c = t.underlying.address.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? 
+                    new Contract(t.underlying.address, MKR_TOKEN_ABI) : new Contract(t.underlying.address, TOKEN_ABI)
             const call: Call = c.balanceOf(userAddress)
             return call
           }
@@ -422,7 +384,7 @@ export const getCtokenInfo = async (address : string, isNativeToken : boolean, p
         
         tokens.forEach((t, i) => {
           if(t){
-            t.walletBalance = BigNumber.from(result[i], t.decimals)
+            t.underlying.walletBalance = BigNumber.from(result[i], t.underlying.decimals)
           }
         })
         
