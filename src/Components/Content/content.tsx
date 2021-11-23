@@ -169,7 +169,7 @@ const Content: React.FC<Props> = (props : Props) => {
           setComptrollerData(comptroller)
         }
         if(provider.current && comptrollerDataRef.current){
-          const markets = await fetchData(comptrollerDataRef.current.allMarkets, userAddress.current, comptrollerDataRef.current, network.current, marketsRef.current, provider.current, hndPriceRef.current)
+          const markets = await fetchData({ allMarkets: comptrollerDataRef.current.allMarkets, userAddress: userAddress.current, comptrollerData: comptrollerDataRef.current, network: network.current, marketsData: marketsRef.current, provider: provider.current, hndPrice: hndPriceRef.current })
           
           updateMarkets(markets.markets, markets.hndBalance, markets.hundredBalace, markets.comAccrued, cToken, spinnerUpdate)
           const gauges = await getGaugesData(provider.current, userAddress.current, network.current, markets.gauges)

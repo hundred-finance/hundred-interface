@@ -88,14 +88,7 @@ export type MarketDataType = {
   
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const fetchData = async(
-    allMarkets:string[],
-    userAddress: string,
-    comptrollerData: Comptroller,
-    network: Network,
-    marketsData: (CTokenInfo | null)[] | null | undefined,
-    provider: any,
-    hndPrice: number
-) : Promise<MarketDataType> => {
+{ allMarkets, userAddress, comptrollerData, network, marketsData, provider, hndPrice }: { allMarkets: string[]; userAddress: string; comptrollerData: Comptroller; network: Network; marketsData: (CTokenInfo | null)[] | null | undefined; provider: any; hndPrice: number }) : Promise<MarketDataType> => {
     const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
     const calls= [ethcallComptroller.getAssetsIn(userAddress)]
 
