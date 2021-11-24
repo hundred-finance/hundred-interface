@@ -1,7 +1,7 @@
 import { ethers} from "ethers"
 import { BigNumber } from "../../bigNumber"
 import React, { useEffect,  useRef, useState } from "react"
-import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BPRO_ABI } from "../../abi"
+import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BACKSTOP_MASTERCHEF_ABI } from "../../abi"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import { Network } from "../../networks"
 import { Comptroller, getComptrollerData } from "../../Classes/comptrollerClass"
@@ -135,6 +135,7 @@ const Content: React.FC<Props> = (props : Props) => {
                 if(market.backstop && m.backstop){
                   m.backstopDepositSpinner = spinner === "deposit" ? false : market.backstopDepositSpinner
                   m.backstopWithdrawSpinner = spinner === "backstopWithdraw" ? false : market.backstopWithdrawSpinner
+                  m.backstopClaimSpinner = spinner === "backstopClaim" ? false : market.backstopClaimSpinner
                 }
               }
               else{
@@ -149,6 +150,7 @@ const Content: React.FC<Props> = (props : Props) => {
                 if(m.backstop && market.backstop){
                   m.backstopDepositSpinner = market.backstopDepositSpinner  
                   m.backstopWithdrawSpinner = market.backstopWithdrawSpinner
+                  m.backstopClaimSpinner = market.backstopClaimSpinner
                 }
               }
             }
@@ -627,11 +629,10 @@ const Content: React.FC<Props> = (props : Props) => {
       let market = marketsRef.current.find(x=> x?.underlying.symbol === symbol)
       if(market && market.backstop && provider.current && network.current && userAddress.current){
         try{
-          const backstop = network.current.backstop?.find(x=>x.symbol === symbol)
           const signer = provider.current.getSigner()
-          if(market.underlying.address && backstop){
+          if(market.underlying.address && network.current.backstopMasterChef){
             const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
-            const tx = await contract.approve(backstop.address, MaxUint256._value)
+            const tx = await contract.approve(network.current.backstopMasterChef, MaxUint256._value)
             if (spinner.current) spinner.current(false)
             console.log(tx)
             market.backstopDepositSpinner = true
@@ -660,11 +661,11 @@ const Content: React.FC<Props> = (props : Props) => {
   }
 
   const handleBackstopDeposit = async (symbol: string, amount: string) : Promise<void> => {
-    if (marketsRef.current && network.current && network.current.backstop){
+    if (marketsRef.current && network.current && network.current.backstopMasterChef){
       if (spinner.current) spinner.current(true)
       let market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
-      const backstopAddress = network.current?.backstop.find(x=>x.symbol === symbol)
-      if(market && market.backstop && provider.current && backstopAddress){
+      
+      if(market && market.backstop && provider.current && network.current.backstopMasterChef){
         try{
           setCompleted(false)
           const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
@@ -674,8 +675,8 @@ const Content: React.FC<Props> = (props : Props) => {
           market.backstopDepositSpinner = true
 
           const signer = provider.current.getSigner()
-          const backstop = new ethers.Contract(backstopAddress.address, BPRO_ABI, signer)
-          const tx = await backstop.deposit(am)
+          const backstop = new ethers.Contract(network.current.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI, signer)
+          const tx = await backstop.deposit(market.backstop.pool.poolId, am, userAddress.current)
 
           if (spinner.current) spinner.current(false)
 
@@ -699,11 +700,11 @@ const Content: React.FC<Props> = (props : Props) => {
   }
 
   const handleBackstopWithdraw = async (symbol: string, amount: string) : Promise<void> => {
-    if (marketsRef.current && network.current && network.current.backstop){
+    if (marketsRef.current && network.current && network.current.backstopMasterChef){
       if (spinner.current) spinner.current(true)
       let market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
-      const backstopAddress = network.current?.backstop.find(x=>x.symbol === symbol)
-      if(market && market.backstop && provider.current && backstopAddress){
+      
+      if(market && market.backstop && provider.current && network.current.backstopMasterChef){
         try{
           setCompleted(false)
           market.backstopWithdrawSpinner = true
@@ -712,8 +713,8 @@ const Content: React.FC<Props> = (props : Props) => {
           const value = BigNumber.parseValueSafe(amount, market.backstop.decimals)
           const am = value._value
           const signer = provider.current.getSigner()
-          const backstop = new ethers.Contract(backstopAddress.address, BPRO_ABI, signer)
-          const tx = await backstop.withdraw(am)
+          const backstop = new ethers.Contract(network.current.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI, signer)
+          const tx = await backstop.withdrawAndHarvest(market.backstop.pool.poolId, am, userAddress.current)
 
           if (spinner.current) spinner.current(false)
 
@@ -729,6 +730,44 @@ const Content: React.FC<Props> = (props : Props) => {
           market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
           if(market){
             await handleUpdate(market, "backstopWithdraw")
+            if(selectedMarketRef.current && selectedMarketRef.current.underlying.symbol === market.underlying.symbol)
+              selectedMarketRef.current.backstopWithdrawSpinner = false
+          }
+          setCompleted(true)
+        }
+      }
+    }
+  }
+
+  const handleBackstopClaim = async (symbol: string) : Promise<void> => {
+    if (marketsRef.current && network.current && network.current.backstopMasterChef){
+      if (spinner.current) spinner.current(true)
+      let market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+      
+      if(market && market.backstop && provider.current && network.current.backstopMasterChef){
+        try{
+          setCompleted(false)
+          market.backstopClaimSpinner = true
+          if(selectedMarketRef.current && selectedMarketRef.current.backstop)
+            selectedMarketRef.current.backstopClaimSpinner = true
+          const signer = provider.current.getSigner()
+          const backstop = new ethers.Contract(network.current.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI, signer)
+          const tx = await backstop.harvest(market.backstop.pool.poolId, userAddress.current)
+
+          if (spinner.current) spinner.current(false)
+
+          console.log(tx)
+          const receipt = await tx.wait()
+          console.log(receipt)
+        }
+        catch(err){
+          console.log(err)
+        }
+        finally{
+          if (spinner.current) spinner.current(false)
+          market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+          if(market){
+            await handleUpdate(market, "backstopClaim")
           }
           setCompleted(true)
         }
@@ -870,6 +909,7 @@ const Content: React.FC<Props> = (props : Props) => {
                 handleApproveBackstop={handleApproveBackstop}
                 handleBackstopDeposit={handleBackstopDeposit}
                 handleBackstopWithdraw={handleBackstopWithdraw}
+                handleBackstopClaim={handleBackstopClaim}
             />
             <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
               closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}

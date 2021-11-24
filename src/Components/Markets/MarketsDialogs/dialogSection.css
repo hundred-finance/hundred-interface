@@ -7,6 +7,14 @@
     border-radius: 5px;
 }
 
+.dialog-section-no-top-gap{
+    padding-top: 0;
+}
+
+.dialog-section-no-bottom-gap{
+    padding-bottom: 0;
+}
+
 
 .dialog-section-content{
     
@@ -43,6 +51,22 @@
 
 .dialog-section-content .dialog-section-content-value{
     line-height: 25px;
+}
+
+.dialog-section-content-details{
+    display: flex;
+    height: 5px;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.dialog-section-content .dialog-section-content-header-details{
+    line-height: 0px;
+}
+
+.dialog-section-content-value-details{
+    line-height: 0px;
+    
 }
 
 .dialog-section-content .dialog-section-content-value .dialog-section-arrow{

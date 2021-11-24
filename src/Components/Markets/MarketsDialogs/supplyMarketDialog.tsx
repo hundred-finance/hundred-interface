@@ -35,7 +35,7 @@ interface Props{
     handleApproveBackstop: (symbol: string) => Promise<void>
     handleBackstopDeposit: (symbol: string, amount: string) => Promise<void>
     handleBackstopWithdraw: (symbol: string, amount: string) => Promise<void>
-    
+    handleBackstopClaim: (symbol: string) => Promise<void>
 }
 const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     
@@ -236,9 +236,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             if(isNaN(+backstopWithdrawInput) || isNaN(parseFloat(backstopWithdrawInput))){
                 setBackstopWithdrawValidation("Amount must be a number");
                 return;
-            }else if (+depositInput <= 0) {
+            }else if (+backstopWithdrawInput <= 0) {
                 setBackstopWithdrawValidation("Amount must be > 0");
-            } else if (props.market && +depositInput > +props.market?.underlying.walletBalance) {
+            } else if (props.market && props.market.backstop && +backstopWithdrawInput > +props.market?.backstop?.userBalance) {
                 setBackstopWithdrawValidation("Amount must be <= balance");
             }else{
                 setBackstopWithdrawValidation("");
@@ -391,7 +391,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         props.open ? (
         <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
             <div className="dialog-background" onClick = {() => CloseDialog()}></div>
-            <div className="supply-box">
+            <div className={`supply-box ${props.market?.backstop && +props.market.backstop.pendingHundred.toString()>0 ? "supply-box-expand" : ""}`}>
             <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>CloseDialog()} />  
                 <div className="dialog-title">
                     {props.market?.underlying.symbol && (
@@ -403,27 +403,29 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                     {`${props.market?.underlying.symbol}`}
                 </div>
                 <Tab>
-                        {props.market?.backstop ?
+                        {props.market?.backstop && props.gaugeV4 ?
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={3} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                                {
-                                    props.gaugeV4 ?
-                                        <TabHeaderItem tabId={4} title="Farm" tabChange={tabChange}
-                                                       setTabChange={setTabChange}/> : ''
-                                }
+                                <TabHeaderItem tabId={4} title="Farm" tabChange={tabChange} setTabChange={setTabChange}/>
                             </TabHeader>
-                            :
+                            : props.market?.backstop ?
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                                {
-                                    props.gaugeV4 ?
-                                <TabHeaderItem tabId={3} title="Farm" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                                        : ''
-                                }
+                                <TabHeaderItem tabId={3} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
                             </TabHeader>
+                            :props.gaugeV4 ? 
+                            <TabHeader tabChange = {tabChange}>
+                                <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={4} title="Farm" tabChange={tabChange} setTabChange={setTabChange}/>
+                            </TabHeader>
+                            : <TabHeader tabChange = {tabChange}>
+                                <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                        </TabHeader>
                             }
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
@@ -472,7 +474,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             props.market?.backstop ?
                             <>
                                 <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
-                                    <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
+                                    <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`} className="dialog-section-no-bottom-gap"/>
                                         <BackstopSection market={props.market}/>
                                         <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={depositDisabled} value={depositInput} setInput={setDepositInput} validation={depositValidation} button={"Max"} 
                                         onClick={()=>getMaxAmount(true)} validationCollapse={true}/>
@@ -501,6 +503,18 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                         }}>
                                         {props.market && props.market.backstopWithdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
                                     </MarketDialogButton>
+                                    {
+                                        +props.market.backstop.pendingHundred.toString() > 0 ?
+                                        <MarketDialogButton className="backstop-dialog-button" disabled={props.market?.backstopClaimSpinner ? true: false}
+                                        onClick={() => {    props.market ?
+                                                            props.handleBackstopClaim(
+                                                                props.market?.underlying.symbol,
+                                                            ) : null
+                                                        }}>
+                                        {props.market && props.market.backstopClaimSpinner ? (<Spinner size={"20px"}/>) : `Claim ${props.market.backstop.pendingHundred.toRound(2, true, true)} HND`}
+                                    </MarketDialogButton>
+                                    :<></>
+                                    }
                                 </TabContentItem>
                                 {
                                     props.gaugeV4 ?

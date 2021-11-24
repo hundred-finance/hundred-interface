@@ -42,6 +42,10 @@
     overflow: auto;
 }
 
+.supply-box-expand{
+    max-height: 613px;
+}
+
 .supply-box .dialog-close  {
     height: 15px;
     width: 15px;
