@@ -56,10 +56,12 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     const [newBorrowLimit2, setNewBorrowLimit2] = useState<BigNumber>(BigNumber.from(0))
     const [withdrawMax, setWithdrawMax] = useState<boolean>(false)
     const [stakeInput, setStakeInput] = useState<string>("")
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [stakeMax, setStakeMax] = useState<boolean>(false)
     const [stakeDisabled, setStakeDisabled] = useState<boolean>(false)
     const [stakeValidation, setStakeValidation] = useState<string>("")
     const [unstakeInput, setUnstakeInput] = useState<string>("")
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [unstakeMax, setUnstakeMax] = useState<boolean>(false)
     const [unstakeDisabled, setUnstakeDisabled] = useState<boolean>(false)
     const [unstakeValidation, setUnstakeValidation] = useState<string>("")
