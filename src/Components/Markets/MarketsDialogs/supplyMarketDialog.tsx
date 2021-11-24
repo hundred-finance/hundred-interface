@@ -13,12 +13,14 @@ import { CTokenInfo } from "../../../Classes/cTokenClass";
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass";
 import closeIcon from "../../../assets/icons/closeIcon.png"
 import BackstopSection from "./backstopSection";
+import {GaugeV4} from "../../../Classes/gaugeV4Class";
 
 interface Props{
     spinnerVisible: boolean,
     closeSupplyMarketDialog: () => void,
     market: CTokenInfo | null,
     generalData: GeneralDetailsData | null,
+    gaugeV4: GaugeV4 | null | undefined
     open: boolean,
     getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
     darkMode: boolean,
@@ -26,10 +28,14 @@ interface Props{
     handleSupply: (symbol: string, amount: string) => Promise<void>,
     handleEnable: (symbol: string, borrowDialog: boolean) => Promise<void>,
     handleWithdraw: (symbol: string, amount: string, max: boolean) => Promise<void>
+    handleStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined, amount: string) => Promise<void>
+    handleUnstake: (symbol: string | undefined, guage: GaugeV4 | null | undefined, amount: string) => Promise<void>
+    handleMint: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
+
     handleApproveBackstop: (symbol: string) => Promise<void>
     handleBackstopDeposit: (symbol: string, amount: string) => Promise<void>
     handleBackstopWithdraw: (symbol: string, amount: string) => Promise<void>
-    
+    handleBackstopClaim: (symbol: string) => Promise<void>
 }
 const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     
@@ -49,12 +55,24 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     const [newBorrowLimit1, setNewBorrowLimit1] = useState<BigNumber>(BigNumber.from(0))
     const [newBorrowLimit2, setNewBorrowLimit2] = useState<BigNumber>(BigNumber.from(0))
     const [withdrawMax, setWithdrawMax] = useState<boolean>(false)
+    const [stakeInput, setStakeInput] = useState<string>("")
+    const [stakeMax, setStakeMax] = useState<boolean>(false)
+    const [stakeDisabled, setStakeDisabled] = useState<boolean>(false)
+    const [stakeValidation, setStakeValidation] = useState<string>("")
+    const [unstakeInput, setUnstakeInput] = useState<string>("")
+    const [unstakeMax, setUnstakeMax] = useState<boolean>(false)
+    const [unstakeDisabled, setUnstakeDisabled] = useState<boolean>(false)
+    const [unstakeValidation, setUnstakeValidation] = useState<string>("")
 
     const CloseDialog = () =>{
         if(props.spinnerVisible)
             return
         setSupplyInput("")
         setWithdrawInput("")
+        setStakeInput("")
+        setSupplyValidation("")
+        setWithdrawValidation("")
+        setStakeValidation("")
         setDepositInput("")
         setBackstopWithdrawInput("")
         setSupplyValidation("")
@@ -65,6 +83,8 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         setNewBorrowLimit1(BigNumber.from(0))
         setNewBorrowLimit2(BigNumber.from(0))
         setWithdrawMax(false)
+        setStakeMax(false)
+        setUnstakeMax(false)
         props.closeSupplyMarketDialog()
     }
 
@@ -131,13 +151,59 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                 // console.log(`totalBorrow: ${props.generalData?.totalBorrowBalance}\nborrowLimit: ${newBorrowLimit2}\npercent${props.generalData?.totalBorrowBalance.divSafe(newBorrowLimit2).toString()}`)
             }
 
-        
+
           handleWithdrawAmountChange()
 
           // eslint-disable-next-line
     }, [withdrawInput])
 
     useEffect(()=>{
+        const handleStakeAmountChange = () => {
+            if(stakeInput.trim() === ""){
+                setStakeValidation("")
+                return;
+            }
+
+            if(isNaN(+stakeInput) || isNaN(parseFloat(stakeInput))){
+                setStakeValidation("Amount must be a number");
+                return;
+            } else if (+stakeInput <= 0) {
+                setStakeValidation("Amount must be > 0");
+            } else if (props.gaugeV4 && +stakeInput > +props.gaugeV4?.userLpBalance) {
+                setStakeValidation("Amount must be <= balance");
+            } else{
+                setStakeValidation("");
+            }
+        }
+
+        handleStakeAmountChange()
+        // eslint-disable-next-line
+    }, [stakeInput])
+
+    useEffect(()=>{
+        const handleUnstakeAmountChange = () => {
+            if(unstakeInput.trim() === ""){
+                setUnstakeValidation("")
+                return;
+            }
+
+            if(isNaN(+unstakeInput) || isNaN(parseFloat(unstakeInput))){
+                setUnstakeValidation("Amount must be a number");
+                return;
+            } else if (+unstakeInput <= 0) {
+                setUnstakeValidation("Amount must be > 0");
+            } else if (props.gaugeV4 && +unstakeInput > +props.gaugeV4?.userStakeBalance) {
+                setUnstakeValidation("Amount must be <= staked balance");
+            } else{
+                setUnstakeValidation("");
+            }
+        }
+
+        handleUnstakeAmountChange()
+        // eslint-disable-next-line
+    }, [unstakeInput])
+
+    useEffect(() => {
         const handleDepositAmountChange = () => {
             if(depositInput.trim() === ""){
                 setDepositValidation("")
@@ -170,9 +236,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             if(isNaN(+backstopWithdrawInput) || isNaN(parseFloat(backstopWithdrawInput))){
                 setBackstopWithdrawValidation("Amount must be a number");
                 return;
-            }else if (+depositInput <= 0) {
+            }else if (+backstopWithdrawInput <= 0) {
                 setBackstopWithdrawValidation("Amount must be > 0");
-            } else if (props.market && +depositInput > +props.market?.underlying.walletBalance) {
+            } else if (props.market && props.market.backstop && +backstopWithdrawInput > +props.market?.backstop?.userBalance) {
                 setBackstopWithdrawValidation("Amount must be <= balance");
             }else{
                 setBackstopWithdrawValidation("");
@@ -206,7 +272,6 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             subSafe(props.market?.isEnterMarket? BigNumber.parseValue(withdrawInput!=="" ? withdrawInput : "0").
             mulSafe(props.market?.underlying.price).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
     },[props.generalData])
-    
 
     const getMaxAmount = async (deposit?: boolean) : Promise<void> => {
         const amount = props.market ? await props.getMaxAmount(props.market, "supply") : 0
@@ -225,6 +290,24 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     const getMaxBackstopWithdraw = () : void=> {
         
         props.market && props.market.backstop ? setBackstopWithdrawInput(props.market.backstop.userBalance.toString()) : setBackstopWithdrawInput("0")
+    }
+
+    const formatBalance = (value: BigNumber | undefined) => {
+        if (value) {
+            return value
+        } else {
+            return BigNumber.from(0)
+        }
+    }
+
+    const getMaxStake = () : void=> {
+        setStakeMax(true)
+        setStakeInput(formatBalance(props.gaugeV4?.userLpBalance).toString)
+    }
+
+    const getMaxUnstake = () : void=> {
+        setUnstakeMax(true)
+        setUnstakeInput(formatBalance(props.gaugeV4?.userStakeBalance).toString)
     }
 
     useEffect(() => {
@@ -251,6 +334,32 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             
         }
     }, [props.market?.withdrawSpinner])
+
+    useEffect(() => {
+        if(props.market){
+            if(!props.market.stakeSpinner){
+                if(props.completed) setStakeInput("")
+                setStakeDisabled(false)
+            }
+            else{
+                setStakeDisabled(true)
+            }
+
+        }
+    }, [props.market?.stakeSpinner])
+
+    useEffect(() => {
+        if(props.market){
+            if(!props.market.unstakeSpinner){
+                if(props.completed) setStakeInput("")
+                setUnstakeDisabled(false)
+            }
+            else{
+                setUnstakeDisabled(true)
+            }
+
+        }
+    }, [props.market?.stakeSpinner])
 
     useEffect(() => {
         if(props.market && props.market.backstop){
@@ -282,7 +391,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         props.open ? (
         <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
             <div className="dialog-background" onClick = {() => CloseDialog()}></div>
-            <div className="supply-box">
+            <div className={`supply-box ${props.market?.backstop && +props.market.backstop.pendingHundred.toString()>0 ? "supply-box-expand" : ""}`}>
             <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>CloseDialog()} />  
                 <div className="dialog-title">
                     {props.market?.underlying.symbol && (
@@ -294,17 +403,29 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                     {`${props.market?.underlying.symbol}`}
                 </div>
                 <Tab>
-                        {props.market?.backstop ?
+                        {props.market?.backstop && props.gaugeV4 ?
+                            <TabHeader tabChange = {tabChange}>
+                                <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={3} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={4} title="Farm" tabChange={tabChange} setTabChange={setTabChange}/>
+                            </TabHeader>
+                            : props.market?.backstop ?
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={3} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
                             </TabHeader>
-                            :
+                            :props.gaugeV4 ? 
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={4} title="Farm" tabChange={tabChange} setTabChange={setTabChange}/>
                             </TabHeader>
+                            : <TabHeader tabChange = {tabChange}>
+                                <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                        </TabHeader>
                             }
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
@@ -336,9 +457,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
-                            <MarketDialogButton disabled={withdrawInput==="" || !isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData && 
-                            +newBorrowLimit2.toString() > 0 && 
-                                        +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && +newBorrowLimit2.toString() > +props.generalData.totalBorrowLimit.toString() ? true: false)}
+                            <MarketDialogButton disabled={withdrawInput==="" || isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData &&
+                            +newBorrowLimit2.toString() > 0 &&
+                                        +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent) ? true: false}
                                 onClick={() => {    props.market ?
                                                     props.handleWithdraw(
                                                         props.market?.underlying.symbol,
@@ -350,41 +471,163 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             </MarketDialogButton>
                         </TabContentItem>
                         {
-                            props.market?.backstop ? 
-                            <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
-                                <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
-                                <BackstopSection market={props.market}/>
-                                <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={depositDisabled} value={depositInput} setInput={setDepositInput} validation={depositValidation} button={"Max"} 
-                                onClick={()=>getMaxAmount(true)} validationCollapse={true}/>
-                                {props.market?.backstop.allowance?.gt(BigNumber.from(0)) &&
-                                props.market?.backstop.allowance?.gte(depositInput.trim() === "" || isNaN(+depositInput) ? BigNumber.from("0") 
-                                : BigNumber.parseValue(depositInput)) 
-                                ? (
-                                    <MarketDialogButton disabled={depositInput==="" || depositValidation!="" || props.market?.backstopDepositSpinner}
-                                        onClick={() => {   props.market ? props.handleBackstopDeposit(props.market?.underlying.symbol, depositInput) : null}}>
-                                        {props.market.backstopDepositSpinner ? (<Spinner size={"20px"}/>) : "Deposit"}
+                            props.market?.backstop ?
+                            <>
+                                <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
+                                    <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`} className="dialog-section-no-bottom-gap"/>
+                                        <BackstopSection market={props.market}/>
+                                        <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={depositDisabled} value={depositInput} setInput={setDepositInput} validation={depositValidation} button={"Max"} 
+                                        onClick={()=>getMaxAmount(true)} validationCollapse={true}/>
+                                        {props.market?.backstop.allowance?.gt(BigNumber.from(0)) &&
+                                        props.market?.backstop.allowance?.gte(depositInput.trim() === "" || isNaN(+depositInput) ? BigNumber.from("0") 
+                                        : BigNumber.parseValue(depositInput)) 
+                                        ? (
+                                            <MarketDialogButton disabled={depositInput==="" || depositValidation!="" || props.market?.backstopDepositSpinner}
+                                                onClick={() => {   props.market ? props.handleBackstopDeposit(props.market?.underlying.symbol, depositInput) : null}}>
+                                                {props.market.backstopDepositSpinner ? (<Spinner size={"20px"}/>) : "Deposit"}
+                                            </MarketDialogButton>
+                                        ) : (
+                                            <MarketDialogButton disabled={!props.market || (props.market && props.market?.backstopDepositSpinner)}
+                                                onClick={() => {props.market ? props.handleApproveBackstop(props.market?.underlying.symbol) : null}}>
+                                                {props.market?.backstopDepositSpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.underlying.symbol}`}
+                                            </MarketDialogButton>)}
+                                        <TextBox placeholder={`0 ${props.market.backstop.symbol}`} disabled={backstopWithdrawDisabled} value={backstopWithdrawInput} setInput={setBackstopWithdrawInput} validation={backstopWithdrawValidation} button={"Max"}
+                                        onClick={() => getMaxBackstopWithdraw()} validationCollapse={true}/>
+                                        <MarketDialogButton className="backstop-dialog-button" disabled={backstopWithdrawInput==="" || backstopWithdrawValidation!=="" || isNaN(+backstopWithdrawInput) || props.market?.backstopWithdrawSpinner || 
+                                        BigNumber.parseValue(backstopWithdrawInput).gt(props.market.backstop.userBalance)  ? true: false}
+                                        onClick={() => {    props.market ?
+                                                            props.handleBackstopWithdraw(
+                                                                props.market?.underlying.symbol,
+                                                                backstopWithdrawInput
+                                                            ) : null
+                                                        }}>
+                                        {props.market && props.market.backstopWithdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
                                     </MarketDialogButton>
-                                ) : (
-                                    <MarketDialogButton disabled={!props.market || (props.market && props.market?.backstopDepositSpinner)}
-                                        onClick={() => {props.market ? props.handleApproveBackstop(props.market?.underlying.symbol) : null}}>
-                                        {props.market?.backstopDepositSpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.underlying.symbol}`}
-                                    </MarketDialogButton>)}
-                                <TextBox placeholder={`0 ${props.market.backstop.symbol}`} disabled={backstopWithdrawDisabled} value={backstopWithdrawInput} setInput={setBackstopWithdrawInput} validation={backstopWithdrawValidation} button={"Max"}
-                                onClick={() => getMaxBackstopWithdraw()} validationCollapse={true}/>
-                                <MarketDialogButton className="backstop-dialog-button" disabled={backstopWithdrawInput==="" || backstopWithdrawValidation!=="" || isNaN(+backstopWithdrawInput) || props.market?.backstopWithdrawSpinner || 
-                                BigNumber.parseValue(backstopWithdrawInput).gt(props.market.backstop.userBalance)  ? true: false}
-                                onClick={() => {    props.market ?
-                                                    props.handleBackstopWithdraw(
-                                                        props.market?.underlying.symbol,
-                                                        backstopWithdrawInput
-                                                    ) : null
-                                                }}>
-                                {props.market && props.market.backstopWithdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
-                            </MarketDialogButton>
-                            </TabContentItem>
-                            : <></>
+                                    {
+                                        +props.market.backstop.pendingHundred.toString() > 0 ?
+                                        <MarketDialogButton className="backstop-dialog-button" disabled={props.market?.backstopClaimSpinner ? true: false}
+                                        onClick={() => {    props.market ?
+                                                            props.handleBackstopClaim(
+                                                                props.market?.underlying.symbol,
+                                                            ) : null
+                                                        }}>
+                                        {props.market && props.market.backstopClaimSpinner ? (<Spinner size={"20px"}/>) : `Claim ${props.market.backstop.pendingHundred.toRound(2, true, true)} HND`}
+                                    </MarketDialogButton>
+                                    :<></>
+                                    }
+                                </TabContentItem>
+                                {
+                                    props.gaugeV4 ?
+                                        <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
+                                            <MarketDialogItem
+                                                title={"You Staked"}
+                                                value={`${formatBalance(props.gaugeV4?.userStakeBalance).toFixed(4)} h${props.market?.underlying.symbol}`}
+                                            />
+                                            <MarketDialogItem
+                                                title={"Claimable"}
+                                                value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
+                                            />
+                                            <TextBox
+                                                placeholder={`0 h${props.market?.underlying.symbol}`}
+                                                disabled={stakeDisabled}
+                                                value={stakeInput}
+                                                setInput={setStakeInput}
+                                                validation={stakeValidation}
+                                                button={"Max"}
+                                                onClick={() => getMaxStake()}
+                                            />
+                                            <MarketDialogButton disabled={stakeInput === "" || stakeValidation !== ""}
+                                                                onClick={() => props.handleStake(props.market?.underlying.symbol, props?.gaugeV4, stakeInput)}
+                                            >
+                                                {props.market && props.market.stakeSpinner ? (
+                                                    <Spinner size={"20px"}/>) : "Stake"}
+                                            </MarketDialogButton>
+                                            <TextBox
+                                                placeholder={`0 h${props.market?.underlying.symbol}`}
+                                                disabled={unstakeDisabled}
+                                                value={unstakeInput}
+                                                setInput={setUnstakeInput}
+                                                validation={unstakeValidation}
+                                                button={"Max"}
+                                                onClick={() => getMaxUnstake()}
+                                            />
+                                            <MarketDialogButton
+                                                disabled={unstakeInput === "" || unstakeValidation !== ""}
+                                                onClick={() => props.handleUnstake(props.market?.underlying.symbol, props?.gaugeV4, unstakeInput)}
+                                            >
+                                                {props.market && props.market.unstakeSpinner ? (
+                                                    <Spinner size={"20px"}/>) : "Exit stake"}
+                                            </MarketDialogButton>
+                                            <MarketDialogButton
+                                                disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0))}
+                                                onClick={() => props.handleMint(props.market?.underlying.symbol, props?.gaugeV4)}
+                                            >
+                                                {props.market && props.market.mintSpinner ? (
+                                                    <Spinner size={"20px"}/>) : "Claim HND"}
+                                            </MarketDialogButton>
+                                        </TabContentItem>
+                                        : ''
+                                }
+                            </>
+                            :
+                                <>
+                                    {
+                                        props.gaugeV4 ?
+                                            <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
+                                                <MarketDialogItem
+                                                    title={"You Staked"}
+                                                    value={`${formatBalance(props.gaugeV4?.userStakehTokenBalance).toFixed(4)} h${props.market?.underlying.symbol}`}
+                                                />
+                                                <MarketDialogItem
+                                                    title={"Claimable"}
+                                                    value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
+                                                />
+                                                <TextBox
+                                                    placeholder={`0 h${props.market?.underlying.symbol}`}
+                                                    disabled={stakeDisabled}
+                                                    value={stakeInput}
+                                                    setInput={setStakeInput}
+                                                    validation={stakeValidation}
+                                                    button={"Max"}
+                                                    onClick={() => getMaxStake()}
+                                                />
+                                                <MarketDialogButton
+                                                    disabled={stakeInput === "" || stakeValidation !== ""}
+                                                    onClick={() => props.handleStake(props.market?.underlying.symbol, props?.gaugeV4, stakeInput)}
+                                                >
+                                                    {props.market && props.market.stakeSpinner ? (
+                                                        <Spinner size={"20px"}/>) : "Stake"}
+                                                </MarketDialogButton>
+                                                <TextBox
+                                                    placeholder={`0 h${props.market?.underlying.symbol}`}
+                                                    disabled={unstakeDisabled}
+                                                    value={unstakeInput}
+                                                    setInput={setUnstakeInput}
+                                                    validation={unstakeValidation}
+                                                    button={"Max"}
+                                                    onClick={() => getMaxUnstake()}
+                                                />
+                                                <MarketDialogButton
+                                                    disabled={unstakeInput === "" || unstakeValidation !== ""}
+                                                    onClick={() => props.handleUnstake(props.market?.underlying.symbol, props?.gaugeV4, unstakeInput)}
+                                                >
+                                                    {props.market && props.market.unstakeSpinner ? (
+                                                        <Spinner size={"20px"}/>) : "Exit stake"}
+                                                </MarketDialogButton>
+                                                <MarketDialogButton
+                                                    disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0))}
+                                                    onClick={() => props.handleMint(props.market?.underlying.symbol, props?.gaugeV4)}
+                                                >
+                                                    {props.market && props.market.mintSpinner ? (
+                                                        <Spinner size={"20px"}/>) : "Claim HND"}
+                                                </MarketDialogButton>
+                                            </TabContentItem>
+                                            : ''
+                                    }
+
+                                </>
                         }
-                        
+
                     </TabContent>
                 </Tab>
             </div>

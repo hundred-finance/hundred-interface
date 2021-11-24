@@ -4,31 +4,13 @@ import {BigNumber} from "../bigNumber"
 import { MKR_TOKEN_ABI, TOKEN_ABI } from "../abi"
 import { Comptroller} from "./comptrollerClass"
 import { Call } from "ethcall/lib/call"
+import { Backstop } from "./backstopClass"
 
 // const blockTime = 2.1 // seconds
 //const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
 // const blocksPerDay = (24 * 60 * 60) / blockTime
 // const daysPerYear = 365
 // const rewardTokenPrice = 1
-export class Backstop{
-  userBalance: BigNumber
-  totalSupply: BigNumber
-  underlyingBalance: BigNumber
-  decimals: number
-  sharePrice: BigNumber
-  symbol: string
-  allowance: BigNumber
-
-  constructor(userBalance : BigNumber, totalSupply : BigNumber, underlyingBalance: BigNumber, decimals: number, symbol: string, allowance: BigNumber){
-    this.userBalance = userBalance
-    this.totalSupply = totalSupply
-    this.underlyingBalance = underlyingBalance
-    this.decimals = decimals
-    this.sharePrice = BigNumber.parseValue((+underlyingBalance.toString()/+totalSupply.toString()).toString())
-    this.symbol = symbol
-    this.allowance = allowance
-  }
-}
 
 export class Underlying{
   address: string
@@ -76,8 +58,12 @@ export class CTokenInfo{
     withdrawSpinner: boolean
     borrowSpinner: boolean
     repaySpinner: boolean
+    stakeSpinner: boolean
+    unstakeSpinner: boolean
+    mintSpinner: boolean
     backstopDepositSpinner: boolean
     backstopWithdrawSpinner: boolean
+    backstopClaimSpinner: boolean
     isNativeToken: boolean
 
     
@@ -137,8 +123,12 @@ export class CTokenInfo{
         this.withdrawSpinner = false
         this.borrowSpinner = false
         this.repaySpinner = false
+        this.stakeSpinner = false
+        this.unstakeSpinner = false
+        this.mintSpinner = false
         this.backstopDepositSpinner = false
         this.backstopWithdrawSpinner = false
+        this.backstopClaimSpinner = false
 
         this.borrowHndApy = BigNumber.from("0")
         this.hndAPR = hndAPR

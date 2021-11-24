@@ -18,26 +18,41 @@ const BackstopSection:React.FC<Props> = (props : Props) => {
     
 
     return (
-        <div className="dialog-section">
+        <div className="dialog-section dialog-section-no-top-gap">
             <div className="dialog-section-title">
                 Balances
+            </div>
+            <div className="dialog-section-content">
+                <div className="dialog-section-content-header">
+                    TVL
+                </div>
+                <div className="dialog-section-content-value">
+                    ${props.market.backstop?.tvl.toRound(2, true)}
+                </div>
+            </div>
+            <div className="dialog-section-content">
+                <div className="dialog-section-content-header">
+                    APR
+                </div>
+                <div className="dialog-section-content-value">
+                    {props.market.backstop ? BigNumber.parseValue((+props.market.backstop?.apr.toRound(2, true) * 100).toString()).toRound(2,true,true) : 0.00}%
+                </div>
             </div>
             <div className="dialog-section-content">
                 <div className="dialog-section-content-header">
                     Backstop Balance
                 </div>
                 <div className="dialog-section-content-value">
-                    {props.market.backstop?.userBalance.toRound(2, true)} {props.market.backstop?.symbol} (
-                        {props.market.backstop ? BigNumber.parseValue((+props.market.backstop.userBalance.toString() * +props.market.backstop.sharePrice.toString()).toString()).toRound(2, true) : 0} {props.market.underlying.symbol})
+                    {props.market.backstop?.userBalance.toRound(2, true)} {props.market.backstop?.symbol} 
                 </div>
             </div>
-            <div className="dialog-section-content">
-                <div className="dialog-section-content-header">
-                    Total Supply
+            <div className="dialog-section-content-details">
+                <div className="dialog-section-content-header-details">
                 </div>
-                <div className="dialog-section-content-value">
-                    {props.market.backstop?.totalSupply.toRound(2, true)} {props.market.backstop?.symbol} (
-                        {props.market.backstop ? BigNumber.parseValue((+props.market.backstop.totalSupply.toString() * +props.market.backstop.sharePrice.toString()).toString()).toRound(2, true) : 0} {props.market.underlying.symbol})
+                <div className="dialog-section-content-value-details">
+                ({props.market.backstop ? BigNumber.parseValue((+props.market.backstop.userBalance.toString() * +props.market.backstop.sharePrice.toString()).toString()).toRound(2, true) : 0} {props.market.underlying.symbol} + {
+                    props.market.backstop ? +props.market.backstop.userEthBalance.toRound(2) === 0 && +props.market.backstop.userEthBalance.toString() > 0 ? ">"+props.market.backstop.userEthBalance.toRound(2,true,true) :
+                    props.market.backstop.userEthBalance.toRound(2, true, true)  : 0} ETH)
                 </div>
             </div>
         </div>
@@ -47,3 +62,4 @@ const BackstopSection:React.FC<Props> = (props : Props) => {
 export default BackstopSection
 // props.generalData && props.newBorrowLimit && props.newBorrowLimit.gt(BigNumber.from(0)) ?  
 // BigNumber.parseValue((+props.generalData?.totalBorrowBalance.toString() / (+props.newBorrowLimit.toString()) * 100).toFixed(18)).toRound(2) : 0
+

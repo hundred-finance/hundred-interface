@@ -21,14 +21,9 @@ type Network = {
     hndPoolPercent?: number,
     liquidity?: boolean, 
     multicallAddress?: string,
-    backstop?:[Backstop]    
-}
-
-type Backstop = {
-    symbol: string,
-    address: string,
-    bprotocolChef: string,
-    hToken: string,
+    backstopMasterChef?: string,
+    minterAddress?: string
+    gaugeControllerAddress?: string
 }
 
 type NetworkData = {
@@ -68,9 +63,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         hundredLiquidityPoolAddress: "0x65E17c52128396443d4A9A61EaCf0970F05F8a20",
-        backstop:[
-            {symbol: "USDT", address: "0x24099000AE45558Ce4D049ad46DDaaf71429b168", bprotocolChef: "0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02", hToken: "0x607312a5C671D0C511998171e634DE32156e69d0"}
-        ]
+        backstopMasterChef: "0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02"
     },
     "0xfa": {
         chainId: "0xfa",
@@ -164,6 +157,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010054c81c8c01951E6A631dD228bB02d8D1e5",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        minterAddress: "0x89fC1cc860dDF4fb91A7C52b12d5343bB03C332E",
+        gaugeControllerAddress: "0xFa0F5d0cA1031aC6A47CA8Db9cf9dcfd45B3659a"
     },
     "0x6357d2e0":
     {

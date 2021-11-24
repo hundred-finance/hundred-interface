@@ -1,7 +1,7 @@
 import { ethers} from "ethers"
 import { BigNumber } from "../../bigNumber"
 import React, { useEffect,  useRef, useState } from "react"
-import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BPRO_ABI } from "../../abi"
+import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BACKSTOP_MASTERCHEF_ABI } from "../../abi"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import { Network } from "../../networks"
 import { Comptroller, getComptrollerData } from "../../Classes/comptrollerClass"
@@ -12,6 +12,7 @@ import EnterMarketDialog from "../Markets/MarketsDialogs/enterMarketDialog"
 import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import SupplyMarketDialog from "../Markets/MarketsDialogs/supplyMarketDialog"
 import { fetchData} from "./fetchData"
+import {GaugeV4, getGaugesData} from "../../Classes/gaugeV4Class";
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
@@ -56,6 +57,7 @@ interface Props{
 const Content: React.FC<Props> = (props : Props) => {
     const [comptrollerData, setComptrollerData] = useState<Comptroller | null>(null)
     const [marketsData, setMarketsData] = useState<(CTokenInfo | null)[] | null | undefined>(null)
+    const [gaugesV4Data, setGaugesV4Data] = useState<(GaugeV4 | null)[] | null | undefined>(null)
     const [generalData, setGeneralData] = useState<GeneralDetailsData | null>(null)
     const [selectedMarket, setSelectedMarket] = useState<CTokenInfo | null>(null)
     const [openEnterMarket, setOpenEnterMarket] = useState(false)
@@ -127,9 +129,13 @@ const Content: React.FC<Props> = (props : Props) => {
                 m.withdrawSpinner = spinner === "withdraw" ? false : market.withdrawSpinner
                 m.borrowSpinner = spinner === "borrow" ? false : market.borrowSpinner
                 m.repaySpinner = spinner === "repay" ? false : market.repaySpinner
+                m.stakeSpinner = spinner === "stake" ? false : market.stakeSpinner
+                m.unstakeSpinner = spinner === "unstake" ? false : market.unstakeSpinner
+                m.mintSpinner = spinner === "mint" ? false : market.mintSpinner
                 if(market.backstop && m.backstop){
                   m.backstopDepositSpinner = spinner === "deposit" ? false : market.backstopDepositSpinner
                   m.backstopWithdrawSpinner = spinner === "backstopWithdraw" ? false : market.backstopWithdrawSpinner
+                  m.backstopClaimSpinner = spinner === "backstopClaim" ? false : market.backstopClaimSpinner
                 }
               }
               else{
@@ -138,9 +144,13 @@ const Content: React.FC<Props> = (props : Props) => {
                 m.withdrawSpinner = market.withdrawSpinner
                 m.borrowSpinner = market.borrowSpinner
                 m.repaySpinner = market.repaySpinner
+                m.stakeSpinner = market.stakeSpinner
+                m.unstakeSpinner = market.unstakeSpinner
+                m.mintSpinner = market.mintSpinner
                 if(m.backstop && market.backstop){
                   m.backstopDepositSpinner = market.backstopDepositSpinner  
                   m.backstopWithdrawSpinner = market.backstopWithdrawSpinner
+                  m.backstopClaimSpinner = market.backstopClaimSpinner
                 }
               }
             }
@@ -169,9 +179,11 @@ const Content: React.FC<Props> = (props : Props) => {
           setComptrollerData(comptroller)
         }
         if(provider.current && comptrollerDataRef.current){
-          const markets = await fetchData(comptrollerDataRef.current.allMarkets, userAddress.current, comptrollerDataRef.current, network.current, marketsRef.current, provider.current, hndPriceRef.current)
+          const markets = await fetchData({ allMarkets: comptrollerDataRef.current.allMarkets, userAddress: userAddress.current, comptrollerData: comptrollerDataRef.current, network: network.current, marketsData: marketsRef.current, provider: provider.current, hndPrice: hndPriceRef.current })
           
           updateMarkets(markets.markets, markets.hndBalance, markets.hundredBalace, markets.comAccrued, cToken, spinnerUpdate)
+          const gauges = await getGaugesData(provider.current, userAddress.current, network.current, markets.gauges)
+          setGaugesV4Data(gauges)
         }
       }
     }
@@ -226,6 +238,7 @@ const Content: React.FC<Props> = (props : Props) => {
         setSelectedMarket(null)
         setOpenBorrowMarketDialog(false)
         setOpenSupplyDialog(false)
+        setGaugesV4Data(null)
         if(updateHandle) clearTimeout(updateHandle)
         props.setSpinnerVisible(true)
         setUpdate(false)
@@ -616,11 +629,10 @@ const Content: React.FC<Props> = (props : Props) => {
       let market = marketsRef.current.find(x=> x?.underlying.symbol === symbol)
       if(market && market.backstop && provider.current && network.current && userAddress.current){
         try{
-          const backstop = network.current.backstop?.find(x=>x.symbol === symbol)
           const signer = provider.current.getSigner()
-          if(market.underlying.address && backstop){
+          if(market.underlying.address && network.current.backstopMasterChef){
             const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
-            const tx = await contract.approve(backstop.address, MaxUint256._value)
+            const tx = await contract.approve(network.current.backstopMasterChef, MaxUint256._value)
             if (spinner.current) spinner.current(false)
             console.log(tx)
             market.backstopDepositSpinner = true
@@ -649,11 +661,11 @@ const Content: React.FC<Props> = (props : Props) => {
   }
 
   const handleBackstopDeposit = async (symbol: string, amount: string) : Promise<void> => {
-    if (marketsRef.current && network.current && network.current.backstop){
+    if (marketsRef.current && network.current && network.current.backstopMasterChef){
       if (spinner.current) spinner.current(true)
       let market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
-      const backstopAddress = network.current?.backstop.find(x=>x.symbol === symbol)
-      if(market && market.backstop && provider.current && backstopAddress){
+      
+      if(market && market.backstop && provider.current && network.current.backstopMasterChef){
         try{
           setCompleted(false)
           const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
@@ -663,8 +675,8 @@ const Content: React.FC<Props> = (props : Props) => {
           market.backstopDepositSpinner = true
 
           const signer = provider.current.getSigner()
-          const backstop = new ethers.Contract(backstopAddress.address, BPRO_ABI, signer)
-          const tx = await backstop.deposit(am)
+          const backstop = new ethers.Contract(network.current.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI, signer)
+          const tx = await backstop.deposit(market.backstop.pool.poolId, am, userAddress.current)
 
           if (spinner.current) spinner.current(false)
 
@@ -688,11 +700,11 @@ const Content: React.FC<Props> = (props : Props) => {
   }
 
   const handleBackstopWithdraw = async (symbol: string, amount: string) : Promise<void> => {
-    if (marketsRef.current && network.current && network.current.backstop){
+    if (marketsRef.current && network.current && network.current.backstopMasterChef){
       if (spinner.current) spinner.current(true)
       let market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
-      const backstopAddress = network.current?.backstop.find(x=>x.symbol === symbol)
-      if(market && market.backstop && provider.current && backstopAddress){
+      
+      if(market && market.backstop && provider.current && network.current.backstopMasterChef){
         try{
           setCompleted(false)
           market.backstopWithdrawSpinner = true
@@ -701,8 +713,8 @@ const Content: React.FC<Props> = (props : Props) => {
           const value = BigNumber.parseValueSafe(amount, market.backstop.decimals)
           const am = value._value
           const signer = provider.current.getSigner()
-          const backstop = new ethers.Contract(backstopAddress.address, BPRO_ABI, signer)
-          const tx = await backstop.withdraw(am)
+          const backstop = new ethers.Contract(network.current.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI, signer)
+          const tx = await backstop.withdrawAndHarvest(market.backstop.pool.poolId, am, userAddress.current)
 
           if (spinner.current) spinner.current(false)
 
@@ -718,6 +730,8 @@ const Content: React.FC<Props> = (props : Props) => {
           market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
           if(market){
             await handleUpdate(market, "backstopWithdraw")
+            if(selectedMarketRef.current && selectedMarketRef.current.underlying.symbol === market.underlying.symbol)
+              selectedMarketRef.current.backstopWithdrawSpinner = false
           }
           setCompleted(true)
         }
@@ -725,23 +739,183 @@ const Content: React.FC<Props> = (props : Props) => {
     }
   }
 
-  
+  const handleBackstopClaim = async (symbol: string) : Promise<void> => {
+    if (marketsRef.current && network.current && network.current.backstopMasterChef){
+      if (spinner.current) spinner.current(true)
+      let market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+      
+      if(market && market.backstop && provider.current && network.current.backstopMasterChef){
+        try{
+          setCompleted(false)
+          market.backstopClaimSpinner = true
+          if(selectedMarketRef.current && selectedMarketRef.current.backstop)
+            selectedMarketRef.current.backstopClaimSpinner = true
+          const signer = provider.current.getSigner()
+          const backstop = new ethers.Contract(network.current.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI, signer)
+          const tx = await backstop.harvest(market.backstop.pool.poolId, userAddress.current)
+
+          if (spinner.current) spinner.current(false)
+
+          console.log(tx)
+          const receipt = await tx.wait()
+          console.log(receipt)
+        }
+        catch(err){
+          console.log(err)
+        }
+        finally{
+          if (spinner.current) spinner.current(false)
+          market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+          if(market){
+            await handleUpdate(market, "backstopClaim")
+          }
+          setCompleted(true)
+        }
+      }
+    }
+  }
+
+  const handleStake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined, amount: string) => {
+      if(marketsRef.current){
+          if (spinner.current) spinner.current(true)
+          let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
+          if(market && provider.current){
+              try{
+                  setCompleted(false)
+
+                  if(selectedMarketRef.current)
+                      selectedMarketRef.current.stakeSpinner = true
+
+                  market.stakeSpinner = true
+
+                  await gaugeV4?.stakeCall(amount)
+
+                  if (spinner.current) spinner.current(false)
+
+                  setCompleted(true)
+              }
+              catch(err){
+                  console.log(err)
+              }
+              finally{
+                  if (spinner.current) spinner.current(false)
+                  market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+                  if(market){
+                      setUpdate(true)
+                      await handleUpdate(market, "stake")
+                  }
+              }
+          }
+      }
+  }
+
+    const handleUnstake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined, amount: string) => {
+        if(marketsRef.current){
+            if (spinner.current) spinner.current(true)
+            let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
+            if(market && provider.current){
+                try{
+                    setCompleted(false)
+
+                    if(selectedMarketRef.current)
+                        selectedMarketRef.current.unstakeSpinner = true
+
+                    market.unstakeSpinner = true
+
+                    await gaugeV4?.unstakeCall(amount)
+
+                    if (spinner.current) spinner.current(false)
+
+                    setCompleted(true)
+                }
+                catch(err){
+                    console.log(err)
+                }
+                finally{
+                    if (spinner.current) spinner.current(false)
+                    market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+                    if(market){
+                        setUpdate(true)
+                        await handleUpdate(market, "unstake")
+                    }
+                }
+            }
+        }
+    }
+
+    const handleMint = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined) => {
+        if(marketsRef.current){
+            if (spinner.current) spinner.current(true)
+            let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
+            if(market && provider.current){
+                try{
+                    setCompleted(false)
+
+                    if(selectedMarketRef.current)
+                        selectedMarketRef.current.mintSpinner = true
+
+                    market.mintSpinner = true
+
+                    await gaugeV4?.mintCall()
+
+                    if (spinner.current) spinner.current(false)
+
+                    setCompleted(true)
+                }
+                catch(err){
+                    console.log(err)
+                }
+                finally{
+                    if (spinner.current) spinner.current(false)
+                    market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+                    if(market){
+                        setUpdate(true)
+                        await handleUpdate(market, "mint")
+                    }
+                }
+            }
+        }
+    }
     
-  return (
-      <div className="content">
-          <GeneralDetails generalData={generalData}/>
-          <Markets generalData = {generalDataRef.current} marketsData = {marketsData} enterMarketDialog={enterMarketDialog} 
-            supplyMarketDialog={supplyMarketDialog} borrowMarketDialog={borrowMarketDialog} darkMode={props.darkMode}/>
-          <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
-            handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
-          <SupplyMarketDialog completed={completed} open={openSupplyMarketDialog} market={selectedMarketRef.current} generalData={generalData} 
-            closeSupplyMarketDialog = {closeSupplyMarketDialog} darkMode={props.darkMode} handleApproveBackstop={handleApproveBackstop} handleBackstopDeposit={handleBackstopDeposit}
-            handleBackstopWithdraw={handleBackstopWithdraw} handleEnable = {handleEnable} handleSupply={handleSupply} handleWithdraw={handleWithdraw} getMaxAmount={getMaxAmount} spinnerVisible={props.spinnerVisible}/>
-          <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
-            closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}
-            handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={props.spinnerVisible}/> 
-      </div>
-  )
+    return (
+        <div className="content">
+            <GeneralDetails generalData={generalData}/>
+            <Markets
+                generalData = {generalDataRef.current}
+                marketsData = {marketsData}
+                enterMarketDialog={enterMarketDialog}
+                supplyMarketDialog={supplyMarketDialog}
+                borrowMarketDialog={borrowMarketDialog}
+                darkMode={props.darkMode}
+            />
+            <EnterMarketDialog open={openEnterMarket} market={selectedMarket} generalData={generalData} closeMarketDialog = {closeMarketDialog} 
+              handleEnterMarket={handleEnterMarket} handleExitMarket={handleExitMarket}/>
+            <SupplyMarketDialog
+                completed={completed}
+                open={openSupplyMarketDialog}
+                market={selectedMarketRef.current}
+                generalData={generalData}
+                closeSupplyMarketDialog={closeSupplyMarketDialog}
+                darkMode={props.darkMode}
+                handleEnable = {handleEnable}
+                handleSupply={handleSupply}
+                handleWithdraw={handleWithdraw}
+                handleStake={handleStake}
+                handleUnstake={handleUnstake}
+                handleMint={handleMint}
+                getMaxAmount={getMaxAmount}
+                spinnerVisible={props.spinnerVisible}
+                gaugeV4={gaugesV4Data?.find(g => g?.generalData.lpToken.toLowerCase() === selectedMarketRef.current?.pTokenAddress.toLowerCase())}
+                handleApproveBackstop={handleApproveBackstop}
+                handleBackstopDeposit={handleBackstopDeposit}
+                handleBackstopWithdraw={handleBackstopWithdraw}
+                handleBackstopClaim={handleBackstopClaim}
+            />
+            <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
+              closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}
+              handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={props.spinnerVisible}/> 
+        </div>
+    )
 }
 
 export default Content

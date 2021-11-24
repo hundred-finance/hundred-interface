@@ -1,7 +1,8 @@
 import {ethers} from 'ethers'
 import { Contract, Provider } from 'ethcall'
-import { COMPTROLLER_ABI, ORACLE_ABI } from '../abi'
+import { BACKSTOP_MASTERCHEF_ABI, COMPTROLLER_ABI, ORACLE_ABI } from '../abi'
 import { Network } from '../networks'
+import { BackstopPool } from './backstopClass'
 
 export class Comptroller2{
     address : string
@@ -30,14 +31,17 @@ export class Comptroller{
     oracle: Contract
     allMarkets: string[]
     ethcallProvider: Provider
+    backstopPools: BackstopPool[]
 
-    constructor(address: string, ethcallComptroller: Contract, comptroller: ethers.Contract, oracle: Contract, allMarkets: string[], provider: Provider){
+    constructor(address: string, ethcallComptroller: Contract, comptroller: ethers.Contract, oracle: Contract, 
+        allMarkets: string[], provider: Provider, backstopPools: BackstopPool[]){
         this.address = address
         this.ethcallComptroller = ethcallComptroller
         this.comptroller = comptroller
         this.oracle = oracle
         this.allMarkets = allMarkets
         this.ethcallProvider = provider
+        this.backstopPools = backstopPools
     }
 }
 
@@ -48,16 +52,50 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
     if(network.multicallAddress) {
         ethcallProvider.multicallAddress = network.multicallAddress
     }
+
     const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
 
-    const [oracleAddress, allMarkets] = await ethcallProvider.all([ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets()]) 
+    const calls = [ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets()]
+
+    if(network.backstopMasterChef){
+        const backstop = new Contract(network.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI)
+        calls.push(backstop.poolLength())
+    }
+console.log(calls)
+    const data = await ethcallProvider.all(calls) 
+    console.log(data)
+    const oracleAddress = data[0]
+    const allMarkets = data[1]
+
+    const backstopPools = []
+    if(network.backstopMasterChef){
+        const poolLength = data[2] 
+        const backstop = new Contract(network.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI)
+        const backStopCall = []
+        for(let i=0; i<poolLength; i++){
+            backStopCall.push(backstop.lpTokens(i), backstop.underlyingTokens(i))
+        }
+        const backstopData = await ethcallProvider.all(backStopCall)
+        console.log(backstopData)
+        if(backstopData && backstopData.length === 2 * poolLength){
+            for(let i=0; i<backstopData.length / 2; i++){
+                const backstopPool: BackstopPool = {
+                    poolId: i,
+                    lpTokens: backstopData[i*2],
+                    underlyingTokens: backstopData[(i*2)+1]
+                }
+                backstopPools.push(backstopPool)
+            }
+        }
+    }
+
+    console.log(backstopPools)
+
     const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
-    //   const oracleAddress = await comptroller.oracle()
-       const oracle = new Contract(oracleAddress, ORACLE_ABI)
-    //   const allMarkets =  await comptroller.getAllMarkets()
-    //   const enteredMarkets = await comptroller.getAssetsIn(userAddress)
-   
-    return new Comptroller(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets, ethcallProvider)
+    
+    const oracle = new Contract(oracleAddress, ORACLE_ABI)
+    
+    return new Comptroller(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets, ethcallProvider, backstopPools)
   }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
