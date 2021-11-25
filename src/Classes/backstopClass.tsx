@@ -63,14 +63,14 @@ export type BackstopType = {
       this.masterchefBalance = masterchefBalance
       this.underlyingBalance = underlyingBalance
       this.decimals = decimals
-      this.sharePrice = BigNumber.parseValue((+underlyingBalance.toString()/+totalSupply.toString()).toString())
+      this.sharePrice = BigNumber.parseValue((+underlyingBalance.toString()/+totalSupply.toString()).noExponents())
       this.symbol = symbol
       this.allowance = allowance
       this.ethBalance = ethBalance
       this.fetchPrice = fetchPrice
-      this.tvl = BigNumber.parseValue((+underlyingBalance.toString() * +tokenPrice.toString() + (+fetchPrice.toString() * +ethBalance.toString())).toString())
-      this.userEthBalance = BigNumber.parseValue((+ethBalance.toString() * +userBalance.toString() / +totalSupply.toString()).toString())
-      this.apr = BigNumber.from((+hundredPerSecond.toString() * (60 * 60 * 24 * 365) * poolInfo.allocPoint / +totalAllocPoint.toString() * hndPrice))
+      this.tvl = BigNumber.parseValue((+underlyingBalance.toString() * +tokenPrice.toString() + (+fetchPrice.toString() * +ethBalance.toString())).noExponents())
+      this.userEthBalance = BigNumber.parseValue((+ethBalance.toString() * +userBalance.toString() / +totalSupply.toString()).noExponents())
+      this.apr = BigNumber.from((+hundredPerSecond.toString() * (60 * 60 * 24 * 365) * poolInfo.allocPoint / +totalAllocPoint.toString() * hndPrice).noExponents())
       
     }
   }

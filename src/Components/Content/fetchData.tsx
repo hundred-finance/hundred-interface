@@ -392,9 +392,7 @@ export const fetchData = async(
     
       accrued = (+newSupplyIndex - +token.compSupplierIndex) * +token.cTokenBalanceOfUser / 1e36 
     }
-    if(token.backstop){
-      console.log("fetcPrice" + token.backstop?.fetchPrice)
-    }
+    
     const backstop = token.backstop ? 
     new Backstop(token.backstop.pool,
                  token.backstop.poolInfo,
