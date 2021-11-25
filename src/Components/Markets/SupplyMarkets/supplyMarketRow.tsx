@@ -20,9 +20,9 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         <td onClick={() =>props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null}>
           <div className="asset"> 
               <div className="asset-logo">
-                <img className="rounded-circle" src={props?.details?.logoSource} alt=""/>
+                <img className="rounded-circle" src={props?.details?.underlying.logo} alt=""/>
               </div>
-              <span>{props?.details?.symbol}</span>
+              <span>{props?.details?.underlying.symbol}</span>
           </div>
         </td>
         <td onClick={() => props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null} className={`apy ${props.details ? (+props.details?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`}>
@@ -32,19 +32,19 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
             </div>
         </td>
         <td onClick={() => props.details && !props?.details.spinner ? props.supplyMarketDialog(props?.details) : null}>
-          <span data-tip={props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? BigNumber.parseValueSafe(props.details.supplyBalanceInTokenUnit.toString(), props.details.decimals).toString() : null}>
-              {props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? BigNumber.parseValueSafe(props.details.supplyBalanceInTokenUnit.toString(), props.details.decimals).toFixed(4) : 0}
+          <span data-tip={props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? BigNumber.parseValueSafe(props.details.supplyBalanceInTokenUnit.toString(), props.details.underlying.decimals).toString() : null}>
+              {props.details && props.details.supplyBalanceInTokenUnit.gt(BigNumber.from("0")) ? BigNumber.parseValueSafe(props.details.supplyBalanceInTokenUnit.toString(), props.details.underlying.decimals).toFixed(4) : 0}
             </span>
         </td>
         <td onClick={() => props.details &&  !props.details.spinner ? props.supplyMarketDialog(props.details) : null}>
             <i
               className={`circle${
-                props.details && +props.details.walletBalance.toRound(3) <= 0
+                props.details && +props.details.underlying.walletBalance.toRound(3) <= 0
                   ? "-o"
                   : ""
               } text-c-green f-10 m-r-15`}
             />
-            {props.details ? props.details.walletBalance.toRound(3) : "0"}
+            {props.details ? props.details.underlying.walletBalance.toRound(3) : "0"}
           
         </td>
         <td>
@@ -53,7 +53,7 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
               <SwitchButton disabled={props.details.spinner} checked={props?.details?.isEnterMarket} onClick={()=>{props.details ? props.enterMarketDialog(props.details) : null}}/>
               : <SwitchButton disabled={true} switchToolTip={props.details ? +props.details.collateralFactor.toString() > 0 ? null : "Assets that earn HND can't be used as collateral": null }/>
             }
-            {(props?.details?.spinner || props?.details?.supplySpinner || props?.details?.withdrawSpinner)? (<Spinner size={"20px"}/>) : null}
+            {(props?.details?.spinner || props?.details?.supplySpinner || props?.details?.withdrawSpinner || props?.details?.backstopDepositSpinner || props?.details?.backstopWithdrawSpinner)? (<Spinner size={"20px"}/>) : null}
           </div>
         </td>
       </tr>

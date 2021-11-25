@@ -3,12 +3,13 @@ import "./dialogSection.css"
 
 interface Props{
     title: string,
-    value: string
+    value: string,
+    className?: string
 }
 
 const MarketDialogItem: React.FC<Props> = (props : Props) => {
     return (
-        <div className="dialog-section">
+        <div className={`dialog-section ${props.className ? props.className : ""}`}>
             <div className="dialog-section-content">
                 <div className="dialog-section-content-header">
                     <span>{props.title}</span>

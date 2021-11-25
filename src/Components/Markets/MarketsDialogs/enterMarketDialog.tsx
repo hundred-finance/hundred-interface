@@ -50,18 +50,18 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
             <div ref={ref} className="dialog-box">
                 <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>props.closeMarketDialog()} />  
             <div className="dialog-title">
-                {props.market?.symbol && (
+                {props.market?.underlying.symbol && (
                 <img
                 className="rounded-circle"
                 style={{ width: "30px", margin: "0px 10px 0px 0px" }}
-                src={props.market?.logoSource}
+                src={props.market?.underlying.logo}
                 alt=""/>
                 )}
                 {`${
                     props.market?.isEnterMarket ? "Disable" : "Enable"
                 } as Collateral`}
           </div>
-          {props.market?.symbol && (
+          {props.market?.underlying.symbol && (
           <div className="dialog-content">
                 <div className="dialog-message">
                     {props.market?.isEnterMarket 
@@ -72,17 +72,17 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
                 <div className="footer-section">
                     {props.market.isEnterMarket ? (
                      <button className="dialog-button" onClick={() => {
-                         props.market?.symbol ? props.handleExitMarket(
-                          props.market?.symbol
+                         props.market?.underlying.symbol ? props.handleExitMarket(
+                          props.market?.underlying.symbol
                         ) : null;
                       }}>
-                    {`Disable ${props.market?.symbol} as Collateral`}
+                    {`Disable ${props.market?.underlying.symbol} as Collateral`}
                     </button>
                     ) : (
                         <button className="dialog-button"onClick={() => {
-                            props.market?.symbol ? props.handleEnterMarket(props.market?.symbol) : null
+                            props.market?.underlying.symbol ? props.handleEnterMarket(props.market?.underlying.symbol) : null
                           }}>
-                    {`Use ${props.market?.symbol} as Collateral`}
+                    {`Use ${props.market?.underlying.symbol} as Collateral`}
                   </button>
                 )}
               </div>
