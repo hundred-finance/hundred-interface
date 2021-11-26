@@ -53,6 +53,9 @@ export type BackstopType = {
   
     constructor(pool: BackstopPool, poolInfo: BackstopPoolInfo, userBalance : BigNumber, pendingHundred: BigNumber, hundredPerSecond: BigNumber, totalAllocPoint: BigNumber,
         totalSupply : BigNumber, masterchefBalance: BigNumber, underlyingBalance: BigNumber, decimals: number, symbol: string, allowance: BigNumber, ethBalance: BigNumber, fetchPrice: BigNumber, tokenPrice: BigNumber, hndPrice: number){
+        
+      const tvl = +underlyingBalance.toString() * +tokenPrice.toString() + (+fetchPrice.toString() * +ethBalance.toString())
+      
       this.pool = pool
       this.poolInfo = poolInfo
       this.userBalance = userBalance
@@ -63,12 +66,12 @@ export type BackstopType = {
       this.masterchefBalance = masterchefBalance
       this.underlyingBalance = underlyingBalance
       this.decimals = decimals
-      this.sharePrice = BigNumber.parseValue((+underlyingBalance.toString()/+totalSupply.toString()).noExponents())
+      this.sharePrice = totalSupply.toNumeral() > 0 ? BigNumber.parseValue((tvl/+totalSupply.toString()).noExponents()) : BigNumber.from("0")
       this.symbol = symbol
       this.allowance = allowance
       this.ethBalance = ethBalance
       this.fetchPrice = fetchPrice
-      this.tvl = BigNumber.parseValue((+underlyingBalance.toString() * +tokenPrice.toString() + (+fetchPrice.toString() * +ethBalance.toString())).noExponents())
+      this.tvl = BigNumber.parseValue(tvl.noExponents())
       this.userEthBalance = BigNumber.parseValue((+ethBalance.toString() * +userBalance.toString() / +totalSupply.toString()).noExponents())
       this.apr = BigNumber.from((+hundredPerSecond.toString() * (60 * 60 * 24 * 365) * poolInfo.allocPoint / +totalAllocPoint.toString() * hndPrice).noExponents())
       
