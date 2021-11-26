@@ -73,7 +73,7 @@ export type BackstopType = {
       this.fetchPrice = fetchPrice
       this.tvl = BigNumber.parseValue(tvl.noExponents())
       this.userEthBalance = BigNumber.parseValue((+ethBalance.toString() * +userBalance.toString() / +totalSupply.toString()).noExponents())
-      this.apr = BigNumber.from((+hundredPerSecond.toString() * (60 * 60 * 24 * 365) * poolInfo.allocPoint / +totalAllocPoint.toString() * hndPrice).noExponents())
+      this.apr = BigNumber.parseValue((+hundredPerSecond.toString() * (60 * 60 * 24 * 365) * poolInfo.allocPoint / +totalAllocPoint.toString() * hndPrice).noExponents())
       
     }
   }

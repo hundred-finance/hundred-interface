@@ -46,6 +46,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     const [depositInput, setDepositInput] = useState<string>("")
     const [depositDisabled, setDepositDisabled] = useState<boolean>(false)
     const [backstopWithdrawInput, setBackstopWithdrawInput] = useState<string>("")
+    const [backstopWithdraw, setBackstopWithdraw] = useState<string>("Withdraw")
     const [backstopWithdrawDisabled, setbackstopWithdrawDisabled] = useState<boolean>(false)
     const [supplyValidation, setSupplyValidation] = useState<string>("")
     const [withdrawValidation, setWithdrawValidation] = useState<string>("")
@@ -71,6 +72,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             return
         setSupplyInput("")
         setWithdrawInput("")
+        setBackstopWithdraw("Withdraw")
         setStakeInput("")
         setSupplyValidation("")
         setWithdrawValidation("")
@@ -230,19 +232,39 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
 
     useEffect(()=>{
         const handlebackstopWithdrawChange = () => {
-            if(depositInput.trim() === ""){
+            if(backstopWithdrawInput.trim() === ""){
                 setBackstopWithdrawValidation("")
+                setBackstopWithdraw("Withdraw")
                 return;
             }
 
             if(isNaN(+backstopWithdrawInput) || isNaN(parseFloat(backstopWithdrawInput))){
                 setBackstopWithdrawValidation("Amount must be a number");
+                setBackstopWithdraw("Withdraw")
                 return;
             }else if (+backstopWithdrawInput <= 0) {
                 setBackstopWithdrawValidation("Amount must be > 0");
+                setBackstopWithdraw("Withdraw")
             } else if (props.market && props.market.backstop && +backstopWithdrawInput > +props.market?.backstop?.userBalance) {
+                setBackstopWithdraw("Withdraw")
                 setBackstopWithdrawValidation("Amount must be <= balance");
             }else{
+                if(props.market?.backstop){
+                    const widthdrawUsd = BigNumber.parseValue((+backstopWithdrawInput * props.market.backstop.sharePrice.toNumeral()).noExponents())
+                    console.log("withdrawUsd = " + widthdrawUsd.toString())
+                    if(widthdrawUsd.toNumeral() > 0){
+                        if(+widthdrawUsd.toRound(2, true) > 0)
+                            setBackstopWithdraw(`Withdraw ($${widthdrawUsd.toRound(2,true,true)})`)
+                        else if(+widthdrawUsd.toRound(3, true) > 0)
+                            setBackstopWithdraw(`Withdraw ($${widthdrawUsd.toRound(3,true,true)})`)
+                        else if(+widthdrawUsd.toRound(4, true) > 0)
+                            setBackstopWithdraw(`Withdraw ($${widthdrawUsd.toRound(4,true,true)})`)
+                        else
+                            setBackstopWithdraw(`Withdraw (>$${widthdrawUsd.toRound(2,true,true)})`)
+                    }
+                    else setBackstopWithdraw("Withdraw")
+                }
+                
                 setBackstopWithdrawValidation("");
             }
         }
@@ -503,7 +525,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                                 backstopWithdrawInput
                                                             ) : null
                                                         }}>
-                                        {props.market && props.market.backstopWithdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
+                                        {props.market && props.market.backstopWithdrawSpinner ? (<Spinner size={"20px"}/>) : backstopWithdraw}
                                     </MarketDialogButton>
                                     {
                                         +props.market.backstop.pendingHundred.toString() > 0 ?
