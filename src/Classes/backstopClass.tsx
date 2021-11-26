@@ -20,7 +20,7 @@ export type BackstopType = {
     userBalance: ethers.BigNumber,
     pendingHundred: ethers.BigNumber,
     hundredPerSecond: ethers.BigNumber,
-    totalAllocPoint: ethers.BigNumber,
+    totalAllocPoint: number,
     totalSuplly: ethers.BigNumber,
     masterchefBalance: ethers.BigNumber,
     underlyingBalance: ethers.BigNumber,
@@ -37,7 +37,7 @@ export type BackstopType = {
     userBalance: BigNumber
     pendingHundred: BigNumber
     hunderdPerSecond: BigNumber
-    totalAllocPoint: BigNumber
+    totalAllocPoint: number
     totalSupply: BigNumber
     masterchefBalance: BigNumber
     underlyingBalance: BigNumber
@@ -51,7 +51,7 @@ export type BackstopType = {
     userEthBalance: BigNumber
     apr: BigNumber
   
-    constructor(pool: BackstopPool, poolInfo: BackstopPoolInfo, userBalance : BigNumber, pendingHundred: BigNumber, hundredPerSecond: BigNumber, totalAllocPoint: BigNumber,
+    constructor(pool: BackstopPool, poolInfo: BackstopPoolInfo, userBalance : BigNumber, pendingHundred: BigNumber, hundredPerSecond: BigNumber, totalAllocPoint: number,
         totalSupply : BigNumber, masterchefBalance: BigNumber, underlyingBalance: BigNumber, decimals: number, symbol: string, allowance: BigNumber, ethBalance: BigNumber, fetchPrice: BigNumber, tokenPrice: BigNumber, hndPrice: number){
         
       const tvl = +underlyingBalance.toString() * +tokenPrice.toString() + (+fetchPrice.toString() * +ethBalance.toString())
@@ -73,7 +73,7 @@ export type BackstopType = {
       this.fetchPrice = fetchPrice
       this.tvl = BigNumber.parseValue(tvl.noExponents())
       this.userEthBalance = BigNumber.parseValue((+ethBalance.toString() * +userBalance.toString() / +totalSupply.toString()).noExponents())
-      this.apr = totalAllocPoint.toNumeral() > 0 && hndPrice > 0 ? BigNumber.parseValue((+hundredPerSecond.toString() * (60 * 60 * 24 * 365) * poolInfo.allocPoint / +totalAllocPoint.toString() * hndPrice).noExponents()) : BigNumber.from("0")
+      this.apr = totalAllocPoint > 0 && hndPrice > 0 ? BigNumber.parseValue((+hundredPerSecond.toString() * (60 * 60 * 24 * 365) * poolInfo.allocPoint / totalAllocPoint * hndPrice / tvl).noExponents()) : BigNumber.from("0")
       
     }
   }

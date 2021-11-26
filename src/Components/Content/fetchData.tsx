@@ -399,7 +399,7 @@ export const fetchData = async(
                  BigNumber.from(token.backstop.userBalance, token.backstop.decimals),
                  BigNumber.from(token.backstop.pendingHundred, token.backstop.decimals),
                  BigNumber.from(token.backstop.hundredPerSecond, token.backstop.decimals),
-                 BigNumber.from(token.backstop.totalAllocPoint, token.backstop.decimals),
+                 token.backstop.totalAllocPoint,
                  BigNumber.from(token.backstop.totalSuplly, token.backstop.decimals),
                  BigNumber.from(token.backstop.masterchefBalance, token.backstop.decimals), 
                  BigNumber.from(token.backstop.underlyingBalance, decimals), 

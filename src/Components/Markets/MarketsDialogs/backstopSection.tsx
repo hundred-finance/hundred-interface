@@ -35,7 +35,9 @@ const BackstopSection:React.FC<Props> = (props : Props) => {
                     APR
                 </div>
                 <div className="dialog-section-content-value">
-                    {props.market.backstop ? BigNumber.parseValue((+props.market.backstop?.apr.toRound(2, true) * 100).noExponents()).toRound(2,true,true) : 0.00}%
+                    {props.market.backstop ?
+                        props.market.backstop.apr.toNumeral() * 100 > 10000 ? ">10,000"
+                         : BigNumber.parseValue((props.market.backstop.apr.toNumeral() * 100).noExponents()).toRound(2, true, true) : 0.00}%
                 </div>
             </div>
             <div className="dialog-section-content">
