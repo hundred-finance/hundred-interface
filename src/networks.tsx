@@ -63,7 +63,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         hundredLiquidityPoolAddress: "0x65E17c52128396443d4A9A61EaCf0970F05F8a20",
-        backstopMasterChef: "0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02"
+        backstopMasterChef: "0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02",
+        gaugeControllerAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7"
     },
     "0xfa": {
         chainId: "0xfa",
