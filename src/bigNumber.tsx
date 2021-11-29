@@ -149,6 +149,10 @@ export class BigNumber {
     toNumber = () : number => {
       return this._value.toNumber()
     }
+
+    toNumeral = () : number => {
+      return +this.toString()
+    }
   
     static minimum = (b1: BigNumber, b2: BigNumber) : BigNumber => {
       if(+b1.toString() > +b2.toString()) return b2

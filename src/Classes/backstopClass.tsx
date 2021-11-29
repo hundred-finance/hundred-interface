@@ -20,7 +20,7 @@ export type BackstopType = {
     userBalance: ethers.BigNumber,
     pendingHundred: ethers.BigNumber,
     hundredPerSecond: ethers.BigNumber,
-    totalAllocPoint: ethers.BigNumber,
+    totalAllocPoint: number,
     totalSuplly: ethers.BigNumber,
     masterchefBalance: ethers.BigNumber,
     underlyingBalance: ethers.BigNumber,
@@ -37,7 +37,7 @@ export type BackstopType = {
     userBalance: BigNumber
     pendingHundred: BigNumber
     hunderdPerSecond: BigNumber
-    totalAllocPoint: BigNumber
+    totalAllocPoint: number
     totalSupply: BigNumber
     masterchefBalance: BigNumber
     underlyingBalance: BigNumber
@@ -51,8 +51,11 @@ export type BackstopType = {
     userEthBalance: BigNumber
     apr: BigNumber
   
-    constructor(pool: BackstopPool, poolInfo: BackstopPoolInfo, userBalance : BigNumber, pendingHundred: BigNumber, hundredPerSecond: BigNumber, totalAllocPoint: BigNumber,
+    constructor(pool: BackstopPool, poolInfo: BackstopPoolInfo, userBalance : BigNumber, pendingHundred: BigNumber, hundredPerSecond: BigNumber, totalAllocPoint: number,
         totalSupply : BigNumber, masterchefBalance: BigNumber, underlyingBalance: BigNumber, decimals: number, symbol: string, allowance: BigNumber, ethBalance: BigNumber, fetchPrice: BigNumber, tokenPrice: BigNumber, hndPrice: number){
+        
+      const tvl = +underlyingBalance.toString() * +tokenPrice.toString() + (+fetchPrice.toString() * +ethBalance.toString())
+      
       this.pool = pool
       this.poolInfo = poolInfo
       this.userBalance = userBalance
@@ -63,14 +66,13 @@ export type BackstopType = {
       this.masterchefBalance = masterchefBalance
       this.underlyingBalance = underlyingBalance
       this.decimals = decimals
-      this.sharePrice = BigNumber.parseValue((+underlyingBalance.toString()/+totalSupply.toString()).toString())
+      this.sharePrice = totalSupply.toNumeral() > 0 ? BigNumber.parseValue((tvl/+totalSupply.toString()).noExponents()) : BigNumber.from("0")
       this.symbol = symbol
       this.allowance = allowance
       this.ethBalance = ethBalance
       this.fetchPrice = fetchPrice
-      this.tvl = BigNumber.parseValue((+underlyingBalance.toString() * +tokenPrice.toString() + (+fetchPrice.toString() * +ethBalance.toString())).toString())
-      this.userEthBalance = BigNumber.parseValue((+ethBalance.toString() * +userBalance.toString() / +totalSupply.toString()).toString())
-      this.apr = BigNumber.from((+hundredPerSecond.toString() * (60 * 60 * 24 * 365) * poolInfo.allocPoint / +totalAllocPoint.toString() * hndPrice))
-      
+      this.tvl = BigNumber.parseValue(tvl.noExponents())
+      this.userEthBalance = BigNumber.parseValue((+ethBalance.toString() * +userBalance.toString() / +totalSupply.toString()).noExponents())
+      this.apr = totalAllocPoint > 0 && hndPrice > 0 ? BigNumber.parseValue((+hundredPerSecond.toString() * (60 * 60 * 24 * 365) * poolInfo.allocPoint / totalAllocPoint * hndPrice / tvl).noExponents()) : BigNumber.from("0")
     }
   }

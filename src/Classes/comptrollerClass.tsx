@@ -61,9 +61,7 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
         const backstop = new Contract(network.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI)
         calls.push(backstop.poolLength())
     }
-console.log(calls)
     const data = await ethcallProvider.all(calls) 
-    console.log(data)
     const oracleAddress = data[0]
     const allMarkets = data[1]
 
@@ -76,7 +74,6 @@ console.log(calls)
             backStopCall.push(backstop.lpTokens(i), backstop.underlyingTokens(i))
         }
         const backstopData = await ethcallProvider.all(backStopCall)
-        console.log(backstopData)
         if(backstopData && backstopData.length === 2 * poolLength){
             for(let i=0; i<backstopData.length / 2; i++){
                 const backstopPool: BackstopPool = {
@@ -88,8 +85,6 @@ console.log(calls)
             }
         }
     }
-
-    console.log(backstopPools)
 
     const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
     
