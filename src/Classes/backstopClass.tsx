@@ -74,6 +74,5 @@ export type BackstopType = {
       this.tvl = BigNumber.parseValue(tvl.noExponents())
       this.userEthBalance = BigNumber.parseValue((+ethBalance.toString() * +userBalance.toString() / +totalSupply.toString()).noExponents())
       this.apr = totalAllocPoint > 0 && hndPrice > 0 ? BigNumber.parseValue((+hundredPerSecond.toString() * (60 * 60 * 24 * 365) * poolInfo.allocPoint / totalAllocPoint * hndPrice / tvl).noExponents()) : BigNumber.from("0")
-      
     }
   }

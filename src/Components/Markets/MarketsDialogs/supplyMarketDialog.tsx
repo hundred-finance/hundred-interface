@@ -251,7 +251,6 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             }else{
                 if(props.market?.backstop){
                     const widthdrawUsd = BigNumber.parseValue((+backstopWithdrawInput * props.market.backstop.sharePrice.toNumeral()).noExponents())
-                    console.log("withdrawUsd = " + widthdrawUsd.toString())
                     if(widthdrawUsd.toNumeral() > 0){
                         if(+widthdrawUsd.toRound(2, true) > 0)
                             setBackstopWithdraw(`Withdraw ($${widthdrawUsd.toRound(2,true,true)})`)
@@ -535,7 +534,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                                 props.market?.underlying.symbol,
                                                             ) : null
                                                         }}>
-                                        {props.market && props.market.backstopClaimSpinner ? (<Spinner size={"20px"}/>) : `Claim ${props.market.backstop.pendingHundred.toRound(2, true, true)} HND`}
+                                        {props.market && props.market.backstopClaimSpinner ? (<Spinner size={"20px"}/>) : `Claim ${props.market.backstop.pendingHundred.toRound(4, true, true)} HND`}
                                     </MarketDialogButton>
                                     :<></>
                                     }
