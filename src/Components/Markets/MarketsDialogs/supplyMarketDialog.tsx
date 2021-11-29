@@ -443,7 +443,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                                <TabHeaderItem tabId={4} title="Farm" tabChange={tabChange} setTabChange={setTabChange}/>
+                                <TabHeaderItem tabId={3} title="Farm" tabChange={tabChange} setTabChange={setTabChange}/>
                             </TabHeader>
                             : <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
@@ -541,7 +541,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                 </TabContentItem>
                                 {
                                     props.gaugeV4 ?
-                                        <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
+                                        <TabContentItem open={props.open} tabId={4} tabChange={tabChange}>
                                             <MarketDialogItem
                                                 title={"You Staked"}
                                                 value={`${formatBalance(props.gaugeV4?.userStakeBalance).toFixed(4)} h${props.market?.underlying.symbol}`}
