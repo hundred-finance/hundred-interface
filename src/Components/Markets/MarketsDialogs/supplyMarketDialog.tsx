@@ -8,12 +8,16 @@ import DialogMarketInfoSection from "./marketInfoSection";
 import "./supplyMarketDialog.css"
 import SupplyRateSection from "./supplyRatesSection";
 import MarketDialogItem from "./marketDialogItem";
-import { Spinner } from "../../../assets/huIcons/huIcons";
+import {HuLogo, Spinner} from "../../../assets/huIcons/huIcons";
 import { CTokenInfo } from "../../../Classes/cTokenClass";
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass";
 import closeIcon from "../../../assets/icons/closeIcon.png"
 import BackstopSection from "./backstopSection";
 import {GaugeV4} from "../../../Classes/gaugeV4Class";
+
+function formatApr(apr: BigNumber) {
+    return BigNumber.parseValue((+apr.toString() * 100).noExponents()).toRound(2, false, true)
+}
 
 interface Props{
     spinnerVisible: boolean,
@@ -550,6 +554,10 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                 title={"Claimable"}
                                                 value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
                                             />
+                                            <MarketDialogItem
+                                                title={"APY"}
+                                                value={`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"}-${props.market ? formatApr(props.market?.veHndAPR) : "0"}%`}
+                                            />
                                             <TextBox
                                                 placeholder={`0 h${props.market?.underlying.symbol}`}
                                                 disabled={stakeDisabled}
@@ -604,6 +612,10 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                 <MarketDialogItem
                                                     title={"Claimable"}
                                                     value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
+                                                />
+                                                <MarketDialogItem
+                                                    title={"APY"}
+                                                    value={`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"}-${props.market ? formatApr(props.market?.veHndAPR) : "0"}%`}
                                                 />
                                                 <TextBox
                                                     placeholder={`0 h${props.market?.underlying.symbol}`}

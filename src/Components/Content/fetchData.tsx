@@ -404,7 +404,9 @@ export const fetchData = async(
     
     const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
     const veHndAPR = BigNumber.parseValue(gauge ? ((+gauge.weight / 1e18) * (+gauge.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18) / (+gauge.totalStake / 1e8 * +underlying.price)).noExponents() : "0")
-    const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString() + +veHndAPR.toString()).noExponents())
+    const totalSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString())+ +supplyApy.toString()).noExponents())
+    const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
+    const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +supplyApy.toString()).noExponents())
 
     if (gauge) {
         console.log(
@@ -464,6 +466,8 @@ export const fetchData = async(
       veHndAPR,
       borrowRatePerBlock,
       totalSupplyApy,
+      oldTotalSupplyApy,
+      newTotalSupplyApy,
       accrued,
       backstop
     )

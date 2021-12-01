@@ -72,6 +72,8 @@ export class CTokenInfo{
     veHndAPR: BigNumber
     borrowRatePerBlock: BigNumber
 
+    oldTotalSupplyApy: BigNumber
+    newTotalSupplyApy: BigNumber
     totalSupplyApy: BigNumber
 
     accrued: number
@@ -100,6 +102,8 @@ export class CTokenInfo{
                 veHndAPR: BigNumber,
                 borrowRatePerBlock: BigNumber,
                 totalSupplyApy: BigNumber,
+                oldTotalSupplyApy: BigNumber,
+                newTotalSupplyApy: BigNumber,
                 accrued: number,
                 backstop: Backstop | null
                 ){
@@ -137,7 +141,9 @@ export class CTokenInfo{
         this.veHndAPR = veHndAPR
         this.borrowRatePerBlock = borrowRatePerBlock
         this.totalSupplyApy = totalSupplyApy
-        
+        this.oldTotalSupplyApy = oldTotalSupplyApy
+        this.newTotalSupplyApy = newTotalSupplyApy
+
         this.accrued = accrued
 
         this.backstop = backstop
