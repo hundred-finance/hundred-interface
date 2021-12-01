@@ -69,6 +69,7 @@ export class CTokenInfo{
     
     borrowHndApy: BigNumber
     hndAPR: BigNumber
+    veHndAPR: BigNumber
     borrowRatePerBlock: BigNumber
 
     totalSupplyApy: BigNumber
@@ -96,6 +97,7 @@ export class CTokenInfo{
                 hndSpeed: BigNumber,
                 isNativeToken: boolean,
                 hndAPR: BigNumber,
+                veHndAPR: BigNumber,
                 borrowRatePerBlock: BigNumber,
                 totalSupplyApy: BigNumber,
                 accrued: number,
@@ -132,6 +134,7 @@ export class CTokenInfo{
 
         this.borrowHndApy = BigNumber.from("0")
         this.hndAPR = hndAPR
+        this.veHndAPR = veHndAPR
         this.borrowRatePerBlock = borrowRatePerBlock
         this.totalSupplyApy = totalSupplyApy
         

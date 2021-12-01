@@ -1,13 +1,14 @@
 import { Call, Contract } from "ethcall"
 import { ethers } from "ethers"
 import {
-  BACKSTOP_MASTERCHEF_ABI,
+    BACKSTOP_MASTERCHEF_ABI,
     BPRO_ABI,
     COMPTROLLER_ABI,
     CTOKEN_ABI,
     GAUGE_CONTROLLER_ABI,
     GAUGE_V4_ABI,
     HUNDRED_ABI,
+    REWARD_POLICY_MAKER_ABI,
     TOKEN_ABI
 } from "../../abi"
 import { BigNumber } from "../../bigNumber"
@@ -16,7 +17,7 @@ import { CTokenInfo, Underlying } from "../../Classes/cTokenClass"
 import Logos from "../../logos"
 import { Network } from "../../networks"
 import {GaugeV4GeneralData} from "../../Classes/gaugeV4Class";
-import _ from "lodash";
+import _, {floor} from "lodash";
 import { Backstop, BackstopPool, BackstopPoolInfo, BackstopType } from "../../Classes/backstopClass"
 
 const mantissa = 1e18
@@ -237,21 +238,40 @@ export const fetchData = async(
         }
 
         if (nbGauges && network.gaugeControllerAddress) {
-            const ethcallGaugeController = new Contract(network.gaugeControllerAddress, GAUGE_CONTROLLER_ABI)
+            const controller = network.gaugeControllerAddress
+            const ethcallGaugeController = new Contract(controller, GAUGE_CONTROLLER_ABI)
             const gauges = await comptrollerData.ethcallProvider.all(Array.from(Array(nbGauges).keys()).map(i => ethcallGaugeController.gauges(i)))
 
-            const lpAndMinterAddresses = await comptrollerData.ethcallProvider.all(
+            let lpAndMinterAddresses = await comptrollerData.ethcallProvider.all(
                 gauges.flatMap((g) => [
                     new Contract(g, GAUGE_V4_ABI).lp_token(),
-                    new Contract(g, GAUGE_V4_ABI).minter()
+                    new Contract(g, GAUGE_V4_ABI).minter(),
+                    new Contract(g, GAUGE_V4_ABI).reward_policy_maker(),
+                    new Contract(controller, GAUGE_CONTROLLER_ABI).gauge_relative_weight(g)
                 ])
             )
 
-            gaugesGeneralData = _.chunk(lpAndMinterAddresses, 2).map((c, index) => {
+            lpAndMinterAddresses = _.chunk(lpAndMinterAddresses, 4)
+
+            let rewards = await comptrollerData.ethcallProvider.all(
+                gauges.flatMap((g, index) => [
+                        new Contract(lpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
+                        new Contract(lpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g)
+                    ]
+                )
+            )
+
+            rewards = _.chunk(rewards, 2)
+
+            gaugesGeneralData = lpAndMinterAddresses.map((c, index) => {
                 return {
                     address: gauges[index],
                     lpToken: c[0],
-                    minter: c[1]
+                    minter: c[1],
+                    rewardPolicyMaker: c[2],
+                    weight: c[3],
+                    totalStake: rewards[index][1],
+                    veHndRewardRate: rewards[index][0]
                 }
             })
 
@@ -262,7 +282,7 @@ export const fetchData = async(
     const blockNum = await blockProvider.getBlockNumber()
 
     const tokensInfo = await Promise.all(tokens.map(async(t)=>{
-        const tokenInfo = await getCtokenInfo(t, network, hndPrice, blockNum)
+        const tokenInfo = await getCtokenInfo(t, network, hndPrice, blockNum, gaugesGeneralData.find(g => g.lpToken.toLowerCase() === t.tokenAddress.toLowerCase()))
         return tokenInfo
     }))
 
@@ -334,7 +354,7 @@ export const fetchData = async(
     return token
   }
 
-  const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, blockNum: number) : Promise<CTokenInfo> => {
+  const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, blockNum: number, gauge: GaugeV4GeneralData | undefined) : Promise<CTokenInfo> => {
 
     const decimals = token.underlying.decimals
 
@@ -383,9 +403,20 @@ export const fetchData = async(
     const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
     
     const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
+    const veHndAPR = BigNumber.parseValue(gauge ? ((+gauge.weight / 1e18) * (+gauge.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18) / (+gauge.totalStake / 1e8 * +underlying.price)).noExponents() : "0")
+    const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString() + +veHndAPR.toString()).noExponents())
 
-    const totalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
-    
+    if (gauge) {
+        console.log(
+            veHndAPR.toString(),
+            hndPrice,
+            underlying.price.toString(),
+            +gauge.weight / 1e18,
+            +gauge.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18,
+            +gauge.totalStake / 1e8 * +underlying.price
+        )
+    }
+
     let accrued  = 0
     if(+token.totalSupply > 0){
       const newSupplyIndex = +token.compSupplyState.index + (blockNum - token.compSupplyState.block) * +token.compSpeeds * 1e36 / +token.totalSupply;
@@ -430,6 +461,7 @@ export const fetchData = async(
       hndSpeed,
       token.isNative,
       hndAPR,
+      veHndAPR,
       borrowRatePerBlock,
       totalSupplyApy,
       accrued,

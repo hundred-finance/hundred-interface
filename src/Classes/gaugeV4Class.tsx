@@ -9,6 +9,10 @@ export interface GaugeV4GeneralData {
     address : string
     lpToken: string
     minter: string
+    rewardPolicyMaker: string
+    totalStake: BigNumber
+    weight: BigNumber
+    veHndRewardRate: BigNumber
 }
 
 export class GaugeV4{
@@ -46,7 +50,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
     const ethcallProvider = new Provider()
     await ethcallProvider.init(provider)
 
-    if (generalData.length > 0) {
+    if (generalData.length > 0 && network.gaugeControllerAddress) {
 
         if(network.multicallAddress) {
             ethcallProvider.multicallAddress = network.multicallAddress
@@ -55,9 +59,9 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
         const info = await ethcallProvider.all(
             generalData.flatMap((g) => [
                 new Contract(g.address, GAUGE_V4_ABI).balanceOf(userAddress),
-                new Contract(g.address, GAUGE_V4_ABI).integrate_fraction(userAddress),
                 new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
-                new Contract(g.minter, MINTER_ABI).minted(userAddress, g.address)
+                new Contract(g.address, GAUGE_V4_ABI).integrate_fraction(userAddress),
+                new Contract(g.minter, MINTER_ABI).minted(userAddress, g.address),
             ])
         )
 
@@ -66,8 +70,8 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
         return generalData.map((g, index) => new GaugeV4(
                 g,
                 infoChunks[index][0],
-                infoChunks[index][2],
-                infoChunks[index][1].sub(infoChunks[index][3]),
+                infoChunks[index][1],
+                infoChunks[index][2].sub(infoChunks[index][3]),
                 (amount: string) => stake(provider, userAddress, g.address, g.lpToken, amount),
                 (amount: string) => unstake(provider, g.address, amount),
             () => mint(provider, g.address)
