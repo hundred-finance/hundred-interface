@@ -8,7 +8,7 @@ import DialogMarketInfoSection from "./marketInfoSection";
 import "./supplyMarketDialog.css"
 import SupplyRateSection from "./supplyRatesSection";
 import MarketDialogItem from "./marketDialogItem";
-import {HuLogo, Spinner} from "../../../assets/huIcons/huIcons";
+import {Spinner} from "../../../assets/huIcons/huIcons";
 import { CTokenInfo } from "../../../Classes/cTokenClass";
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass";
 import closeIcon from "../../../assets/icons/closeIcon.png"
