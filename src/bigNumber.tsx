@@ -160,7 +160,6 @@ export class BigNumber {
     }
   
     static parseValue = (value: string, decimals?: number): BigNumber => {
-      console.log(value)
       if(value==='NaN') return BigNumber.from("0")
       const temp = value.split(".")
       if(!decimals){
