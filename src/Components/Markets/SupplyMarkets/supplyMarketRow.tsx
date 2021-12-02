@@ -6,6 +6,7 @@ import SwitchButton from "../../Switch/switch"
 
 import "../style.css"
 import StarBpro from "../../StarBpro/starBpro"
+import {GeneralDetailsItemContentItem} from "../../GeneralDetails/generalDetailsItem";
 
 interface Props{
   tooltip?: string,
@@ -28,7 +29,11 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         <td onClick={() => props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null} className={`apy ${props.details ? (+props.details?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`}>
             <div className="supply-apy">
               <StarBpro active={props.details && +props.details?.hndAPR.toString() > 0 ? true : false} backstop={props.details?.backstop ? true : false}/>
-              {`${ props.details && +props?.details?.totalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.totalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
+                <GeneralDetailsItemContentItem
+                    label={`${ props.details && +props?.details?.totalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.totalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
+                    toolTip={`old APY ${props.details && +props?.details?.oldTotalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.oldTotalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%, new APY ${props.details && +props?.details?.newTotalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.newTotalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
+                    value=""
+                />
             </div>
         </td>
         <td onClick={() => props.details && !props?.details.spinner ? props.supplyMarketDialog(props?.details) : null}>

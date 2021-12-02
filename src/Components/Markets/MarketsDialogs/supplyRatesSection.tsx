@@ -9,6 +9,10 @@ interface Props{
     darkMode: boolean
 }
 
+function formatApr(apr: BigNumber) {
+    return BigNumber.parseValue((+apr.toString() * 100).noExponents()).toRound(2, false, true)
+}
+
 const SupplyRateSection:React.FC<Props> = (props: Props) => {
     return (
         <div className="dialog-section">
@@ -24,7 +28,7 @@ const SupplyRateSection:React.FC<Props> = (props: Props) => {
                     </div>
                 <div className="fill">Supply APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${props.market ? BigNumber.parseValue((+props.market?.supplyApy.toString() * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
+                    {`${props.market ? formatApr(props.market?.supplyApy) : "0.00"}%`}
                 </div>
             </div>
             <div className="dialog-section-content">
@@ -33,7 +37,7 @@ const SupplyRateSection:React.FC<Props> = (props: Props) => {
                     </div>
                 <div className="fill">HND APR</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${props.market ? BigNumber.parseValue((+props.market?.hndAPR.toString() * 100).noExponents()).toRound(2, false, true) : "0"}%`}
+                    {`${props.market ? formatApr(props.market?.hndAPR) : "0"}%`}
                 </div>
             </div>
         </div>
