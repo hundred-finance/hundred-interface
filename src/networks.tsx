@@ -86,22 +86,22 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hndPoolPercent: 0.6,
         liquidity: true
     },
-    // "0x505":
-    // {
-    //     chainId: "0x505",
-    //     network: "Moonriver",
-    //     symbol: "MOVR",
-    //     rpcUrls: ["https://rpc.moonriver.moonbeam.network"],
-    //     blockExplorerUrls: ["https://blockscout.moonriver.moonbeam.network/"],
-    //     logo: Logos["MOVR"],
-    //     name: "MOVR",
-    //     blocksPerYear: 6307200,
-    //     nativeTokenMarketAddress: "",
-    //     unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
-    //     hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
-    //     multicallAddress:"0x9fdd7e3e2df5998c7866cd2471d7d30e04496dfa",
-    //     compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-    // }
+    "0x505":
+    {
+        chainId: "0x505",
+        network: "Moonriver",
+        symbol: "MOVR",
+        rpcUrls: ["https://rpc.moonriver.moonbeam.network"],
+        blockExplorerUrls: ["https://blockscout.moonriver.moonbeam.network/"],
+        logo: Logos["MOVR"],
+        name: "MOVR",
+        blocksPerYear: 6307200,
+        nativeTokenMarketAddress: "",
+        unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
+        hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
+        multicallAddress:"0x9fdd7e3e2df5998c7866cd2471d7d30e04496dfa",
+        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+    }
     // "0x1251":
     // {
     //     chainId: "0x1251",
