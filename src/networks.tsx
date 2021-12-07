@@ -101,22 +101,22 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         multicallAddress:"0x9fdd7e3e2df5998c7866cd2471d7d30e04496dfa",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+    },
+    "0x1251":
+    {
+        chainId: "0x1251",
+        network: "IoTeX",
+        symbol: "IOTX",
+        rpcUrls: ["https://babel-api.iotex.io"],
+        blockExplorerUrls: ["https://iotexscan.io/"],
+        logo: Logos["IOTX"],
+        name: "IOTX",
+        blocksPerYear: 6307200,
+        nativeTokenMarketAddress: "0x243e33aa7f6787154a8e59d3c27a66db3f8818ee",
+        unitrollerAddress: "0x8c6139ff1e9d7c1e32bdafd79948d0895ba0a831",
+        hundredAddress: "0xe0a6d4684aabbe8c08a57b3a4b54855c08165c1d",
+        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
     }
-    // "0x1251":
-    // {
-    //     chainId: "0x1251",
-    //     network: "IoTeX",
-    //     symbol: "IOTX",
-    //     rpcUrls: ["https://babel-api.iotex.io"],
-    //     blockExplorerUrls: ["https://iotexscan.io/"],
-    //     logo: Logos["IOTX"],
-    //     name: "IOTX",
-    //     blocksPerYear: 6307200,
-    //     nativeTokenMarketAddress: "0x243e33aa7f6787154a8e59d3c27a66db3f8818ee",
-    //     unitrollerAddress: "0x8c6139ff1e9d7c1e32bdafd79948d0895ba0a831",
-    //     hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
-    //     compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-    // }
     // "0x64": {
     //     chainId: "0x64",
     //     network: "xDai", 

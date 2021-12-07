@@ -151,6 +151,11 @@ const Logos: { [key: string]: string } = {
     "fUSDT"     : USDTlogo,
     "BTC"       : WBTClogo,
     "MOVR"      : MOVRlogo,
+    "ioETH"     : ETHlogo,
+    "ioUSDT"    : USDTlogo,
+    "ioWBTC"    : WBTClogo,
+    "ioBUSD"    : BUSDlogo,
+    "ioUSDC"    : USDClogo,
     "BNB.bsc"   : BNBlogo
 }
 
