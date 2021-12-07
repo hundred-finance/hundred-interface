@@ -69,6 +69,7 @@ import SPELLlogo from "./assets/images/SPELL-logo.svg"
 import DODOlogo from "./assets/images/DODO-logo.svg"
 import FTMlogo from "./assets/images/FTM-logo\.svg"
 import BTClogo from "./assets/images/BTC-logo.svg"
+import MOVRlogo from "./assets/images/MOVR-logo.png"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -148,7 +149,9 @@ const Logos: { [key: string]: string } = {
     "DODO"      : DODOlogo,
     "FTM"       : FTMlogo,
     "fUSDT"     : USDTlogo,
-    "BTC"       : WBTClogo
+    "BTC"       : WBTClogo,
+    "MOVR"      : MOVRlogo,
+    "BNB.bsc"   : BNBlogo
 }
 
 export default Logos
