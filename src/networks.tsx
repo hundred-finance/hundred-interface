@@ -85,7 +85,38 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredLiquidityPoolAddress: "0x20dd72ed959b6147912c2e529f0a0c651c33c9ce",
         hndPoolPercent: 0.6,
         liquidity: true
-    }
+    },
+    // "0x505":
+    // {
+    //     chainId: "0x505",
+    //     network: "Moonriver",
+    //     symbol: "MOVR",
+    //     rpcUrls: ["https://rpc.moonriver.moonbeam.network"],
+    //     blockExplorerUrls: ["https://blockscout.moonriver.moonbeam.network/"],
+    //     logo: Logos["MOVR"],
+    //     name: "MOVR",
+    //     blocksPerYear: 6307200,
+    //     nativeTokenMarketAddress: "",
+    //     unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
+    //     hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
+    //     multicallAddress:"0x9fdd7e3e2df5998c7866cd2471d7d30e04496dfa",
+    //     compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+    // }
+    // "0x1251":
+    // {
+    //     chainId: "0x1251",
+    //     network: "IoTeX",
+    //     symbol: "IOTX",
+    //     rpcUrls: ["https://babel-api.iotex.io"],
+    //     blockExplorerUrls: ["https://iotexscan.io/"],
+    //     logo: Logos["IOTX"],
+    //     name: "IOTX",
+    //     blocksPerYear: 6307200,
+    //     nativeTokenMarketAddress: "0x243e33aa7f6787154a8e59d3c27a66db3f8818ee",
+    //     unitrollerAddress: "0x8c6139ff1e9d7c1e32bdafd79948d0895ba0a831",
+    //     hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
+    //     compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+    // }
     // "0x64": {
     //     chainId: "0x64",
     //     network: "xDai", 

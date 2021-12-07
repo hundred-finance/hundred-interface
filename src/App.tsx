@@ -61,7 +61,7 @@ const App: React.FC = () => {
       setIsMobile(true)
       setIsTablet(false)
     }
-    else if (document.documentElement.clientWidth < 943){
+    else if (document.documentElement.clientWidth < 970){
   
       setIsTablet(true)
       setIsMobile(false)
@@ -75,7 +75,7 @@ const App: React.FC = () => {
         setIsMobile(true)
         setIsTablet(false)
       }
-      else if (document.documentElement.clientWidth < 943){
+      else if (document.documentElement.clientWidth < 970){
     
         setIsTablet(true)
         setIsMobile(false)

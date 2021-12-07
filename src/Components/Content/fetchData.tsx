@@ -121,6 +121,7 @@ export const fetchData = async(
                  comptrollerData.ethcallComptroller.compSupplierIndex(nativeToken, userAddress),
                  comptrollerData.oracle.getUnderlyingPrice(nativeToken))
     }
+
     
     const notNativeMarkets = markets.filter((a) => {
       if (a.toLowerCase() === network.nativeTokenMarketAddress.toLowerCase()) 
@@ -136,6 +137,7 @@ export const fetchData = async(
         underlyingCalls.push(cToken.underlying())
       })
       const result = await comptrollerData.ethcallProvider.all(underlyingCalls)
+
       underlyingAddresses = result
     }
     else{
@@ -200,7 +202,8 @@ export const fetchData = async(
     let gaugesGeneralData: Array<GaugeV4GeneralData> = []
     let nbGauges = 0
 
-    let compareLength = network.hundredLiquidityPoolAddress ? notNativeMarkets.length * 19 + 17 : notNativeMarkets.length * 19 + 16
+    let compareLength = nativeToken ? 16 : 3
+    compareLength = network.hundredLiquidityPoolAddress ? compareLength + notNativeMarkets.length * 19 + 1 : compareLength + notNativeMarkets.length * 19
     compareLength = network.backstopMasterChef ? compareLength + comptrollerData.backstopPools.length * 12 : compareLength
     compareLength = network?.gaugeControllerAddress ? compareLength + 1 : compareLength
 
@@ -408,16 +411,16 @@ export const fetchData = async(
     const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
     const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +supplyApy.toString()).noExponents())
 
-    if (gauge) {
-        console.log(
-            veHndAPR.toString(),
-            hndPrice,
-            underlying.price.toString(),
-            +gauge.weight / 1e18,
-            +gauge.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18,
-            +gauge.totalStake / 1e8 * +underlying.price
-        )
-    }
+    // if (gauge) {
+    //     console.log(
+    //         veHndAPR.toString(),
+    //         hndPrice,
+    //         underlying.price.toString(),
+    //         +gauge.weight / 1e18,
+    //         +gauge.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18,
+    //         +gauge.totalStake / 1e8 * +underlying.price
+    //     )
+    // }
 
     let accrued  = 0
     if(+token.totalSupply > 0){
