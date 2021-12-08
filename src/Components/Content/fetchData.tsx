@@ -450,6 +450,7 @@ export const fetchData = async(
     return new CTokenInfo(
       token.tokenAddress,
       underlying,
+      exchangeRateStored,
       supplyApy,
       borrowApy,
       supplyBalanceInTokenUnit,

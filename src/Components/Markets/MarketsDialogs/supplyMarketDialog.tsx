@@ -544,11 +544,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                     }
                                 </TabContentItem>
                                 {
-                                    props.gaugeV4 ?
+                                    props.gaugeV4 && props.market ?
                                         <TabContentItem open={props.open} tabId={4} tabChange={tabChange}>
                                             <MarketDialogItem
                                                 title={"You Staked"}
-                                                value={`${formatBalance(props.gaugeV4?.userStakeBalance).toFixed(4)} h${props.market?.underlying.symbol}`}
+                                                value={`${formatBalance(BigNumber.from(props.gaugeV4?.userStakedTokenBalance, props.market.underlying.decimals).mul(props.market.exchangeRate)).toFixed(4)} ${props.market?.underlying.symbol}`}
                                             />
                                             <MarketDialogItem
                                                 title={"Claimable"}
@@ -603,11 +603,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             :
                                 <>
                                     {
-                                        props.gaugeV4 ?
+                                        props.gaugeV4 && props.market ?
                                             <TabContentItem open={props.open} tabId={3} tabChange={tabChange}>
                                                 <MarketDialogItem
                                                     title={"You Staked"}
-                                                    value={`${formatBalance(props.gaugeV4?.userStakehTokenBalance).toFixed(4)} h${props.market?.underlying.symbol}`}
+                                                    value={`${formatBalance(BigNumber.from(props.gaugeV4?.userStakedTokenBalance, props.market.underlying.decimals).mul(props.market.exchangeRate)).toFixed(4)} ${props.market?.underlying.symbol}`}
                                                 />
                                                 <MarketDialogItem
                                                     title={"Claimable"}

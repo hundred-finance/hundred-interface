@@ -18,7 +18,7 @@ export interface GaugeV4GeneralData {
 export class GaugeV4{
     generalData : GaugeV4GeneralData
     userStakeBalance: BigNumber
-    userStakehTokenBalance: BigNumber
+    userStakedTokenBalance: BigNumber
     userLpBalance: BigNumber
     userClaimableHnd: BigNumber
     stakeCall: (amount: string) => void
@@ -36,7 +36,7 @@ export class GaugeV4{
     ){
         this.generalData = generalData
         this.userStakeBalance = BigNumber.from(userStakeBalance.toString(), 18)
-        this.userStakehTokenBalance = BigNumber.from(userStakeBalance.toString(), 8)
+        this.userStakedTokenBalance = userStakeBalance
         this.userLpBalance = BigNumber.from(userLpBalance.toString(), 8)
         this.userClaimableHnd = BigNumber.from(userClaimableHnd.toString(), 18)
         this.stakeCall = stakeCall
