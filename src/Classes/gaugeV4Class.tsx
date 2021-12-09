@@ -60,18 +60,17 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
             generalData.flatMap((g) => [
                 new Contract(g.address, GAUGE_V4_ABI).balanceOf(userAddress),
                 new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
-                new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
-                new Contract(g.minter, MINTER_ABI).minted(userAddress, g.address),
+                new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress)
             ])
         )
 
-        const infoChunks = _.chunk(info, 4);
+        const infoChunks = _.chunk(info, 3);
 
         return generalData.map((g, index) => new GaugeV4(
                 g,
                 infoChunks[index][0],
                 infoChunks[index][1],
-                infoChunks[index][2].sub(infoChunks[index][3]),
+                infoChunks[index][2],
                 (amount: string) => stake(provider, userAddress, g.address, g.lpToken, amount),
                 (amount: string) => unstake(provider, g.address, amount),
             () => mint(provider, g.address)
