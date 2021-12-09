@@ -558,6 +558,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                 title={"APR"}
                                                 value={`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"}-${props.market ? formatApr(props.market?.veHndAPR) : "0"}%`}
                                             />
+                                            <div className="native-asset-amount">
+                                                <span>{convertLpAmountToUnderlying(stakeInput, props.market)} {props.market?.underlying.symbol}</span>
+                                            </div>
                                             <TextBox
                                                 placeholder={`0 h${props.market?.underlying.symbol}`}
                                                 disabled={stakeDisabled}
@@ -573,8 +576,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                 {props.market && props.market.stakeSpinner ? (
                                                     <Spinner size={"20px"}/>) : "Stake"}
                                             </MarketDialogButton>
+                                            <div className="native-asset-amount">
+                                                <span>{convertGaugeLpAmountToUnderlying(unstakeInput, props.market)} {props.market?.underlying.symbol}</span>
+                                            </div>
                                             <TextBox
-                                                placeholder={`0 h${props.market?.underlying.symbol}`}
+                                                placeholder={`0 h${props.market?.underlying.symbol}-gauge`}
                                                 disabled={unstakeDisabled}
                                                 value={unstakeInput}
                                                 setInput={setUnstakeInput}
@@ -617,6 +623,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                     title={"APR"}
                                                     value={`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"}-${props.market ? formatApr(props.market?.veHndAPR) : "0"}%`}
                                                 />
+                                                <div className="native-asset-amount">
+                                                    <span>{convertLpAmountToUnderlying(stakeInput, props.market)} {props.market?.underlying.symbol}</span>
+                                                </div>
                                                 <TextBox
                                                     placeholder={`0 h${props.market?.underlying.symbol}`}
                                                     disabled={stakeDisabled}
@@ -633,8 +642,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                     {props.market && props.market.stakeSpinner ? (
                                                         <Spinner size={"20px"}/>) : "Stake"}
                                                 </MarketDialogButton>
+                                                <div className="native-asset-amount">
+                                                    <span>{convertGaugeLpAmountToUnderlying(unstakeInput, props.market)} {props.market?.underlying.symbol}</span>
+                                                </div>
                                                 <TextBox
-                                                    placeholder={`0 h${props.market?.underlying.symbol}`}
+                                                    placeholder={`0 h${props.market?.underlying.symbol}-gauge`}
                                                     disabled={unstakeDisabled}
                                                     value={unstakeInput}
                                                     setInput={setUnstakeInput}
@@ -668,6 +680,14 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             </div>
         </div>) : null
     )
+}
+
+function convertLpAmountToUnderlying(amount: string, market: CTokenInfo) {
+    return (+amount * +market.exchangeRate / (10 ** (market.underlying.decimals - 8)) ).toFixed(4)
+}
+
+function convertGaugeLpAmountToUnderlying(amount: string, market: CTokenInfo) {
+    return (+amount * +market.exchangeRate * (10 ** (18 - market.underlying.decimals))).toFixed(4)
 }
 
 export default SupplyMarketDialog

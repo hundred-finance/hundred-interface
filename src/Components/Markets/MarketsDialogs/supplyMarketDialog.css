@@ -69,3 +69,14 @@
     color: var(--secondaryText);
     font-size:1.2rem;
 }
+
+.native-asset-amount {
+    font-size: 0.8rem;
+    position: relative;
+}
+
+.native-asset-amount span {
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+}
