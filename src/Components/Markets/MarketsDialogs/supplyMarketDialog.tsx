@@ -555,7 +555,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                 value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
                                             />
                                             <MarketDialogItem
-                                                title={"APY"}
+                                                title={"APR"}
                                                 value={`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"}-${props.market ? formatApr(props.market?.veHndAPR) : "0"}%`}
                                             />
                                             <TextBox
@@ -614,7 +614,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                     value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
                                                 />
                                                 <MarketDialogItem
-                                                    title={"APY"}
+                                                    title={"APR"}
                                                     value={`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"}-${props.market ? formatApr(props.market?.veHndAPR) : "0"}%`}
                                                 />
                                                 <TextBox
