@@ -1,14 +1,18 @@
 import { BigNumber } from "../bigNumber"
 import { CTokenInfo } from "./cTokenClass"
+import {GaugeV4} from "./gaugeV4Class";
 
 export class GeneralDetailsData{
     totalSupplyBalance: BigNumber
+    totalStakeBalance: BigNumber
     totalBorrowBalance: BigNumber
     allMarketsTotalSupplyBalance: BigNumber
+    allMarketsTotalStakeBalance: BigNumber
     allMarketsTotalBorrowBalance: BigNumber
     totalBorrowLimit: BigNumber
     totalBorrowLimitUsedPercent: BigNumber
     yearSupplyInterest: BigNumber
+    yearStakeInterest: BigNumber
     yearBorrowInterest: BigNumber
     netApy: BigNumber
     totalSupplyHndApy: BigNumber
@@ -17,12 +21,15 @@ export class GeneralDetailsData{
     earned: BigNumber
 
     constructor(totalSupplyBalance: BigNumber,
+                totalStakeBalance: BigNumber,
                 totalBorrowBalance: BigNumber,
                 allMarketsTotalSupplyBalance: BigNumber,
+                allMarketsTotalStakeBalance: BigNumber,
                 allMarketsTotalBorrowBalance: BigNumber,
                 totalBorrowLimit: BigNumber,
                 totalBorrowLimitUsedPercent: BigNumber,
                 yearSupplyInterest: BigNumber,
+                yearStakeInterest: BigNumber,
                 yearBorrowInterest: BigNumber,
                 netApy: BigNumber,
                 totalSupplyHndApy: BigNumber,
@@ -30,12 +37,15 @@ export class GeneralDetailsData{
                 totalLiquidity: BigNumber,
                 earned: BigNumber){
         this.totalSupplyBalance = totalSupplyBalance
+        this.totalStakeBalance = totalStakeBalance
         this.totalBorrowBalance = totalBorrowBalance
         this.allMarketsTotalSupplyBalance = allMarketsTotalSupplyBalance
+        this.allMarketsTotalStakeBalance = allMarketsTotalStakeBalance
         this.allMarketsTotalBorrowBalance = allMarketsTotalBorrowBalance
         this.totalBorrowLimit = totalBorrowLimit
         this.totalBorrowLimitUsedPercent = totalBorrowLimitUsedPercent
         this.yearSupplyInterest = yearSupplyInterest
+        this.yearStakeInterest = yearStakeInterest
         this.yearBorrowInterest = yearBorrowInterest
         this.netApy = netApy
         this.totalSupplyHndApy = totalSupplyHndApy
@@ -45,23 +55,35 @@ export class GeneralDetailsData{
     }
 }
 
-export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], compAccrued: BigNumber) : GeneralDetailsData => {
+export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], gauges: GaugeV4[], compAccrued: BigNumber) : GeneralDetailsData => {
     let totalSupplyBalance = BigNumber.from("0")
+    let totalStakedBalance = BigNumber.from("0")
     let totalBorrowBalance = BigNumber.from("0")
     let allMarketsTotalSupplyBalance = BigNumber.from("0")
+    let allMarketsTotalStakeBalance = BigNumber.from("0")
     let allMarketsTotalBorrowBalance = BigNumber.from("0")
     let totalBorrowLimit = BigNumber.from("0")
     let yearSupplyInterest = BigNumber.from("0")
+    let yearStakeInterest = BigNumber.from("0")
     let yearBorrowInterest = BigNumber.from("0")
     let yearSupplyHndRewards = BigNumber.from("0")
     const yearBorrowHndRewards = BigNumber.from("0")
     let totalLiquidity = BigNumber.from("0")
     let totalAccrued = 0
-    
+
+    const gaugeYearlyRewards = gauges.length > 0 ? +gauges[0].generalData.veHndRewardRate * 3600 * 24 * 365 / 1e18 : 0
+    marketsData[0]?.veHndAPR
     marketsData.map((market) => {  
       if(market){
+        const gauge = gauges.find(g => g.generalData.lpToken.toLowerCase() === market.pTokenAddress.toLowerCase())
+        const stake = gauge ? +gauge.generalData.totalStake * +market.exchangeRate * +market.underlying.price / (10 ** market.underlying.decimals) : 0
+        const userStake = gauge ? +gauge.userStakedTokenBalance * +market.exchangeRate * +market.underlying.price / (10 ** market.underlying.decimals) : 0
+
         totalSupplyBalance = BigNumber.parseValue((+totalSupplyBalance.toString() + +market.supplyBalance.toString()).noExponents())
         totalBorrowBalance = BigNumber.parseValue((+totalBorrowBalance.toString() + +market.borrowBalance.toString()).noExponents())
+        totalStakedBalance = BigNumber.parseValue((+totalStakedBalance.toString() + userStake).noExponents())
+
+        allMarketsTotalStakeBalance = BigNumber.parseValue((+allMarketsTotalStakeBalance.toString() + stake).noExponents())
 
         if (+market?.marketTotalSupply?.toString() > 0) {
           allMarketsTotalSupplyBalance = BigNumber.parseValue((+allMarketsTotalSupplyBalance.toString() + +market.marketTotalSupply.toString()).noExponents())
@@ -74,6 +96,7 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], compAccrue
         totalBorrowLimit = totalBorrowLimit.addSafe(market.isEnterMarket ? market.supplyBalance.mul(market.collateralFactor) : BigNumber.from("0"))
         
         yearSupplyInterest = BigNumber.parseValue((+yearSupplyInterest.toString() + (+market.supplyBalance.toString() * (+market.supplyApy.toString() + +market.hndAPR.toString()))).noExponents())
+        yearStakeInterest = BigNumber.parseValue((+yearStakeInterest.toString() + (userStake * +market.veHndAPR.toString())).noExponents())
         yearBorrowInterest = BigNumber.parseValue((+yearBorrowInterest.toString() + (+market.borrowBalance.toString() * +market.borrowApy.toString())).noExponents())
         yearSupplyHndRewards = BigNumber.parseValue((+yearSupplyHndRewards.toString() + +market.hndAPR.toString()).noExponents())
         if (market && market.liquidity.gt(BigNumber.from("0"))) {
@@ -99,12 +122,15 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], compAccrue
 
     return new GeneralDetailsData(
                             totalSupplyBalance,
+                            totalStakedBalance,
                             totalBorrowBalance,
                             allMarketsTotalSupplyBalance,
+                            allMarketsTotalStakeBalance,
                             allMarketsTotalBorrowBalance,
                             totalBorrowLimit,
                             totalBorrowLimitUsedPercent,
                             yearSupplyInterest,
+                            yearStakeInterest,
                             yearBorrowInterest,
                             netApy,
                             +totalSupplyBalance.toString() > 0 ? BigNumber.parseValue((+yearSupplyHndRewards.toString() / +totalSupplyBalance.toString() * 100).noExponents()) : BigNumber.from(0),

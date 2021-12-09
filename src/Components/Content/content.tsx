@@ -117,7 +117,7 @@ const Content: React.FC<Props> = (props : Props) => {
         callUpdate()
     },[props.updateEarned])
 
-    const updateMarkets = (markets: CTokenInfo[], hndBalance: BigNumber, hundredBalace: BigNumber, compAccrued: BigNumber, cToken?: CTokenInfo, spinner?: string): void =>{
+    const updateMarkets = (markets: CTokenInfo[], gauges: GaugeV4[], hndBalance: BigNumber, hundredBalace: BigNumber, compAccrued: BigNumber, cToken?: CTokenInfo, spinner?: string): void =>{
       if(marketsRef.current){
         markets.map((m) => {
           if(marketsRef.current && m){
@@ -158,7 +158,7 @@ const Content: React.FC<Props> = (props : Props) => {
           return true
         })
       }
-      const data = getGeneralDetails(markets, compAccrued)
+      const data = getGeneralDetails(markets, gauges, compAccrued)
       setMarketsData(markets)
       setGeneralData(data)
       props.setHndEarned(data.earned)
@@ -181,8 +181,8 @@ const Content: React.FC<Props> = (props : Props) => {
         if(provider.current && comptrollerDataRef.current){
           const markets = await fetchData({ allMarkets: comptrollerDataRef.current.allMarkets, userAddress: userAddress.current, comptrollerData: comptrollerDataRef.current, network: network.current, marketsData: marketsRef.current, provider: provider.current, hndPrice: hndPriceRef.current })
           
-          updateMarkets(markets.markets, markets.hndBalance, markets.hundredBalace, markets.comAccrued, cToken, spinnerUpdate)
           const gauges = await getGaugesData(provider.current, userAddress.current, network.current, markets.gauges)
+          updateMarkets(markets.markets, gauges, markets.hndBalance, markets.hundredBalace, markets.comAccrued, cToken, spinnerUpdate)
           setGaugesV4Data(gauges)
         }
       }

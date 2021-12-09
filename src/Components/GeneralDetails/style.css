@@ -28,7 +28,7 @@
     margin-right: auto;
     border-radius: 5px;
     color: var(--secondaryText);
-    height: 290px;
+    height: 380px;
     width: 100%;
     max-width: 300px;
 }
@@ -107,7 +107,7 @@
 
 @media (max-width: 274px){
     .general-details-item{
-        height: 310px;
+        height: 415px;
     }
 }
 
@@ -124,7 +124,7 @@
         margin: 2rem 1rem;
         border-radius: 5px;
         color: var(--secondaryText);
-        height: 290px;
+        height: 380px;
         width: 280px;
     }
 
