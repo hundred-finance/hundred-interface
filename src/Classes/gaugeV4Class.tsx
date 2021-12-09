@@ -60,7 +60,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
             generalData.flatMap((g) => [
                 new Contract(g.address, GAUGE_V4_ABI).balanceOf(userAddress),
                 new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
-                new Contract(g.address, GAUGE_V4_ABI).integrate_fraction(userAddress),
+                new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
                 new Contract(g.minter, MINTER_ABI).minted(userAddress, g.address),
             ])
         )
