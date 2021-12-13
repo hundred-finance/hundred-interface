@@ -71,7 +71,7 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], gauges: Ga
     let totalLiquidity = BigNumber.from("0")
     let totalAccrued = 0
 
-    const gaugeYearlyRewards = gauges.length > 0 ? +gauges[0].generalData.veHndRewardRate * 3600 * 24 * 365 / 1e18 : 0
+    //const gaugeYearlyRewards = gauges.length > 0 ? +gauges[0].generalData.veHndRewardRate * 3600 * 24 * 365 / 1e18 : 0
     marketsData[0]?.veHndAPR
     marketsData.map((market) => {  
       if(market){

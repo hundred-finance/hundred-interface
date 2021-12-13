@@ -621,7 +621,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                                 />
                                                 <MarketDialogItem
                                                     title={"APR"}
-                                                    value={`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"}-${props.market ? formatApr(props.market?.veHndAPR) : "0"}%`}
+                                                    value={`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"} - ${props.market ? formatApr(props.market?.veHndAPR) : "0"}%`}
                                                 />
                                                 <div className="native-asset-amount">
                                                     <span>{convertLpAmountToUnderlying(stakeInput, props.market)} {props.market?.underlying.symbol}</span>
