@@ -77,6 +77,32 @@
 
 .native-asset-amount span {
     position: absolute;
-    bottom: -3px;
+    bottom: -26px;
     left: 0;
+}
+
+.amount-select {
+    display: grid;
+    grid-template-columns: 25% 25% 25% 25%;
+    align-items: end;
+    width: 150px;
+}
+
+.amount-select div {
+    margin-bottom: unset !important;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.native-asset-amount .amount-select {
+    position: absolute;
+    bottom: -26px;
+    right: 0;
+}
+
+.input-button-group {
+    display: grid;
+    grid-template-columns: 69% 29%;
+    grid-gap: 2%;
+    margin-top: 35px;
 }

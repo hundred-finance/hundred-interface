@@ -1,6 +1,6 @@
 .market-dialog-button{
     display: block;
-    height: 5rem;
+    height: 60px;
     display: flex;
     text-align: center;
     justify-content: center;
@@ -9,9 +9,9 @@
 }
 
 .market-dialog-button button{
-    margin: auto;
-    height: 70%;
-    width: 90%;
+    margin: 10px auto auto;
+    height: 45px;
+    width: 100%;
     font-size: 1.2rem;
     outline: none;
     border: 1px solid var(--buttonHover);
