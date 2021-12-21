@@ -106,3 +106,7 @@
     grid-gap: 2%;
     margin-top: 35px;
 }
+
+.input-button-group .textbox .validation{
+    bottom:-15px;
+}

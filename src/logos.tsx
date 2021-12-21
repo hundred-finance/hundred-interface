@@ -70,6 +70,7 @@ import DODOlogo from "./assets/images/DODO-logo.svg"
 import FTMlogo from "./assets/images/FTM-logo\.svg"
 import BTClogo from "./assets/images/BTC-logo.svg"
 import MOVRlogo from "./assets/images/MOVR-logo.png"
+import USTlogo from "./assets/images/UST-logo.png"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -151,7 +152,17 @@ const Logos: { [key: string]: string } = {
     "fUSDT"     : USDTlogo,
     "BTC"       : WBTClogo,
     "MOVR"      : MOVRlogo,
-    "BNB.bsc"   : BNBlogo
+    "ioETH"     : ETHlogo,
+    "ioUSDT"    : USDTlogo,
+    "ioWBTC"    : WBTClogo,
+    "ioBUSD"    : BUSDlogo,
+    "ioUSDC"    : USDClogo,
+    "BNB.bsc"   : BNBlogo,
+    "1ETH"      : ETHlogo,
+    "1USDC"     : USDClogo,
+    "1USDT"     : USDTlogo,
+    "1WBTC"     : WBTClogo,
+    "UST"       : USTlogo
 }
 
 export default Logos
