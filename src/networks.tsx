@@ -87,6 +87,25 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hndPoolPercent: 0.6,
         liquidity: true
     },
+    "0x63564c40":
+    {
+        chainId: "0x63564c40",
+        network: "Harmony",
+        symbol: "ONE",
+        rpcUrls: ["https://api.harmony.one",
+                  "https://s1.api.harmony.one",
+                  "https://s2.api.harmony.one",
+                  "https://s3.api.harmony.one"],
+        blockExplorerUrls: ["https://explorer.harmony.one/"],
+        logo: Logos["ONE"],
+        name: "ONE",
+        blocksPerYear: 15778476,
+        nativeTokenMarketAddress: "0xbb93c7f378b9b531216f9ad7b5748be189a55807",
+        unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
+        hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
+        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        gaugeControllerAddress: "0xa8cD5D59827514BCF343EC19F531ce1788Ea48f8"
+    },
     "0x505":
     {
         chainId: "0x505",
@@ -117,25 +136,6 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x8c6139ff1e9d7c1e32bdafd79948d0895ba0a831",
         hundredAddress: "0xe0a6d4684aabbe8c08a57b3a4b54855c08165c1d",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-    },
-    "0x63564c40":
-    {
-        chainId: "0x63564c40",
-        network: "Harmony",
-        symbol: "ONE",
-        rpcUrls: ["https://api.harmony.one",
-                  "https://s1.api.harmony.one",
-                  "https://s2.api.harmony.one",
-                  "https://s3.api.harmony.one"],
-        blockExplorerUrls: ["https://explorer.harmony.one/"],
-        logo: Logos["ONE"],
-        name: "ONE",
-        blocksPerYear: 15778476,
-        nativeTokenMarketAddress: "0xbb93c7f378b9b531216f9ad7b5748be189a55807",
-        unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
-        hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
-        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        gaugeControllerAddress: "0xa8cD5D59827514BCF343EC19F531ce1788Ea48f8"
     },
     // "0x64": {
     //     chainId: "0x64",
