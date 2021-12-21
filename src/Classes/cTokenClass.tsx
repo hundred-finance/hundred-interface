@@ -39,6 +39,7 @@ export class Underlying{
 export class CTokenInfo{
     pTokenAddress: string
     underlying: Underlying
+    exchangeRate: BigNumber
     supplyApy: BigNumber
     borrowApy: BigNumber
     supplyBalanceInTokenUnit: BigNumber
@@ -83,6 +84,7 @@ export class CTokenInfo{
 
     constructor(pTokenAddress: string,
                 underlying: Underlying,
+                exchangeRate: BigNumber,
                 supplyApy: BigNumber,
                 borrowApy: BigNumber,
                 supplyBalanceInTokenUnit: BigNumber,
@@ -109,6 +111,7 @@ export class CTokenInfo{
                 ){
         this.pTokenAddress= pTokenAddress
         this.underlying = underlying
+        this.exchangeRate = exchangeRate
         this.supplyApy= supplyApy
         this.borrowApy= borrowApy
         this.supplyBalanceInTokenUnit= supplyBalanceInTokenUnit

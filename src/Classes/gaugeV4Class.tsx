@@ -18,7 +18,7 @@ export interface GaugeV4GeneralData {
 export class GaugeV4{
     generalData : GaugeV4GeneralData
     userStakeBalance: BigNumber
-    userStakehTokenBalance: BigNumber
+    userStakedTokenBalance: BigNumber
     userLpBalance: BigNumber
     userClaimableHnd: BigNumber
     stakeCall: (amount: string) => void
@@ -36,7 +36,7 @@ export class GaugeV4{
     ){
         this.generalData = generalData
         this.userStakeBalance = BigNumber.from(userStakeBalance.toString(), 18)
-        this.userStakehTokenBalance = BigNumber.from(userStakeBalance.toString(), 8)
+        this.userStakedTokenBalance = userStakeBalance
         this.userLpBalance = BigNumber.from(userLpBalance.toString(), 8)
         this.userClaimableHnd = BigNumber.from(userClaimableHnd.toString(), 18)
         this.stakeCall = stakeCall
@@ -60,18 +60,17 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
             generalData.flatMap((g) => [
                 new Contract(g.address, GAUGE_V4_ABI).balanceOf(userAddress),
                 new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
-                new Contract(g.address, GAUGE_V4_ABI).integrate_fraction(userAddress),
-                new Contract(g.minter, MINTER_ABI).minted(userAddress, g.address),
+                new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress)
             ])
         )
 
-        const infoChunks = _.chunk(info, 4);
+        const infoChunks = _.chunk(info, 3);
 
         return generalData.map((g, index) => new GaugeV4(
                 g,
                 infoChunks[index][0],
                 infoChunks[index][1],
-                infoChunks[index][2].sub(infoChunks[index][3]),
+                infoChunks[index][2],
                 (amount: string) => stake(provider, userAddress, g.address, g.lpToken, amount),
                 (amount: string) => unstake(provider, g.address, amount),
             () => mint(provider, g.address)

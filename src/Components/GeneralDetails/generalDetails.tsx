@@ -16,22 +16,26 @@ const GeneralDetails: React.FC<Props> = ({generalData} : Props) => {
                 <GeneralDetailsItem>
                     <GeneralDetailsItemTitle  title="Market Overview"/>
                         <GeneralDetailsItemContent>
-                            <GeneralDetailsItemContentItem label="Total Supply:" 
+                            <GeneralDetailsItemContentItem label="Total Supply" 
                                 value={`$${generalData ? generalData?.allMarketsTotalSupplyBalance.toRound(2, true, true) : '0'}`}/>
-                            <GeneralDetailsItemContentItem label="Total Borrow:" 
+                            <GeneralDetailsItemContentItem label="Total Staked"
+                                                           value={`$${generalData ? generalData?.allMarketsTotalStakeBalance.toRound(2, true, true) : '0'}`}/>
+                            <GeneralDetailsItemContentItem label="Total Borrow" 
                                 value={`$${generalData ? generalData?.allMarketsTotalBorrowBalance.toRound(2, true, true) : '0'}`}/>
-                            <GeneralDetailsItemContentItem label="Total Liquidity:" 
+                            <GeneralDetailsItemContentItem label="Total Liquidity" 
                                 value={`$${generalData ? generalData?.totalLiquidity.toRound(2, true, true): 0}`}/>
                         </GeneralDetailsItemContent>
                 </GeneralDetailsItem>
                 <GeneralDetailsItem>
                     <GeneralDetailsItemTitle  title="Balances"/>
                         <GeneralDetailsItemContent>
-                            <GeneralDetailsItemContentItem label="Supply:" 
+                            <GeneralDetailsItemContentItem label="Supply" 
                                 value={`$${generalData ? generalData?.totalSupplyBalance.toRound(2, true, true) : '0'}`}/>
-                            <GeneralDetailsItemContentItem label="Borrow:" 
+                            <GeneralDetailsItemContentItem label="Staked"
+                                                           value={`$${generalData ? generalData?.totalStakeBalance.toRound(2, true, true) : '0'}`}/>
+                            <GeneralDetailsItemContentItem label="Borrow" 
                                 value={`$${generalData ? generalData?.totalBorrowBalance.toRound(2, true, true) : '0'}`}/>
-                            <GeneralDetailsItemContentItem label="Borrow Limit:" 
+                            <GeneralDetailsItemContentItem label="Borrow Limit" 
                                 value={`$${generalData ? generalData?.totalBorrowLimit.toRound(2, true, true) : '0'}`}
                                 valueDetails={`(${generalData ? generalData?.totalBorrowLimitUsedPercent.toRound(2) : '0'}% Used)`}/>
                         </GeneralDetailsItemContent>
@@ -40,13 +44,16 @@ const GeneralDetails: React.FC<Props> = ({generalData} : Props) => {
                 <GeneralDetailsItem>
                     <GeneralDetailsItemTitle  title="APR"/>
                     <GeneralDetailsItemContent>
-                        <GeneralDetailsItemContentItem label="Supply + HND"
+                        <GeneralDetailsItemContentItem label="Supply"
                             value={`${generalData && +generalData.totalSupplyBalance.toString() > 0 ? 
-                            BigNumber.parseValue((+generalData?.yearSupplyInterest.toString() / +generalData.totalSupplyBalance.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/> 
-                        <GeneralDetailsItemContentItem label="Borrow:" 
+                            BigNumber.parseValue((+generalData?.yearSupplyInterest.toString() / +generalData.totalSupplyBalance.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/>
+                        <GeneralDetailsItemContentItem label="Staking"
+                                                       value={`${generalData && +generalData.totalStakeBalance.toString() > 0 ?
+                                                           BigNumber.parseValue((+generalData?.yearStakeInterest.toString() / +generalData.totalStakeBalance.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/>
+                        <GeneralDetailsItemContentItem label="Borrow" 
                             value={`${generalData && +generalData.totalBorrowBalance.toString() > 0 ? 
                             BigNumber.parseValue((+generalData?.yearBorrowInterest.toString() / +generalData.totalBorrowBalance.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/>
-                        <GeneralDetailsItemContentItem label="Net:" toolTip="APY on your total outlay (supplied minus borrowed)"
+                        <GeneralDetailsItemContentItem label="Net" toolTip="APY on your total outlay (supplied minus borrowed)"
                             value={`${generalData ? BigNumber.parseValue((+generalData?.netApy.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/>
                     </GeneralDetailsItemContent>
                 </GeneralDetailsItem>

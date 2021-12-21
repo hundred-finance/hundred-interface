@@ -406,7 +406,14 @@ export const fetchData = async(
     const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
     
     const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
-    const veHndAPR = BigNumber.parseValue(gauge && +gauge.totalStake > 0 ? ((+gauge.weight / 1e18) * (+gauge.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18) / (+gauge.totalStake / 1e8 * +underlying.price)).noExponents() : "0")
+    const veHndAPR =
+        BigNumber.parseValue(gauge && +gauge.totalStake > 0 ?
+            ((+gauge.weight / 1e18) * (+gauge.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
+            / (+gauge.totalStake * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
+            :
+            "0"
+        )
+
     const totalSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString())+ +supplyApy.toString()).noExponents())
     const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
     const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +supplyApy.toString()).noExponents())
@@ -450,6 +457,7 @@ export const fetchData = async(
     return new CTokenInfo(
       token.tokenAddress,
       underlying,
+      exchangeRateStored,
       supplyApy,
       borrowApy,
       supplyBalanceInTokenUnit,

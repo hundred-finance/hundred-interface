@@ -31,7 +31,6 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
               <StarBpro active={props.details && +props.details?.hndAPR.toString() > 0 ? true : false} backstop={props.details?.backstop ? true : false}/>
                 <GeneralDetailsItemContentItem
                     label={`${ props.details && +props?.details?.totalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.totalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
-                    toolTip={`old APY ${props.details && +props?.details?.oldTotalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.oldTotalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%, new APY ${props.details && +props?.details?.newTotalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.newTotalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
                     value=""
                 />
             </div>
