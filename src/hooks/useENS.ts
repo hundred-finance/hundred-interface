@@ -7,9 +7,7 @@ const useENS = (address: string | null | undefined): { ensName: string | null } 
     useEffect(() => {
         const resolveENS = async () => {
             if (address && ethers.utils.isAddress(address)) {
-                const provider = new ethers.providers.JsonRpcProvider(
-                    'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-                );
+                const provider = ethers.providers.getDefaultProvider();
                 const ensName = await provider.lookupAddress(address);
                 setENSName(ensName);
             }
