@@ -104,7 +104,9 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        gaugeControllerAddress: "0xa8cD5D59827514BCF343EC19F531ce1788Ea48f8"
+        gaugeControllerAddress: "0xa8cD5D59827514BCF343EC19F531ce1788Ea48f8",
+        trade: "https://app.sushi.com/swap?inputCurrency=0x10010078a54396f62c96df8532dc2b4847d47ed3",
+        addLiquidity: "https://app.sushi.com/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH"
     },
     // "0x505":
     // {
