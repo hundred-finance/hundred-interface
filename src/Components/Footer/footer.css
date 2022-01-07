@@ -106,7 +106,7 @@
     padding: 5px;
 }
 
-@media (max-width: 615px) {
+@media (max-width: 712px) {
     .footer{
         height: 185px;
     }
