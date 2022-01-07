@@ -12,7 +12,7 @@
     left: 0px;
 }
 
-@media (max-width: 615px) {
+@media (max-width: 712px) {
     .wrapper{
         padding-bottom: 185px;
     }

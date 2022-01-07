@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import './footer.css';
-import {HuLogo} from "../../assets/huIcons/huIcons"
+import {HuLogo, ImmunefiLogo} from "../../assets/huIcons/huIcons"
 
 import discord from '../../assets/icons/discord.png'
 import medium from '../../assets/icons/medium.png'
@@ -13,6 +13,22 @@ interface Props{
 }
 
 const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
+    const [scale, setScale] = useState<boolean>(false)
+
+    useEffect(() => {
+        if (document.documentElement.clientWidth < 331){
+          setScale(true)
+        }
+        else setScale(false)
+    
+        window.addEventListener('resize', ()=>{
+          if (document.documentElement.clientWidth < 330){
+            setScale(true)
+          }
+          else setScale(false)
+        });
+      }, [])
+
     return (
         <div className='footer'>
             <div className='footer-content'>
@@ -37,6 +53,9 @@ const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
                     </a>
                     <a href='https://twitter.com/HundredFinance' target="_blank" rel="noreferrer">
                         <img alt="Github Icon" src={twitter} className='footer-image' />
+                    </a>
+                    <a href='https://immunefi.com/bounty/hundred-finance/' target="_blank" rel='noreferrer'>
+                        <ImmunefiLogo darkMode={darkMode} isMobile={scale}/>
                     </a>
                 </div>
             </div>
