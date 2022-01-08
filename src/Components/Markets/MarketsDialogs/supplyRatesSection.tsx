@@ -35,7 +35,7 @@ const SupplyRateSection:React.FC<Props> = (props: Props) => {
                     <div className="logo-holder">
                         <HuLogo size={"20px"}/>
                     </div>
-                <div className="fill">HND APR</div>
+                <div className="fill">Stake APR</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
                     {`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"} - ${props.market ? formatApr(props.market?.veHndAPR) : "0.00"}%`}
                 </div>
