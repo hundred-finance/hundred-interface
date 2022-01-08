@@ -359,10 +359,14 @@ export const fetchData = async(
                   / (+gauge.userStakedTokenBalance * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
           )
       } else if (gauge && +gauge.generalData.totalStake > 0) {
+
+          const referenceStake = 10000 * 0.4 * (10 ** underlying.decimals) / +exchangeRateStored
+
           veHndAPR = BigNumber.parseValue(
               ((+gauge.generalData.weight / 1e18) *
+                  (referenceStake / (+gauge.generalData.workingTotalStake + referenceStake)) *
                   (+gauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
-                  / (+gauge.generalData.totalStake * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
+                  / (referenceStake * 2.5 * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
           )
       }
 

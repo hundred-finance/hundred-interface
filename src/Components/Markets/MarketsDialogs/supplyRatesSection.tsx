@@ -1,16 +1,14 @@
 import React from "react"
 import { HuLogo } from "../../../assets/huIcons/huIcons"
-import { BigNumber } from "../../../bigNumber"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
+import {stakingApr, formatApr} from "../aprHelpers";
 import "./dialogSection.css"
+import {GaugeV4} from "../../../Classes/gaugeV4Class";
 
 interface Props{
     market: CTokenInfo | null,
+    gaugeV4: GaugeV4 | null | undefined,
     darkMode: boolean
-}
-
-function formatApr(apr: BigNumber) {
-    return BigNumber.parseValue((+apr.toString() * 100).noExponents()).toRound(2, false, true)
 }
 
 const SupplyRateSection:React.FC<Props> = (props: Props) => {
@@ -37,7 +35,7 @@ const SupplyRateSection:React.FC<Props> = (props: Props) => {
                     </div>
                 <div className="fill">Stake APR</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${props.market ? formatApr(props.market?.veHndAPR) : "0.00"}%`}
+                    { stakingApr(props.market, props.gaugeV4) }
                 </div>
             </div>
         </div>
