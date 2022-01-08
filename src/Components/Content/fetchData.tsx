@@ -350,6 +350,7 @@ export const fetchData = async(
 
       const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
       let veHndAPR = BigNumber.from(0)
+      let veHndMaxAPR = BigNumber.from(0)
 
       if (gauge && +gauge.userWorkingStakeBalance > 0) {
           veHndAPR = BigNumber.parseValue(
@@ -358,6 +359,7 @@ export const fetchData = async(
                   (+gauge.userWorkingStakeBalance / +gauge.generalData.workingTotalStake)
                   / (+gauge.userStakedTokenBalance * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
           )
+          veHndMaxAPR = veHndAPR
       } else if (gauge && +gauge.generalData.totalStake > 0) {
 
           const referenceStake = 10000 * 0.4 * (10 ** underlying.decimals) / +exchangeRateStored
@@ -368,9 +370,11 @@ export const fetchData = async(
                   (+gauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
                   / (referenceStake * 2.5 * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
           )
+
+          veHndMaxAPR = veHndAPR.mul(BigNumber.from(25, 1))
       }
 
-    const totalSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString())+ +supplyApy.toString()).noExponents())
+    const totalSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString())+ +supplyApy.toString()).noExponents())
     const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
     const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +supplyApy.toString()).noExponents())
 
