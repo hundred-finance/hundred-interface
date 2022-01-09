@@ -59,19 +59,32 @@
 
 
 .textbox div input:focus + .placeholder{
-    transform: scale(0) translateY(-75%) translateX(-40%);
+    transform: scale(0.72) translateY(-75%) translateX(-40%);
     top:0;
     background-color: transparent;
     padding: 5px;
     color:var(--secondaryText);
+    text-align: center;
 }
 
 .textbox div input:valid + .placeholder{
-    transform: scale(0) translateY(-75%) translateX(-40%);
+    transform: scale(0.72) translateY(-75%) translateX(-40%);
     top:0;
-    
     background-color: transparent;
     padding: 5px;
+    text-align: center;
+}
+
+.textbox div input:focus + .placeholder::after,
+.textbox div input:valid + .placeholder::after{
+    content: "";
+    width: 100%;
+    height: 2px;
+    z-index: -1;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    background-color: var(--dialogSectionBackground);
 }
 
 .textbox .textbox-button .input-button{
