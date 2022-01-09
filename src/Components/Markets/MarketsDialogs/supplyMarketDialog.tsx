@@ -522,12 +522,12 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                     </div>
                                     <div className="input-button-group">
                                         <TextBox
-                                            placeholder={`0 h${props.market?.underlying.symbol}`}
+                                            placeholder={`0.00`}
                                             disabled={stakeDisabled}
                                             value={stakeInput}
                                             setInput={setStakeInput}
                                             validation={stakeValidation}
-                                            button={"Max"}
+                                            symbol={`h${props.market?.underlying.symbol}`}
                                             onClick={() => getMaxStake()}
                                         />
                                         <MarketDialogButton
@@ -549,12 +549,12 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                     </div>
                                     <div className="input-button-group">
                                         <TextBox
-                                            placeholder={`0 h${props.market?.underlying.symbol}-gauge`}
+                                            placeholder={`0.00`}
                                             disabled={unstakeDisabled}
                                             value={unstakeInput}
                                             setInput={setUnstakeInput}
                                             validation={unstakeValidation}
-                                            button={"Max"}
+                                            symbol={`h${props.market?.underlying.symbol}-g`}
                                             onClick={() => getMaxUnstake()}
                                         />
                                         <MarketDialogButton
