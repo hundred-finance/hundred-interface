@@ -59,6 +59,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     const [tabChange, setTabChange] = useState<number>(1)
     const [newBorrowLimit1, setNewBorrowLimit1] = useState<BigNumber>(BigNumber.from(0))
     const [newBorrowLimit2, setNewBorrowLimit2] = useState<BigNumber>(BigNumber.from(0))
+    const [newBorrowLimit3, setNewBorrowLimit3] = useState<BigNumber>(BigNumber.from(0))
     const [withdrawMax, setWithdrawMax] = useState<boolean>(false)
     const [stakeInput, setStakeInput] = useState<string>("")
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -78,6 +79,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         setWithdrawInput("")
         setBackstopWithdraw("Withdraw")
         setStakeInput("")
+        setUnstakeInput("")
         setSupplyValidation("")
         setWithdrawValidation("")
         setStakeValidation("")
@@ -90,6 +92,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         setTabChange(1)
         setNewBorrowLimit1(BigNumber.from(0))
         setNewBorrowLimit2(BigNumber.from(0))
+        setNewBorrowLimit3(BigNumber.from(0))
         setWithdrawMax(false)
         setStakeMax(false)
         setUnstakeMax(false)
@@ -174,6 +177,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
 
             if(isNaN(+stakeInput) || isNaN(parseFloat(stakeInput))){
                 setStakeValidation("Amount must be a number");
+                setNewBorrowLimit3(BigNumber.from("0"))
                 return;
             } else if (+stakeInput <= 0) {
                 setStakeValidation("Amount must be > 0");
@@ -182,6 +186,12 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             } else{
                 setStakeValidation("");
             }
+
+            setNewBorrowLimit3(props.market && props.generalData ? 
+                props.generalData.totalBorrowLimit?.subSafe(props.market?.isEnterMarket? BigNumber.parseValue(stakeInput.trim()!=="" ? convertLpAmountToUnderlying(stakeInput, props.market) : "0").
+                                mulSafe(props.market?.underlying.price).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0))
+                                // if (newBorrowLimit2.gt(BigNumber.from("0"))) 
+                                // console.log(`totalBorrow: ${props.generalData?.totalBorrowBalance}\nborrowLimit: ${newBorrowLimit2}\npercent${props.generalData?.totalBorrowBalance.divSafe(newBorrowLimit2).toString()}`)
         }
 
         handleStakeAmountChange()
@@ -298,6 +308,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         setNewBorrowLimit2(props.market && props.generalData ? props.generalData.totalBorrowLimit?.
             subSafe(props.market?.isEnterMarket? BigNumber.parseValue(withdrawInput!=="" ? withdrawInput : "0").
             mulSafe(props.market?.underlying.price).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0));
+        
+        setNewBorrowLimit3(props.market && props.generalData ? 
+            props.generalData.totalBorrowLimit?.subSafe(props.market?.isEnterMarket? BigNumber.parseValue(stakeInput.trim()!=="" ? convertLpAmountToUnderlying(stakeInput, props.market) : "0").
+            mulSafe(props.market?.underlying.price).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0))
+
     },[props.generalData])
 
     const getMaxAmount = async (deposit?: boolean) : Promise<void> => {
@@ -400,7 +415,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     useEffect(() => {
         if(props.market){
             if(!props.market.unstakeSpinner){
-                if(props.completed) setStakeInput("")
+                if(props.completed) setUnstakeInput("")
                 setUnstakeDisabled(false)
             }
             else{
@@ -408,7 +423,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             }
 
         }
-    }, [props.market?.stakeSpinner])
+    }, [props.market?.unstakeSpinner])
 
     useEffect(() => {
         if(props.market && props.market.backstop){
@@ -514,6 +529,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                         title={"APR"}
                                         value={`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"}-${props.market ? formatApr(props.market?.veHndAPR) : "0"}%`}
                                     />
+                                    <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit3}/>
                                     <div className="native-asset-amount">
                                         <span>{convertLpAmountToUnderlying(stakeInput, props.market)} {props.market?.underlying.symbol}</span>
                                         <div className="amount-select">
@@ -534,7 +550,10 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                             onClick={() => getMaxStake()}
                                         />
                                         <MarketDialogButton
-                                            disabled={stakeInput === "" || stakeValidation !== ""}
+                                            disabled={stakeInput === "" || stakeValidation !== "" || (newBorrowLimit2 && props.generalData &&
+                                                +newBorrowLimit3.toString() > 0 &&
+                                                            +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() > 0.9 && 
+                                                            (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent ? true : false)}
                                             onClick={() => props.handleStake(props.market?.underlying.symbol, props?.gaugeV4, stakeInput)}
                                         >
                                             {props.market && props.market.stakeSpinner ? (
@@ -587,7 +606,8 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                             <MarketDialogButton disabled={withdrawInput==="" || isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData &&
                             +newBorrowLimit2.toString() > 0 &&
-                                        +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent) ? true: false}
+                                        +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && 
+                                        (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent) ? true: false}
                                 onClick={() => {    props.market ?
                                                     props.handleWithdraw(
                                                         props.market?.underlying.symbol,
@@ -653,11 +673,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     )
 }
 
-function convertLpAmountToUnderlying(amount: string, market: CTokenInfo) {
+function convertLpAmountToUnderlying(amount: string, market: CTokenInfo) : string{
     return (+amount * +market.exchangeRate / (10 ** (market.underlying.decimals - 8)) ).toFixed(4)
 }
 
-function convertGaugeLpAmountToUnderlying(amount: string, market: CTokenInfo) {
+function convertGaugeLpAmountToUnderlying(amount: string, market: CTokenInfo) : string{
     return (+amount * +market.exchangeRate * (10 ** (18 - market.underlying.decimals))).toFixed(4)
 }
 
