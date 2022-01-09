@@ -12,7 +12,7 @@ export function stakingApr(market: CTokenInfo|null, gauge: GaugeV4|null|undefine
         return `${formatApr(market?.veHndAPR)}%`
     }
 
-    return `${formatApr(market?.veHndAPR)}-${formatApr(market?.veHndAPR.mul(BigNumber.from(25, 1)))}%`
+    return `${formatApr(market?.veHndAPR)}-${formatApr(market?.veHndMaxAPR)}%`
 }
 
 export function formatApr(apr: BigNumber): string {

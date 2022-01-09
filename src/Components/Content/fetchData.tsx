@@ -362,16 +362,21 @@ export const fetchData = async(
           veHndMaxAPR = veHndAPR
       } else if (gauge && +gauge.generalData.totalStake > 0) {
 
-          const referenceStake = 10000 * 0.4 * (10 ** underlying.decimals) / +exchangeRateStored
+          const referenceStake = 10000 * (10 ** underlying.decimals) / +exchangeRateStored
 
           veHndAPR = BigNumber.parseValue(
               ((+gauge.generalData.weight / 1e18) *
-                  (referenceStake / (+gauge.generalData.workingTotalStake + referenceStake)) *
+                  (referenceStake * 0.4 / (+gauge.generalData.workingTotalStake + referenceStake * 0.4)) *
                   (+gauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
-                  / (referenceStake * 2.5 * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
+                  / 10000 ).noExponents()
           )
 
-          veHndMaxAPR = veHndAPR.mul(BigNumber.from(25, 1))
+          veHndMaxAPR = BigNumber.parseValue(
+              ((+gauge.generalData.weight / 1e18) *
+                  (referenceStake / (+gauge.generalData.workingTotalStake + referenceStake)) *
+                  (+gauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
+                  / 10000).noExponents()
+          )
       }
 
     const totalSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString())+ +supplyApy.toString()).noExponents())
@@ -435,6 +440,7 @@ export const fetchData = async(
       token.isNative,
       hndAPR,
       veHndAPR,
+      veHndMaxAPR,
       borrowRatePerBlock,
       totalSupplyApy,
       oldTotalSupplyApy,
