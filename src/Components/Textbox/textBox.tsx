@@ -13,7 +13,6 @@ interface Props{
     onChange?: () => void,
     buttonTooltip?: string,
     validationCollapse?: boolean,
-    symbol?: string
 }
 
 const TextBox : React.FC<Props> = (props : Props) => {
@@ -22,7 +21,7 @@ const TextBox : React.FC<Props> = (props : Props) => {
    
     const onFocus = () : void =>{
         setFocus(true)
-        setPlaceholder(props.placeholder.replace("0", "").trim())
+        if(props.placeholder) setPlaceholder(props.placeholder.replace("0", "").trim())
     }
 
     const onBlur = () : void =>{
@@ -34,7 +33,7 @@ const TextBox : React.FC<Props> = (props : Props) => {
 
     const buttonClick = () : void => {
         setFocus(true)
-        setPlaceholder(props.placeholder.replace("0", "").trim())
+        if (props.placeholder) setPlaceholder(props.placeholder.replace("0", "").trim())
         props.onClick()
     }
 
@@ -45,7 +44,7 @@ const TextBox : React.FC<Props> = (props : Props) => {
         if(value.startsWith('.'))
             value = "0" + value
         props.setInput(value)
-        setPlaceholder(props.placeholder.replace("0", "").trim())
+        if (props.placeholder) setPlaceholder(props.placeholder.replace("0", "").trim())
     }
 
     return(
