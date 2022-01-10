@@ -162,7 +162,8 @@ const Logos: { [key: string]: string } = {
     "1USDC"     : USDClogo,
     "1USDT"     : USDTlogo,
     "1WBTC"     : WBTClogo,
-    "UST"       : USTlogo
+    "UST"       : USTlogo,
+    "WBTC.eth"  : WBTClogo
 }
 
 export default Logos

@@ -28,8 +28,7 @@
 .supply-box{
     min-width: 305px;
     max-width: 400px;
-    height: 90%;
-    max-height: 650px;
+    max-height: 99.9%;
     border-radius: 10px;
     padding:1rem;
     position: relative;
