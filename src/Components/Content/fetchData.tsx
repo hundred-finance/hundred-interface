@@ -379,7 +379,8 @@ export const fetchData = async(
           )
       }
 
-    const totalSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString())+ +supplyApy.toString()).noExponents())
+    const totalMaxSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString())+ +supplyApy.toString()).noExponents())
+    const totalMinSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString())+ +supplyApy.toString()).noExponents())
     const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
     const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +supplyApy.toString()).noExponents())
 
@@ -442,7 +443,8 @@ export const fetchData = async(
       veHndAPR,
       veHndMaxAPR,
       borrowRatePerBlock,
-      totalSupplyApy,
+      totalMaxSupplyApy,
+      totalMinSupplyApy,
       oldTotalSupplyApy,
       newTotalSupplyApy,
       accrued,
