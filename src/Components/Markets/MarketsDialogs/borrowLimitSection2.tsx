@@ -4,7 +4,7 @@ import { HuArrow } from "../../../assets/huIcons/huIcons"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
 import "./dialogSection.css"
-import ReactTooltip from "react-tooltip"
+import ReactToolTip from "react-tooltip"
 
 interface Props{
     generalData : GeneralDetailsData | null,
@@ -34,8 +34,8 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
     },[props.borrowAmount, props.repayAmount, props.generalData])
 
     useEffect(() => {
-        ReactTooltip.rebuild()
-    });
+        ReactToolTip.rebuild()
+    })
 
     const getNewBorrowBalance = (originBorrowBalance : BigNumber, borrowAmount : string, repayAmount : string, underlyingPrice : BigNumber) : void => {
         if(props.generalData){
@@ -84,20 +84,21 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
                     <span className={`dialog-section-arrow ${borrowLimit.gt(BigNumber.from("0")) ? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
                     {borrowLimit.gt(BigNumber.from("0")) ? 
                         (
-                            <div style={{cursor:+borrowLimit.toRound(2) >= 90.01 ? "pointer" : "default", display:"flex", alignItems: "center", justifyContent: "space-between"}} 
-                                data-for={+borrowLimit.toRound(2) >= 90.01 ? "borrow-dialog-tooltip" : undefined} data-tip={+borrowLimit.toRound(2) >= 90.01 ? "You are not allowed to use more than 90% of your borrow limit via the website." : undefined} >
-                                <span style={{color: +borrowLimit.toRound(2) >= 90.01 ? "red" : "", cursor:"pointer"}} >
+                            +borrowLimit.toRound(2) >= 90.01 ?
+                            <div style={{cursor:"pointer", display:"flex", alignItems: "center", justifyContent: "space-between"}} data-for="borrow-dialog-tooltip" data-tip="You are not allowed to use more than 90% of your borrow limit via the website." >
+                                <span style={{color: "red", cursor:"pointer"}} >
                                     {`${borrowLimit.toRound(2, false, true)}% `}
                                 </span>
-                                {+borrowLimit.toRound(2) >= 90.01 ? 
-                                (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" style={{paddingLeft:"5px"}} viewBox="0 0 20 20">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" style={{paddingLeft:"5px"}} viewBox="0 0 20 20">
                                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                     <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
                                 </svg> 
-                                ) : ""}
                             </div>
-                        ) : ""}
+                            :
+                            <span>
+                                    {`${borrowLimit.toRound(2, false, true)}% `}
+                            </span>
+                        ) : null}
                 </div>
             </div>
         </div>
