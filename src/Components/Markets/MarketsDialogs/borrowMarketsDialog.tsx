@@ -62,7 +62,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                 setBorrowValidation("Amount must be a number");
             }else if (+borrowInput <= 0) {
               setBorrowValidation("Amount must be > 0");
-            } else if (props.market && props.generalData && +BigNumber.parseValue(borrowInput).mul(props.market?.underlying.price).toString() > +props.generalData?.totalBorrowLimit.toString() * 0.9001) {
+            } else if (props.market && props.generalData && +props.generalData.totalBorrowLimit.toString() > 0 && +borrowInput / +props.generalData.totalBorrowLimit.toString() * 100 + +props.generalData.totalBorrowLimitUsedPercent.toString() > 90.01) {
               setBorrowValidation("Amount must be <= 90% borrow limit");
             }else if (props.market && +BigNumber.parseValue(borrowInput).toString() > +props.market?.cash.toString()) {
                 setBorrowValidation("Amount must be <= liquidity");

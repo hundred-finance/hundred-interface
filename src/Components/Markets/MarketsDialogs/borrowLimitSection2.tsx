@@ -4,6 +4,7 @@ import { HuArrow } from "../../../assets/huIcons/huIcons"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
 import "./dialogSection.css"
+import ReactToolTip from "react-tooltip"
 
 interface Props{
     generalData : GeneralDetailsData | null,
@@ -31,6 +32,10 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
             }
         }
     },[props.borrowAmount, props.repayAmount, props.generalData])
+
+    useEffect(() => {
+        ReactToolTip.rebuild()
+    })
 
     const getNewBorrowBalance = (originBorrowBalance : BigNumber, borrowAmount : string, repayAmount : string, underlyingPrice : BigNumber) : void => {
         if(props.generalData){
