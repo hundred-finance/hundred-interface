@@ -28,7 +28,7 @@ const SupplyMarket: React.FC<Props> = (props : Props) => {
             <thead className="market-table-header">
                 <tr>
                     <th>Asset</th>
-                    <th>APY</th>
+                    <th>APR</th>
                     <th>Supplied</th>
                     <th>Wallet</th>
                     <th>Collateral</th>

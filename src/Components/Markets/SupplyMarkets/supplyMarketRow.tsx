@@ -30,7 +30,7 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
             <div className="supply-apy">
               <StarBpro active={props.details && +props.details?.hndAPR.toString() > 0 ? true : false} backstop={props.details?.backstop ? true : false}/>
                 <GeneralDetailsItemContentItem
-                    label={`${ props.details && +props?.details?.totalSupplyApy.toString() > 0 ? BigNumber.parseValue((+props.details.totalSupplyApy * 100).noExponents()).toRound(2, false, true) : "0.00"}%`}
+                    label={`${ props.details && +props?.details?.totalMaxSupplyApy.toString() > 0 ? formatSupplyApyRange(+props.details.totalMinSupplyApy, +props.details.totalMaxSupplyApy) : "0.00"}%`}
                     value=""
                 />
             </div>
@@ -62,6 +62,16 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         </td>
       </tr>
     )
+}
+
+function formatSupplyApyRange(min: number, max: number) {
+    const formattedMin = BigNumber.parseValue((min * 100).noExponents()).toRound(2, false, true)
+    const formattedMax = BigNumber.parseValue((max * 100).noExponents()).toRound(2, false, true)
+
+    if (min === max) {
+        return formattedMin;
+    }
+    return `${formattedMin}-${formattedMax}`
 }
 
 export default SupplyMarketRow
