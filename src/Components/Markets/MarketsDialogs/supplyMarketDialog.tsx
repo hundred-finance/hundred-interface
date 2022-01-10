@@ -14,10 +14,7 @@ import { GeneralDetailsData } from "../../../Classes/generalDetailsClass";
 import closeIcon from "../../../assets/icons/closeIcon.png"
 import BackstopSection from "./backstopSection";
 import {GaugeV4} from "../../../Classes/gaugeV4Class";
-
-function formatApr(apr: BigNumber) {
-    return BigNumber.parseValue((+apr.toString() * 100).noExponents()).toRound(2, false, true)
-}
+import {stakingApr} from "../aprHelpers";
 
 interface Props{
     spinnerVisible: boolean,
@@ -496,7 +493,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
                                 onClick={()=>getMaxAmount()}/>
                             <MarketDialogItem title={"Wallet Balance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
-                            <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
+                            <SupplyRateSection darkMode={props.darkMode} market={props.market} gaugeV4={props.gaugeV4} />
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit1}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                            
@@ -527,7 +524,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                     />
                                     <MarketDialogItem
                                         title={"APR"}
-                                        value={`${props.market ? formatApr(props.market?.veHndAPR.div(BigNumber.parseValue("2.5"))) : "0"}-${props.market ? formatApr(props.market?.veHndAPR) : "0"}%`}
+                                        value={stakingApr(props.market, props.gaugeV4)}
                                     />
                                     <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit3}/>
                                     <div className="native-asset-amount">
@@ -571,7 +568,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                     </div>
                                     <div className="input-button-group">
                                         <TextBox
-                                            placeholder={`0 h${props.market?.underlying.symbol}-gauge`}
+                                            placeholder={`0 h${props.market?.underlying.symbol}-g`}
                                             disabled={unstakeDisabled}
                                             value={unstakeInput}
                                             setInput={setUnstakeInput}
@@ -601,7 +598,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"Max"}
                                 onClick={() => getMaxWithdraw()}/>
                             <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.underlying.symbol}`}/>
-                            <SupplyRateSection darkMode={props.darkMode} market={props.market}/>
+                            <SupplyRateSection darkMode={props.darkMode} market={props.market} gaugeV4={props.gaugeV4}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                             <MarketDialogButton disabled={withdrawInput==="" || isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData &&

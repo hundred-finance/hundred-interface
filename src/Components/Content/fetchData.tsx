@@ -5,10 +5,7 @@ import {
     BPRO_ABI,
     COMPTROLLER_ABI,
     CTOKEN_ABI,
-    GAUGE_CONTROLLER_ABI,
-    GAUGE_V4_ABI,
     HUNDRED_ABI,
-    REWARD_POLICY_MAKER_ABI,
     TOKEN_ABI
 } from "../../abi"
 import { BigNumber } from "../../bigNumber"
@@ -16,8 +13,7 @@ import { Comptroller } from "../../Classes/comptrollerClass"
 import { CTokenInfo, Underlying } from "../../Classes/cTokenClass"
 import Logos from "../../logos"
 import { Network } from "../../networks"
-import {GaugeV4GeneralData} from "../../Classes/gaugeV4Class";
-import _, {floor} from "lodash";
+import {GaugeV4, GaugeV4GeneralData} from "../../Classes/gaugeV4Class";
 import { Backstop, BackstopPool, BackstopPoolInfo, BackstopType } from "../../Classes/backstopClass"
 
 const mantissa = 1e18
@@ -82,7 +78,7 @@ export type MarketDataType = {
   
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const fetchData = async(
-{ allMarkets, userAddress, comptrollerData, network, marketsData, provider, hndPrice }: { allMarkets: string[]; userAddress: string; comptrollerData: Comptroller; network: Network; marketsData: (CTokenInfo | null)[] | null | undefined; provider: any; hndPrice: number }) : Promise<MarketDataType> => {
+{ allMarkets, userAddress, comptrollerData, network, marketsData, provider, hndPrice, gaugesData }: { allMarkets: string[]; userAddress: string; comptrollerData: Comptroller; network: Network; marketsData: (CTokenInfo | null)[] | null | undefined; provider: any; hndPrice: number; gaugesData: GaugeV4[] }) : Promise<MarketDataType> => {
     const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
     const calls= [ethcallComptroller.getAssetsIn(userAddress)]
 
@@ -90,11 +86,6 @@ export const fetchData = async(
 
     const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI)
     calls.push(balanceContract.balanceOf(userAddress))
-
-    if (network?.gaugeControllerAddress) {
-        const ethcallGaugeController = new Contract(network.gaugeControllerAddress, GAUGE_CONTROLLER_ABI)
-        calls.push(ethcallGaugeController.n_gauges())
-    }
 
     if(network.hundredLiquidityPoolAddress) calls.push(balanceContract.balanceOf(network.hundredLiquidityPoolAddress))
 
@@ -199,13 +190,10 @@ export const fetchData = async(
     let compAccrued = BigNumber.from("0")
     let hndBalance = BigNumber.from("0")
     let hundredBalace = BigNumber.from("0")
-    let gaugesGeneralData: Array<GaugeV4GeneralData> = []
-    let nbGauges = 0
 
     let compareLength = nativeToken ? 16 : 3
     compareLength = network.hundredLiquidityPoolAddress ? compareLength + notNativeMarkets.length * 19 + 1 : compareLength + notNativeMarkets.length * 19
     compareLength = network.backstopMasterChef ? compareLength + comptrollerData.backstopPools.length * 12 : compareLength
-    compareLength = network?.gaugeControllerAddress ? compareLength + 1 : compareLength
 
     if(res && res.length === compareLength){
         
@@ -214,12 +202,7 @@ export const fetchData = async(
       compAccrued = BigNumber.from(res[1], 18)
       hndBalance = BigNumber.from(res[2], 18)
 
-      if (network?.gaugeControllerAddress) {
-          nbGauges = res[3].toNumber()
-          res.splice(0, 4)
-      } else {
-          res.splice(0, 3)
-      }
+      res.splice(0, 3)
 
       if(network.hundredLiquidityPoolAddress){
           hundredBalace = BigNumber.from(res[0], 18)
@@ -239,53 +222,13 @@ export const fetchData = async(
             tokens.push(await getTokenData(token, false, network, provider, userAddress, underlyingAddresses[i], enteredMarkets, notNativeMarkets[i], backstop ? backstop : null))
             i+=1
         }
-
-        if (nbGauges && network.gaugeControllerAddress) {
-            const controller = network.gaugeControllerAddress
-            const ethcallGaugeController = new Contract(controller, GAUGE_CONTROLLER_ABI)
-            const gauges = await comptrollerData.ethcallProvider.all(Array.from(Array(nbGauges).keys()).map(i => ethcallGaugeController.gauges(i)))
-
-            let lpAndMinterAddresses = await comptrollerData.ethcallProvider.all(
-                gauges.flatMap((g) => [
-                    new Contract(g, GAUGE_V4_ABI).lp_token(),
-                    new Contract(g, GAUGE_V4_ABI).minter(),
-                    new Contract(g, GAUGE_V4_ABI).reward_policy_maker(),
-                    new Contract(controller, GAUGE_CONTROLLER_ABI).gauge_relative_weight(g)
-                ])
-            )
-
-            lpAndMinterAddresses = _.chunk(lpAndMinterAddresses, 4)
-
-            let rewards = await comptrollerData.ethcallProvider.all(
-                gauges.flatMap((g, index) => [
-                        new Contract(lpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
-                        new Contract(lpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g)
-                    ]
-                )
-            )
-
-            rewards = _.chunk(rewards, 2)
-
-            gaugesGeneralData = lpAndMinterAddresses.map((c, index) => {
-                return {
-                    address: gauges[index],
-                    lpToken: c[0],
-                    minter: c[1],
-                    rewardPolicyMaker: c[2],
-                    weight: c[3],
-                    totalStake: rewards[index][1],
-                    veHndRewardRate: rewards[index][0]
-                }
-            })
-
-        }
     }
 
     const blockProvider : ethers.providers.Web3Provider = network.blockRpc ? new ethers.providers.JsonRpcProvider(network.blockRpc) : provider
     const blockNum = await blockProvider.getBlockNumber()
 
     const tokensInfo = await Promise.all(tokens.map(async(t)=>{
-        const tokenInfo = await getCtokenInfo(t, network, hndPrice, blockNum, gaugesGeneralData.find(g => g.lpToken.toLowerCase() === t.tokenAddress.toLowerCase()))
+        const tokenInfo = await getCtokenInfo(t, network, hndPrice, blockNum, gaugesData.find(g => g.generalData.lpToken.toLowerCase() === t.tokenAddress.toLowerCase()))
         return tokenInfo
     }))
 
@@ -295,7 +238,7 @@ export const fetchData = async(
         hndBalance: hndBalance,
         hundredBalace: hundredBalace,
         comAccrued: compAccrued,
-        gauges: gaugesGeneralData
+        gauges: gaugesData.map(g => g.generalData)
     }
   }
 
@@ -357,64 +300,86 @@ export const fetchData = async(
     return token
   }
 
-  const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, blockNum: number, gauge: GaugeV4GeneralData | undefined) : Promise<CTokenInfo> => {
+  const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, blockNum: number, gauge: GaugeV4 | undefined) : Promise<CTokenInfo> => {
 
-    const decimals = token.underlying.decimals
+      const decimals = token.underlying.decimals
 
-    const underlying = new Underlying(token.underlying.address, token.underlying.symbol, token.underlying.name, token.underlying.logo, token.underlying.decimals,
-                                      token.underlying.totalSupply, token.underlying.price, token.underlying.walletBalance, token.underlying.allowance)
+      const underlying = new Underlying(token.underlying.address, token.underlying.symbol, token.underlying.name, token.underlying.logo, token.underlying.decimals,
+          token.underlying.totalSupply, token.underlying.price, token.underlying.walletBalance, token.underlying.allowance)
 
-  
-    const accountSnapshot1 = BigNumber.from(token.accountSnapshot[1].toString(), 18)
-    const accountSnapshot3 = BigNumber.from(token.accountSnapshot[3].toString(), decimals)
-    const supplyBalanceInTokenUnit = accountSnapshot1.mul(accountSnapshot3)
 
-    const supplyBalance = BigNumber.parseValue((+supplyBalanceInTokenUnit.toString() * +underlying.price.toString()).noExponents())
+      const accountSnapshot1 = BigNumber.from(token.accountSnapshot[1].toString(), 18)
+      const accountSnapshot3 = BigNumber.from(token.accountSnapshot[3].toString(), decimals)
+      const supplyBalanceInTokenUnit = accountSnapshot1.mul(accountSnapshot3)
 
-    const borrowBalanceInTokenUnit = BigNumber.from(token.accountSnapshot[2].toString(), decimals)
-    const borrowBalance = borrowBalanceInTokenUnit.mul(underlying.price)
+      const supplyBalance = BigNumber.parseValue((+supplyBalanceInTokenUnit.toString() * +underlying.price.toString()).noExponents())
 
-    const exchangeRateStored = BigNumber.from(token.exchangeRate, 18)
+      const borrowBalanceInTokenUnit = BigNumber.from(token.accountSnapshot[2].toString(), decimals)
+      const borrowBalance = borrowBalanceInTokenUnit.mul(underlying.price)
 
-    const marketTotalSupply = BigNumber.parseValue((+BigNumber.from(token.totalSupply, decimals).toString() * +exchangeRateStored.toString() * +underlying.price.toString()).noExponents())//cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
+      const exchangeRateStored = BigNumber.from(token.exchangeRate, 18)
 
-    const cTokenTotalBorrows = BigNumber.from(token.totalBorrows, decimals)
-    const marketTotalBorrowInTokenUnit = BigNumber.from(cTokenTotalBorrows._value, decimals)
-    const marketTotalBorrow = cTokenTotalBorrows?.mul(underlying.price)
+      const marketTotalSupply = BigNumber.parseValue((+BigNumber.from(token.totalSupply, decimals).toString() * +exchangeRateStored.toString() * +underlying.price.toString()).noExponents())//cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
 
-    const isEnterMarket = token.enteredMarkets.includes(token.tokenAddress);
+      const cTokenTotalBorrows = BigNumber.from(token.totalBorrows, decimals)
+      const marketTotalBorrowInTokenUnit = BigNumber.from(cTokenTotalBorrows._value, decimals)
+      const marketTotalBorrow = cTokenTotalBorrows?.mul(underlying.price)
 
-    const collateralFactor = BigNumber.from(token.markets.collateralFactorMantissa.toString(), 18)
-    
-    const supplyRatePerBlock = BigNumber.from(token.supplyRatePerBlock, decimals)
-    
-    const supplyApy = BigNumber.parseValue((Math.pow((1 + supplyRatePerBlock.toNumber() / mantissa), network.blocksPerYear) -1 ).noExponents())
-    const borrowRatePerBlock = BigNumber.from(token.borrowRatePerBlock, 18)
-    
-    const borrowApy = BigNumber.parseValue((Math.pow((1 + borrowRatePerBlock.toNumber() / mantissa), network.blocksPerYear) -1).noExponents())
+      const isEnterMarket = token.enteredMarkets.includes(token.tokenAddress);
 
-    
-    const cash = BigNumber.from(token.cash, decimals)
+      const collateralFactor = BigNumber.from(token.markets.collateralFactorMantissa.toString(), 18)
 
-    const liquidity = cash.mul(underlying.price)
+      const supplyRatePerBlock = BigNumber.from(token.supplyRatePerBlock, decimals)
 
-    const cTokenTVL = +marketTotalSupply.toString()
-    
-    //const speed = await comptrollerData.comptroller.compSpeeds(address)
-    const hndSpeed = BigNumber.from(token.compSpeeds, 18);
-    
-    const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
-    
-    const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
-    const veHndAPR =
-        BigNumber.parseValue(gauge && +gauge.totalStake > 0 ?
-            ((+gauge.weight / 1e18) * (+gauge.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
-            / (+gauge.totalStake * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
-            :
-            "0"
-        )
+      const supplyApy = BigNumber.parseValue((Math.pow((1 + supplyRatePerBlock.toNumber() / mantissa), network.blocksPerYear) - 1).noExponents())
+      const borrowRatePerBlock = BigNumber.from(token.borrowRatePerBlock, 18)
 
-    const totalSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString())+ +supplyApy.toString()).noExponents())
+      const borrowApy = BigNumber.parseValue((Math.pow((1 + borrowRatePerBlock.toNumber() / mantissa), network.blocksPerYear) - 1).noExponents())
+
+
+      const cash = BigNumber.from(token.cash, decimals)
+
+      const liquidity = cash.mul(underlying.price)
+
+      const cTokenTVL = +marketTotalSupply.toString()
+
+      //const speed = await comptrollerData.comptroller.compSpeeds(address)
+      const hndSpeed = BigNumber.from(token.compSpeeds, 18);
+
+      const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
+
+      const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
+      let veHndAPR = BigNumber.from(0)
+      let veHndMaxAPR = BigNumber.from(0)
+
+      if (gauge && +gauge.userWorkingStakeBalance > 0) {
+          veHndAPR = BigNumber.parseValue(
+              ((+gauge.generalData.weight / 1e18) *
+                  (+gauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18) *
+                  (+gauge.userWorkingStakeBalance / +gauge.generalData.workingTotalStake)
+                  / (+gauge.userStakedTokenBalance * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
+          )
+          veHndMaxAPR = veHndAPR
+      } else if (gauge && +gauge.generalData.totalStake > 0) {
+
+          const referenceStake = 10000 * (10 ** underlying.decimals) / +exchangeRateStored
+
+          veHndAPR = BigNumber.parseValue(
+              ((+gauge.generalData.weight / 1e18) *
+                  (referenceStake * 0.4 / (+gauge.generalData.workingTotalStake + referenceStake * 0.4)) *
+                  (+gauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
+                  / 10000 ).noExponents()
+          )
+
+          veHndMaxAPR = BigNumber.parseValue(
+              ((+gauge.generalData.weight / 1e18) *
+                  (referenceStake / (+gauge.generalData.workingTotalStake + referenceStake)) *
+                  (+gauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
+                  / 10000).noExponents()
+          )
+      }
+
+    const totalSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString())+ +supplyApy.toString()).noExponents())
     const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
     const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +supplyApy.toString()).noExponents())
 
@@ -475,6 +440,7 @@ export const fetchData = async(
       token.isNative,
       hndAPR,
       veHndAPR,
+      veHndMaxAPR,
       borrowRatePerBlock,
       totalSupplyApy,
       oldTotalSupplyApy,
