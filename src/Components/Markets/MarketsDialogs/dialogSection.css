@@ -51,6 +51,7 @@
 
 .dialog-section-content .dialog-section-content-value{
     line-height: 25px;
+    display: flex;
 }
 
 .dialog-section-content-details{
@@ -84,4 +85,5 @@
 .dialog-section-content .dialog-section-content-value .dialog-section-arrow svg{
     transform: rotate(270deg);
 }
+
 
