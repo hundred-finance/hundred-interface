@@ -62,8 +62,8 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                 setBorrowValidation("Amount must be a number");
             }else if (+borrowInput <= 0) {
               setBorrowValidation("Amount must be > 0");
-            } else if (props.market && props.generalData && +BigNumber.parseValue(borrowInput).mul(props.market?.underlying.price).toString() > +props.generalData?.totalBorrowLimit.toString()) {
-              setBorrowValidation("Amount must be <= borrow limit");
+            } else if (props.market && props.generalData && +BigNumber.parseValue(borrowInput).mul(props.market?.underlying.price).toString() > +props.generalData?.totalBorrowLimit.toString() * 0.9001) {
+              setBorrowValidation("Amount must be <= 90% borrow limit");
             }else if (props.market && +BigNumber.parseValue(borrowInput).toString() > +props.market?.cash.toString()) {
                 setBorrowValidation("Amount must be <= liquidity");
             } else {
@@ -201,6 +201,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
     return (
         props.open ? (
             <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
+                <ReactToolTip id="borrow-dialog-tooltip" effect="solid"/>
                 <div ref={ref} className="supply-box">
                     <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>CloseDialog()} />  
                     <div className="dialog-title">
@@ -262,7 +263,6 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                             </TabContentItem>
                         </TabContent>
                     </Tab>
-                    <ReactToolTip id="borrow-dialog-tooltip" effect="solid"/>
                 </div>
             </div>) : null
     )

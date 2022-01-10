@@ -47,6 +47,7 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
 
     return (
         <div className="dialog-section">
+            
             <div className="dialog-section-title">
                 Borrow Limit
             </div>
@@ -78,8 +79,19 @@ const BorrowLimitSection2: React.FC<Props> = (props : Props) => {
                     <span className={`dialog-section-arrow ${borrowLimit.gt(BigNumber.from("0")) ? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
                     {borrowLimit.gt(BigNumber.from("0")) ? 
                         (
-                            <span style={{color: (+borrowLimit.toString() > 100) ? "red" : ""}}>
-                                {`${borrowLimit.toRound(2, false, true)}%`}
+                            +borrowLimit.toRound(2) >= 90.01 ?
+                            <div style={{cursor:"pointer", display:"flex", alignItems: "center", justifyContent: "space-between"}} data-for="borrow-dialog-tooltip" data-tip="You are not allowed to use more than 90% of your borrow limit via the website." >
+                                <span style={{color: "red", cursor:"pointer"}} >
+                                    {`${borrowLimit.toRound(2, false, true)}% `}
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" style={{paddingLeft:"5px"}} viewBox="0 0 20 20">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                </svg> 
+                            </div>
+                            :
+                            <span>
+                                    {`${borrowLimit.toRound(2, false, true)}% `}
                             </span>
                         ) : null}
                 </div>
