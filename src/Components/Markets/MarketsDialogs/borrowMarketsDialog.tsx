@@ -57,12 +57,18 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                 setBorrowValidation("")
                 return;
             }
+            let pValue = BigNumber.from("0")
+            if (props.generalData && props.market) {
+                const value = +props.generalData.totalBorrowBalance.toString() + +BigNumber.parseValue(borrowInput).toString() * +props.market?.underlying.price.toString()
+                pValue = BigNumber.parseValue((+props.generalData.totalBorrowLimit.toString() > 0 ? +value / +props.generalData.totalBorrowLimit.toString() * 100 : 0).toFixed(18))
+                console.log(pValue.toRound(2))
+            }
 
             if(isNaN(+borrowInput)){
                 setBorrowValidation("Amount must be a number");
             }else if (+borrowInput <= 0) {
               setBorrowValidation("Amount must be > 0");
-            } else if (props.market && props.generalData && +props.generalData.totalBorrowLimit.toString() > 0 && +borrowInput / +props.generalData.totalBorrowLimit.toString() * 100 + +props.generalData.totalBorrowLimitUsedPercent.toString() > 90.01) {
+            } else if (+pValue.toRound(2) >= 90.01) {
               setBorrowValidation("Amount must be <= 90% borrow limit");
             }else if (props.market && +BigNumber.parseValue(borrowInput).toString() > +props.market?.cash.toString()) {
                 setBorrowValidation("Amount must be <= liquidity");
