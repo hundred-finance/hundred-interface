@@ -528,7 +528,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                     />
                                     <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit3}/>
                                     <div className="native-asset-amount">
-                                        <span>{convertLpAmountToUnderlying(stakeInput, props.market)} {props.market?.underlying.symbol}</span>
+                                        <span className="dialog-section-content-value">{convertLpAmountToUnderlying(stakeInput, props.market)} {props.market?.underlying.symbol}</span>
                                         <div className="amount-select">
                                             <div onClick={() => setStakeRatio(0.25) }>25%</div>
                                             <div onClick={() => setStakeRatio(0.50) }>50%</div>
