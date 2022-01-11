@@ -108,22 +108,23 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         trade: "https://app.sushi.com/swap?inputCurrency=0x10010078a54396f62c96df8532dc2b4847d47ed3",
         addLiquidity: "https://app.sushi.com/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH"
     },
-    // "0x505":
-    // {
-    //     chainId: "0x505",
-    //     network: "Moonriver",
-    //     symbol: "MOVR",
-    //     rpcUrls: ["https://rpc.moonriver.moonbeam.network"],
-    //     blockExplorerUrls: ["https://blockscout.moonriver.moonbeam.network/"],
-    //     logo: Logos["MOVR"],
-    //     name: "MOVR",
-    //     blocksPerYear: 2130810,
-    //     nativeTokenMarketAddress: "",
-    //     unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
-    //     hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
-    //     multicallAddress:"0x9fdd7e3e2df5998c7866cd2471d7d30e04496dfa",
-    //     compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-    // },
+    "0x505":
+    {
+        chainId: "0x505",
+        network: "Moonriver",
+        symbol: "MOVR",
+        rpcUrls: ["https://rpc.moonriver.moonbeam.network"],
+        blockExplorerUrls: ["https://moonriver.moonscan.io/"],
+        logo: Logos["MOVR"],
+        name: "MOVR",
+        blocksPerYear: 2465386,
+        nativeTokenMarketAddress: "0x42b458056f887fd665ed6f160a59afe932e1f559",
+        unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
+        hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
+        multicallAddress:"0x9fdd7e3e2df5998c7866cd2471d7d30e04496dfa",
+        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        gaugeControllerAddress: "0xb4300e088a3ae4e624ee5c71bc1822f68bb5f2bc"
+    },
     // "0x1251":
     // {
     //     chainId: "0x1251",
