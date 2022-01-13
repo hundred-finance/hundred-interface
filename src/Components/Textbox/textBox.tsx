@@ -13,6 +13,7 @@ interface Props{
     onChange?: () => void,
     buttonTooltip?: string,
     validationCollapse?: boolean,
+    buttonDisabled?: boolean
 }
 
 const TextBox : React.FC<Props> = (props : Props) => {
@@ -54,8 +55,8 @@ const TextBox : React.FC<Props> = (props : Props) => {
                 <input type="text" disabled={props.disabled} required value={props.value} onChange={handleChange} onFocus={()=>onFocus()} onBlur={()=>onBlur()}/>
                 <span data-tip={props.buttonTooltip} className={`placeholder ${props.disabled ? "placeholder-disabled" : ""}`}>{placeHolder}</span>
                 {props.button ?
-                    props.buttonTooltip ? <span data-tip={props.buttonTooltip} data-for="borrow-dialog-tooltip" className={`input-button ${props.disabled ? "input-button-disabled" : ""}`} onClick={buttonClick}>{props.button}</span>: 
-                    <span className={`input-button ${props.disabled ? "input-button-disabled" : ""}`} onClick={buttonClick}>{props.button}</span>
+                    props.buttonTooltip ? <span data-tip={props.buttonTooltip} data-for="borrow-dialog-tooltip" className={`input-button ${props.disabled || props.buttonDisabled ? "input-button-disabled" : ""}`} onClick={buttonClick}>{props.button}</span>: 
+                    <span className={`input-button ${props.disabled || props.buttonDisabled? "input-button-disabled" : ""}`} onClick={buttonClick}>{props.button}</span>
                     :""}
                 {props.symbol ?
                     <span className="input-button input-button-disabled">{props.symbol}</span>

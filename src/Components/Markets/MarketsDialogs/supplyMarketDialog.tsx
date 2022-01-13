@@ -39,7 +39,6 @@ interface Props{
     handleBackstopClaim: (symbol: string) => Promise<void>
 }
 const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
-    
     const [supplyInput, setSupplyInput] = useState<string>("")
     const [supplyDisabled, setSupplyDisabled] = useState<boolean>(false)
     const [withdrawInput, setWithdrawInput] = useState<string>("")
@@ -112,7 +111,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
               setSupplyValidation("Amount must be > 0");
             } else if (props.market && +supplyInput > +props.market?.underlying.walletBalance) {
               setSupplyValidation("Amount must be <= balance");
-            }else{
+            }else if (props.market && +supplyInput > +props.market?.underlying.allowance.toString()){
+                const approve = BigNumber.parseValue((+supplyInput - +props.market?.underlying.allowance.toString()).noExponents()).toRound(4)
+              setSupplyValidation(`You must approve ${approve} ${props.market.underlying.symbol} more.`);
+            }
+            else {
                 setSupplyValidation("");
             }
 
@@ -313,6 +316,8 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     },[props.generalData])
 
     const getMaxAmount = async (deposit?: boolean) : Promise<void> => {
+        
+        console.log(props.market?.underlying.allowance.toString())
         const amount = props.market ? await props.getMaxAmount(props.market, "supply") : 0
         if(deposit)
             setDepositInput(amount.toString())
@@ -497,19 +502,18 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit1}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                            
-                            {props.market?.underlying.allowance?.gt(BigNumber.from(0)) &&
-                                props.market?.underlying.allowance?.gte(supplyInput.trim() === "" || !isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? BigNumber.from("0") 
-                                : BigNumber.parseValue(supplyInput)) 
-                                ? (
-                                    <MarketDialogButton disabled={supplyInput==="" || supplyValidation!="" || props.market?.supplySpinner}
-                                        onClick={() => {   props.market ? props.handleSupply(props.market?.underlying.symbol,supplyInput) : null}}>
+                            {props.market && +props.market.underlying.allowance.toString() > 0 &&
+                                +props.market.underlying.allowance.toString() >= (supplyInput.trim() === "" || isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? 0 : +supplyInput)
+                                ? 
+                                    <MarketDialogButton disabled={supplyInput.trim()==="" || supplyValidation!="" || props.market?.supplySpinner}
+                                        onClick={() => {   props.market ? props.handleSupply(props.market?.underlying.symbol, supplyInput) : null}}>
                                         {props.market.supplySpinner ? (<Spinner size={"20px"}/>) : "Supply"}
                                     </MarketDialogButton>
-                                ) : (
+                                : 
                                     <MarketDialogButton disabled={!props.market || (props.market && props.market?.supplySpinner)}
                                         onClick={() => {props.market ? props.handleEnable(props.market?.underlying.symbol,false) : null}}>
                                         {props.market?.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${props.market?.underlying.symbol}`}
-                                    </MarketDialogButton>)}
+                                    </MarketDialogButton>}
                         </TabContentItem>
                         {
                             props.gaugeV4 && props.market ?

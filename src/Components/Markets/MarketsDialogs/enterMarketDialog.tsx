@@ -31,6 +31,8 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
         function handleClickOutside(event : any) : void {
           if (ref.current && !ref.current.contains(event.target)) {
               props.closeMarketDialog()
+              console.log(props.market?.supplyBalance.toString())
+            console.log(props.market?.borrowBalance.toString())
           }
       }
 
@@ -71,7 +73,7 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
                 <DialogBorrowLimitSection generalData={props.generalData}/>
                 <div className="footer-section">
                     {props.market.isEnterMarket ? (
-                     <button className="dialog-button" onClick={() => {
+                     <button disabled={+props.market.borrowBalance.toString() > 0 || +props.market.supplyBalance.toString() > 0 ? true : false} className="dialog-button" onClick={() => {
                          props.market?.underlying.symbol ? props.handleExitMarket(
                           props.market?.underlying.symbol
                         ) : null;

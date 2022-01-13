@@ -123,7 +123,9 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         multicallAddress:"0x9fdd7e3e2df5998c7866cd2471d7d30e04496dfa",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        gaugeControllerAddress: "0xb4300e088a3ae4e624ee5c71bc1822f68bb5f2bc"
+        gaugeControllerAddress: "0xb4300e088a3ae4e624ee5c71bc1822f68bb5f2bc",
+        trade: "https://app.solarbeam.io/exchange/swap?inputCurrency=0x10010078a54396f62c96df8532dc2b4847d47ed3",
+        addLiquidity: "https://app.solarbeam.io/exchange/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH"
     },
     // "0x1251":
     // {

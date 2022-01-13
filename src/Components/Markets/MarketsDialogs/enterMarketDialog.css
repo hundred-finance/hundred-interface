@@ -87,3 +87,10 @@
     background-color: var(--boxColor);
     color:var(--secondaryText);
 }
+
+.dialog-box .dialog-content .dialog-button:disabled{
+    pointer-events: none;
+    background-color: var(--buttonHover2);
+    color: var(--secondaryText);
+    opacity: 0.6;
+}

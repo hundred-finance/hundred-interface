@@ -37,7 +37,7 @@ const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
                     <span className='footer-content-inc'> 2021 Hundred, Inc.</span>
                 </div>
                 <div className='footer-navbar'>
-                    <a className='footer-link-item' href='https://snapshot.org/#/hnd.eth/' target="_blank" rel="noopener noreferrer">Governance</a>
+                    <a className='footer-link-item' href='https://snapshot.org/#/hundredfinance.eth' target="_blank" rel="noopener noreferrer">Governance</a>
                     <a className='footer-link-item' href="https://github.com/chainsulting/Smart-Contract-Security-Audits/blob/master/Percent%20Finance/02_Smart%20Contract%20Audit%20Percent%20Finance.pdf"
                         target="_blank"
                         rel="noopener noreferrer">Audit</a>
