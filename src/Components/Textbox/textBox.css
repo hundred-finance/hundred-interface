@@ -110,6 +110,7 @@
 
 .textbox .textbox-button .input-button-disabled{
     pointer-events: none;
+    cursor: pointer;
 }
 
 .textbox .textbox-button input{

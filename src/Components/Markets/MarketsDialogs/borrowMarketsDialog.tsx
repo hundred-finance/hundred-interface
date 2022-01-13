@@ -95,7 +95,11 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                 setRepayValidation("Amount must be <= your borrow balance");
               } else if (props.market && BigNumber.parseValue(repayInput).gt(props.market?.underlying.walletBalance)) {
                 setRepayValidation("Amount must be <= balance");
-              } else {
+              } else if (props.market && +props.market?.underlying.allowance.toString() < +repayInput){
+                const approve = BigNumber.parseValue((+repayInput - +props.market?.underlying.allowance.toString()).noExponents()).toRound(4)
+                setRepayValidation(`You must approve ${approve} ${props.market.underlying.symbol} more.`)
+              }
+               else {
                 setRepayValidation("");
               }
         };
@@ -189,10 +193,23 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
         if(props.generalData && props.market){
             const balance = (+props.generalData.totalBorrowLimit.toString() - +props.generalData.totalBorrowBalance.toString()) / +props.market.underlying.price.toString() / 2
             const amount = +props.market.cash.toString() / 2
+            let borrow = 0
             if (balance > amount)
-                setBorrowInput(BigNumber.parseValue(amount.toFixed(18)).toString())
+                borrow = amount
             else
-                setBorrowInput(BigNumber.parseValue(balance.toFixed(18)).toString())
+                borrow = balance
+            
+            let pValue = BigNumber.from("0")
+            if (props.generalData && props.market) {
+                    const value = +props.generalData.totalBorrowBalance.toString() + +BigNumber.parseValue(borrow.toString()).toString() * +props.market?.underlying.price.toString()
+                    pValue = BigNumber.parseValue((+props.generalData.totalBorrowLimit.toString() > 0 ? +value / +props.generalData.totalBorrowLimit.toString() * 100 : 0).toFixed(18))
+                    console.log(pValue.toString())
+                if(+pValue.toRound(2) >= 50.01){
+                     borrow  = (0.5 * +props.generalData.totalBorrowLimit.toString() - +props.generalData.totalBorrowBalance.toString()) / +props.market?.underlying.price.toString()
+
+                }
+            }
+            setBorrowInput(BigNumber.parseValue(borrow.toFixed(props.market.underlying.decimals)).toString())
         }
         else setBorrowInput("0")
         // const balance = props.generalData && props.market ? 
@@ -226,7 +243,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                         <TabContent>
                             <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
                                 <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={borrowDisabled} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"Safe Max"}
-                                buttonTooltip="50% of borrow limit" onClick={ () => handleMaxBorrow()}/>
+                                buttonTooltip="50% of borrow limit" buttonDisabled={props.generalData && +props.generalData?.totalBorrowLimitUsedPercent.toRound(2) >= 50.01 ? true : false} onClick={ () => handleMaxBorrow()}/>
                                 <MarketDialogItem title={"You Borrowed"} value={`${props.market?.borrowBalanceInTokenUnit?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
@@ -251,7 +268,8 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                                 <DialogMarketInfoSection market={props.market} collateralFactorText={"Liquidation Threshold"}/>
     
                                     {props.market && props.market?.underlying.allowance?.gt(BigNumber.from("0")) &&
-                                     props.market?.underlying.allowance?.gte(repayInput==="" || isNaN(+repayInput) ? BigNumber.from("0") : BigNumber.parseValue(repayInput)) ? 
+                                    +props.market.underlying.allowance.toString() >= (repayInput.trim() === "" || isNaN(+repayInput) || isNaN(parseFloat(repayInput)) ? 0 : +repayInput)
+                                    ? 
                                      (
                                         <MarketDialogButton disabled={(!repayInput || repayValidation || props.market?.repaySpinner) ? true : false}
                                             onClick={() => {props.market ? props.handleRepay(
