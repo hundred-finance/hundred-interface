@@ -35,6 +35,7 @@ const App: React.FC = () => {
   const [hndSpinner, setHndSpinner] = useState<boolean>(false)
   const [network, setNetwork] = useState<Network | null>(null)
   const [hndPrice, setHndPrice] = useState<number>(0)
+  const [hasClaimed, setHasClaimed] = useState<boolean>(true)
 
   // const addressRef = useRef<string>(address)
   // const setAddressRef = useRef<React.Dispatch<React.SetStateAction<string>>>(setAddress)
@@ -57,11 +58,11 @@ const App: React.FC = () => {
   const [updateEarned, setUpdateEarned] = useState<boolean>(false)
 
   useEffect(() => {
-    if (document.documentElement.clientWidth < 750){
+    if (document.documentElement.clientWidth < (hasClaimed ? 750 : 925)){
       setIsMobile(true)
       setIsTablet(false)
     }
-    else if (document.documentElement.clientWidth < 970){
+    else if (document.documentElement.clientWidth < (hasClaimed ? 970 : 1150)){
   
       setIsTablet(true)
       setIsMobile(false)
@@ -71,11 +72,11 @@ const App: React.FC = () => {
     setShow(true)
 
     window.addEventListener('resize', ()=>{
-      if (document.documentElement.clientWidth < 750){
+      if (document.documentElement.clientWidth < (hasClaimed ? 750 : 925)){
         setIsMobile(true)
         setIsTablet(false)
       }
-      else if (document.documentElement.clientWidth < 970){
+      else if (document.documentElement.clientWidth < (hasClaimed ? 970 : 1150)){
     
         setIsTablet(true)
         setIsMobile(false)
@@ -299,7 +300,8 @@ const App: React.FC = () => {
       <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
         <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
           spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError} 
-          setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} updateEarned={updateEarned} setUpdateEarned={setUpdateEarned}/>
+          setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} 
+          updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed}/>
       </ErrorBoundary>
     )
   }
@@ -323,16 +325,18 @@ const App: React.FC = () => {
       <Wrapper sideMenu={sideMenu}>
         {!isTablet && !isMobile ? 
           <Menu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network} setOpenHundred={setOpenHundred}
-            address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} setOpenNetwork={setOpenNetwork}/>
+            address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} 
+            setNetwork={setNetwork} setOpenNetwork={setOpenNetwork} hasClaimed={hasClaimed} setHasClaimed={setHasClaimed} provider={provider}/>
           : <TabletMenu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network}
               address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} 
-              setOpenNetwork={setOpenNetwork} setShow={setShow} setOpenHundred={setOpenHundred}/>
+              setOpenNetwork={setOpenNetwork} setShow={setShow} setOpenHundred={setOpenHundred} hasClaimed={hasClaimed} 
+              setHasClaimed={setHasClaimed} provider={provider}/>
         }
         <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
-          <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
+          <Content address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
             spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError} 
             setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} 
-            updateEarned={updateEarned} setUpdateEarned={setUpdateEarned}/>
+            updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed}/>
         </ErrorBoundary>
         <ToastContainer/>
       </Wrapper>

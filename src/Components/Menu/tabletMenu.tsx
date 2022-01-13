@@ -12,6 +12,8 @@ import ThemeSwitch from "../Navbar/themeSwitch"
 import { Network } from "../../networks"
 import NetworkButton from "../NetworkButton/networkButton"
 import HundredButton from "../HundredButton/hundredButton"
+import AirdropButton from "../AirdropButton/airdropButton"
+import { ethers } from "ethers"
 // import SideMenuButton from "../Navbar/sideMenuButton"
 
 interface Props{
@@ -29,6 +31,9 @@ interface Props{
     network: Network | null,
     setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>,
     setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>,
+    hasClaimed: boolean,
+    setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>,
+    provider: ethers.providers.Web3Provider | null
 }
 
 const TabletMenu: React.FC<Props> = (props: Props) => {
@@ -42,6 +47,8 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
                     <NavBarRight>
                     {props.isTablet && !props.isMobile ?
                         <>
+                            <AirdropButton network={props.network} address={props.address} hasClaimed={props.hasClaimed} 
+                            setHasClaimed={props.setHasClaimed} provider={props.provider}/>
                             <HundredButton network={props.network} address={props.address} setOpenHundred={props.setOpenHundred} setSideMenu={props.setSideMenu}/>
                             <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
                             <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
@@ -55,6 +62,8 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
             <NavbarMobile menuOpen={menuOpen}>
             {props.isMobile ? 
                 <NavBarRight className="navbar-right-content">
+                    <AirdropButton network={props.network} address={props.address} hasClaimed={props.hasClaimed} 
+                    setHasClaimed={props.setHasClaimed} provider={props.provider}/>
                     <HundredButton network={props.network} address={props.address} setOpenHundred={props.setOpenHundred} setSideMenu={props.setSideMenu}/>
                     <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
                     <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}

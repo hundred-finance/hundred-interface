@@ -1,6 +1,7 @@
 import { Call, Contract } from "ethcall"
 import { ethers } from "ethers"
 import {
+  AIRDROP_ABI,
     BACKSTOP_MASTERCHEF_ABI,
     BPRO_ABI,
     COMPTROLLER_ABI,
@@ -15,6 +16,7 @@ import Logos from "../../logos"
 import { Network } from "../../networks"
 import {GaugeV4, GaugeV4GeneralData} from "../../Classes/gaugeV4Class";
 import { Backstop, BackstopPool, BackstopPoolInfo, BackstopType } from "../../Classes/backstopClass"
+import { Airdrop } from "../AirdropButton/airdropAddresses"
 
 const mantissa = 1e18
 
@@ -73,12 +75,14 @@ export type MarketDataType = {
     hundredBalace: BigNumber,
     comAccrued: BigNumber,
     markets: CTokenInfo[],
-    gauges: GaugeV4GeneralData[]
+    gauges: GaugeV4GeneralData[],
+    hasClaimed: boolean
 }
   
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const fetchData = async(
-{ allMarkets, userAddress, comptrollerData, network, marketsData, provider, hndPrice, gaugesData }: { allMarkets: string[]; userAddress: string; comptrollerData: Comptroller; network: Network; marketsData: (CTokenInfo | null)[] | null | undefined; provider: any; hndPrice: number; gaugesData: GaugeV4[] }) : Promise<MarketDataType> => {
+{ allMarkets, userAddress, comptrollerData, network, marketsData, provider, hndPrice, gaugesData }: 
+{ allMarkets: string[]; userAddress: string; comptrollerData: Comptroller; network: Network; marketsData: (CTokenInfo | null)[] | null | undefined; provider: any; hndPrice: number; gaugesData: GaugeV4[] }) : Promise<MarketDataType> => {
     const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
     const calls= [ethcallComptroller.getAssetsIn(userAddress)]
 
@@ -88,6 +92,12 @@ export const fetchData = async(
     calls.push(balanceContract.balanceOf(userAddress))
 
     if(network.hundredLiquidityPoolAddress) calls.push(balanceContract.balanceOf(network.hundredLiquidityPoolAddress))
+
+    const airdrop = Airdrop[network.chainId]
+    if(airdrop){
+      const airdropContract = new Contract(airdrop.contract, AIRDROP_ABI)
+      calls.push(airdropContract.hasClaimed(userAddress))
+    }
 
     const markets = allMarkets.filter((a) => {
       if (a.toLowerCase() === "0xc98182014c90baa26a21e991bfec95f72bd89aed")
@@ -190,9 +200,11 @@ export const fetchData = async(
     let compAccrued = BigNumber.from("0")
     let hndBalance = BigNumber.from("0")
     let hundredBalace = BigNumber.from("0")
+    let hasClaimed = true
 
     let compareLength = nativeToken ? 16 : 3
     compareLength = network.hundredLiquidityPoolAddress ? compareLength + notNativeMarkets.length * 19 + 1 : compareLength + notNativeMarkets.length * 19
+    compareLength = airdrop ? compareLength + 1 : compareLength
     compareLength = network.backstopMasterChef ? compareLength + comptrollerData.backstopPools.length * 12 : compareLength
 
     if(res && res.length === compareLength){
@@ -207,6 +219,11 @@ export const fetchData = async(
       if(network.hundredLiquidityPoolAddress){
           hundredBalace = BigNumber.from(res[0], 18)
           res.splice(0, 1)
+      }
+
+      if(airdrop) {
+        hasClaimed = res[0]
+        res.splice(0,1)
       }
        
         if(nativeToken){
@@ -238,7 +255,8 @@ export const fetchData = async(
         hndBalance: hndBalance,
         hundredBalace: hundredBalace,
         comAccrued: compAccrued,
-        gauges: gaugesData.map(g => g.generalData)
+        gauges: gaugesData.map(g => g.generalData),
+        hasClaimed
     }
   }
 

@@ -52,6 +52,7 @@ interface Props{
   setHundredBalance: React.Dispatch<React.SetStateAction<BigNumber | null>>
   updateEarned: boolean,
   setUpdateEarned: React.Dispatch<React.SetStateAction<boolean>>
+  setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const Content: React.FC<Props> = (props : Props) => {
@@ -164,6 +165,7 @@ const Content: React.FC<Props> = (props : Props) => {
       props.setHndEarned(data.earned)
       props.setHndBalance(hndBalance)
       props.setHundredBalance(hundredBalace)
+      // props.setHasClaimed(hasClaimed)
       if(selectedMarketRef.current && markets){
         const market = markets.find(x=>x?.underlying.symbol === selectedMarketRef.current?.underlying.symbol)
         if (market){

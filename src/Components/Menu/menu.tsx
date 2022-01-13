@@ -10,6 +10,8 @@ import NavbarLogo from "../Navbar/navbarLogo"
 import NavBarRight from "../Navbar/navBarRight"
 import ThemeSwitch from "../Navbar/themeSwitch"
 import NetworkButton from "../NetworkButton/networkButton"
+import AirdropButton from "../AirdropButton/airdropButton"
+import { ethers } from "ethers"
 
 interface Props {
   isTablet: boolean,
@@ -23,8 +25,11 @@ interface Props {
   setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
   setNetwork: React.Dispatch<React.SetStateAction<Network | null>>,
   network: Network | null,
-  setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>
-  setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>
+  setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>,
+  setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>,
+  hasClaimed: boolean,
+  setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>,
+  provider: ethers.providers.Web3Provider | null
 }
 
 const Menu : React.FC<Props> = (props: Props) => {
@@ -41,6 +46,8 @@ const Menu : React.FC<Props> = (props: Props) => {
                   </NavBarLinks>
                 </NavbarLeft>
                 <NavBarRight>
+                  <AirdropButton network={props.network} address={props.address} hasClaimed={props.hasClaimed} 
+                  setHasClaimed={props.setHasClaimed} provider={props.provider}/>
                   <HundredButton network={props.network} address={props.address} setOpenHundred={props.setOpenHundred} setSideMenu={props.setSideMenu}/>
                   <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/>
                   <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
