@@ -47,7 +47,7 @@ export class GaugeV4{
         this.userLpBalance = BigNumber.from(userLpBalance.toString(), 8)
         this.userClaimableHnd = BigNumber.from(userClaimableHnd.toString(), 18)
         this.userWorkingStakeBalance = userWorkingStakeBalance
-        this.userAllowance = userAllowance
+        this.userAllowance = BigNumber.from(userAllowance.toString(), 8)
         this.stakeCall = stakeCall
         this.unstakeCall = unstakeCall
         this.mintCall = mintCall
