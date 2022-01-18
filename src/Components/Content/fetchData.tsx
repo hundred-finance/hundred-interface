@@ -364,7 +364,6 @@ export const fetchData = async(
         }
       }
     }
-    console.log(token)
     return token
   }
 
@@ -530,8 +529,7 @@ export const fetchData = async(
   }
 
   export const compareData = (oldMarkets: (CTokenInfo | null)[], newMarkets: CTokenInfo[]) : void =>{
-    console.log("\n-------------------------------------------------------------------------------------------\n")
-                  
+
     const compare: CheckValidData[] = []
     const m = oldMarkets.find(n => n?.underlying.symbol === "USDC")
     const nm = newMarkets.find(n => n.underlying.symbol === "USDC")
@@ -584,10 +582,4 @@ export const fetchData = async(
     compare.push(c)
     c = {name: "IsNativeToken", oldData: m && m.isNativeToken ? m.isNativeToken.toString() : "", newData: nm && nm.isNativeToken ? nm.isNativeToken.toString() : "",}
     compare.push(c)
-
-    console.log("\n-------------------------------------------------------------------------------------------\n")
-    console.log("\n---------------------------------------Compare---------------------------------------------\n")
-    console.table(compare)
-
-    console.log("\n-------------------------------------------------------------------------------------------\n")
   }
