@@ -23,9 +23,11 @@ export class GaugeV4{
     userLpBalance: BigNumber
     userClaimableHnd: BigNumber
     userWorkingStakeBalance: BigNumber
+    userAllowance: BigNumber
     stakeCall: (amount: string) => void
     unstakeCall: (amount: string) => void
     mintCall: () => void
+    approveCall: () => void
 
     constructor(
         generalData: GaugeV4GeneralData,
@@ -33,9 +35,11 @@ export class GaugeV4{
         userLpBalance: BigNumber,
         userClaimableHnd: BigNumber,
         userWorkingStakeBalance: BigNumber,
+        userAllowance: BigNumber,
         stakeCall: (amount: string) => void,
         unstakeCall: (amount: string) => void,
-        mintCall: () => void
+        mintCall: () => void,
+        approveCall: () => void,
     ){
         this.generalData = generalData
         this.userStakeBalance = BigNumber.from(userStakeBalance.toString(), 18)
@@ -43,9 +47,11 @@ export class GaugeV4{
         this.userLpBalance = BigNumber.from(userLpBalance.toString(), 8)
         this.userClaimableHnd = BigNumber.from(userClaimableHnd.toString(), 18)
         this.userWorkingStakeBalance = userWorkingStakeBalance
+        this.userAllowance = BigNumber.from(userAllowance.toString(), 8)
         this.stakeCall = stakeCall
         this.unstakeCall = unstakeCall
         this.mintCall = mintCall
+        this.approveCall = approveCall
     }
 }
 
@@ -110,11 +116,12 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                     new Contract(g.address, GAUGE_V4_ABI).balanceOf(userAddress),
                     new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
                     new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
-                    new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress)
+                    new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
+                    new Contract(g.lpToken, CTOKEN_ABI).allowance(userAddress, g.address),
                 ])
             )
 
-            const infoChunks = _.chunk(info, 4);
+            const infoChunks = _.chunk(info, 5);
 
             return generalData.map((g, index) => {
                 return new GaugeV4(
@@ -123,9 +130,11 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                         infoChunks[index][1],
                         infoChunks[index][2],
                         infoChunks[index][3],
-                        (amount: string) => stake(provider, userAddress, g.address, g.lpToken, amount),
+                        infoChunks[index][4],
+                        (amount: string) => stake(provider, g.address, amount),
                         (amount: string) => unstake(provider, g.address, amount),
-                        () => mint(provider, g.address)
+                        () => mint(provider, g.address),
+                    () => approve(provider, g.address, g.lpToken)
                     )
                 }
             )
@@ -137,17 +146,9 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
-const stake = async (provider: any, userAddress: string, gaugeAddress: string, lpTokenAddress: string, amount: string) => {
-    const depositAmount = ethers.utils.parseUnits(amount, 8);
+const stake = async (provider: any, gaugeAddress: string, amount: string) => {
     const signer = provider.getSigner()
     const gauge = new ethers.Contract(gaugeAddress, GAUGE_V4_ABI, signer)
-
-    const contract = new ethers.Contract(lpTokenAddress, TOKEN_ABI, signer);
-    const approval = await contract.allowance(userAddress, gaugeAddress);
-    if (approval.lt(depositAmount)) {
-        const approveTx = await contract.approve(gaugeAddress, MaxUint256._value)
-        await approveTx.wait();
-    }
     const tx = await gauge.deposit(ethers.utils.parseUnits(amount, 8))
     await tx.wait()
 }
@@ -169,4 +170,11 @@ const mint = async (provider: any, address: string) => {
 
     const tx = await minter.mint(address)
     await tx.wait()
+}
+
+const approve = async (provider: any, gaugeAddress: string, lpTokenAddress: string) => {
+    const signer = provider.getSigner()
+    const contract = new ethers.Contract(lpTokenAddress, TOKEN_ABI, signer);
+    const approveTx = await contract.approve(gaugeAddress, MaxUint256._value)
+    await approveTx.wait();
 }

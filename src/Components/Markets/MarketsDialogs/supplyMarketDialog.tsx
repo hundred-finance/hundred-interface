@@ -37,6 +37,7 @@ interface Props{
     handleBackstopDeposit: (symbol: string, amount: string) => Promise<void>
     handleBackstopWithdraw: (symbol: string, amount: string) => Promise<void>
     handleBackstopClaim: (symbol: string) => Promise<void>
+    handleApproveStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
 }
 const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     const [supplyInput, setSupplyInput] = useState<string>("")
@@ -550,16 +551,32 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                             button={"Max"}
                                             onClick={() => getMaxStake()}
                                         />
-                                        <MarketDialogButton
-                                            disabled={stakeInput === "" || stakeValidation !== "" || (newBorrowLimit2 && props.generalData &&
+                                        {props.gaugeV4 && +props.gaugeV4.userAllowance.toString() > 0 &&
+                                        +props.gaugeV4.userAllowance.toString().toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
+                                            ?
+                                            <MarketDialogButton
+                                                disabled={stakeInput === "" || stakeValidation !== "" || (newBorrowLimit2 && props.generalData &&
                                                 +newBorrowLimit3.toString() > 0 &&
-                                                            +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() > 0.9 && 
-                                                            (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent ? true : false)}
-                                            onClick={() => props.handleStake(props.market?.underlying.symbol, props?.gaugeV4, stakeInput)}
-                                        >
-                                            {props.market && props.market.stakeSpinner ? (
-                                                <Spinner size={"20px"}/>) : "Stake"}
-                                        </MarketDialogButton>
+                                                +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() > 0.9 &&
+                                                (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent ? true : false)}
+                                                onClick={() => props.handleStake(props.market?.underlying.symbol, props?.gaugeV4, stakeInput)}
+                                            >
+                                                {props.market && props.market.stakeSpinner ? (
+                                                    <Spinner size={"20px"}/>) : "Stake"}
+                                            </MarketDialogButton>
+                                            :
+                                            <MarketDialogButton
+                                                disabled={stakeInput === "" || stakeValidation !== "" || (newBorrowLimit2 && props.generalData &&
+                                                +newBorrowLimit3.toString() > 0 &&
+                                                +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() > 0.9 &&
+                                                (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent ? true : false)}
+                                                onClick={() => props.handleApproveStake(props.market?.underlying.symbol, props?.gaugeV4)}
+                                            >
+                                                {props.market && props.market.stakeSpinner ? (
+                                                    <Spinner size={"20px"}/>) : "Approve"}
+                                            </MarketDialogButton>
+                                        }
+
                                     </div>
                                     <div className="native-asset-amount">
                                         <span>{convertGaugeLpAmountToUnderlying(unstakeInput, props.market)} {props.market?.underlying.symbol}</span>

@@ -816,6 +816,40 @@ const Content: React.FC<Props> = (props : Props) => {
       }
   }
 
+  const handleApproveStake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined) => {
+      if(marketsRef.current){
+          if (spinner.current) spinner.current(true)
+          let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
+          if(market && provider.current){
+              try{
+                  setCompleted(false)
+
+                  if(selectedMarketRef.current)
+                      selectedMarketRef.current.stakeSpinner = true
+
+                  market.stakeSpinner = true
+
+                  await gaugeV4?.approveCall()
+
+                  if (spinner.current) spinner.current(false)
+
+                  setCompleted(true)
+              }
+              catch(err){
+                  console.log(err)
+              }
+              finally{
+                  if (spinner.current) spinner.current(false)
+                  market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+                  if(market){
+                      setUpdate(true)
+                      await handleUpdate(market, "stake")
+                  }
+              }
+          }
+      }
+  }
+
     const handleUnstake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined, amount: string) => {
         if(marketsRef.current){
             if (spinner.current) spinner.current(true)
@@ -917,6 +951,7 @@ const Content: React.FC<Props> = (props : Props) => {
                 handleBackstopDeposit={handleBackstopDeposit}
                 handleBackstopWithdraw={handleBackstopWithdraw}
                 handleBackstopClaim={handleBackstopClaim}
+                handleApproveStake={handleApproveStake}
             />
             <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
               closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}
