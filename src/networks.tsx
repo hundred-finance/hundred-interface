@@ -1,5 +1,16 @@
 import Logos from "./logos"
 
+export enum MasterChefVersion {
+    v1,
+    v2
+}
+
+type BackstopMasterChef = {
+    address: string,
+    version: MasterChefVersion,
+    collaterals?: number
+}
+
 type Network = {
     chainId: string,
     network: string,
@@ -21,7 +32,7 @@ type Network = {
     hndPoolPercent?: number,
     liquidity?: boolean, 
     multicallAddress?: string,
-    backstopMasterChef?: string,
+    backstopMasterChef?: BackstopMasterChef,
     minterAddress?: string
     gaugeControllerAddress?: string
 }
@@ -63,7 +74,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         hundredLiquidityPoolAddress: "0x65E17c52128396443d4A9A61EaCf0970F05F8a20",
-        backstopMasterChef: "0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02",
+        backstopMasterChef: {address: "0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02", version: MasterChefVersion.v1},
         gaugeControllerAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7"
     },
     "0xfa": {
@@ -85,7 +96,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredLiquidityPoolAddress: "0x20dd72ed959b6147912c2e529f0a0c651c33c9ce",
         gaugeControllerAddress: "0xb1c4426C86082D91a6c097fC588E5D5d8dD1f5a8",
         hndPoolPercent: 0.6,
-        liquidity: true
+        liquidity: true,
+        backstopMasterChef: {address: "0xf347b0e405249c78d8b261b7c493449b9275b946", version: MasterChefVersion.v2, collaterals: 5},
     },
     "0x63564c40":
     {

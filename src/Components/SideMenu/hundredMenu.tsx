@@ -50,9 +50,11 @@ const HundredMenu: React.FC<Props> = (props: Props) => {
             <div className="hundred-menu-item">
                 <hr/>
                 <div className="hundred-menu-item-label"><label>HND Balance </label><span>{props.hndBalance ? (props.hndBalance.gt(BigNumber.from(0)) ? props.hndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
-                <div className="hundred-menu-item-label"><label>HND Earned </label><span>{props.hndEarned ? props.hndEarned?.gt(BigNumber.from(0)) ? props.hndEarned?.toRound(2, true, true) : "0.00" : "--"}</span></div>
-                <div className={`${props.hndSpinner ? "hundred-menu-item-button-disabled" : "hundred-menu-item-button"}`} onClick={() => !props.hndSpinner ? props.handleCollect() : null}>
-                    {props.hndSpinner ? (<Spinner size={"25px"}/>) : "Collect"}</div>
+                {props.hndEarned && +props.hndEarned.toString() > 0 ? 
+                    <><div className="hundred-menu-item-label"><label>HND Earned (Legacy)</label><span>{props.hndEarned ? props.hndEarned?.gt(BigNumber.from(0)) ? props.hndEarned?.toRound(2, true, true) : "0.00" : "--"}</span></div>
+                    <div className={`${props.hndSpinner ? "hundred-menu-item-button-disabled" : "hundred-menu-item-button"}`} onClick={() => !props.hndSpinner ? props.handleCollect() : null}>
+                        {props.hndSpinner ? (<Spinner size={"25px"}/>) : "Claim Legacy HND"}</div></> : null
+                }
             </div>
         </div>
     )

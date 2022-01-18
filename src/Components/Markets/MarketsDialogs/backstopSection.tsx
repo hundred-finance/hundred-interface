@@ -48,15 +48,16 @@ const BackstopSection:React.FC<Props> = (props : Props) => {
                     {props.market.backstop?.userBalance.toRound(2, true)} {props.market.backstop?.symbol} 
                 </div>
             </div>
+            {props.market.backstop && (props.market.backstop as any).ethBalance  ? 
             <div className="dialog-section-content-details">
                 <div className="dialog-section-content-header-details">
                 </div>
                 <div className="dialog-section-content-value-details">
                 ({props.market.backstop ? BigNumber.parseValue((+props.market.backstop.userBalance.toString() * +props.market.backstop.sharePrice.toString()).noExponents()).toRound(2, true) : 0} {props.market.underlying.symbol} + {
-                    props.market.backstop ? +props.market.backstop.userEthBalance.toRound(2) === 0 && +props.market.backstop.userEthBalance.toString() > 0 ? ">"+props.market.backstop.userEthBalance.toRound(2,true,true) :
-                    props.market.backstop.userEthBalance.toRound(2, true, true)  : 0} ETH)
+                    props.market.backstop ? +(props.market.backstop as any).userEthBalance.toRound(2) === 0 && +(props.market.backstop as any).userEthBalance.toString() > 0 ? ">"+(props.market.backstop as any).userEthBalance.toRound(2,true,true) :
+                    (props.market.backstop as any).userEthBalance.toRound(2, true, true)  : 0} ETH)
                 </div>
-            </div>
+            </div> : null}
         </div>
     )
 }

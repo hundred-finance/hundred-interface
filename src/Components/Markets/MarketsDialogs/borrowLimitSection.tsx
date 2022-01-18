@@ -32,11 +32,13 @@ const BorrowLimitSection:React.FC<Props> = (props : Props) => {
                     <span>
                         {`$${props.generalData?.totalBorrowLimit ? props.generalData?.totalBorrowLimit.toRound(2, false, true) : "0.00"}`}
                     </span>
-                    <span className={`dialog-section-arrow ${props.newBorrowLimit && props.newBorrowLimit.gt(BigNumber.from(0))? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
-                        {props.newBorrowLimit && props.newBorrowLimit.gt(BigNumber.from(0))? (
+                    <span className={`dialog-section-arrow ${props.newBorrowLimit && +props.newBorrowLimit.toString() > 0 && props.generalData && +props.generalData.totalBorrowLimit.toString() !== +props.newBorrowLimit.toString() ? "dialog-section-arrow-active" : ""}`}>
+                        <HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/>
+                    </span>
+                        {props.newBorrowLimit && +props.newBorrowLimit.toString() && props.generalData && +props.generalData.totalBorrowLimit.toString() !== +props.newBorrowLimit.toString() ? (
                     
                         <span>
-                            {`$${props.newBorrowLimit ?  props.newBorrowLimit.toRound(2, false, true) : "0.00"}`}
+                            {`$${props.newBorrowLimit && +props.newBorrowLimit.toString()  ?  props.newBorrowLimit.toRound(2, false, true) : "0.00"}`}
                         </span>
                     ) : null}
                 </div>
@@ -48,8 +50,8 @@ const BorrowLimitSection:React.FC<Props> = (props : Props) => {
                 <div className="dialog-section-content-value">
                     <span>{`${props.generalData?.totalBorrowLimitUsedPercent ? props.generalData?.totalBorrowLimitUsedPercent.toRound(2, false, true) : "0.00"}%`}
                     </span>
-                    <span className={`dialog-section-arrow ${props.newBorrowLimit && +props.newBorrowLimit.toString() > 0 ? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
-                    {props.newBorrowLimit && +props.newBorrowLimit.toString() > 0? 
+                    <span className={`dialog-section-arrow ${props.newBorrowLimit && +props.newBorrowLimit.toString() > 0 && props.generalData && +props.generalData.totalBorrowLimit.toString() !== +props.newBorrowLimit.toString()? "dialog-section-arrow-active" : ""}`}><HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/></span>
+                    {props.newBorrowLimit && +props.newBorrowLimit.toString() > 0 && props.generalData && +props.generalData.totalBorrowLimit.toString() !== +props.newBorrowLimit.toString() ? 
                         (
                             <span
                                 style={{

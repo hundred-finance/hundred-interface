@@ -24,7 +24,7 @@ const SupplyRateSection:React.FC<Props> = (props: Props) => {
                             src={props.market?.underlying.logo}
                         alt=""/>
                     </div>
-                <div className="fill">Supply APR</div>
+                <div className="fill">Supply APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
                     {`${props.market ? formatApr(props.market?.supplyApy) : "0.00"}%`}
                 </div>

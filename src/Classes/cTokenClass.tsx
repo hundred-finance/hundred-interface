@@ -4,7 +4,7 @@ import {BigNumber} from "../bigNumber"
 import { MKR_TOKEN_ABI, TOKEN_ABI } from "../abi"
 import { Comptroller} from "./comptrollerClass"
 import { Call } from "ethcall/lib/call"
-import { Backstop } from "./backstopClass"
+import { Backstop, BackstopV2 } from "./backstopClass"
 
 // const blockTime = 2.1 // seconds
 //const mantissa = 1e18 // mantissa is the same even the underlying asset has different decimals
@@ -81,7 +81,7 @@ export class CTokenInfo{
 
     accrued: number
 
-    backstop: Backstop | null
+    backstop: Backstop | BackstopV2 | null
    
 
     constructor(pTokenAddress: string,
@@ -111,7 +111,7 @@ export class CTokenInfo{
                 oldTotalSupplyApy: BigNumber,
                 newTotalSupplyApy: BigNumber,
                 accrued: number,
-                backstop: Backstop | null
+                backstop: Backstop | BackstopV2 | null
                 ){
         this.pTokenAddress= pTokenAddress
         this.underlying = underlying

@@ -3,7 +3,9 @@ import { ethers } from "ethers"
 import {
   AIRDROP_ABI,
     BACKSTOP_MASTERCHEF_ABI,
+    BACKSTOP_MASTERCHEF_ABI_V2,
     BPRO_ABI,
+    BPRO_ABI_V2,
     COMPTROLLER_ABI,
     CTOKEN_ABI,
     HUNDRED_ABI,
@@ -13,9 +15,9 @@ import { BigNumber } from "../../bigNumber"
 import { Comptroller } from "../../Classes/comptrollerClass"
 import { CTokenInfo, Underlying } from "../../Classes/cTokenClass"
 import Logos from "../../logos"
-import { Network } from "../../networks"
+import { MasterChefVersion, Network } from "../../networks"
 import {GaugeV4, GaugeV4GeneralData} from "../../Classes/gaugeV4Class";
-import { Backstop, BackstopPool, BackstopPoolInfo, BackstopType } from "../../Classes/backstopClass"
+import { Backstop, BackstopCollaterals, BackstopPool, BackstopPoolInfo, BackstopType, BackstopTypeV2, BackstopV2 } from "../../Classes/backstopClass"
 import { Airdrop } from "../AirdropButton/airdropAddresses"
 
 const mantissa = 1e18
@@ -60,7 +62,7 @@ type Token ={
     enteredMarkets: string[],
     tokenAddress: string,
     isNative: boolean,
-    backstop?: BackstopType
+    backstop?: BackstopType | BackstopTypeV2
 }
 
 type CheckValidData ={
@@ -150,7 +152,7 @@ export const fetchData = async(
       })
     }
 
-    notNativeMarkets.map((a, index) => {
+    notNativeMarkets.map(async(a, index) => {
         const hTokenContract = new Contract(a, CTOKEN_ABI)
         const underlyingAddress = underlyingAddresses[index]
         const tokenContract = new Contract(underlyingAddress, TOKEN_ABI)
@@ -176,26 +178,37 @@ export const fetchData = async(
         if(network.backstopMasterChef && comptrollerData.backstopPools.length > 0){
           const bstop = comptrollerData.backstopPools.find(x=>x.underlyingTokens.toLowerCase() === underlyingAddress.toLowerCase())
           if(bstop){
-            const backstopMasterchef = new Contract(network.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI)
+            const backstopAbi = network.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
+            const backstopMasterchef = new Contract(network.backstopMasterChef.address, backstopAbi)
+
             calls.push(backstopMasterchef.poolInfo(bstop.poolId), 
                    backstopMasterchef.userInfo(bstop.poolId, userAddress),
                    backstopMasterchef.pendingHundred(bstop.poolId, userAddress),
                    backstopMasterchef.hundredPerSecond(),
                    backstopMasterchef.totalAllocPoint(),
-                   tokenContract.allowance(userAddress, network.backstopMasterChef))
-            const bStopContract = new Contract(bstop.lpTokens, BPRO_ABI)
+                   tokenContract.allowance(userAddress, network.backstopMasterChef.address))
+            const bStopContract = new Contract(bstop.lpTokens, network.backstopMasterChef.version === MasterChefVersion.v1 ? BPRO_ABI : BPRO_ABI_V2)
             calls.push(bStopContract.totalSupply(), 
                        bStopContract.decimals(), 
                        bStopContract.symbol(),
                        tokenContract.balanceOf(bstop.lpTokens),
-                       bStopContract.balanceOf(network.backstopMasterChef),
-                       bStopContract.fetchPrice())
+                       bStopContract.balanceOf(network.backstopMasterChef.address))
+            if(network.backstopMasterChef.version === MasterChefVersion.v1){
+                calls.push(bStopContract.fetchPrice())
+            }
+            else if(network.backstopMasterChef.version === MasterChefVersion.v2){
+              bstop.collaterals?.forEach(x => {
+                const collateralContract = new Contract(x, TOKEN_ABI)
+                calls.push(bStopContract.fetchPrice(x))
+                calls.push(collateralContract.balanceOf(bstop.lpTokens))
+                calls.push(bStopContract.collateralDecimals(x))
+              })
+            }
           }
         }
     })
 
     const res = await comptrollerData.ethcallProvider.all(calls)
-    
     const tokens = []
     let compAccrued = BigNumber.from("0")
     let hndBalance = BigNumber.from("0")
@@ -205,8 +218,10 @@ export const fetchData = async(
     let compareLength = nativeToken ? 16 : 3
     compareLength = network.hundredLiquidityPoolAddress ? compareLength + notNativeMarkets.length * 19 + 1 : compareLength + notNativeMarkets.length * 19
     compareLength = airdrop ? compareLength + 1 : compareLength
-    compareLength = network.backstopMasterChef ? compareLength + comptrollerData.backstopPools.length * 12 : compareLength
+    compareLength = network.backstopMasterChef && network.backstopMasterChef.version === MasterChefVersion.v1 ? compareLength + comptrollerData.backstopPools.length * 12 : compareLength
+    compareLength = network.backstopMasterChef && network.backstopMasterChef.collaterals ? compareLength + (comptrollerData.backstopPools.length * 11) + (comptrollerData.backstopPools.length * network.backstopMasterChef.collaterals * 3) : compareLength
 
+    
     if(res && res.length === compareLength){
         
       const enteredMarkets = res[0].map((x: string)=> {return x})
@@ -234,8 +249,8 @@ export const fetchData = async(
         let i = 0
 
         while (res.length){
-            const backstop = comptrollerData.backstopPools.find(x=> x.underlyingTokens.toLowerCase() === underlyingAddresses[i].toLowerCase())
-            const token = backstop? res.splice(0, 31) : res.splice(0,19)
+            const backstop = comptrollerData.backstopPools.find(x=> x.underlyingTokens && underlyingAddresses[i] ? x.underlyingTokens.toLowerCase() === underlyingAddresses[i].toLowerCase() : null)
+            const token = backstop ? backstop.collaterals ? res.splice(0, 30 + backstop.collaterals.length * 3) : res.splice(0, 31) : res.splice(0,19)
             tokens.push(await getTokenData(token, false, network, provider, userAddress, underlyingAddresses[i], enteredMarkets, notNativeMarkets[i], backstop ? backstop : null))
             i+=1
         }
@@ -263,7 +278,10 @@ export const fetchData = async(
  const getTokenData = async(tokenData: any[], native: boolean, network: Network, provider: ethers.providers.Web3Provider, 
                             userAddress: string, underlyingAddress: string, enteredMarkets: string[], tokenAddress: string, backstop: BackstopPool | null): Promise<Token> =>{
     const isMaker = underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? true : false
-    
+    // if(backstop) {
+    //   console.log("BACKSTOP")
+    //   console.log(tokenData)
+    // }
     const token: Token = {
         accountSnapshot: tokenData[0],
         exchangeRate: tokenData[1],
@@ -298,23 +316,55 @@ export const fetchData = async(
         lastRewardTime: tokenData[19][1],
         allocPoint: tokenData[19][2]
       }
-      token.backstop = {
-        pool : backstop,
-        poolInfo :  poolInfo,
-        userBalance : tokenData[20][0],
-        pendingHundred: tokenData[21],
-        hundredPerSecond: tokenData[22],
-        totalAllocPoint: tokenData[23],
-        allowance: tokenData[24],
-        totalSuplly : tokenData[25],
-        decimals: tokenData[26],
-        symbol: tokenData[27],
-        underlyingBalance : tokenData[28],
-        masterchefBalance : tokenData[29],
-        fetchPrice: tokenData[30],
-        ethBalance: await provider.getBalance(backstop.lpTokens),
+      if(network.backstopMasterChef?.version === MasterChefVersion.v1){
+        token.backstop = {
+          pool : backstop,
+          poolInfo :  poolInfo,
+          userBalance : tokenData[20][0],
+          pendingHundred: tokenData[21],
+          hundredPerSecond: tokenData[22],
+          totalAllocPoint: tokenData[23],
+          allowance: tokenData[24],
+          totalSupply : tokenData[25],
+          decimals: tokenData[26],
+          symbol: tokenData[27],
+          underlyingBalance : tokenData[28],
+          masterchefBalance : tokenData[29],
+          fetchPrice: tokenData[30],
+          ethBalance: await provider.getBalance(backstop.lpTokens),
+        }
+      }
+      else if(network.backstopMasterChef?.version === MasterChefVersion.v2){
+        token.backstop = {
+          pool : backstop,
+          poolInfo :  poolInfo,
+          userBalance : tokenData[20][0],
+          pendingHundred: tokenData[21],
+          hundredPerSecond: tokenData[22],
+          totalAllocPoint: tokenData[23],
+          allowance: tokenData[24],
+          totalSupply : tokenData[25],
+          decimals: tokenData[26],
+          symbol: tokenData[27],
+          underlyingBalance : tokenData[28],
+          masterchefBalance : tokenData[29],
+          collaterals:[]
+        }
+        if(backstop.collaterals){
+          tokenData.splice(0, 30)
+          for(let i=0; i< backstop.collaterals?.length; i++){
+            const collateral: BackstopCollaterals = {
+              fetchPrice: tokenData[0],
+              balance: tokenData[1],
+              decimals: tokenData[2]/1
+            }
+            token.backstop.collaterals.push(collateral)
+            tokenData.splice(0, 3)
+          }
+        }
       }
     }
+    console.log(token)
     return token
   }
 
@@ -420,23 +470,32 @@ export const fetchData = async(
       accrued = (+newSupplyIndex - +token.compSupplierIndex) * +token.cTokenBalanceOfUser / 1e36 
     }
     
-    const backstop = token.backstop ? 
-    new Backstop(token.backstop.pool,
-                 token.backstop.poolInfo,
-                 BigNumber.from(token.backstop.userBalance, token.backstop.decimals),
-                 BigNumber.from(token.backstop.pendingHundred, token.backstop.decimals),
-                 BigNumber.from(token.backstop.hundredPerSecond, token.backstop.decimals),
-                 token.backstop.totalAllocPoint,
-                 BigNumber.from(token.backstop.totalSuplly, token.backstop.decimals),
-                 BigNumber.from(token.backstop.masterchefBalance, token.backstop.decimals), 
-                 BigNumber.from(token.backstop.underlyingBalance, decimals), 
-                 token.backstop.decimals,
-                 token.backstop.symbol, 
-                 BigNumber.from(token.backstop.allowance, decimals),
-                 BigNumber.from(token.backstop.ethBalance, token.backstop.decimals),
-                 BigNumber.from(token.backstop.fetchPrice, decimals),
-                 underlying.price, hndPrice) : null
+    let backstop = null
 
+    if(token.backstop){
+      if(network.backstopMasterChef?.version === MasterChefVersion.v1){
+        const tokenBackstop: BackstopType = token.backstop as BackstopType
+        backstop = new Backstop(tokenBackstop.pool,
+                                tokenBackstop.poolInfo,
+                                BigNumber.from(tokenBackstop.userBalance, tokenBackstop.decimals),
+                                BigNumber.from(tokenBackstop.pendingHundred, tokenBackstop.decimals),
+                                BigNumber.from(tokenBackstop.hundredPerSecond, tokenBackstop.decimals),
+                                tokenBackstop.totalAllocPoint,
+                                BigNumber.from(tokenBackstop.totalSupply, tokenBackstop.decimals),
+                                BigNumber.from(tokenBackstop.masterchefBalance, tokenBackstop.decimals), 
+                                BigNumber.from(tokenBackstop.underlyingBalance, decimals), 
+                                tokenBackstop.decimals,
+                                tokenBackstop.symbol, 
+                                BigNumber.from(tokenBackstop.allowance, decimals),
+                                BigNumber.from(tokenBackstop.ethBalance, tokenBackstop.decimals),
+                                BigNumber.from(tokenBackstop.fetchPrice, decimals),
+                                underlying.price, hndPrice)
+      }
+      else if(network.backstopMasterChef?.version === MasterChefVersion.v2){
+        const tokenBackstop: BackstopTypeV2 = token.backstop as BackstopTypeV2
+        backstop = new BackstopV2(tokenBackstop, underlying.decimals, underlying.price, hndPrice)
+      }
+    }
     
     return new CTokenInfo(
       token.tokenAddress,

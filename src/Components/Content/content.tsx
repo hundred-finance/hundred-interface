@@ -1,9 +1,9 @@
 import { ethers} from "ethers"
 import { BigNumber } from "../../bigNumber"
 import React, { useEffect,  useRef, useState } from "react"
-import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BACKSTOP_MASTERCHEF_ABI } from "../../abi"
+import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2 } from "../../abi"
 import GeneralDetails from "../GeneralDetails/generalDetails"
-import { Network } from "../../networks"
+import { MasterChefVersion, Network } from "../../networks"
 import { Comptroller, getComptrollerData } from "../../Classes/comptrollerClass"
 import { CTokenInfo} from "../../Classes/cTokenClass"
 import { GeneralDetailsData, getGeneralDetails } from "../../Classes/generalDetailsClass"
@@ -192,6 +192,7 @@ const Content: React.FC<Props> = (props : Props) => {
     }
 
     const handleUpdate = async (market?: CTokenInfo, spinnerUpdate?: string) : Promise<void> => {
+      //await dataUpdate(market, spinnerUpdate)
       try {
         //console.log(`Update every: ${updateErrorCounterRef.current * 10 + 10}sec`)
         if(updateHandle) clearTimeout(updateHandle)
@@ -635,7 +636,7 @@ const Content: React.FC<Props> = (props : Props) => {
           const signer = provider.current.getSigner()
           if(market.underlying.address && network.current.backstopMasterChef){
             const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
-            const tx = await contract.approve(network.current.backstopMasterChef, MaxUint256._value)
+            const tx = await contract.approve(network.current.backstopMasterChef.address, MaxUint256._value)
             if (spinner.current) spinner.current(false)
             console.log(tx)
             market.backstopDepositSpinner = true
@@ -678,7 +679,8 @@ const Content: React.FC<Props> = (props : Props) => {
           market.backstopDepositSpinner = true
 
           const signer = provider.current.getSigner()
-          const backstop = new ethers.Contract(network.current.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI, signer)
+          const backstopAbi = network.current.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
+          const backstop = new ethers.Contract(network.current.backstopMasterChef.address, backstopAbi, signer)
           const tx = await backstop.deposit(market.backstop.pool.poolId, am, userAddress.current)
 
           if (spinner.current) spinner.current(false)
@@ -716,7 +718,8 @@ const Content: React.FC<Props> = (props : Props) => {
           const value = BigNumber.parseValueSafe(amount, market.backstop.decimals)
           const am = value._value
           const signer = provider.current.getSigner()
-          const backstop = new ethers.Contract(network.current.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI, signer)
+          const backstopAbi = network.current.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
+          const backstop = new ethers.Contract(network.current.backstopMasterChef.address, backstopAbi, signer)
           const tx = await backstop.withdrawAndHarvest(market.backstop.pool.poolId, am, userAddress.current)
 
           if (spinner.current) spinner.current(false)
@@ -754,7 +757,8 @@ const Content: React.FC<Props> = (props : Props) => {
           if(selectedMarketRef.current && selectedMarketRef.current.backstop)
             selectedMarketRef.current.backstopClaimSpinner = true
           const signer = provider.current.getSigner()
-          const backstop = new ethers.Contract(network.current.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI, signer)
+          const backstopAbi = network.current.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
+          const backstop = new ethers.Contract(network.current.backstopMasterChef.address, backstopAbi, signer)
           const tx = await backstop.harvest(market.backstop.pool.poolId, userAddress.current)
 
           if (spinner.current) spinner.current(false)

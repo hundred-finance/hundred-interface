@@ -1,7 +1,7 @@
 import {ethers} from 'ethers'
-import { Contract, Provider } from 'ethcall'
-import { BACKSTOP_MASTERCHEF_ABI, COMPTROLLER_ABI, ORACLE_ABI } from '../abi'
-import { Network } from '../networks'
+import { Call, Contract, Provider } from 'ethcall'
+import { BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2, BPRO_ABI_V2, COMPTROLLER_ABI, ORACLE_ABI } from '../abi'
+import { MasterChefVersion, Network } from '../networks'
 import { BackstopPool } from './backstopClass'
 
 export class Comptroller2{
@@ -57,23 +57,28 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
 
     const calls = [ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets()]
 
-    if(network.backstopMasterChef){
-        const backstop = new Contract(network.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI)
-        calls.push(backstop.poolLength())
+    const backstop = network.backstopMasterChef
+    const backstopAbi = network.backstopMasterChef && network.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
+    
+    if(backstop){
+        const backstopContract = new Contract(backstop.address, backstopAbi)
+        calls.push(backstopContract.poolLength())
     }
     const data = await ethcallProvider.all(calls) 
     const oracleAddress = data[0]
     const allMarkets = data[1]
 
     const backstopPools = []
-    if(network.backstopMasterChef){
+    if(backstop){
         const poolLength = data[2] 
-        const backstop = new Contract(network.backstopMasterChef, BACKSTOP_MASTERCHEF_ABI)
+        console.log("PoolLength2: " + poolLength)
+        const backstopContract = new Contract(backstop.address, backstopAbi)
         const backStopCall = []
         for(let i=0; i<poolLength; i++){
-            backStopCall.push(backstop.lpTokens(i), backstop.underlyingTokens(i))
+            backStopCall.push(backstopContract.lpTokens(i), backstopContract.underlyingTokens(i))
         }
         const backstopData = await ethcallProvider.all(backStopCall)
+        
         if(backstopData && backstopData.length === 2 * poolLength){
             for(let i=0; i<backstopData.length / 2; i++){
                 const backstopPool: BackstopPool = {
@@ -83,13 +88,34 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
                 }
                 backstopPools.push(backstopPool)
             }
+
+            if(network.backstopMasterChef?.version === MasterChefVersion.v2){
+                const tokenCall:Call[] = []
+                const collateralsCount = network.backstopMasterChef.collaterals ? network.backstopMasterChef.collaterals : 0
+                backstopPools.forEach(x => {
+                    const tokenContract = new Contract(x.lpTokens, BPRO_ABI_V2)
+                    for (let i=0; i< collateralsCount; i++){
+                        tokenCall.push(tokenContract.collaterals(i))
+                    }
+                })
+                const collaterals = await ethcallProvider.all(tokenCall)
+                backstopPools.forEach(x=> {
+                    const collateralsData = []
+                    for(let i=0; i<collateralsCount; i++)
+                        collateralsData.push(collaterals[i])
+                    collaterals.splice(0,5)
+                    x.collaterals = collateralsData
+                })
+
+                console.log(backstopPools[0].collaterals)
+            }
         }
     }
 
     const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
     
     const oracle = new Contract(oracleAddress, ORACLE_ABI)
-    
+    console.log("ok")
     return new Comptroller(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets, ethcallProvider, backstopPools)
   }
 
