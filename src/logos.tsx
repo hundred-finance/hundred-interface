@@ -71,6 +71,7 @@ import FTMlogo from "./assets/images/FTM-logo\.svg"
 import BTClogo from "./assets/images/BTC-logo.svg"
 import MOVRlogo from "./assets/images/MOVR-logo.png"
 import USTlogo from "./assets/images/UST-logo.png"
+import HRENBTClogo from "./assets/images/RENBTC-logo.png"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -163,7 +164,8 @@ const Logos: { [key: string]: string } = {
     "1USDT"     : USDTlogo,
     "1WBTC"     : WBTClogo,
     "UST"       : USTlogo,
-    "WBTC.eth"  : WBTClogo
+    "WBTC.eth"  : WBTClogo,
+    "renBTC"   : HRENBTClogo
 }
 
 export default Logos
