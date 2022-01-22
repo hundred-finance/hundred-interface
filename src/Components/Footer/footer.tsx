@@ -34,7 +34,7 @@ const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
             <div className='footer-content'>
                 <div className='footer-logo'>
                     <HuLogo size={isMobile ? "60px" : "80px"} darkMode={darkMode}/>
-                    <span className='footer-content-inc'> 2021 Hundred, Inc.</span>
+                    <span className='footer-content-inc'> 2022 Hundred, Inc.</span>
                 </div>
                 <div className='footer-navbar'>
                     <a className='footer-link-item' href='https://snapshot.org/#/hundredfinance.eth' target="_blank" rel="noopener noreferrer">Governance</a>
