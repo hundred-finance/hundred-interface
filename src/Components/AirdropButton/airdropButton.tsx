@@ -9,7 +9,7 @@ import keccak256 from "keccak256";
 import "./airdropButton.css"
 import {AIRDROP_ABI} from "../../abi";
 import {Spinner} from "../../assets/huIcons/huIcons";
-import {Provider} from "ethcall";
+import {Contract, Provider} from "ethcall";
 
 interface Props{
     network: Network | null,
@@ -126,8 +126,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
 
                     const leaf: Buffer = generateLeaf(props.address, airdrop1Amount?._value.toString());
                     const proof = merkleTree1.getHexProof(leaf)
-                    const signer = props.provider.getSigner()
-                    const airContract = new ethers.Contract(airdrop1Contract, AIRDROP_ABI, signer)
+                    const airContract = new Contract(airdrop1Contract, AIRDROP_ABI)
 
                     calls.push(airContract.claim(props.address, airdrop1Amount._value, proof))
                 }
@@ -136,8 +135,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
 
                     const leaf: Buffer = generateLeaf(props.address, airdrop2Amount._value.toString());
                     const proof = merkleTree2.getHexProof(leaf)
-                    const signer = props.provider.getSigner()
-                    const airContract = new ethers.Contract(airdrop2Contract, AIRDROP_ABI, signer)
+                    const airContract = new Contract(airdrop2Contract, AIRDROP_ABI)
 
                     calls.push(airContract.claim(props.address, airdrop2Amount._value, proof))
                 }
