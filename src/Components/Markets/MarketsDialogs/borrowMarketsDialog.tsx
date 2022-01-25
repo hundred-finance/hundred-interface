@@ -203,7 +203,6 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
             if (props.generalData && props.market) {
                     const value = +props.generalData.totalBorrowBalance.toString() + +BigNumber.parseValue(borrow.toString()).toString() * +props.market?.underlying.price.toString()
                     pValue = BigNumber.parseValue((+props.generalData.totalBorrowLimit.toString() > 0 ? +value / +props.generalData.totalBorrowLimit.toString() * 100 : 0).toFixed(18))
-                    console.log(pValue.toString())
                 if(+pValue.toRound(2) >= 50.01){
                      borrow  = (0.5 * +props.generalData.totalBorrowLimit.toString() - +props.generalData.totalBorrowBalance.toString()) / +props.market?.underlying.price.toString()
 

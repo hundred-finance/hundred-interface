@@ -1,7 +1,6 @@
 import { Call, Contract } from "ethcall"
 import { ethers } from "ethers"
 import {
-  AIRDROP_ABI,
     BACKSTOP_MASTERCHEF_ABI,
     BACKSTOP_MASTERCHEF_ABI_V2,
     BPRO_ABI,
@@ -18,7 +17,6 @@ import Logos from "../../logos"
 import { MasterChefVersion, Network } from "../../networks"
 import {GaugeV4, GaugeV4GeneralData} from "../../Classes/gaugeV4Class";
 import { Backstop, BackstopCollaterals, BackstopPool, BackstopPoolInfo, BackstopType, BackstopTypeV2, BackstopV2 } from "../../Classes/backstopClass"
-import { Airdrop } from "../AirdropButton/airdropAddresses"
 
 const mantissa = 1e18
 
@@ -77,8 +75,7 @@ export type MarketDataType = {
     hundredBalace: BigNumber,
     comAccrued: BigNumber,
     markets: CTokenInfo[],
-    gauges: GaugeV4GeneralData[],
-    hasClaimed: boolean
+    gauges: GaugeV4GeneralData[]
 }
   
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -94,12 +91,6 @@ export const fetchData = async(
     calls.push(balanceContract.balanceOf(userAddress))
 
     if(network.hundredLiquidityPoolAddress) calls.push(balanceContract.balanceOf(network.hundredLiquidityPoolAddress))
-
-    const airdrop = Airdrop[network.chainId]
-    if(airdrop){
-      const airdropContract = new Contract(airdrop.contract, AIRDROP_ABI)
-      calls.push(airdropContract.hasClaimed(userAddress))
-    }
 
     const markets = allMarkets.filter((a) => {
       if (a.toLowerCase() === "0xc98182014c90baa26a21e991bfec95f72bd89aed")
@@ -213,11 +204,9 @@ export const fetchData = async(
     let compAccrued = BigNumber.from("0")
     let hndBalance = BigNumber.from("0")
     let hundredBalace = BigNumber.from("0")
-    let hasClaimed = true
 
     let compareLength = nativeToken ? 16 : 3
     compareLength = network.hundredLiquidityPoolAddress ? compareLength + notNativeMarkets.length * 19 + 1 : compareLength + notNativeMarkets.length * 19
-    compareLength = airdrop ? compareLength + 1 : compareLength
     compareLength = network.backstopMasterChef && network.backstopMasterChef.version === MasterChefVersion.v1 ? compareLength + comptrollerData.backstopPools.length * 12 : compareLength
     compareLength = network.backstopMasterChef && network.backstopMasterChef.collaterals ? compareLength + (comptrollerData.backstopPools.length * 11) + (comptrollerData.backstopPools.length * network.backstopMasterChef.collaterals * 3) : compareLength
 
@@ -236,11 +225,6 @@ export const fetchData = async(
           res.splice(0, 1)
       }
 
-      if(airdrop) {
-        hasClaimed = res[0]
-        res.splice(0,1)
-      }
-       
         if(nativeToken){
             const native = res.splice(0, 13)
             tokens.push(await getTokenData(native, true, network, provider, userAddress, "0x0", enteredMarkets, nativeToken, null))
@@ -270,8 +254,7 @@ export const fetchData = async(
         hndBalance: hndBalance,
         hundredBalace: hundredBalace,
         comAccrued: compAccrued,
-        gauges: gaugesData.map(g => g.generalData),
-        hasClaimed
+        gauges: gaugesData.map(g => g.generalData)
     }
   }
 

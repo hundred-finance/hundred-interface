@@ -35,7 +35,7 @@ const App: React.FC = () => {
   const [hndSpinner, setHndSpinner] = useState<boolean>(false)
   const [network, setNetwork] = useState<Network | null>(null)
   const [hndPrice, setHndPrice] = useState<number>(0)
-  const [hasClaimed, setHasClaimed] = useState<boolean>(true)
+  const [hasClaimed, setHasClaimed] = useState<boolean>(false)
 
   // const addressRef = useRef<string>(address)
   // const setAddressRef = useRef<React.Dispatch<React.SetStateAction<string>>>(setAddress)
