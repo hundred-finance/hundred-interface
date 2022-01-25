@@ -34,8 +34,8 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
     useEffect(() => {
 
         if(props.address && props.network && props.provider){
-            const airdrop1 = props.network ? Airdrop[props.network?.chainId].airdrop1 : null
-            const airdrop2 = props.network ? Airdrop[props.network?.chainId].airdrop2 : null
+            const airdrop1 = props.network && Airdrop[props.network.chainId] ? Airdrop[props.network.chainId].airdrop1 : null
+            const airdrop2 = props.network && Airdrop[props.network.chainId] ? Airdrop[props.network.chainId].airdrop2 : null
             const accounts1 = airdrop1 ? airdrop1.accounts : null
             const accounts2 = airdrop2 ? airdrop2.accounts : null
             const hasAirdrop1= accounts1 && props.address!=="" ? Object.keys(accounts1).find(x=> x.toLowerCase() === props.address.toLowerCase()) : null
@@ -103,10 +103,10 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
     }
 
     const airdropAmount = (): BigNumber => {
-        const amount1 = airdrop1Amount && !hasClaimed1 ? airdrop1Amount : BigNumber.from(0)
-        const amount2 = airdrop2Amount && !hasClaimed2 ? airdrop2Amount : BigNumber.from(0)
+        const amount1 = airdrop1Amount && !hasClaimed1 ? +airdrop1Amount.toString() : 0
+        const amount2 = airdrop2Amount && !hasClaimed2 ? +airdrop2Amount.toString() : 0
 
-        return amount1.add(amount2)
+        return BigNumber.parseValue((amount1 + amount2).noExponents())
     };
 
     const handleClaim = async () : Promise<void> => {
@@ -156,7 +156,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
         
       }
     
-    if(props.address === "" || !props.network || !airdropAmount().gt(BigNumber.from(0)) || props.hasClaimed)
+    if(props.address === "" || !props.network || !(+airdropAmount().toString() > 0) || props.hasClaimed)
         return null
     else {
         return (

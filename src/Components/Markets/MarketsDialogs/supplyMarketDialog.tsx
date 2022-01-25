@@ -318,7 +318,6 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
 
     const getMaxAmount = async (deposit?: boolean) : Promise<void> => {
         
-        console.log(props.market?.underlying.allowance.toString())
         const amount = props.market ? await props.getMaxAmount(props.market, "supply") : 0
         if(deposit)
             setDepositInput(amount.toString())

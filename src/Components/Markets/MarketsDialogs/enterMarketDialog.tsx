@@ -31,8 +31,6 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
         function handleClickOutside(event : any) : void {
           if (ref.current && !ref.current.contains(event.target)) {
               props.closeMarketDialog()
-              console.log(props.market?.supplyBalance.toString())
-            console.log(props.market?.borrowBalance.toString())
           }
       }
 
