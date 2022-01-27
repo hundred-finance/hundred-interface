@@ -9,7 +9,7 @@ import keccak256 from "keccak256";
 import "./airdropButton.css"
 import {AIRDROP_ABI} from "../../abi";
 import {Spinner} from "../../assets/huIcons/huIcons";
-import {Provider} from "ethcall";
+import {Contract, Provider} from "ethcall";
 
 interface Props{
     network: Network | null,
@@ -19,79 +19,102 @@ interface Props{
     provider: ethers.providers.Web3Provider | null
 }
 
+type AirdropType = {
+    amount: BigNumber,
+    contract: string,
+    merkle: MerkleTree,
+    symbol: string,
+    hasClaimed: boolean
+}
+
 const AirdropButton: React.FC<Props> = (props : Props) => {
-    const [airdrop1Amount, setAirdrop1Amount] = useState<BigNumber | null>(BigNumber.from("0"))
-    const [airdrop2Amount, setAirdrop2Amount] = useState<BigNumber | null>(BigNumber.from("0"))
-    const [airdropSymbol, setAirdropSymbol] = useState<string>("")
-    const [airdrop1Contract, setAirDrop1Contract] = useState<string>("")
-    const [airdrop2Contract, setAirDrop2Contract] = useState<string>("")
+    const [airdrop, setAirdrop] = useState<AirdropType[]>([])
+    const [totalAmount, setTotalAmount] = useState<BigNumber>(BigNumber.from("0"))
     const [spinner, setSpinner] = useState<boolean>(false)
-    const [merkleTree1, setMerkleTree1] = useState<MerkleTree>()
-    const [merkleTree2, setMerkleTree2] = useState<MerkleTree>()
-    const [hasClaimed1, setHasClaimed1] = useState<boolean>(false)
-    const [hasClaimed2, setHasClaimed2] = useState<boolean>(false)
 
     useEffect(() => {
-
-        if(props.address && props.network && props.provider){
-            const airdrop1 = props.network && Airdrop[props.network.chainId] ? Airdrop[props.network.chainId].airdrop1 : null
-            const airdrop2 = props.network && Airdrop[props.network.chainId] ? Airdrop[props.network.chainId].airdrop2 : null
-            const accounts1 = airdrop1 ? airdrop1.accounts : null
-            const accounts2 = airdrop2 ? airdrop2.accounts : null
-            const hasAirdrop1= accounts1 && props.address!=="" ? Object.keys(accounts1).find(x=> x.toLowerCase() === props.address.toLowerCase()) : null
-            const hasAirdrop2= accounts2 && props.address!=="" ? Object.keys(accounts2).find(x=> x.toLowerCase() === props.address.toLowerCase()) : null
-            const amount1 = hasAirdrop1 && accounts1 ? accounts1[hasAirdrop1] : null
-            const amount2 = hasAirdrop2 && accounts2 ? accounts2[hasAirdrop2] : null
-
-            if(airdrop1 && amount1) {
-                setAirdropSymbol(airdrop1.symbol)
-                setAirdrop1Amount(BigNumber.from(amount1, 18))
-                setAirDrop1Contract(airdrop1.contract)
-                getHasClaimed(airdrop1.contract, props.address, props.provider)
-                    .then(claimed => setHasClaimed1(claimed))
-                    .then(() => props.setHasClaimed(hasClaimed1 && hasClaimed2))
-                const merkle = new MerkleTree(
-                    Object.entries(airdrop1.accounts).map(([address, tokens]) =>
-                        generateLeaf(
-                            ethers.utils.getAddress(address),
-                            tokens.toString()
-                        )
-                    ),
-                    keccak256,
-                    { sortPairs: true }
-                )
-
-                setMerkleTree1(merkle)
+        const hasClaimedCall = async (calls: any[], ethcallProvider: Provider) => {
+            try{
+                return await ethcallProvider.all(calls)
             }
+            catch{
+                console.log("error")
+                setTimeout(async () => await hasClaimedCall(calls, ethcallProvider), 1000)
+            }
+        }
 
-            if(airdrop2 && amount2) {
-                setAirdropSymbol(airdrop2.symbol)
-                setAirdrop2Amount(BigNumber.from(amount2, 18))
-                setAirDrop2Contract(airdrop2.contract)
-                getHasClaimed(airdrop2.contract, props.address, props.provider)
-                    .then(claimed => setHasClaimed2(claimed))
-                    .then(() => props.setHasClaimed(hasClaimed1 && hasClaimed2))
-                const merkle = new MerkleTree(
-                    Object.entries(airdrop2.accounts).map(([address, tokens]) =>
-                        generateLeaf(
-                            ethers.utils.getAddress(address),
-                            tokens.toString()
+        const getAirdrop = async (network: Network, userAddress: string, provider: ethers.providers.Web3Provider) => {
+            const airdrop = Airdrop[network.chainId]
+            const calls: any[] = []
+            if(airdrop){
+                const airdrops: AirdropType[] = []
+                Object.values(airdrop).map(a => {
+                    const hasAirdrop = Object.keys(a.accounts).find(x => x.toLowerCase() === userAddress.toLowerCase())
+                    if (hasAirdrop)
+                    {
+                        const contract = new Contract(a.contract, AIRDROP_ABI)
+                        calls.push(contract.hasClaimed(userAddress))
+                        const merkle = new MerkleTree(
+                            Object.entries(a.accounts).map(([address, tokens]) =>
+                                generateLeaf(
+                                    ethers.utils.getAddress(address),
+                                    tokens.toString()
+                                )
+                            ),
+                            keccak256,
+                            { sortPairs: true }
                         )
-                    ),
-                    keccak256,
-                    { sortPairs: true }
-                )
+                        const airdropValue: AirdropType = {
+                            amount: BigNumber.from(a.accounts[hasAirdrop], 18),
+                            contract: a.contract,
+                            merkle: merkle,
+                            symbol: a.symbol,
+                            hasClaimed: false
+                        }
+                        airdrops.push(airdropValue)
+                    }
+                })
+    
+                const ethcallProvider = new Provider()
+                await ethcallProvider.init(provider)
+                if(network.multicallAddress) {
+                    ethcallProvider.multicallAddress = network.multicallAddress
+                }
+    
+                const hasClaimed = await hasClaimedCall(calls, ethcallProvider)
 
-                setMerkleTree2(merkle)
+                if(hasClaimed && airdrops && airdrops.length > 0 && hasClaimed.length === airdrops.length){
+                    airdrops.forEach((x, index) => {
+                            x.hasClaimed = hasClaimed[index]
+                    })
+                }
+                const claimable = airdrops.filter(x => !x.hasClaimed)
+                
+                setAirdrop(claimable)
+                
+            }
+        } 
+        
+    
+        if(props.network && props.address !== "" && props.provider && props.provider !== undefined){
+            
+            try{
+                
+                getAirdrop(props.network, props.address, props.provider)
+                
+            }
+            catch(err){
+                console.log(err)
+                setAirdrop([])
             }
         }
         
-    }, [props.address, props.network, props.provider])
+    }, [props.provider, props.network])
 
-    const getHasClaimed = async (contractAddress: string, userAddress: string, provider: ethers.providers.Web3Provider) : Promise<boolean> => {
-        const airContract = new ethers.Contract(contractAddress, AIRDROP_ABI, provider)
-        return await airContract.hasClaimed(userAddress)
-    }
+    useEffect(() => {
+        const claimable = airdrop?.filter(x=> !x.hasClaimed)
+        airdropAmount(claimable)
+    }, [airdrop])
     
     function generateLeaf(address: string, value: string): Buffer {
         return Buffer.from(
@@ -102,76 +125,59 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
         );
     }
 
-    const airdropAmount = (): BigNumber => {
-        const amount1 = airdrop1Amount && !hasClaimed1 ? +airdrop1Amount.toString() : 0
-        const amount2 = airdrop2Amount && !hasClaimed2 ? +airdrop2Amount.toString() : 0
+    const airdropAmount = (airdrops: AirdropType[]): void => {
+        if(airdrops.length > 0){
+            let amount = 0
+            airdrops.forEach(x => amount = amount + +x.amount.toString())
+            setTotalAmount(BigNumber.parseValue(amount.noExponents()))
+            if(amount > 0) props.setHasClaimed(true)
+            return
+        }
 
-        return BigNumber.parseValue((amount1 + amount2).noExponents())
+        props.setHasClaimed(false)
+        setTotalAmount(BigNumber.from("0"))
     };
 
     const handleClaim = async () : Promise<void> => {
-        try{
-
-            if (props.provider && props.network) {
-                const ethcallProvider = new Provider()
-                await ethcallProvider.init(props.provider)
-
-                if(props.network.multicallAddress) {
-                    ethcallProvider.multicallAddress = props.network.multicallAddress
+        
+        if (props.provider && airdrop) {
+            const airdrops = [...airdrop]
+            
+            setSpinner(true)
+            for(let i=0; i < airdrops.length; i++){
+                if(props.provider){
+                    try{
+                        const leaf: Buffer = generateLeaf(props.address, airdrops[i].amount?._value.toString());
+                        const proof = airdrops[i].merkle.getHexProof(leaf)
+                        const signer = props.provider.getSigner()
+                        const airContract = new ethers.Contract(airdrops[i].contract, AIRDROP_ABI, signer)
+                        const tx = await airContract.claim(props.address, airdrops[i].amount._value, proof);
+                        await tx.wait();
+                        airdrops[i].hasClaimed = true
+                    }
+                    catch{}
                 }
-
-                const calls = []
-
-                if(!hasClaimed1 && airdrop1Amount && merkleTree1 && airdrop1Contract !== ""){
-
-                    const leaf: Buffer = generateLeaf(props.address, airdrop1Amount?._value.toString());
-                    const proof = merkleTree1.getHexProof(leaf)
-                    const signer = props.provider.getSigner()
-                    const airContract = new ethers.Contract(airdrop1Contract, AIRDROP_ABI, signer)
-
-                    calls.push(airContract.claim(props.address, airdrop1Amount._value, proof))
-                }
-
-                if(!hasClaimed2 && airdrop2Amount && merkleTree2 && airdrop2Contract !== ""){
-
-                    const leaf: Buffer = generateLeaf(props.address, airdrop2Amount._value.toString());
-                    const proof = merkleTree2.getHexProof(leaf)
-                    const signer = props.provider.getSigner()
-                    const airContract = new ethers.Contract(airdrop2Contract, AIRDROP_ABI, signer)
-
-                    calls.push(airContract.claim(props.address, airdrop2Amount._value, proof))
-                }
-
-                setSpinner(true)
-                await ethcallProvider.all(calls);
-                props.setHasClaimed(true)
             }
-        }
-        catch(error){
-            console.log(error)
-        }
-        finally{
+            
+            setAirdrop(airdrops.filter(x=> !x.hasClaimed))
             setSpinner(false)
         }
-        
-      }
+    }
     
-    if(props.address === "" || !props.network || !(+airdropAmount().toString() > 0) || props.hasClaimed)
-        return null
-    else {
-        return (
+      return (
+            airdrop && airdrop.length > 0 && +totalAmount.toString() > 0 && props.hasClaimed ? 
             <div className={`airdrop-button ${!spinner ? "airdrop-button-hover" : "airdrop-button-spinner"}`} onClick={() => spinner ? null : handleClaim()}>
                 <div className="airdrop-button-content">
                     <span className="airdrop-name"><StarBpro active={true} backstop={false}/></span>
-                    <span className="airdrop-amount">{airdropAmount().toRound(2)} {airdropSymbol}</span>
+                    <span className="airdrop-amount">{totalAmount.toRound(2)} {airdrop[0].symbol}</span>
                 </div>
                 {spinner ? 
                     <div className="airdrop-spinner"><Spinner size={"30px"}/></div>
                     : null
                 }
             </div>
+            : null
         )
-    }
 }
 
 export default AirdropButton
