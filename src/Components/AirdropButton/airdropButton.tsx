@@ -37,8 +37,8 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
     const [spinner, setSpinner] = useState<boolean>(false)
     const [merkleTree1, setMerkleTree1] = useState<MerkleTree>()
     const [merkleTree2, setMerkleTree2] = useState<MerkleTree>()
-    const [hasClaimed1, setHasClaimed1] = useState<boolean>(false)
-    const [hasClaimed2, setHasClaimed2] = useState<boolean>(false)
+    const [hasClaimed1, setHasClaimed1] = useState<boolean>(true)
+    const [hasClaimed2, setHasClaimed2] = useState<boolean>(true)
 
     useEffect(() => {
         const getAirdrop = async (network: Network, userAddress: string, provider: ethers.providers.Web3Provider) => {
@@ -176,15 +176,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
     const handleClaim = async () : Promise<void> => {
         try{
 
-            if (props.provider && props.network) {
-                const ethcallProvider = new Provider()
-                await ethcallProvider.init(props.provider)
-
-                if(props.network.multicallAddress) {
-                    ethcallProvider.multicallAddress = props.network.multicallAddress
-                }
-
-                const calls = []
+            if (props.provider) {
 
                 if(!hasClaimed1 && airdrop1Amount && merkleTree1 && airdrop1Contract !== ""){
 
@@ -193,7 +185,8 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                     const signer = props.provider.getSigner()
                     const airContract = new ethers.Contract(airdrop1Contract, AIRDROP_ABI, signer)
 
-                    calls.push(airContract.claim(props.address, airdrop1Amount._value, proof))
+                    const tx = await airContract.claim(props.address, airdrop1Amount._value, proof);
+                    await tx.wait();
                 }
 
                 if(!hasClaimed2 && airdrop2Amount && merkleTree2 && airdrop2Contract !== ""){
@@ -203,11 +196,11 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                     const signer = props.provider.getSigner()
                     const airContract = new ethers.Contract(airdrop2Contract, AIRDROP_ABI, signer)
 
-                    calls.push(airContract.claim(props.address, airdrop2Amount._value, proof))
+                    const tx = await airContract.claim(props.address, airdrop2Amount._value, proof);
+                    await tx.wait();
                 }
 
                 setSpinner(true)
-                await ethcallProvider.all(calls);
                 props.setHasClaimed(true)
             }
         }
