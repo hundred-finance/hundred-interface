@@ -17,15 +17,16 @@ const StarBpro: React.FC<Props> = (props: Props) => {
 
     return props.active && props.backstop ? (
         <div className="star-bpro star-bpro-icons">
-            <img src={bpro} data-tip data-for="BPRO"/>
+            <img src={bpro} data-tip data-for="BPRO" />
             <img src={star} />
             <ReactTooltip id="BPRO" place="top" effect="solid" delayHide={100} delayShow={100} delayUpdate={100}>
-                <p style={{textAlign:"center"}}>
-                    Green logo indicates markets integrated with a backstop provision.</p>
-                    <p>
-                    Learn about backstop{' '}
+                <p style={{ textAlign: 'center' }}>This market includes a B.Protocol backstop pool.</p>
+                <p>
+                    Learn more about backstop pools{' '}
                     <a
-                        className="a" target="_blank" rel="noreferrer"
+                        className="a"
+                        target="_blank"
+                        rel="noreferrer"
                         href="https://docs.hundred.finance/core-protocol/backstop-provision"
                     >
                         here
@@ -41,12 +42,13 @@ const StarBpro: React.FC<Props> = (props: Props) => {
         <div className="bpro star-bpro-icons">
             <img src={bpro} data-tip data-for="BPRO" />
             <ReactTooltip id="BPRO" place="top" effect="solid" delayHide={100} delayShow={100} delayUpdate={100}>
-                <p style={{textAlign:"center"}}>
-                    Green logo indicates markets integrated with a backstop provision.</p>
-                    <p>
-                    Learn about backstop{' '}
+                <p style={{ textAlign: 'center' }}>This market includes a B.Protocol backstop pool.</p>
+                <p>
+                    Learn more about backstop pools{' '}
                     <a
-                        className="a" target="_blank" rel="noreferrer"
+                        className="a"
+                        target="_blank"
+                        rel="noreferrer"
                         href="https://docs.hundred.finance/core-protocol/backstop-provision"
                     >
                         here
