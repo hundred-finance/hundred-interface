@@ -32,10 +32,12 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
 
           {/* React tooltip for adding info icon and doc link to APR table header */}
             <ReactTooltip id="APR" place="top" effect="solid" delayHide={100} delayShow={100} delayUpdate={100}>
-                <p>
+            <p style={{ textAlign: 'center' }}>
                     Learn about APR{' '}
                     <a 
                         className="a"
+                        target="_blank"
+                        rel="noreferrer"
                         href="https://docs.hundred.finance/protocol-governance/hnd-staking-and-locking/boosting-apr-with-vehnd"
                     >
                         here
