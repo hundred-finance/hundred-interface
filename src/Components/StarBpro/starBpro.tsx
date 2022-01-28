@@ -17,8 +17,21 @@ const StarBpro: React.FC<Props> = (props: Props) => {
 
     return props.active && props.backstop ? (
         <div className="star-bpro star-bpro-icons">
-            <img src={bpro} />
+            <img src={bpro} data-tip data-for="BPRO"/>
             <img src={star} />
+            <ReactTooltip id="BPRO" place="top" effect="solid" delayHide={100} delayShow={100} delayUpdate={100}>
+                <p style={{textAlign:"center"}}>
+                    Green logo indicates markets integrated with a backstop provision.</p>
+                    <p>
+                    Learn about backstop{' '}
+                    <a
+                        className="a" target="_blank" rel="noreferrer"
+                        href="https://docs.hundred.finance/core-protocol/backstop-provision"
+                    >
+                        here
+                    </a>{' '}
+                </p>
+            </ReactTooltip>
         </div>
     ) : props.active ? (
         <div className="star star-bpro-icons">
@@ -27,21 +40,19 @@ const StarBpro: React.FC<Props> = (props: Props) => {
     ) : props.backstop ? (
         <div className="bpro star-bpro-icons">
             <img src={bpro} data-tip data-for="BPRO" />
-
             <ReactTooltip id="BPRO" place="top" effect="solid" delayHide={100} delayShow={100} delayUpdate={100}>
-                <p>
+                <p style={{textAlign:"center"}}>
                     Green logo indicates markets integrated with a backstop provision.</p>
                     <p>
                     Learn about backstop{' '}
                     <a
-                        className="a"
+                        className="a" target="_blank" rel="noreferrer"
                         href="https://docs.hundred.finance/core-protocol/backstop-provision"
                     >
                         here
                     </a>{' '}
                 </p>
             </ReactTooltip>
-            
         </div>
     ) : (
         <></>

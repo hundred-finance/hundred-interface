@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react"
+import "./style.css"
 
 interface Children{
     children?: ReactNode
@@ -13,7 +14,8 @@ interface Props {
     value: string,
     className?: string,
     valueDetails?: string,
-    toolTip?: string
+    toolTip?: string,
+    onClick?: (() => void) | null
 }
 
 const GeneralDetailsItem: React.FC<Children> = (props : Children) => {
@@ -43,7 +45,7 @@ const GeneralDetailsItemContent: React.FC<Children> = (props : Children) => {
 
 const GeneralDetailsItemContentItem : React.FC<Props> = (props : Props) => {
     return(
-        <div className="general-details-item-content-item">
+        <div className={`general-details-item-content-item ${props.className ? props.className : ""}`} onClick={() => props.onClick ? props.onClick() : null}>
             {props.label ? props.toolTip ? <label>{props.label}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="info-circle" data-tip={props.toolTip} viewBox="0 0 16 16">
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
