@@ -80,10 +80,8 @@ const SupplyMarket: React.FC<Props> = (props : Props) => {
                       <td></td>
                     </tr>
                   )}
-                  {props.marketsData?.filter((item) => item?.supplyBalance?.lte(BigNumber.from("0"))).filter((item) => (item && +item?.hndAPR + +item?.veHndAPR > 0 || item?.underlying.symbol === "renBTC" ? true : false))
+                  {props.marketsData?.filter((item) => item?.supplyBalance?.lte(BigNumber.from("0")))
                     .sort(compareSymbol).sort(compareLiquidity).sort(compareHndAPR)
-                    .concat(props.marketsData.filter((item) => item?.supplyBalance.lte(BigNumber.from("0"))).filter(item => (item && +item.hndAPR + +item.veHndAPR || item?.underlying.symbol === "renBTC" ? false : true))
-                    .sort(compareSymbol).sort(compareLiquidity)).sort(compareHndAPR)
                     .map((details, index) => {
                       if(props.more || (!props.more && index < 6)) 
                         return (
