@@ -35,7 +35,7 @@ const App: React.FC = () => {
   const [hndSpinner, setHndSpinner] = useState<boolean>(false)
   const [network, setNetwork] = useState<Network | null>(null)
   const [hndPrice, setHndPrice] = useState<number>(0)
-  const [hasClaimed, setHasClaimed] = useState<boolean>(true)
+  const [hasClaimed, setHasClaimed] = useState<boolean>(false)
 
   // const addressRef = useRef<string>(address)
   // const setAddressRef = useRef<React.Dispatch<React.SetStateAction<string>>>(setAddress)
@@ -58,11 +58,11 @@ const App: React.FC = () => {
   const [updateEarned, setUpdateEarned] = useState<boolean>(false)
 
   useEffect(() => {
-    if (document.documentElement.clientWidth < (hasClaimed ? 750 : 925)){
+    if (document.documentElement.clientWidth < (!hasClaimed ? 750 : 925)){
       setIsMobile(true)
       setIsTablet(false)
     }
-    else if (document.documentElement.clientWidth < (hasClaimed ? 970 : 1150)){
+    else if (document.documentElement.clientWidth < (!hasClaimed ? 970 : 1150)){
   
       setIsTablet(true)
       setIsMobile(false)
@@ -72,11 +72,11 @@ const App: React.FC = () => {
     setShow(true)
 
     window.addEventListener('resize', ()=>{
-      if (document.documentElement.clientWidth < (hasClaimed ? 750 : 925)){
+      if (document.documentElement.clientWidth < (!hasClaimed ? 750 : 925)){
         setIsMobile(true)
         setIsTablet(false)
       }
-      else if (document.documentElement.clientWidth < (hasClaimed ? 970 : 1150)){
+      else if (document.documentElement.clientWidth < (!hasClaimed ? 970 : 1150)){
     
         setIsTablet(true)
         setIsMobile(false)
@@ -90,8 +90,11 @@ const App: React.FC = () => {
           await window.ethereum.request({ method: 'eth_requestAccounts' });
           window.ethereum.on('chainChanged', (chainId: string) => {
             const net = NETWORKS[chainId]
-            if (net)
+            if (net){
+              setHasClaimed(false)
+              setProvider(null)
               setNetwork(net)
+            }
             else setNetwork(null)
           })
           window.ethereum.on('accountsChanged', (accounts: string[]) => {
@@ -183,9 +186,9 @@ const App: React.FC = () => {
       //     messageRef.current.show()
       try{
         const prov = new ethers.providers.Web3Provider(window.ethereum)
+        setProvider(prov)
         if(address) setSpinnerVisible(true)
         getHndPrice()
-        setProvider(prov)
       }
       catch(err){
         console.log(err)

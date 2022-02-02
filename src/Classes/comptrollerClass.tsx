@@ -71,7 +71,6 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
     const backstopPools = []
     if(backstop){
         const poolLength = data[2] 
-        console.log("PoolLength2: " + poolLength)
         const backstopContract = new Contract(backstop.address, backstopAbi)
         const backStopCall = []
         for(let i=0; i<poolLength; i++){
@@ -107,7 +106,6 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
                     x.collaterals = collateralsData
                 })
 
-                console.log(backstopPools[0].collaterals)
             }
         }
     }
@@ -115,7 +113,6 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
     const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
     
     const oracle = new Contract(oracleAddress, ORACLE_ABI)
-    console.log("ok")
     return new Comptroller(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets, ethcallProvider, backstopPools)
   }
 

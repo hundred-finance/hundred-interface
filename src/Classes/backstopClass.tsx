@@ -124,7 +124,6 @@ export type BackstopType = {
       backstop.collaterals.forEach(c => tvl += +c.balance/10**c.decimals * +c.fetchPrice/10**tokenDecimals/10**(18-c.decimals))
 
       tvl += +backstop.underlyingBalance/10**tokenDecimals * +tokenPrice.toString()
-      console.log(tvl)
       
       this.pool = backstop.pool
       this.poolInfo = backstop.poolInfo
