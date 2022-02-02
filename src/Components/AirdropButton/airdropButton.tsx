@@ -20,10 +20,10 @@ interface Props{
 }
 
 type AirdropType = {
-    amount: BigNumber,
+    amount: BigNumber | BigNumber[],
     contract: string,
     merkle: MerkleTree,
-    symbol: string,
+    symbol: string | string[],
     hasClaimed: boolean
 }
 
@@ -147,11 +147,11 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
             for(let i=0; i < airdrops.length; i++){
                 if(props.provider){
                     try{
-                        const leaf: Buffer = generateLeaf(props.address, airdrops[i].amount?._value.toString());
+                        const leaf: Buffer = generateLeaf(props.address, (airdrops[i].amount as BigNumber)._value.toString());
                         const proof = airdrops[i].merkle.getHexProof(leaf)
                         const signer = props.provider.getSigner()
                         const airContract = new ethers.Contract(airdrops[i].contract, AIRDROP_ABI, signer)
-                        const tx = await airContract.claim(props.address, airdrops[i].amount._value, proof);
+                        const tx = await airContract.claim(props.address, (airdrops[i].amount as BigNumber)._value, proof);
                         await tx.wait();
                         airdrops[i].hasClaimed = true
                     }
