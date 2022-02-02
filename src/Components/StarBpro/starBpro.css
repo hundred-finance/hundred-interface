@@ -7,6 +7,12 @@
     margin-bottom: 2px;
 } */
 
+.a {
+    color: #fff;
+}
+.a:hover {
+    color: #00f;
+}
 .star-bpro-icons img{
     width:16px;
     height: 16px;

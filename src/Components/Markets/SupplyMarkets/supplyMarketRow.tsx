@@ -26,10 +26,10 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
               <span>{props?.details?.underlying.symbol}</span>
           </div>
         </td>
-        <td onClick={() => props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null} className={`apy ${props.details ? (+props.details?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`}>
+        <td className={`apy ${props.details ? (+props.details?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`}>
             <div className="supply-apy">
               <StarBpro active={props.details && +props.details?.hndAPR.toString() > 0 ? true : false} backstop={props.details?.backstop ? true : false}/>
-                <GeneralDetailsItemContentItem
+                <GeneralDetailsItemContentItem className="general-details-item-content-item-pointer" onClick={() => props.details && !props?.details.spinner ? props.supplyMarketDialog(props?.details) : null}
                     label={`${ props.details && +props?.details?.totalMaxSupplyApy.toString() > 0 ? formatSupplyApyRange(+props.details.totalMinSupplyApy, +props.details.totalMaxSupplyApy) : "0.00"}%`}
                     value=""
                 />
