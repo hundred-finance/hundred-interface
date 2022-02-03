@@ -127,7 +127,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                         }
 
                         const airdropValue: AirdropType = {
-                            amount: amounts,
+                            amount: parseAirdropAmount(a.accounts[hasAirdrop], a.symbol),
                             transactionData: transactionData,
                             hasClaimed: false,
                         }
@@ -169,8 +169,11 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
     }, [props.provider, props.network])
 
     useEffect(() => {
-        airdropAmount(props.airdrops.filter(x=> !x.hasClaimed))
-        if(props.airdrops.length > 0) props.setHasClaimed(true)
+        if(props.airdrops.length > 0){
+            const airdrops = [...props.airdrops]
+            airdropAmount(airdrops)
+            props.setHasClaimed(true)
+        }
     }, [props.airdrops])
     
     function generateLeaf(address: string, value: string | string[]): Buffer {
@@ -183,51 +186,41 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
     }
     
     const airdropAmount = (airdrops: AirdropType[]): void => {
-        if(airdrops.length > 0){
+        const temp = airdrops.filter(x=>!x.hasClaimed).concat()
+        if(temp.length > 0){
             const amounts: AirdropAmount[] = []
-            console.log(airdrops)
-            airdrops.forEach(x => 
-                {
-                    x.amount.forEach(a => {
-                        const am = amounts.find(x=> x.symbol === a.symbol)
-                        if(am)
-                            am.value =BigNumber.parseValue((+am.value.toString() + +a.value.toString()).toString())
-                        else
-                            amounts.push(a)
-                    })
+            temp.forEach(air => {
+                const airam = [...air.amount]
+                airam.forEach(am => {
+                    const airamount: AirdropAmount={
+                        value: am.value,
+                        symbol: am.symbol
+                    }
+                    amounts.push(airamount)
                 })
-                
-                setTotalAmount(amounts)
+            })
+            const unique = amounts.filter((value, index, self) => {
+                return self.findIndex(x => x.symbol === value.symbol) === index
+            })
+            const totalAmounts:AirdropAmount[] = []
+            unique.forEach(x=>{
+                const temp = amounts.filter(a => a.symbol === x.symbol)
+                let sum = 0
+                temp.forEach(t => {
+                    sum += +t.value.toString()
+                })
+                const airamount: AirdropAmount = {
+                    value: BigNumber.parseValue(sum.noExponents()),
+                    symbol: x.symbol
+                }
+                totalAmounts.push(airamount)
+            })
+            
+            setTotalAmount(totalAmounts)
             return
         }
         setTotalAmount([])
     };
-
-    // const handleClaim = async () : Promise<void> => {
-        
-    //     if (props.provider && props.airdrops) {
-    //         const airdrops = [...props.airdrops]
-            
-    //         // setSpinner(true)
-    //         for(let i=0; i < airdrops.length; i++){
-    //             if(props.provider){
-    //                 try{
-    //                     const leaf: Buffer = generateLeaf(props.address, airdrops[i].amount[0].value._value.toString());
-    //                     const proof = airdrops[i].merkle.getHexProof(leaf)
-    //                     const signer = props.provider.getSigner()
-    //                     const airContract = new ethers.Contract(airdrops[i].contract, AIRDROP_ABI, signer)
-    //                     const tx = await airContract.claim(props.address, airdrops[i].amount[0].value._value, proof);
-    //                     await tx.wait();
-    //                     airdrops[i].hasClaimed = true
-    //                 }
-    //                 catch{}
-    //             }
-    //         }
-            
-    //         props.setAirdrops(airdrops.filter(x=> !x.hasClaimed))
-    //         // setSpinner(false)
-    //     }
-    // }
 
     const handleOpenAirdropMenu = () =>{
         props.setOpenAirdrop(true)

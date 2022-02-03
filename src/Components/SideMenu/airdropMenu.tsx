@@ -58,22 +58,24 @@ const AirdropMenu: React.FC<Props> = (props: Props) => {
                     <div className="airdrop-menu-label">
                         Unclaimed Airdrop
                     </div>
-                    {
-                        props.airdrops.filter(x=>!x.hasClaimed).map((a, index) => {
-                            return(
-                                <div key={index} className="airdrop-menu-item">
-                                    <div className="airdrop-menu-item-values" >
-                                        {a.amount.map((am, index) => {
-                                            return (
-                                                <div key={index}>{am.value.toRound(2)} {am.symbol}
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                    <MoneyBagIcon style={{paddingRight:"5px", paddingLeft: "5px"}} size="30px" color="#ddd"/>
-                                </div>)
-                        })
-                    }
+                    <div className="airdrop-unclaimed">
+                        {
+                            props.airdrops.filter(x=>!x.hasClaimed).map((a, index) => {
+                                return(
+                                    <div key={index} className="airdrop-menu-item">
+                                        <div className="airdrop-menu-item-values" >
+                                            {a.amount.map((am, index2) => 
+                                                
+                                                    <div key={`a-${index2}`}>{am.value.toRound(2)} {am.symbol}
+                                                    </div>
+                                                
+                                            )}
+                                        </div>
+                                        <MoneyBagIcon style={{paddingRight:"5px", paddingLeft: "5px"}} size="30px" color="#ddd"/>
+                                    </div>)
+                            })
+                        }
+                    </div>
                     <div className="airdrop-menu-item">
                         <button className={`${props.spinner ? "airdrop-menu-item-button-disabled" : "airdrop-menu-item-button"}`} onClick={() =>props.spinner ? null : handleClaimAll()}>
                            {props.spinner ? (<Spinner size={"25px"}/>) : "Claim All"}

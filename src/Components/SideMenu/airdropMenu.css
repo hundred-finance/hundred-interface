@@ -120,3 +120,12 @@
 .airdrop-history::-webkit-scrollbar {
   width: 5px;
 }
+
+.airdrop-unclaimed{
+    max-height: 40%;
+    overflow: auto;
+}
+
+.airdrop-unclaimed::-webkit-scrollbar {
+    width: 5px;
+  }
