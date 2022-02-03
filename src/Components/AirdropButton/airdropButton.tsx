@@ -105,7 +105,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                                     userAddress,
                                     transactionAmount,
                                     proof,
-                                    0
+                                    a.dropId
                                 ])
                             }
                         }
@@ -114,14 +114,14 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                             calls.push(contract.hasClaimed(userAddress))
                             const airdropcontract = new ethers.Contract(a.contract, AIRDROP_ABI, provider)
                             const amounts = parseAirdropAmount(a.accounts[hasAirdrop], a.symbol)
+                            
                             transactionData = {
                                 target: airdropcontract.address,
                                 data: airdropcontract.interface.encodeFunctionData("claim",
                                 [
                                     userAddress,
                                     amounts[0].value._value,
-                                    proof,
-                                    0
+                                    proof
                                 ])
                             }
                         }
@@ -185,7 +185,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
     const airdropAmount = (airdrops: AirdropType[]): void => {
         if(airdrops.length > 0){
             const amounts: AirdropAmount[] = []
-            
+            console.log(airdrops)
             airdrops.forEach(x => 
                 {
                     x.amount.forEach(a => {
