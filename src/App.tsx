@@ -130,7 +130,7 @@ const App: React.FC = () => {
     const onLoadSetAddress = async (addr: string) : Promise<void>=>{
       if(window.ethereum){
         const accounts: string[] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if(accounts && accounts.length > 0){
+        if(accounts && accounts.length > 0 && accounts[0].toLowerCase() === addr.toLowerCase()){
           setAddress(addr)
           connect() 
         }
