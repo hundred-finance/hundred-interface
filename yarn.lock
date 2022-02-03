@@ -5684,6 +5684,11 @@ find-up@^3.0.0:
   dependencies:
     locate-path "^3.0.0"
 
+fireworks@^2.2.7:
+  version "2.2.7"
+  resolved "https://registry.yarnpkg.com/fireworks/-/fireworks-2.2.7.tgz#c18e2580e4a4a32c4242c8630508e9bc6ecf1188"
+  integrity sha512-14LuFlq60GvgzY/Dto1BKGfhPjOG3gILr+ud0n4Tzr9n7YShm3N44KdwalemOydJ+wKMohtIDvhpIcLtDoF/hg==
+
 flat-cache@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.org/flat-cache/-/flat-cache-3.0.4.tgz"

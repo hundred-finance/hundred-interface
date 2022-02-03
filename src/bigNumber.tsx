@@ -8,6 +8,7 @@ const _constructorGuard = { };
 export class BigNumber {
     readonly _value : ethers.BigNumber
     readonly _decimals: number
+    readonly _display: string
   
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     constructor(constructorGuard: any, value: ethers.BigNumber, decimals?: number){
@@ -18,6 +19,7 @@ export class BigNumber {
     }
       this._value = value
       decimals ? this._decimals = decimals : this._decimals = 0
+      this._display = value.toString()
     }
 
     private safeOperation = (num1: BigNumber, num2: BigNumber, operation: string, log?: boolean) : BigNumber => {
