@@ -19,10 +19,12 @@ import ReactToolTip from 'react-tooltip'
 import 'react-toastify/dist/ReactToastify.css'
 import HundredMenu from './Components/SideMenu/hundredMenu';
 import { BigNumber } from './bigNumber';
+import { AirdropType } from './Components/AirdropButton/airdropButton';
+import AirdropMenu from './Components/SideMenu/airdropMenu';
 
 declare global {
   interface Window {
-    ethereum: any
+    ethereum: any,
   }
 }
 
@@ -33,9 +35,11 @@ const App: React.FC = () => {
   const [hndBalance, setHndBalance] = useState<BigNumber | null>(null)
   const [hndEarned, setHndEarned] = useState<BigNumber |null>(null)
   const [hndSpinner, setHndSpinner] = useState<boolean>(false)
+  const [airdropSpinner, setAirdropSpinner] = useState<boolean>(false)
   const [network, setNetwork] = useState<Network | null>(null)
   const [hndPrice, setHndPrice] = useState<number>(0)
   const [hasClaimed, setHasClaimed] = useState<boolean>(false)
+  const [airdrops, setAirdrops] = useState<AirdropType[]>([])
 
   // const addressRef = useRef<string>(address)
   // const setAddressRef = useRef<React.Dispatch<React.SetStateAction<string>>>(setAddress)
@@ -54,6 +58,7 @@ const App: React.FC = () => {
   const [openAddress, setOpenAddress] = useState<boolean>(false)
   const [openNetwork, setOpenNetwork] = useState<boolean>(false)
   const [openHundred, setOpenHundred] = useState<boolean>(false)
+  const [openAirdrop, setOpenAirdrop] = useState<boolean>(false)
   const [updatePrice, setUpdatePrice] = useState<number | null>(null)
   const [updateEarned, setUpdateEarned] = useState<boolean>(false)
 
@@ -309,10 +314,23 @@ const App: React.FC = () => {
     )
   }
 
-  const toastError = (error: string, autoClose = true) => {
+  const toastError = (error: string, autoClose = true, closeDelay = 10000) => {
     toast.error(error, {
       position: "top-right",
-      autoClose: autoClose ? 10000 : false,
+      autoClose: autoClose ? closeDelay : false,
+      hideProgressBar: autoClose ? false : true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      icon: true
+      });
+  }
+
+  const toastSuccess = (message: string, autoClose = true, closeDelay = 10000) => {
+    toast.success(message, {
+      position: "top-right",
+      autoClose: autoClose ? closeDelay : false,
       hideProgressBar: autoClose ? false : true,
       closeOnClick: true,
       pauseOnHover: true,
@@ -324,15 +342,15 @@ const App: React.FC = () => {
 
   return (
     theme ?
-    <div className={`App scroller ${darkMode ? "App-dark" : ""}`}>
+    <div id="app" className={`App scroller ${darkMode ? "App-dark" : ""}`}>
       <Wrapper sideMenu={sideMenu}>
         {!isTablet && !isMobile ? 
           <Menu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network} setOpenHundred={setOpenHundred}
-            address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} 
-            setNetwork={setNetwork} setOpenNetwork={setOpenNetwork} hasClaimed={hasClaimed} setHasClaimed={setHasClaimed} provider={provider}/>
-          : <TabletMenu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network}
-              address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} 
-              setOpenNetwork={setOpenNetwork} setShow={setShow} setOpenHundred={setOpenHundred} hasClaimed={hasClaimed} 
+            address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setOpenAirdrop={setOpenAirdrop} airdropSpinner={airdropSpinner}
+            setNetwork={setNetwork} setOpenNetwork={setOpenNetwork} hasClaimed={hasClaimed} setHasClaimed={setHasClaimed} provider={provider} airdrops={airdrops} setAirdrops={setAirdrops}/>
+          : <TabletMenu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network} airdropSpinner={airdropSpinner}
+              address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} setOpenAirdrop={setOpenAirdrop}
+              setOpenNetwork={setOpenNetwork} setShow={setShow} setOpenHundred={setOpenHundred} hasClaimed={hasClaimed} airdrops={airdrops} setAirdrops={setAirdrops}
               setHasClaimed={setHasClaimed} provider={provider}/>
         }
         <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
@@ -344,12 +362,18 @@ const App: React.FC = () => {
         <ToastContainer/>
       </Wrapper>
       <Footer darkMode={darkMode} isMobile={isMobile}/>
-      <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress} setOpenNetwork={setOpenNetwork}>
+      <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress} setOpenNetwork={setOpenNetwork} setOpenHundred={setOpenHundred} setOpenAirdrop={setOpenAirdrop}>
         { openAddress ? 
-          <AccountSettings address={address} setAddress={setAddress} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}/> : 
-            (openNetwork ? <NetworksView network={network}/> : openHundred ? 
+            <AccountSettings address={address} setAddress={setAddress} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}/> 
+            : (openNetwork ? 
+            <NetworksView network={network}/> 
+            : openHundred ? 
             <HundredMenu provider={provider} network={network} hndBalance={hndBalance} hndEarned={hndEarned} hndSpinner={hndSpinner}
-              handleCollect={handleCollect} setOpenHundred={setOpenHundred} setSideMenu={setSideMenu} address={address} hndPrice={hndPrice} hundredBalance={hundredBalance}/> : null)
+              handleCollect={handleCollect} setOpenHundred={setOpenHundred} setSideMenu={setSideMenu} address={address} hndPrice={hndPrice} hundredBalance={hundredBalance}/> 
+            : openAirdrop ? 
+            <AirdropMenu airdrops={airdrops} setAirdrops={setAirdrops}  address={address} provider={provider} setSideMenu={setSideMenu} 
+              setOpenAirdrop={setOpenAirdrop} spinner={airdropSpinner} setSpinner={setAirdropSpinner} network={network} successMessage={toastSuccess} errorMessage={toastError}/>
+            : null)
         }
       </SideMenu>
       <ReactToolTip id="tooltip" effect="solid"/>

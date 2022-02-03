@@ -5,7 +5,7 @@ export interface AirdropAccount {
 type airdropType = {
     contract: string,
     dropId?: number,
-    symbol: string | string[],
+    symbol: string[],
     accounts: AirdropAccount
 }
 
@@ -21,7 +21,7 @@ export const Airdrop: airdropData = {
     "0xfa" : {
         airdrop1: {
             contract : "0x4adF575DBe0e6F1c5909AE9c7119927b4FaabbBd",
-            symbol: "wFTM",
+            symbol: ["wFTM"],
             accounts: {
                 "0x5aD911DA81B204627DF872780981b0d90F25C33f": "1847398941502029168640",
                 "0xAe3C67b8aA12e458F2b4EafC0e9209710582C9D3": "862094232953775718400",
@@ -859,7 +859,7 @@ export const Airdrop: airdropData = {
         },
         airdrop2: {
             contract : "0x5734BB74cFac69f1c34bA66eA6608cCdEe6b81F2",
-            symbol: "wFTM",
+            symbol: ["wFTM"],
             accounts: {
                 "0x5aD911DA81B204627DF872780981b0d90F25C33f": "1181513750210595782656",
                 "0xAe3C67b8aA12e458F2b4EafC0e9209710582C9D3": "606922701887401099264",

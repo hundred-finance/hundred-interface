@@ -1,0 +1,122 @@
+.airdrop-menu{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 90px);
+    flex: 1;
+}
+
+.airdrop-menu-label{
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: left;
+    padding: 18px 0px 18px 5px;
+    border-bottom: 2px solid #fff;
+    border-top: 2px solid #fff;
+}
+
+.airdrop-menu-label:first-of-type{
+    margin-top: -10px;
+}
+
+.airdrop-menu-label:not(:first-of-type){
+    margin-top: 20px;
+}
+
+.airdrop-menu-item{
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    line-height: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.airdrop-menu-item-values{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-left: 5px;
+    align-items: flex-start;
+}
+
+.airdrop-menu-item .airdrop-menu-item-label {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+}
+
+.airdrop-menu-item .airdrop-menu-link{
+    text-decoration: none;
+    color: rgb(73, 166, 219);
+    font-weight: bold;
+}
+
+.airdrop-menu-item .airdrop-menu-link:hover{
+    text-decoration:underline;
+}
+
+.airdrop-menu-item .airdrop-menu-item-button {
+    border: 1px solid var(--buttonColor);
+    background: none;
+    color: var(--text);
+    font-weight: bold;
+    display: flex;
+    height: 40px;
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 40px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.1s ease-out;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+}
+
+.airdrop-menu-item .airdrop-menu-item-button:hover {
+    background-color: var(--buttonColor);
+    color: var(--buttonHover2);
+}
+
+.airdrop-menu-item .airdrop-menu-item-button:active {
+    border: 1px solid #eee;
+    color: #444;
+    background-color: #eee;
+}
+
+.airdrop-menu-item .airdrop-menu-item-button-disabled {
+    border: 1px solid #bbb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 40px;
+    cursor: not-allowed;
+    user-select: none;
+    transition: all 0.1s ease-out;
+    background-color: rgba(241, 241, 241, 0.767);
+    width: 90%;
+
+}
+
+.airdrop-menu hr {
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.airdrop-menu .airdrop-menu-item hr{
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.airdrop-history{
+    flex: 1;
+    overflow: auto;
+}
+
+.airdrop-history::-webkit-scrollbar {
+  width: 5px;
+}

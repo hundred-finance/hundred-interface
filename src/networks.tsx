@@ -33,8 +33,9 @@ type Network = {
     liquidity?: boolean, 
     multicallAddress?: string,
     backstopMasterChef?: BackstopMasterChef,
-    minterAddress?: string
-    gaugeControllerAddress?: string
+    minterAddress?: string,
+    gaugeControllerAddress?: string,
+    airdropMulticallAddress?: string
 }
 
 type NetworkData = {
@@ -98,6 +99,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hndPoolPercent: 0.6,
         liquidity: true,
         backstopMasterChef: {address: "0xf347b0e405249c78d8b261b7c493449b9275b946", version: MasterChefVersion.v2, collaterals: 5},
+        airdropMulticallAddress: "0x96a0eEa3a9cff74764b73A891c3b36a4F6B81181"
     },
     "0x63564c40":
     {

@@ -12,7 +12,7 @@ import ThemeSwitch from "../Navbar/themeSwitch"
 import { Network } from "../../networks"
 import NetworkButton from "../NetworkButton/networkButton"
 import HundredButton from "../HundredButton/hundredButton"
-import AirdropButton from "../AirdropButton/airdropButton"
+import AirdropButton, { AirdropType } from "../AirdropButton/airdropButton"
 import { ethers } from "ethers"
 // import SideMenuButton from "../Navbar/sideMenuButton"
 
@@ -28,12 +28,16 @@ interface Props{
     setOpenAddress: React.Dispatch<React.SetStateAction<boolean>>
     setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
     setNetwork: React.Dispatch<React.SetStateAction<Network | null>>,
+    setOpenAirdrop: React.Dispatch<React.SetStateAction<boolean>>,
     network: Network | null,
     setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>,
     setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>,
     hasClaimed: boolean,
     setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>,
     provider: ethers.providers.Web3Provider | null
+    airdrops: AirdropType[],
+    setAirdrops: React.Dispatch<React.SetStateAction<AirdropType[]>>,
+    airdropSpinner: boolean
 }
 
 const TabletMenu: React.FC<Props> = (props: Props) => {
@@ -47,8 +51,8 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
                     <NavBarRight>
                     {props.isTablet && !props.isMobile ?
                         <>
-                            <AirdropButton network={props.network} address={props.address} hasClaimed={props.hasClaimed} 
-                            setHasClaimed={props.setHasClaimed} provider={props.provider}/>
+                            <AirdropButton network={props.network} address={props.address} hasClaimed={props.hasClaimed} setOpenAirdrop={props.setOpenAirdrop} spinner={props.airdropSpinner}
+                            setHasClaimed={props.setHasClaimed} provider={props.provider} airdrops={props.airdrops} setAirdrops={props.setAirdrops} setSideMenu={props.setSideMenu}/>
                             <HundredButton network={props.network} address={props.address} setOpenHundred={props.setOpenHundred} setSideMenu={props.setSideMenu}/>
                             <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
                             <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
@@ -62,8 +66,8 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
             <NavbarMobile menuOpen={menuOpen}>
             {props.isMobile ? 
                 <NavBarRight className="navbar-right-content">
-                    <AirdropButton network={props.network} address={props.address} hasClaimed={props.hasClaimed} 
-                    setHasClaimed={props.setHasClaimed} provider={props.provider}/>
+                    <AirdropButton network={props.network} address={props.address} hasClaimed={props.hasClaimed} setOpenAirdrop={props.setOpenAirdrop} spinner={props.airdropSpinner}
+                    setHasClaimed={props.setHasClaimed} provider={props.provider} airdrops={props.airdrops} setAirdrops={props.setAirdrops} setSideMenu={props.setSideMenu}/>
                     <HundredButton network={props.network} address={props.address} setOpenHundred={props.setOpenHundred} setSideMenu={props.setSideMenu}/>
                     <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
                     <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}

@@ -19,6 +19,8 @@
 }
 
 .sideMenu .sideMenu-wrapper{
+    display: flex;
+    flex-direction: column;
     min-width: 220px;
     max-width: 300px;
     height: 100%;
