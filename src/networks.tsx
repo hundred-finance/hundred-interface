@@ -122,7 +122,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         trade: "https://app.sushi.com/swap?inputCurrency=0x10010078a54396f62c96df8532dc2b4847d47ed3",
         addLiquidity: "https://app.sushi.com/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH"
     },
-    /*"0x505":
+    "0x505":
     {
         chainId: "0x505",
         network: "Moonriver",
@@ -141,7 +141,6 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         trade: "https://app.solarbeam.io/exchange/swap?inputCurrency=0x10010078a54396f62c96df8532dc2b4847d47ed3",
         addLiquidity: "https://app.solarbeam.io/exchange/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH"
     },
-    */
     // "0x1251":
     // {
     //     chainId: "0x1251",
