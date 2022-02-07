@@ -495,14 +495,18 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             }
                     <TabContent>
                         <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
-                            <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={supplyDisabled} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
+                            <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={supplyDisabled || (props.market ? props.market?.mintPaused : false)} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
                                 onClick={()=>getMaxAmount()}/>
                             <MarketDialogItem title={"Wallet Balance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market} gaugeV4={props.gaugeV4} />
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit1}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                            
-                            {props.market && +props.market.underlying.allowance.toString() > 0 &&
+                            {props.market && props.market.mintPaused ? 
+                                <MarketDialogButton disabled={true} onClick={() => null}>
+                                    Supply is Paused
+                                </MarketDialogButton>
+                            : props.market && +props.market.underlying.allowance.toString() > 0 &&
                                 +props.market.underlying.allowance.toString() >= (supplyInput.trim() === "" || isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? 0 : +supplyInput)
                                 ? 
                                     <MarketDialogButton disabled={supplyInput.trim()==="" || supplyValidation!="" || props.market?.supplySpinner}

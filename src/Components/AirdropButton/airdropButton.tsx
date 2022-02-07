@@ -147,6 +147,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                             x.hasClaimed = hasClaimed[index]
                     })
                 }
+
                 props.setAirdrops(airdrops)
                 
             }
@@ -186,12 +187,11 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
     }
     
     const airdropAmount = (airdrops: AirdropType[]): void => {
-        const temp = airdrops.filter(x=>!x.hasClaimed).concat()
+        const temp = airdrops.filter(x=>!x.hasClaimed).map(x=>x.amount).concat()
         if(temp.length > 0){
             const amounts: AirdropAmount[] = []
             temp.forEach(air => {
-                const airam = [...air.amount]
-                airam.forEach(am => {
+                air.forEach(am => {
                     const airamount: AirdropAmount={
                         value: am.value,
                         symbol: am.symbol
@@ -236,7 +236,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                             <span className="airdrop-name"><StarBpro active={true} backstop={false}/></span>
                             <span className="airdrop-amount">
                                 {totalAmount.map((x, index) => {
-                                    return <div key={index}>{x.value.toRound(2)} {x.symbol}</div>
+                                    return <div key={index}>{x.value.toRound(2, true, true)} {x.symbol}</div>
                             })}
                             </span>
                         </>
