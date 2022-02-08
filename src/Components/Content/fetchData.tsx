@@ -342,7 +342,7 @@ export const fetchData = async(
           collaterals:[]
         }
         if(backstop.collaterals){
-          tokenData.splice(0, 30)
+          tokenData.splice(0, 32)
           for(let i=0; i< backstop.collaterals?.length; i++){
             const collateral: BackstopCollaterals = {
               fetchPrice: tokenData[0],
