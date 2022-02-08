@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="40px" height="32px" viewBox="0 0 40 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+<svg width="40px" height="32px" viewBox="0 0 40 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: sketchtool 64 (101010) - https://sketch.com/ -->
     <title>064129B1-4368-42B6-B206-7EF15C2BA6BC</title>
     <desc>Created with sketchtool.</desc>
@@ -14,21 +14,21 @@
             <g id="Group-32" transform="translate(51.000000, 23.000000)">
                 <g id="Group-3" transform="translate(0.000000, 7.994880)">
                     <mask id="mask-2" fill="white">
-                        <use xlinkHref="#path-1"></use>
+                        <use xlink:href="#path-1"></use>
                     </mask>
                     <g id="Clip-2"></g>
                     <path d="M0.741671967,9.89159956 L10.5010315,0.132239994 L16.3407113,5.97215973 C17.3295112,6.96095969 17.3295112,8.56415962 16.3407113,9.55319957 L6.58135171,19.3123191 L0.741671967,13.4726394 C-0.247367989,12.4838394 -0.247367989,10.8806395 0.741671967,9.89159956" id="Fill-1" fill="#12C264" mask="url(#mask-2)"></path>
                 </g>
                 <g id="Group-6" transform="translate(11.759999, 0.074880)">
                     <mask id="mask-4" fill="white">
-                        <use xlinkHref="#path-3"></use>
+                        <use xlink:href="#path-3"></use>
                     </mask>
                     <g id="Clip-5"></g>
                     <path d="M0.0466559979,6.7466157 L5.88657574,0.906695959 C6.87537569,-0.0821039963 8.47857562,-0.0821039963 9.46737558,0.906695959 L15.3070553,6.7466157 L9.46737558,12.5865354 C8.47857562,13.5753354 6.87537569,13.5753354 5.88657574,12.5865354 L0.0466559979,6.7466157 Z" id="Fill-4" fill="#12C264" mask="url(#mask-4)"></path>
                 </g>
                 <g id="Group-9" transform="translate(11.759999, 18.074879)">
                     <mask id="mask-6" fill="white">
-                        <use xlinkHref="#path-5"></use>
+                        <use xlink:href="#path-5"></use>
                     </mask>
                     <g id="Clip-8"></g>
                     <path d="M0.0466559979,6.6185517 L5.88657574,0.778871965 C6.87537569,-0.210167991 8.47857562,-0.210167991 9.46737558,0.778871965 L15.3070553,6.6185517 L9.46737558,12.4584714 C8.47857562,13.4472714 6.87537569,13.4472714 5.88657574,12.4584714 L0.0466559979,6.6185517 Z" id="Fill-7" fill="#12C264" mask="url(#mask-6)"></path>
