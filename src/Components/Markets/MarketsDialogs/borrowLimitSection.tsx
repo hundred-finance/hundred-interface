@@ -35,7 +35,7 @@ const BorrowLimitSection:React.FC<Props> = (props : Props) => {
                     <span className={`dialog-section-arrow ${props.newBorrowLimit && +props.newBorrowLimit.toString() > 0 && props.generalData && +props.generalData.totalBorrowLimit.toString() !== +props.newBorrowLimit.toString() ? "dialog-section-arrow-active" : ""}`}>
                         <HuArrow width={"15px"} height={"12px"} color={"rgb(66, 122, 241)"}/>
                     </span>
-                        {props.newBorrowLimit && +props.newBorrowLimit.toString() && props.generalData && +props.generalData.totalBorrowLimit.toString() !== +props.newBorrowLimit.toString() ? (
+                        {props.newBorrowLimit && +props.newBorrowLimit.toString() > 0 && +props.newBorrowLimit.toString() && props.generalData && +props.generalData.totalBorrowLimit.toString() !== +props.newBorrowLimit.toString() ? (
                     
                         <span>
                             {`$${props.newBorrowLimit && +props.newBorrowLimit.toString()  ?  props.newBorrowLimit.toRound(2, false, true) : "0.00"}`}
