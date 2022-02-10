@@ -173,6 +173,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         const handleStakeAmountChange = () => {
             if(stakeInput.trim() === ""){
                 setStakeValidation("")
+                setNewBorrowLimit3(BigNumber.from("0"))
                 return;
             }
 
@@ -182,17 +183,31 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                 return;
             } else if (+stakeInput <= 0) {
                 setStakeValidation("Amount must be > 0");
+                setNewBorrowLimit3(BigNumber.from("0"))
+                return
             } else if (props.gaugeV4 && +stakeInput > +props.gaugeV4?.userLpBalance) {
                 setStakeValidation("Amount must be <= balance");
+                setNewBorrowLimit3(BigNumber.from("0"))
+                return
             } else{
                 setStakeValidation("");
             }
 
-            setNewBorrowLimit3(props.market && props.generalData ? 
-                props.generalData.totalBorrowLimit?.subSafe(props.market?.isEnterMarket? BigNumber.parseValue(stakeInput.trim()!=="" ? convertLpAmountToUnderlying(stakeInput, props.market) : "0").
-                                mulSafe(props.market?.underlying.price).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0))
-                                // if (newBorrowLimit2.gt(BigNumber.from("0"))) 
-                                // console.log(`totalBorrow: ${props.generalData?.totalBorrowBalance}\nborrowLimit: ${newBorrowLimit2}\npercent${props.generalData?.totalBorrowBalance.divSafe(newBorrowLimit2).toString()}`)
+            if(props.market && props.generalData){
+                const totalBorrow = +props.generalData.totalBorrowLimit.toString()
+                const stake = props.market.isEnterMarket && stakeInput.trim() !== "" ? +convertLpAmountToUnderlying(stakeInput, props.market) : 0
+                const price = +props.market.underlying.price.toString()
+                const collateral = +props.market.collateralFactor.toString()
+                const newTotalSupply = stake * price * collateral
+                const borrow = totalBorrow - newTotalSupply
+                setNewBorrowLimit3(BigNumber.parseValue(borrow.noExponents()))
+                console.log(borrow.noExponents())
+            }
+
+            // setNewBorrowLimit3(props.market && props.generalData ? 
+            //     props.generalData.totalSupplyBalance?.subSafe(props.market?.isEnterMarket? BigNumber.parseValue(stakeInput.trim()!=="" ? convertLpAmountToUnderlying(stakeInput, props.market) : "0").
+            //     mulSafe(props.market?.underlying.price).mulSafe(props.market?.collateralFactor): BigNumber.from(0)) : BigNumber.from(0))
+            
         }
 
         handleStakeAmountChange()
@@ -558,10 +573,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                         +props.gaugeV4.userAllowance.toString().toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
                                             ?
                                             <MarketDialogButton
-                                                disabled={stakeInput === "" || stakeValidation !== "" || (newBorrowLimit2 && props.generalData &&
-                                                +newBorrowLimit3.toString() > 0 &&
-                                                +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() > 0.9 &&
-                                                (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent ? true : false)}
+                                                disabled={stakeInput === "" || stakeValidation !== "" || (newBorrowLimit3 && props.generalData &&
+                                                    (+newBorrowLimit3.toString() > 0 || +newBorrowLimit3.toString() < 0) &&
+                                                    (+newBorrowLimit3.toString() > 0 ? +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() > 0.9 : +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * -1 > 0.9) &&
+                                                    (+newBorrowLimit3.toString() > 0 ? +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * 100 : 
+                                                    +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * -1 * 100) > +props.generalData.totalBorrowLimitUsedPercent ? true : false)}
                                                 onClick={() => props.handleStake(props.market?.underlying.symbol, props?.gaugeV4, stakeInput)}
                                             >
                                                 {props.market && props.market.stakeSpinner ? (
@@ -569,10 +585,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                             </MarketDialogButton>
                                             :
                                             <MarketDialogButton
-                                                disabled={stakeInput === "" || stakeValidation !== "" || (newBorrowLimit2 && props.generalData &&
-                                                +newBorrowLimit3.toString() > 0 &&
-                                                +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() > 0.9 &&
-                                                (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent ? true : false)}
+                                                disabled={stakeInput === "" || stakeValidation !== "" || (newBorrowLimit3 && props.generalData &&
+                                                (+newBorrowLimit3.toString() > 0 || +newBorrowLimit3.toString() < 0) &&
+                                                (+newBorrowLimit3.toString() > 0 ? +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() > 0.9 : +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * -1 > 0.9) &&
+                                                (+newBorrowLimit3.toString() > 0 ? +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * 100 : 
+                                                +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * -1 * 100) > +props.generalData.totalBorrowLimitUsedPercent ? true : false)}
                                                 onClick={() => props.handleApproveStake(props.market?.underlying.symbol, props?.gaugeV4)}
                                             >
                                                 {props.market && props.market.stakeSpinner ? (
