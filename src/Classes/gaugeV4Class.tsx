@@ -73,6 +73,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
         const [nbGauges] = await ethcallProvider.all([ethcallGaugeController.n_gauges()])
 
         const gauges = await ethcallProvider.all(Array.from(Array(nbGauges.toNumber()).keys()).map(i => ethcallGaugeController.gauges(i)))
+        const activeGauges: string[] = [];
 
         let lpAndMinterAddresses = await ethcallProvider.all(
             gauges.flatMap((g) => [
@@ -80,29 +81,38 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                 new Contract(g, GAUGE_V4_ABI).minter(),
                 new Contract(g, GAUGE_V4_ABI).reward_policy_maker(),
                 new Contract(g, GAUGE_V4_ABI).working_supply(),
+                new Contract(g, GAUGE_V4_ABI).is_killed(),
                 new Contract(controller, GAUGE_CONTROLLER_ABI).gauge_relative_weight(g)
             ])
         )
 
-        lpAndMinterAddresses = _.chunk(lpAndMinterAddresses, 5)
+        lpAndMinterAddresses = _.chunk(lpAndMinterAddresses, 6)
+        const activeLpAndMinterAddresses: any[][] = []
+
+        for (let i = 0; i < lpAndMinterAddresses.length; i++) {
+            if (!lpAndMinterAddresses[i][4]) {
+                activeGauges.push(gauges[i]);
+                activeLpAndMinterAddresses.push(lpAndMinterAddresses[i])
+            }
+        }
 
         let rewards = await ethcallProvider.all(
-            gauges.flatMap((g, index) => [
-                    new Contract(lpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
-                    new Contract(lpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g)
+            activeGauges.flatMap((g, index) => [
+                    new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
+                    new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g)
                 ]
             )
         )
 
         rewards = _.chunk(rewards, 2)
 
-        generalData = lpAndMinterAddresses.map((c, index) => {
+        generalData = activeLpAndMinterAddresses.map((c, index) => {
             return {
-                address: gauges[index],
+                address: activeGauges[index],
                 lpToken: c[0],
                 minter: c[1],
                 rewardPolicyMaker: c[2],
-                weight: c[4],
+                weight: c[5],
                 totalStake: rewards[index][1],
                 workingTotalStake: c[3],
                 veHndRewardRate: rewards[index][0]

@@ -241,21 +241,26 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                         </TabHeader>
                         <TabContent>
                             <TabContentItem open={props.open} tabId={1} tabChange={tabChange}>
-                                <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={borrowDisabled} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"Safe Max"}
+                                <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={borrowDisabled || (props.market ? props.market.borrowPaused : false)} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"Safe Max"}
                                 buttonTooltip="50% of borrow limit" buttonDisabled={props.generalData && +props.generalData?.totalBorrowLimitUsedPercent.toRound(2) >= 50.01 ? true : false} onClick={ () => handleMaxBorrow()}/>
                                 <MarketDialogItem title={"You Borrowed"} value={`${props.market?.borrowBalanceInTokenUnit?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                     borrowAmount={borrowInput} repayAmount={"0"}/>
-                                <DialogMarketInfoSection market={props.market} collateralFactorText={"Liquidation Threshold"}/>
-                                <MarketDialogButton disabled={(!borrowInput || borrowValidation || props.market?.borrowSpinner) ? true : false}
-                                    onClick={() => {  props.market ? props.handleBorrow(
-                                                            props.market?.underlying.symbol,
-                                                            borrowInput
-                                                        ) : null
-                                                    }}>
-                                    {props.market?.borrowSpinner ? (<Spinner size={"20px"}/>) :"Borrow"}
-                                </MarketDialogButton>
+                                <DialogMarketInfoSection market={props.market}/>
+                                {props.market && props.market.borrowPaused ? 
+                                    <MarketDialogButton disabled={true} onClick={() => null}>
+                                        Borrow is Paused
+                                    </MarketDialogButton>
+                                    :<MarketDialogButton disabled={(!borrowInput || borrowValidation || props.market?.borrowSpinner) ? true : false}
+                                        onClick={() => {  props.market ? props.handleBorrow(
+                                                                props.market?.underlying.symbol,
+                                                                borrowInput
+                                                            ) : null
+                                                        }}>
+                                        {props.market?.borrowSpinner ? (<Spinner size={"20px"}/>) :"Borrow"}
+                                    </MarketDialogButton>
+                                }
                             </TabContentItem>
                             <TabContentItem open={props.open} tabId={2} tabChange={tabChange}>
                                 <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={repayDisabled} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"Max"}
@@ -264,7 +269,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                     borrowAmount={"0"} repayAmount={repayInput}/>
-                                <DialogMarketInfoSection market={props.market} collateralFactorText={"Liquidation Threshold"}/>
+                                <DialogMarketInfoSection market={props.market} />
     
                                     {props.market && props.market?.underlying.allowance?.gt(BigNumber.from("0")) &&
                                     +props.market.underlying.allowance.toString() >= (repayInput.trim() === "" || isNaN(+repayInput) || isNaN(parseFloat(repayInput)) ? 0 : +repayInput)

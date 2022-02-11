@@ -66,7 +66,7 @@ const AirdropMenu: React.FC<Props> = (props: Props) => {
                                         <div className="airdrop-menu-item-values" >
                                             {a.amount.map((am, index2) => 
                                                 
-                                                    <div key={`a-${index2}`}>{am.value.toRound(2)} {am.symbol}
+                                                    <div key={`a-${index2}`}>{am.value.toRound(2, true, true)} {am.symbol}
                                                     </div>
                                                 
                                             )}
@@ -99,7 +99,7 @@ const AirdropMenu: React.FC<Props> = (props: Props) => {
                                             <div className="airdrop-menu-item-values" >
                                                 {a.amount.map((am, index) => {
                                                     return (
-                                                        <div key={index}>{am.value.toRound(2)} {am.symbol}</div>
+                                                        <div key={index}>{am.value.toRound(2, true,  true)} {am.symbol}</div>
                                                     )
                                                 })}
                                             </div>

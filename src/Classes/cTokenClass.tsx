@@ -66,7 +66,8 @@ export class CTokenInfo{
     backstopWithdrawSpinner: boolean
     backstopClaimSpinner: boolean
     isNativeToken: boolean
-
+    mintPaused: boolean
+    borrowPaused: boolean
     
     borrowHndApy: BigNumber
     hndAPR: BigNumber
@@ -111,6 +112,8 @@ export class CTokenInfo{
                 oldTotalSupplyApy: BigNumber,
                 newTotalSupplyApy: BigNumber,
                 accrued: number,
+                mintPaused: boolean,
+                borrowPaused: boolean,
                 backstop: Backstop | BackstopV2 | null
                 ){
         this.pTokenAddress= pTokenAddress
@@ -154,6 +157,9 @@ export class CTokenInfo{
         this.newTotalSupplyApy = newTotalSupplyApy
 
         this.accrued = accrued
+
+        this.mintPaused = mintPaused
+        this.borrowPaused = borrowPaused
 
         this.backstop = backstop
     }
