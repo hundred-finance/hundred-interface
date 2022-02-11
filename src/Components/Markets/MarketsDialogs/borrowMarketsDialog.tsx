@@ -247,7 +247,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                     borrowAmount={borrowInput} repayAmount={"0"}/>
-                                <DialogMarketInfoSection market={props.market} collateralFactorText={"Liquidation Threshold"}/>
+                                <DialogMarketInfoSection market={props.market}/>
                                 {props.market && props.market.borrowPaused ? 
                                     <MarketDialogButton disabled={true} onClick={() => null}>
                                         Borrow is Paused
@@ -269,7 +269,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                                 <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                     borrowAmount={"0"} repayAmount={repayInput}/>
-                                <DialogMarketInfoSection market={props.market} collateralFactorText={"Liquidation Threshold"}/>
+                                <DialogMarketInfoSection market={props.market} />
     
                                     {props.market && props.market?.underlying.allowance?.gt(BigNumber.from("0")) &&
                                     +props.market.underlying.allowance.toString() >= (repayInput.trim() === "" || isNaN(+repayInput) || isNaN(parseFloat(repayInput)) ? 0 : +repayInput)

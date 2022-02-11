@@ -4,7 +4,7 @@ import { CTokenInfo } from "../../../Classes/cTokenClass"
 import "./dialogSection.css"
 
 interface Props{
-    collateralFactorText: string,
+    collateralFactorText?: string,
     market: CTokenInfo | null
 }
 
@@ -26,7 +26,8 @@ const DialogMarketInfoSection : React.FC<Props> = (props : Props) => {
             <div className="dialog-section-title">
                 Market Info
             </div>
-            <div className="dialog-section-content">
+            {props.collateralFactorText ? (
+                <div className="dialog-section-content">
                 <div className="dialog-section-content-header">
                     <span>{props.collateralFactorText}</span>
                 </div>
@@ -34,6 +35,7 @@ const DialogMarketInfoSection : React.FC<Props> = (props : Props) => {
                     {`${props.market ? props.market?.collateralFactor?.mul(BigNumber.from(100)).toRound(2, false, true) : "0.00"}%`}
                 </div>
             </div>
+            ) : null}
             <div className="dialog-section-content">
                 <div className="dialog-section-content-header">
                     <span>% of Supply Borrowed</span>
