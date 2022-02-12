@@ -228,8 +228,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010054c81c8c01951E6A631dD228bB02d8D1e5",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        minterAddress: "0x9fF0A743b7a4f3d9ed186CC1020b9162C11E0595",
-        gaugeControllerAddress: "0xd6Cafd6d475A790634a548d7f43a6e420247BA61"
+        minterAddress: "0x4646F704ceEBB522126CFD024506C509A5D19694",
+        gaugeControllerAddress: "0x2E08596F46f51d1E88207790270aF2BD94602762"
     },
     "0x6357d2e0":
     {
