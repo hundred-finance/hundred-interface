@@ -276,10 +276,15 @@ const Content: React.FC<Props> = (props: Props) => {
 
   const getMaxAmount = async (market: CTokenInfo, func?: string): Promise<BigNumber> => {
     if (market.isNativeToken && props.provider) {
+      //gas costs 0.1 FTM
       const gasRemainder = BigNumber.parseValue('0.1');
+      console.log('gasRemainder is ', gasRemainder.toString());
+      console.log('wallet balance is ', market.underlying.walletBalance.toString());
 
       if (func === 'repay' && provider.current) {
         const balance = market.borrowBalanceInTokenUnit.subSafe(gasRemainder);
+        // const balance = market.borrowBalanceInTokenUnit;
+        console.log('borrowBalanceInTokenUnit due balance is ', balance.toString());
         return balance.gt(BigNumber.from('0')) ? balance : BigNumber.from('0');
       } else if (func === 'supply' && provider.current) {
         const balance = market.underlying.walletBalance.gt(BigNumber.from('0'))
@@ -297,9 +302,12 @@ const Content: React.FC<Props> = (props: Props) => {
     if (market.isNativeToken) handleUpdate(market, 'repay');
 
     const maxRepayFactor = BigNumber.from('1').addSafe(market.borrowRatePerBlock); //BigNumber.from("1").add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
+    console.log('borrowRatePerBlock is ', market.borrowRatePerBlock.toString());
+    console.log('maxRepayFactor is ', maxRepayFactor.toString());
 
     const amount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), market.underlying.decimals);
-
+    console.log('borrowBalanceInTokenUnit is ', market.borrowBalanceInTokenUnit.toString());
+    console.log('total due alance x repay factor is (amount) ', amount.toString());
     return amount; // The same as ETH for now. The transaction will use -1 anyway.
   };
 
@@ -579,18 +587,63 @@ const Content: React.FC<Props> = (props: Props) => {
       }
     }
   };
+  // const handleRepay = async (symbol: string, amount: string, fullRepay: boolean) => {
+  //   if (marketsRef.current) {
+  //     if (spinner.current) spinner.current(true);
+  //     let market = marketsRef.current.find((x) => x?.underlying.symbol === symbol);
+  //     if (market && provider.current) {
+  //       try {
+  //         setCompleted(false);
+  //         const value = BigNumber.parseValueSafe(amount, market.underlying.decimals);
+  //         const am = market.isNativeToken ? { value: value._value } : fullRepay ? ethers.constants.MaxUint256 : value._value;
+  //         if (selectedMarketRef.current) selectedMarketRef.current.repaySpinner = true;
 
+  //         market.repaySpinner = true;
+  //         const signer = provider.current.getSigner();
+  //         const tokenABI = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI;
+  //         const ctoken = new ethers.Contract(market.pTokenAddress, tokenABI, signer);
+
+  //         const tx = await ctoken.repayBorrow(am);
+
+  //         if (spinner.current) spinner.current(false);
+
+  //         console.log(tx);
+  //         const receipt = await tx.wait();
+  //         console.log(receipt);
+  //         setCompleted(true);
+  //       } catch (err) {
+  //         console.log(err);
+  //       } finally {
+  //         if (spinner.current) spinner.current(false);
+  //         market = marketsRef.current.find((x) => x?.underlying.symbol === symbol);
+  //         if (market) {
+  //           setUpdate(true);
+  //           await handleUpdate(market, 'repay');
+  //         }
+  //       }
+  //     }
+  //   }
+  // };
   const handleRepay = async (symbol: string, amount: string, fullRepay: boolean) => {
     if (marketsRef.current) {
       if (spinner.current) spinner.current(true);
       let market = marketsRef.current.find((x) => x?.underlying.symbol === symbol);
       if (market && provider.current) {
-        console.log('correct market');
-
         try {
           setCompleted(false);
           const value = BigNumber.parseValueSafe(amount, market.underlying.decimals);
-          const repayAmount = market.isNativeToken ? { value: value._value } : fullRepay ? ethers.constants.MaxUint256 : value._value;
+          console.log('value', value);
+
+          const findMaxRate = BigNumber.from('1').addSafe(market.borrowRatePerBlock);
+          const getAmount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(findMaxRate).toString(), market.underlying.decimals);
+          console.log('getAmount', getAmount._value.toString());
+
+          const repayAmount = market.isNativeToken
+            ? { value: fullRepay ? getAmount._value : value._value }
+            : fullRepay
+            ? ethers.constants.MaxUint256
+            : value._value;
+
           if (selectedMarketRef.current) selectedMarketRef.current.repaySpinner = true;
 
           market.repaySpinner = true;
