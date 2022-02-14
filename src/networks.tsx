@@ -154,6 +154,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0F390559F258eB8591C8e31Cf0905E97cf36ACE2",
         hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        gaugeControllerAddress: "0xc3CC9369fcB8491DaD4FA64cE1Fbd3DD2d70034f",
     },
     // "0xa":
     // {
