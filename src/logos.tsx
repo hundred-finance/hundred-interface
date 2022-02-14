@@ -73,6 +73,8 @@ import MOVRlogo from "./assets/images/MOVR-logo.png"
 import USTlogo from "./assets/images/UST-logo.png"
 import HRENBTClogo from "./assets/images/RENBTC-logo.png"
 import GNOlogo from "./assets/images/GNO-logo.png"
+import GNOSISlogo from "./assets/images/GNOSIS-logo.png"
+import XDailogo from "./assets/images/XDAI-logo.svg"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -96,7 +98,7 @@ const Logos: { [key: string]: string } = {
     "SUSD"      : SUSDlogo,
     "XDAI"      : XDAIlogo,
     "xDAI"      : XDAIlogo,
-    "xDai"      : XDAIlogo,
+    "xDai"      : XDailogo,
     "SUSHI"     : SUSHIlogo,
     "BAL"       : BALlogo,
     "CRV"       : CRVlogo,
@@ -168,7 +170,8 @@ const Logos: { [key: string]: string } = {
     "UST"       : USTlogo,
     "WBTC.eth"  : WBTClogo,
     "renBTC"    : HRENBTClogo,
-    "GNO"       : GNOlogo
+    "GNO"       : GNOlogo,
+    "GNOSIS"    : GNOSISlogo
 }
 
 export default Logos

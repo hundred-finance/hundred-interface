@@ -147,7 +147,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         symbol: "xDai",
         rpcUrls: ["https://rpc.xdaichain.com/"],
         blockExplorerUrls: ["https://blockscout.com/xdai/mainnet/"],
-        logo: Logos["GNO"],
+        logo: Logos["GNOSIS"],
         name: "Gnosis",
         blocksPerYear: 6307200,
         nativeTokenMarketAddress: "0x090a00a2de0ea83def700b5e216f87a5d4f394fe",
