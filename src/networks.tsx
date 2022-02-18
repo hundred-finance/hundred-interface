@@ -239,7 +239,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK
         compoundLensAddress: '0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074',
         minterAddress: '0x9fF0A743b7a4f3d9ed186CC1020b9162C11E0595',
         gaugeControllerAddress: '0xd6Cafd6d475A790634a548d7f43a6e420247BA61',
-        //   maximillion: '',
+        //  add maximillion: '',
       },
       '0x6357d2e0': {
         chainId: '0x6357d2e0',
@@ -255,7 +255,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK
         hundredAddress: '0x10010078a54396F62c96dF8532dc2B4847d47ED3',
         compoundLensAddress: '0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074',
         multicallAddress: '0xd078799c53396616844e2fa97f0dd2b4c145a685',
-        //   maximillion: '',
+        //  add maximillion: '',
       },
       '0x45': {
         chainId: '0x45',
@@ -271,7 +271,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK
         hundredAddress: '0x10010078a54396F62c96dF8532dc2B4847d47ED3',
         compoundLensAddress: '0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074',
         multicallAddress: '0x19ead25619352ea106f25a1c870c0a4df65faa75',
-        //   maximillion: '',
+        // add  maximillion: '',
       },
       '0x1252': {
         chainId: '0x1252',
@@ -287,7 +287,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK
         hundredAddress: '0x10010078a54396F62c96dF8532dc2B4847d47ED3',
         compoundLensAddress: '0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074',
         multicallAddress: '0x25bb701a0ce238faecaec56b437460a372d7f139',
-        //   maximillion: '',
+        //  add maximillion: '',
       },
     };
 

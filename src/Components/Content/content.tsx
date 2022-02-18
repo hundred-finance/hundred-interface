@@ -14,6 +14,7 @@ import SupplyMarketDialog from '../Markets/MarketsDialogs/supplyMarketDialog';
 import { fetchData } from './fetchData';
 import { GaugeV4, getGaugesData } from '../../Classes/gaugeV4Class';
 import AddressButton from '../AddressButton/addressButton';
+import { prototype } from 'events';
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256);
 
@@ -276,15 +277,14 @@ const Content: React.FC<Props> = (props: Props) => {
 
   const getMaxAmount = async (market: CTokenInfo, func?: string): Promise<BigNumber> => {
     if (market.isNativeToken && props.provider) {
-      //gas costs 0.1 FTM
       const gasRemainder = BigNumber.parseValue('0.1');
-      console.log('gasRemainder is ', gasRemainder.toString());
-      console.log('wallet balance is ', market.underlying.walletBalance.toString());
 
       if (func === 'repay' && provider.current) {
-        const balance = market.borrowBalanceInTokenUnit.subSafe(gasRemainder);
-        // const balance = market.borrowBalanceInTokenUnit;
-        console.log('borrowBalanceInTokenUnit due balance is ', balance.toString());
+        // const balance = market.borrowBalanceInTokenUnit.subSafe(gasRemainder);
+        const balance = market.underlying.walletBalance.subSafe(gasRemainder);
+        console.log('wb is ', market.underlying.walletBalance.toString());
+        console.log('wb-0.1 is ', balance.toString());
+
         return balance.gt(BigNumber.from('0')) ? balance : BigNumber.from('0');
       } else if (func === 'supply' && provider.current) {
         const balance = market.underlying.walletBalance.gt(BigNumber.from('0'))
@@ -300,14 +300,18 @@ const Content: React.FC<Props> = (props: Props) => {
 
   const getMaxRepayAmount = async (market: CTokenInfo): Promise<BigNumber> => {
     if (market.isNativeToken) handleUpdate(market, 'repay');
+    const borrowAPYPerDay = market.borrowApy.div(BigNumber.from('365'));
+    const maxRepayFactor = BigNumber.from('1').addSafe(borrowAPYPerDay); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
 
-    const maxRepayFactor = BigNumber.from('1').addSafe(market.borrowRatePerBlock); //BigNumber.from("1").add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
-    console.log('borrowRatePerBlock is ', market.borrowRatePerBlock.toString());
+    console.log('borrowApy is ', market.borrowApy.toString());
+    console.log('borrowAPYPerDay is ', borrowAPYPerDay.toString());
     console.log('maxRepayFactor is ', maxRepayFactor.toString());
 
     const amount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), market.underlying.decimals);
-    console.log('borrowBalanceInTokenUnit is ', market.borrowBalanceInTokenUnit.toString());
-    console.log('total due alance x repay factor is (amount) ', amount.toString());
+    console.log('debt is ', market.borrowBalanceInTokenUnit.toString());
+    console.log('debt x repay factor = amount ', amount.toString());
+    console.log('5*maxRepayFactor ', BigNumber.from(5).mul(maxRepayFactor).toString());
+
     return amount; // The same as ETH for now. The transaction will use -1 anyway.
   };
 
@@ -587,43 +591,7 @@ const Content: React.FC<Props> = (props: Props) => {
       }
     }
   };
-  // const handleRepay = async (symbol: string, amount: string, fullRepay: boolean) => {
-  //   if (marketsRef.current) {
-  //     if (spinner.current) spinner.current(true);
-  //     let market = marketsRef.current.find((x) => x?.underlying.symbol === symbol);
-  //     if (market && provider.current) {
-  //       try {
-  //         setCompleted(false);
-  //         const value = BigNumber.parseValueSafe(amount, market.underlying.decimals);
-  //         const am = market.isNativeToken ? { value: value._value } : fullRepay ? ethers.constants.MaxUint256 : value._value;
-  //         if (selectedMarketRef.current) selectedMarketRef.current.repaySpinner = true;
 
-  //         market.repaySpinner = true;
-  //         const signer = provider.current.getSigner();
-  //         const tokenABI = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI;
-  //         const ctoken = new ethers.Contract(market.pTokenAddress, tokenABI, signer);
-
-  //         const tx = await ctoken.repayBorrow(am);
-
-  //         if (spinner.current) spinner.current(false);
-
-  //         console.log(tx);
-  //         const receipt = await tx.wait();
-  //         console.log(receipt);
-  //         setCompleted(true);
-  //       } catch (err) {
-  //         console.log(err);
-  //       } finally {
-  //         if (spinner.current) spinner.current(false);
-  //         market = marketsRef.current.find((x) => x?.underlying.symbol === symbol);
-  //         if (market) {
-  //           setUpdate(true);
-  //           await handleUpdate(market, 'repay');
-  //         }
-  //       }
-  //     }
-  //   }
-  // };
   const handleRepay = async (symbol: string, amount: string, fullRepay: boolean) => {
     if (marketsRef.current) {
       if (spinner.current) spinner.current(true);
@@ -631,45 +599,28 @@ const Content: React.FC<Props> = (props: Props) => {
       if (market && provider.current) {
         try {
           setCompleted(false);
-          const value = BigNumber.parseValueSafe(amount, market.underlying.decimals);
-          console.log('value', value);
-
-          const findMaxRate = BigNumber.from('1').addSafe(market.borrowRatePerBlock);
-          const getAmount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(findMaxRate).toString(), market.underlying.decimals);
-          console.log('getAmount', getAmount._value.toString());
-
-          const repayAmount = market.isNativeToken
-            ? { value: fullRepay ? getAmount._value : value._value }
-            : fullRepay
-            ? ethers.constants.MaxUint256
-            : value._value;
+          const value = BigNumber.parseValueSafe(amount, market.underlying.decimals); //repayInput converted into BigNumber
+          const repayAmount = market.isNativeToken ? { value: value._value } : fullRepay ? ethers.constants.MaxUint256 : value._value;
 
           if (selectedMarketRef.current) selectedMarketRef.current.repaySpinner = true;
 
           market.repaySpinner = true;
           const signer = provider.current.getSigner();
-          console.log('signer object created');
 
           if (market.isNativeToken) {
             const maxiContract = new ethers.Contract(network.current!.maximillion!, MAXIMILLION_ABI, signer);
-            console.log('maxicontract successful');
-
             const tx = await maxiContract.repayBehalfExplicit(userAddress.current, market.pTokenAddress, repayAmount);
 
             console.log('repay successful');
-            console.log(tx);
             if (spinner.current) spinner.current(false);
             const receipt = await tx.wait();
-            console.log(receipt);
             setCompleted(true);
           } else {
             const ctoken = new ethers.Contract(market.pTokenAddress, CTOKEN_ABI, signer);
             const tx = await ctoken.repayBorrow(repayAmount);
 
-            console.log(tx);
             if (spinner.current) spinner.current(false);
             const receipt = await tx.wait();
-            console.log(receipt);
             setCompleted(true);
           }
         } catch (err) {
