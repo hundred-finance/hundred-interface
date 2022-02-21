@@ -6417,6 +6417,7 @@ const AIRDROP_V2_ABI = [
     { inputs: [], name: 'unPause', outputs: [], stateMutability: 'nonpayable', type: 'function' },
 ];
 export {
+    MAXIMILLION_ABI,
     COMPTROLLER_ABI,
     TOKEN_ABI,
     CETHER_ABI,
