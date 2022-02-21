@@ -43,13 +43,15 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         <td onClick={() => props.details &&  !props.details.spinner ? props.supplyMarketDialog(props.details) : null}>
             <i
               className={`circle${
-                props.details && +props.details.underlying.walletBalance.toRound(3) <= 0
+                props.details && +props.details.underlying.walletBalance.toString() <= 0
                   ? "-o"
                   : ""
               } text-c-green f-10 m-r-15`}
             />
-            {props.details ? props.details.underlying.walletBalance.toRound(3) : "0"}
-          
+            <span data-tip={props.details && +props.details.underlying.walletBalance.toString() > 0 ? props.details.underlying.walletBalance.toString() : null}>
+              {props.details ? +props.details.underlying.walletBalance.toRound(3) === 0 && +props.details.underlying.walletBalance.toString() > 0 ? "<0.001" 
+              : props.details.underlying.walletBalance.toRound(3) : "0"}
+            </span>
         </td>
         <td>
           <div className="spinner-container">
