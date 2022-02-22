@@ -19,8 +19,10 @@ export interface GaugeV4GeneralData {
 export class GaugeV4{
     generalData : GaugeV4GeneralData
     userStakeBalance: BigNumber
+    gaugeTokenDecimals: number
     userStakedTokenBalance: BigNumber
     userLpBalance: BigNumber
+    lpTokenDecimals: number
     userClaimableHnd: BigNumber
     userWorkingStakeBalance: BigNumber
     userAllowance: BigNumber
@@ -32,7 +34,9 @@ export class GaugeV4{
     constructor(
         generalData: GaugeV4GeneralData,
         userStakeBalance: BigNumber,
+        gaugeTokenDecimals: number,
         userLpBalance: BigNumber,
+        lpTokenDecimals: number,
         userClaimableHnd: BigNumber,
         userWorkingStakeBalance: BigNumber,
         userAllowance: BigNumber,
@@ -42,12 +46,14 @@ export class GaugeV4{
         approveCall: () => void,
     ){
         this.generalData = generalData
-        this.userStakeBalance = BigNumber.from(userStakeBalance.toString(), 18)
+        this.userStakeBalance = BigNumber.from(userStakeBalance.toString(), gaugeTokenDecimals)
+        this.gaugeTokenDecimals = gaugeTokenDecimals
         this.userStakedTokenBalance = userStakeBalance
-        this.userLpBalance = BigNumber.from(userLpBalance.toString(), 8)
+        this.userLpBalance = BigNumber.from(userLpBalance.toString(), lpTokenDecimals)
+        this.lpTokenDecimals = lpTokenDecimals
         this.userClaimableHnd = BigNumber.from(userClaimableHnd.toString(), 18)
         this.userWorkingStakeBalance = userWorkingStakeBalance
-        this.userAllowance = BigNumber.from(userAllowance.toString(), 8)
+        this.userAllowance = BigNumber.from(userAllowance.toString(), lpTokenDecimals)
         this.stakeCall = stakeCall
         this.unstakeCall = unstakeCall
         this.mintCall = mintCall
@@ -124,14 +130,16 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
             const info = await ethcallProvider.all(
                 generalData.flatMap((g) => [
                     new Contract(g.address, GAUGE_V4_ABI).balanceOf(userAddress),
+                    new Contract(g.address, GAUGE_V4_ABI).decimals(),
                     new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
+                    new Contract(g.lpToken, CTOKEN_ABI).decimals(),
                     new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
                     new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
                     new Contract(g.lpToken, CTOKEN_ABI).allowance(userAddress, g.address),
                 ])
             )
 
-            const infoChunks = _.chunk(info, 5);
+            const infoChunks = _.chunk(info, 7);
 
             return generalData.map((g, index) => {
                 return new GaugeV4(
@@ -141,6 +149,8 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                         infoChunks[index][2],
                         infoChunks[index][3],
                         infoChunks[index][4],
+                        infoChunks[index][5],
+                        infoChunks[index][6],
                         (amount: string) => stake(provider, g.address, amount),
                         (amount: string) => unstake(provider, g.address, amount),
                         () => mint(provider, g.address),
