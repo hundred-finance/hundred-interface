@@ -137,7 +137,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         multicallAddress:"0x9fdd7e3e2df5998c7866cd2471d7d30e04496dfa",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        gaugeControllerAddress: "0x788Ac705a7B67562CdD1913b67EE091785FA4F68",
+        gaugeControllerAddress: "0xca78ca5C3Da9a5a4C960C1757456E99d9F1bc76d",
         trade: "https://app.solarbeam.io/exchange/swap?inputCurrency=0x10010078a54396f62c96df8532dc2b4847d47ed3",
         addLiquidity: "https://app.solarbeam.io/exchange/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH"
     },
@@ -154,7 +154,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0F390559F258eB8591C8e31Cf0905E97cf36ACE2",
         hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        gaugeControllerAddress: "0x1A61A72F5Cf5e857f15ee502210b81f8B3a66263",
+        gaugeControllerAddress: "0x2105dE165eD364919703186905B9BB5B8015F13c",
     },
     // "0xa":
     // {
