@@ -47,6 +47,7 @@ const Menu : React.FC<Props> = (props: Props) => {
                     <NavbarLink link="https://app.multichain.org/#/router" target="_blank">Bridge</NavbarLink>
                     <NavbarLink link="https://docs.hundred.finance" target="_blank">Docs</NavbarLink>
                     <NavbarLink link="https://vote.hundred.finance" target="_blank">Vote</NavbarLink>
+                    <NavbarLink link="https://lendly.hundred.finance" target="_blank">Lendly</NavbarLink>
                   </NavBarLinks>
                 </NavbarLeft>
                 <NavBarRight>
