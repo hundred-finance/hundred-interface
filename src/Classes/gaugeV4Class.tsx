@@ -151,8 +151,8 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                         infoChunks[index][4],
                         infoChunks[index][5],
                         infoChunks[index][6],
-                        (amount: string) => stake(provider, g.address, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString()),
-                        (amount: string) => unstake(provider, g.address, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString()),
+                        (amount: string) => stake(provider, g.address, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString()),
+                        (amount: string) => unstake(provider, g.address, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString()),
                         () => mint(provider, g.address),
                     () => approve(provider, g.address, g.lpToken)
                     )
