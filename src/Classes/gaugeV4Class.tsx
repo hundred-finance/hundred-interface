@@ -151,8 +151,8 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                         infoChunks[index][4],
                         infoChunks[index][5],
                         infoChunks[index][6],
-                        (amount: string) => stake(provider, g.address, amount),
-                        (amount: string) => unstake(provider, g.address, amount),
+                        (amount: string) => stake(provider, g.address, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString()),
+                        (amount: string) => unstake(provider, g.address, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString()),
                         () => mint(provider, g.address),
                     () => approve(provider, g.address, g.lpToken)
                     )
@@ -169,14 +169,14 @@ const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 const stake = async (provider: any, gaugeAddress: string, amount: string) => {
     const signer = provider.getSigner()
     const gauge = new ethers.Contract(gaugeAddress, GAUGE_V4_ABI, signer)
-    const tx = await gauge.deposit(ethers.utils.parseUnits(amount, 8))
+    const tx = await gauge.deposit(amount)
     await tx.wait()
 }
 
 const unstake = async (provider: any, address: string, amount: string) => {
     const signer = provider.getSigner()
     const gauge = new ethers.Contract(address, GAUGE_V4_ABI, signer)
-    const tx = await gauge.withdraw(ethers.utils.parseUnits(amount, 18))
+    const tx = await gauge.withdraw(amount)
     await tx.wait()
 }
 
