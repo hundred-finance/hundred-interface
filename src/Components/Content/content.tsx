@@ -20,8 +20,6 @@ import BorrowMarketDialog from '../Markets/MarketsDialogs/borrowMarketsDialog';
 import SupplyMarketDialog from '../Markets/MarketsDialogs/supplyMarketDialog';
 import { fetchData } from './fetchData';
 import { GaugeV4, getGaugesData } from '../../Classes/gaugeV4Class';
-import AddressButton from '../AddressButton/addressButton';
-import { prototype } from 'events';
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256);
 
@@ -627,7 +625,7 @@ const Content: React.FC<Props> = (props: Props) => {
         if (marketsRef.current) {
             if (spinner.current) spinner.current(true);
             let market = marketsRef.current.find((x) => x?.underlying.symbol === symbol);
-            if (market && provider.current) {
+            if (market && provider.current && network.current) {
                 try {
                     setCompleted(false);
                     const value = BigNumber.parseValueSafe(amount, market.underlying.decimals); //repayInput converted into BigNumber
@@ -642,12 +640,8 @@ const Content: React.FC<Props> = (props: Props) => {
                     market.repaySpinner = true;
                     const signer = provider.current.getSigner();
 
-                    if (market.isNativeToken) {
-                        const maxiContract = new ethers.Contract(
-                            network.current!.maximillion!,
-                            MAXIMILLION_ABI,
-                            signer,
-                        );
+                    if (market.isNativeToken && network.current.maximillion) {
+                        const maxiContract = new ethers.Contract(network.current.maximillion, MAXIMILLION_ABI, signer);
                         const tx = await maxiContract.repayBehalfExplicit(
                             userAddress.current,
                             market.pTokenAddress,
@@ -655,14 +649,12 @@ const Content: React.FC<Props> = (props: Props) => {
                         );
 
                         if (spinner.current) spinner.current(false);
-                        const receipt = await tx.wait();
                         setCompleted(true);
                     } else {
                         const ctoken = new ethers.Contract(market.pTokenAddress, CTOKEN_ABI, signer);
                         const tx = await ctoken.repayBorrow(repayAmount);
 
                         if (spinner.current) spinner.current(false);
-                        const receipt = await tx.wait();
                         setCompleted(true);
                     }
                 } catch (err) {
