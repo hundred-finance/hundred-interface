@@ -13,6 +13,8 @@ import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import SupplyMarketDialog from "../Markets/MarketsDialogs/supplyMarketDialog"
 import { fetchData} from "./fetchData"
 import {GaugeV4, getGaugesData} from "../../Classes/gaugeV4Class";
+import HundredMessage from "../MessageDialog/messageDialog"
+import MoonriverMessage from "../MessageDialog/moonRiverDialog"
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
@@ -66,6 +68,8 @@ const Content: React.FC<Props> = (props : Props) => {
     const [openBorrowMarketDialog, setOpenBorrowMarketDialog] = useState(false)
     const [update, setUpdate] = useState<boolean>(false)
     const [completed, setCompleted] = useState<boolean>(false)
+
+    const [showMessage, setShowMessage] = useState<boolean>(false)
 
     const [updateErrorCounter, setUpdateErrorCounter] = useState<number>(0)
     const [updateHandle, setUpdateHandle] = useState<number | null>(null)
@@ -235,6 +239,14 @@ const Content: React.FC<Props> = (props : Props) => {
     useEffect(() => {
         const getData= async () => {
             await handleUpdate()
+            if(network.current && network.current.chainId === "0x505"){
+              const moonriverMsg = window.localStorage.getItem("hundred-moonriver-dont-show")
+              console.log(moonriverMsg)
+              if(moonriverMsg && moonriverMsg === "true")
+                setShowMessage(false)
+              else
+                setShowMessage(true)
+            }
         }
         setComptrollerData(null)
         setMarketsData(null)
@@ -955,7 +967,9 @@ const Content: React.FC<Props> = (props : Props) => {
             />
             <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
               closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}
-              handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={props.spinnerVisible}/> 
+              handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={props.spinnerVisible}/>
+            <HundredMessage isOpen={showMessage} onRequestClose={() => setShowMessage(false)} contentLabel="Info" className={`${props.darkMode ? "mymodal-dark" : ""}`}
+              message={<MoonriverMessage darkmode={props.darkMode}/>}/>
         </div>
     )
 }
