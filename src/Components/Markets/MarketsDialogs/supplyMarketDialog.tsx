@@ -599,7 +599,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
 
                                     </div>
                                     <div className="native-asset-amount">
-                                        <span>{convertGaugeLpAmountToUnderlying(unstakeInput, props.market)} {props.market?.underlying.symbol}</span>
+                                        <span>{convertGaugeLpAmountToUnderlying(unstakeInput, props?.gaugeV4.gaugeTokenDecimals, props.market)} {props.market?.underlying.symbol}</span>
                                         <div className="amount-select">
                                             <div onClick={() => setUnstakeRatio(0.25) }>25%</div>
                                             <div onClick={() => setUnstakeRatio(0.50) }>50%</div>
@@ -715,8 +715,8 @@ function convertLpAmountToUnderlying(amount: string, market: CTokenInfo) : strin
     return (+amount * +market.exchangeRate / (10 ** (market.underlying.decimals - 8)) ).toFixed(4)
 }
 
-function convertGaugeLpAmountToUnderlying(amount: string, market: CTokenInfo) : string{
-    return (+amount * +market.exchangeRate * (10 ** (18 - market.underlying.decimals))).toFixed(4)
+function convertGaugeLpAmountToUnderlying(amount: string, gaugeDecimals: number, market: CTokenInfo) : string{
+    return (+amount * +market.exchangeRate / (10 ** (market.underlying.decimals - gaugeDecimals))).toFixed(4)
 }
 
 export default SupplyMarketDialog
