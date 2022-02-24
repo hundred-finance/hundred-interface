@@ -35,7 +35,9 @@ type Network = {
     backstopMasterChef?: BackstopMasterChef,
     minterAddress?: string,
     gaugeControllerAddress?: string,
-    airdropMulticallAddress?: string
+    airdropMulticallAddress?: string,
+    maximillion?: string;
+
 }
 
 type NetworkData = {
@@ -55,7 +57,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         nativeTokenMarketAddress: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
-        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074"
+        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        maximillion: '0x97F3763F8C0bE87Cab0e99Ee4b7806acA772FeDA',
     },
     "0xa4b1": {
         chainId: "0xa4b1",
@@ -76,8 +79,9 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         hundredLiquidityPoolAddress: "0x65E17c52128396443d4A9A61EaCf0970F05F8a20",
         backstopMasterChef: {address: "0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02", version: MasterChefVersion.v1},
-        gaugeControllerAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7"
-    },
+        gaugeControllerAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7",
+        maximillion: '0x26596af66A10Cb6c6fe890273eD37980D50f2448',
+},
     "0xfa": {
         chainId: "0xfa",
         network: "Fantom Opera", 
@@ -99,7 +103,9 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hndPoolPercent: 0.6,
         liquidity: true,
         backstopMasterChef: {address: "0xf347b0e405249c78d8b261b7c493449b9275b946", version: MasterChefVersion.v2, collaterals: 5},
-        airdropMulticallAddress: "0x96a0eEa3a9cff74764b73A891c3b36a4F6B81181"
+        airdropMulticallAddress: "0x96a0eEa3a9cff74764b73A891c3b36a4F6B81181",
+        maximillion: '0x9226f7304b547891eE257d64Cfb8F8c2a42b42BB',
+
     },
     "0x63564c40":
     {
@@ -120,7 +126,9 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         gaugeControllerAddress: "0xa8cD5D59827514BCF343EC19F531ce1788Ea48f8",
         trade: "https://app.sushi.com/swap?inputCurrency=0x10010078a54396f62c96df8532dc2b4847d47ed3",
-        addLiquidity: "https://app.sushi.com/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH"
+        addLiquidity: "https://app.sushi.com/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH",
+        maximillion: '0x2c7a9d9919f042C4C120199c69e126124d09BE7c',
+
     },
     "0x505":
     {
@@ -139,7 +147,9 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         gaugeControllerAddress: "0xca78ca5C3Da9a5a4C960C1757456E99d9F1bc76d",
         trade: "https://app.solarbeam.io/exchange/swap?inputCurrency=0x10010078a54396f62c96df8532dc2b4847d47ed3",
-        addLiquidity: "https://app.solarbeam.io/exchange/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH"
+        addLiquidity: "https://app.solarbeam.io/exchange/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH",
+        maximillion: '0xbd193db8a909cAC57Cdb981Ea81B5dc270287F19',
+
     },
     "0x64": {
         chainId: "0x64",

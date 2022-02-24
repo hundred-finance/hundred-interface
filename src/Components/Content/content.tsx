@@ -1,7 +1,7 @@
 import { ethers} from "ethers"
 import { BigNumber } from "../../bigNumber"
 import React, { useEffect,  useRef, useState } from "react"
-import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2 } from "../../abi"
+import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2,MAXIMILLION_ABI } from "../../abi"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import { MasterChefVersion, Network } from "../../networks"
 import { Comptroller, getComptrollerData } from "../../Classes/comptrollerClass"
@@ -276,7 +276,7 @@ const Content: React.FC<Props> = (props : Props) => {
           const gasRemainder = BigNumber.parseValue("0.1")
           
           if(func === "repay" && provider.current){
-            const balance = market.borrowBalanceInTokenUnit.subSafe(gasRemainder)
+            const balance = market.underlying.walletBalance.subSafe(gasRemainder);
             return balance.gt(BigNumber.from("0")) ? balance : BigNumber.from("0") 
           }
           else if(func === "supply" && provider.current){
@@ -291,8 +291,8 @@ const Content: React.FC<Props> = (props : Props) => {
 
     const getMaxRepayAmount = async (market: CTokenInfo) : Promise<BigNumber> => {
       if(market.isNativeToken) handleUpdate(market, "repay")
-      
-      const maxRepayFactor = BigNumber.from("1").addSafe(market.borrowRatePerBlock)//BigNumber.from("1").add(market.borrowApy); // e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
+      const borrowAPYPerDay = market.borrowApy.div(BigNumber.from('365'));
+      const maxRepayFactor = BigNumber.from("1").addSafe(borrowAPYPerDay)// e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
       
       const amount = BigNumber.parseValueSafe(market.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), market.underlying.decimals)
       
@@ -601,28 +601,38 @@ const Content: React.FC<Props> = (props : Props) => {
     if(marketsRef.current){
       if (spinner.current) spinner.current(true)
       let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
-      if(market && provider.current){
+      if(market && provider.current && network.current){
         try{
           setCompleted(false)
           const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
-          const am = (market.isNativeToken) ? ({value: value._value}) : 
+          const repayAmount = (market.isNativeToken) ? ({value: value._value}) : 
                    (fullRepay ? ethers.constants.MaxUint256 : value._value)
           if(selectedMarketRef.current)
             selectedMarketRef.current.repaySpinner = true
 
           market.repaySpinner = true
           const signer = provider.current.getSigner()
-          const tokenABI = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
-          const ctoken = new ethers.Contract(market.pTokenAddress, tokenABI, signer)
-          
-          const tx = await ctoken.repayBorrow(am)
+
+          if (market.isNativeToken && network.current.maximillion) {
+            const maxiContract = new ethers.Contract(network.current.maximillion, MAXIMILLION_ABI, signer);
+            const tx = await maxiContract.repayBehalfExplicit(userAddress.current, market.pTokenAddress, repayAmount,
+                        );
+                        if (spinner.current) spinner.current(false);
+                        const receipt = await tx.wait();
+                        console.log(receipt);
+                        setCompleted(true);
+                    } else { 
+                      
+                      const ctoken = new ethers.Contract(market.pTokenAddress, CTOKEN_ABI, signer)          
+                      const tx = await ctoken.repayBorrow(repayAmount)
           
           if (spinner.current) spinner.current(false)
 
           console.log(tx)
           const receipt = await tx.wait()
           console.log(receipt)
-          setCompleted(true)
+          setCompleted(true)}
+
         }
         catch(err){
           console.log(err)
