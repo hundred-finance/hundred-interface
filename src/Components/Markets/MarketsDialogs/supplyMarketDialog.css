@@ -1,39 +1,39 @@
-.dialog{
+.dialog {
     display: none;
     position: fixed;
-    top:0vh;
-    width:100%;
+    top: 0vh;
+    width: 100%;
     height: 100%;
     z-index: 5000;
-    left:0;
+    left: 0;
     margin: 0;
     padding: 10px;
     overflow: hidden;
 }
 
-.dialog .dialog-background{
+.dialog .dialog-background {
     position: absolute;
     width: 100%;
     height: 100%;
     display: block;
     background-color: var(--overlayBackground);
-    top:0;
+    top: 0;
     left: 0;
 }
 
-.open-dialog{
+.open-dialog {
     display: block;
 }
 
-.supply-box{
+.supply-box {
     min-width: 305px;
     max-width: 400px;
     max-height: 99.9%;
     border-radius: 10px;
-    padding:1rem;
+    padding: 1rem;
     position: relative;
     margin: auto;
-    top:50%;
+    top: 50%;
     transform: translateY(-50%);
     background-color: var(--background);
     display: flex;
@@ -41,11 +41,11 @@
     overflow: auto;
 }
 
-.supply-box-expand{
+.supply-box-expand {
     max-height: 613px;
 }
 
-.supply-box .dialog-close  {
+.supply-box .dialog-close {
     height: 15px;
     width: 15px;
     border-radius: 50%;
@@ -60,13 +60,13 @@
     color: var(--buttonHover2);
 } */
 
-.supply-box .dialog-title{
+.supply-box .dialog-title {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
     height: 30px;
     color: var(--secondaryText);
-    font-size:1.2rem;
+    font-size: 1.2rem;
 }
 
 .native-asset-amount {
@@ -107,6 +107,6 @@
     margin-top: 35px;
 }
 
-.input-button-group .textbox .validation{
-    bottom:-15px;
+.input-button-group .textbox .validation {
+    bottom: -15px;
 }

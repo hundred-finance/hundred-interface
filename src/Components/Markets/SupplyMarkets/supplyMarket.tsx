@@ -30,11 +30,11 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                 textColor={`${props.darkMode ? '#101010' : ''}`}
             />
 
-          {/* React tooltip for adding info icon and doc link to APR table header */}
+            {/* React tooltip for adding info icon and doc link to APR table header */}
             <ReactTooltip id="APR" place="top" effect="solid" delayHide={100} delayShow={100} delayUpdate={100}>
-            <p style={{ textAlign: 'center' }}>
+                <p style={{ textAlign: 'center' }}>
                     Learn about APR{' '}
-                    <a 
+                    <a
                         className="a"
                         target="_blank"
                         rel="noreferrer"
@@ -50,7 +50,7 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                     <tr>
                         <th>Asset</th>
                         <th>
-                            APR 
+                            APR
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="16"
@@ -120,20 +120,23 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                             <td></td>
                         </tr>
                     )}
-                  {props.marketsData?.filter((item) => item?.supplyBalance?.lte(BigNumber.from("0")))
-                    .sort(compareSymbol).sort(compareLiquidity).sort(compareHndAPR)
-                    .map((details, index) => {
-                      if(props.more || (!props.more && index < 6)) 
-                        return (
-                          <SupplyMarketRow
-                              key={index}
-                              tooltip={`not-supply-${index}`}
-                              details={details}
-                              enterMarketDialog={props.enterMarketDialog}
-                              supplyMarketDialog={props.supplyMarketDialog}
-                          />
-                        )
-                        else return null;
+                    {props.marketsData
+                        ?.filter((item) => item?.supplyBalance?.lte(BigNumber.from('0')))
+                        .sort(compareSymbol)
+                        .sort(compareLiquidity)
+                        .sort(compareHndAPR)
+                        .map((details, index) => {
+                            if (props.more || (!props.more && index < 6))
+                                return (
+                                    <SupplyMarketRow
+                                        key={index}
+                                        tooltip={`not-supply-${index}`}
+                                        details={details}
+                                        enterMarketDialog={props.enterMarketDialog}
+                                        supplyMarketDialog={props.supplyMarketDialog}
+                                    />
+                                );
+                            else return null;
                         })}
                 </tbody>
             </table>

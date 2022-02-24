@@ -14,12 +14,12 @@
     justify-content: center;
 }
 
-.address-button:hover{
+.address-button:hover {
     background-color: var(--buttonColor);
-    color:var(--buttonHover2);
+    color: var(--buttonHover2);
 }
 
-.address-button .address{
+.address-button .address {
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -27,7 +27,7 @@
     padding: 0 10px;
 }
 
-.address-button .address .arrow{
+.address-button .address .arrow {
     font-size: 0.7rem;
     /* color: var(--buttonColor); */
 }

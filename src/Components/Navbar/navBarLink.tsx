@@ -1,19 +1,20 @@
-import React, { ReactNode } from "react"
-import "./navbar.css"
+import React, { ReactNode } from 'react';
+import './navbar.css';
 
-interface Props{
-    link: string,
-    target?: string,
-    children?: ReactNode
+interface Props {
+    link: string;
+    target?: string;
+    children?: ReactNode;
 }
 
-const NavbarLink: React.FC<Props> = ({link, target, children} : Props) => {
-   
+const NavbarLink: React.FC<Props> = ({ link, target, children }: Props) => {
     return (
         <li className="navbar-links-list-item">
-            <a className="nav-link" style={{cursor: "pointer"}} href={link} target={target ? target : ""}>{children}</a>
+            <a className="nav-link" style={{ cursor: 'pointer' }} href={link} target={target ? target : ''}>
+                {children}
+            </a>
         </li>
-    )
-}
+    );
+};
 
-export default NavbarLink
+export default NavbarLink;

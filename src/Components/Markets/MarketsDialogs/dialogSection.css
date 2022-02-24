@@ -1,4 +1,4 @@
-.dialog-section{
+.dialog-section {
     background-color: var(--dialogSectionBackground);
     color: var(--secondaryText);
     padding: 10px;
@@ -7,30 +7,28 @@
     border-radius: 5px;
 }
 
-.dialog-section-no-top-gap{
+.dialog-section-no-top-gap {
     padding-top: 0;
 }
 
-.dialog-section-no-bottom-gap{
+.dialog-section-no-bottom-gap {
     padding-bottom: 0;
 }
 
-
-.dialog-section-content{
-    
+.dialog-section-content {
     display: flex;
     height: 25px;
     justify-content: space-between;
 }
 
-.dialog-section .dialog-section-content .fill{
-    flex:1;
+.dialog-section .dialog-section-content .fill {
+    flex: 1;
     padding-left: 12px;
     text-align: left;
     line-height: 25px;
 }
 
-.dialog-section .logo-holder{
+.dialog-section .logo-holder {
     display: block;
     width: 25px;
     height: 25px;
@@ -41,49 +39,44 @@
     justify-content: center;
 }
 
-.dialog-section-title{
+.dialog-section-title {
     display: none;
 }
 
-.dialog-section-content .dialog-section-content-header{
+.dialog-section-content .dialog-section-content-header {
     line-height: 25px;
 }
 
-.dialog-section-content .dialog-section-content-value{
+.dialog-section-content .dialog-section-content-value {
     line-height: 25px;
     display: flex;
 }
 
-.dialog-section-content-details{
+.dialog-section-content-details {
     display: flex;
     height: 5px;
     justify-content: space-between;
     font-size: 0.85rem;
 }
 
-.dialog-section-content .dialog-section-content-header-details{
+.dialog-section-content .dialog-section-content-header-details {
     line-height: 0px;
 }
 
-.dialog-section-content-value-details{
+.dialog-section-content-value-details {
     line-height: 0px;
-    
 }
 
-.dialog-section-content .dialog-section-content-value .dialog-section-arrow{
-    
+.dialog-section-content .dialog-section-content-value .dialog-section-arrow {
     position: relative;
     padding: 0 5px;
     display: none;
-    
 }
 
-.dialog-section-content .dialog-section-content-value .dialog-section-arrow-active{
+.dialog-section-content .dialog-section-content-value .dialog-section-arrow-active {
     display: initial;
 }
 
-.dialog-section-content .dialog-section-content-value .dialog-section-arrow svg{
+.dialog-section-content .dialog-section-content-value .dialog-section-arrow svg {
     transform: rotate(270deg);
 }
-
-

@@ -137,7 +137,7 @@ const COMPTROLLER_ABI = [
         payable: false,
         stateMutability: 'view',
         type: 'function',
-    }
+    },
 ];
 
 // const COMPTROLLER_ABI = [

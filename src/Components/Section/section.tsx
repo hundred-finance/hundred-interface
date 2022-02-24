@@ -1,19 +1,17 @@
-import React, { ReactNode } from "react"
-import "./style.css"
+import React, { ReactNode } from 'react';
+import './style.css';
 
-interface Props{
-    className?: string,
-    children?: ReactNode
+interface Props {
+    className?: string;
+    children?: ReactNode;
 }
 
-const Section: React.FC<Props> = (props : Props) => {
+const Section: React.FC<Props> = (props: Props) => {
     return (
-        <div className={`section ${props.className ? props.className : ""}`}>
-            <div className="section-content">
-                {props.children}
-            </div>
+        <div className={`section ${props.className ? props.className : ''}`}>
+            <div className="section-content">{props.children}</div>
         </div>
-    )
-}
+    );
+};
 
-export default Section
+export default Section;

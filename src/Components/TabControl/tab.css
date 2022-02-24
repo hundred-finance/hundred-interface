@@ -1,4 +1,4 @@
-.tab{
+.tab {
     overflow: hidden;
     position: relative;
     flex: 1;
@@ -11,10 +11,9 @@
     flex-direction: column;
     flex: 1;
     border: 1px solid red;*/
-    
 }
 
-.tab-header{
+.tab-header {
     height: 50px;
     display: flex;
     justify-content: center;
@@ -22,9 +21,9 @@
     position: relative;
 }
 
-.tab-header-item{
+.tab-header-item {
     line-height: 50px;
-    width:50%;
+    width: 50%;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -32,7 +31,7 @@
     color: var(--secondaryText);
 }
 
-.tab-content{
+.tab-content {
     box-sizing: border-box;
     overflow-y: auto;
     height: 100%;
@@ -41,18 +40,17 @@
     margin-top: 5px;
 }
 
-.tab-content-item{
+.tab-content-item {
     padding: 0 5px;
     position: relative;
-    top:0;
+    top: 0;
     display: block;
     height: 0;
-    overflow:hidden;
+    overflow: hidden;
     transform: scale(0.9);
     opacity: 0;
-    transition: opacity 0.2s ease-in-out,
-                transform 0.2s ease-in-out;
-    
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+
     /*
     padding-right: 10px;
     top:-200%;
@@ -67,28 +65,28 @@
     */
 }
 
-.tab-content-item div:not(:last-child){
+.tab-content-item div:not(:last-child) {
     margin-bottom: 5px;
 }
 
-.tab-content .active{
+.tab-content .active {
     height: 100%;
-    top:0;
+    top: 0;
     opacity: 1;
     transform: scale(1);
     overflow-y: auto;
 }
 
-.tab-header .active{
+.tab-header .active {
     color: var(--buttonHover);
     transition: all 0.2s ease-in-out;
 }
 
-.indicator{
+.indicator {
     position: absolute;
-    left:0;
+    left: 0;
     bottom: 5px;
     height: 2px;
     background-color: var(--buttonHover);
-    transition: left 0.2s ease-in-out; 
+    transition: left 0.2s ease-in-out;
 }

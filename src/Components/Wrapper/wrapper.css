@@ -1,25 +1,25 @@
-.wrapper{
+.wrapper {
     width: 100%;
     height: 100%;
     position: relative;
     left: 0;
     top: 0;
-    transition: all .2s ease-out;
+    transition: all 0.2s ease-out;
     padding-bottom: 110px;
 }
 
-.wrapper-side{
+.wrapper-side {
     left: 0px;
 }
 
 @media (max-width: 712px) {
-    .wrapper{
+    .wrapper {
         padding-bottom: 185px;
     }
 }
 
-@media (max-width: 330px){
-    .wrapper{
+@media (max-width: 330px) {
+    .wrapper {
         padding-bottom: 320px;
     }
 }

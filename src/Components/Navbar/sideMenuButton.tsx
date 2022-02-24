@@ -1,12 +1,11 @@
-import React, { useState } from "react"
+import React, { useState } from 'react';
 
 interface Props {
-    setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
-
+    setSideMenu: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const SideMenuButton: React.FC<Props> = ({setSideMenu}: Props) => {
-    const [hover, setHover] = useState(false)
+const SideMenuButton: React.FC<Props> = ({ setSideMenu }: Props) => {
+    const [hover, setHover] = useState(false);
 
     // const style = {
     //     //border: `0px solid ${props.theme.text}`,
@@ -64,12 +63,19 @@ const SideMenuButton: React.FC<Props> = ({setSideMenu}: Props) => {
     // }
 
     return (
-        <div className="menu-button" onClick={() => setSideMenu(true)} onMouseOver={() => setHover(true)} onMouseOut = {() => {setHover(false)}}>
+        <div
+            className="menu-button"
+            onClick={() => setSideMenu(true)}
+            onMouseOver={() => setHover(true)}
+            onMouseOut={() => {
+                setHover(false);
+            }}
+        >
             <span className="dot"></span>
             <span className="dot"></span>
             <span className="dot"></span>
         </div>
-    )
-}
+    );
+};
 
-export default SideMenuButton
+export default SideMenuButton;

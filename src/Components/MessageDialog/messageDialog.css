@@ -4,18 +4,17 @@
     left: 50%;
     transform: translate(-50%, -50%);
     max-width: 590px;
-    
+
     background-color: #f9fafb;
     overflow: auto;
     border-radius: 24px;
-    border:  1px solid #000;
+    border: 1px solid #000;
     outline: none;
     padding: 24px;
     color: #000;
-    
-  }
-  
-  .myoverlay {
+}
+
+.myoverlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -23,34 +22,33 @@
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 99999999;
-  }
+}
 
-  
-  .ReactModal__Overlay {
+.ReactModal__Overlay {
     opacity: 0;
     transition: opacity 100ms ease-in-out;
-  }
-  
-  .ReactModal__Overlay--after-open {
-    opacity: 1;
-  }
-  
-  .ReactModal__Overlay--before-close {
-    opacity: 0;
-  }
+}
 
-  .hundred-message-title{
+.ReactModal__Overlay--after-open {
+    opacity: 1;
+}
+
+.ReactModal__Overlay--before-close {
+    opacity: 0;
+}
+
+.hundred-message-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
+}
 
-  .hundred-message-title .closeBtn:hover{
+.hundred-message-title .closeBtn:hover {
     cursor: pointer;
     opacity: 0.7;
-  }
+}
 
-  .hundred-message-item{
+.hundred-message-item {
     padding: 16px;
     font-family: 'Poppins', sans-serif;
     margin: 24px 0 0 0;
@@ -59,27 +57,27 @@
     align-items: center;
     user-select: none;
     font-style: normal;
-  font-weight: normal;
-  text-align: center;
-  font-size: 14px;
-  line-height: 24px;
-  text-align: left;
-  font-feature-settings: 'pnum' on, 'lnum' on, 'calt' off;
-  }
+    font-weight: normal;
+    text-align: center;
+    font-size: 14px;
+    line-height: 24px;
+    text-align: left;
+    font-feature-settings: 'pnum' on, 'lnum' on, 'calt' off;
+}
 
-  .title{
+.title {
     font-family: 'Poppins', sans-serif;
     font-style: normal;
     font-weight: 600;
-  }
-  
-  .title18{
+}
+
+.title18 {
     font-size: 18px;
     line-height: 28px;
-  }
+}
 
-  .mymodal-dark{
+.mymodal-dark {
     background-color: #101010;
     color: #fff;
-    border:  1px solid #fff;
-  }
+    border: 1px solid #fff;
+}

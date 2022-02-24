@@ -1,4 +1,4 @@
-.navbar-button{
+.navbar-button {
     border: 1px solid var(--text);
     border-radius: 10px;
     width: 40px;
@@ -6,14 +6,14 @@
     margin: 0 10px;
     position: relative;
     cursor: pointer;
-    transition: all .2s ease-out;
+    transition: all 0.2s ease-out;
 }
 
 /* .navbar-button:hover{
     background-color: var(--navbarButtonHover);
 } */
 
-.navbar-button .bar{
+.navbar-button .bar {
     background-color: var(--text);
     width: 25px;
     height: 2px;
@@ -21,38 +21,37 @@
     border-radius: 3px;
     display: block;
     position: absolute;
-    transition: all .2s ease-out;
+    transition: all 0.2s ease-out;
 }
 
-.navbar-button .bar1{
+.navbar-button .bar1 {
     left: 50%;
     top: 30%;
     transform: translate(-50%, -30%);
 }
 
-.navbar-button .bar2{
-    left:50%;
+.navbar-button .bar2 {
+    left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
 }
 
-.navbar-button .bar3{
+.navbar-button .bar3 {
     left: 50%;
     top: 70%;
     transform: translate(-50%, -70%);
 }
 
-.navbar-button-clicked .bar1{
+.navbar-button-clicked .bar1 {
     top: 50%;
     transform: translate(-50%, -50%) rotate(45deg);
 }
 
-.navbar-button-clicked .bar2{
+.navbar-button-clicked .bar2 {
     opacity: 0;
 }
 
-.navbar-button-clicked .bar3{
+.navbar-button-clicked .bar3 {
     top: 50%;
     transform: translate(-50%, -50%) rotate(-45deg);
 }
-

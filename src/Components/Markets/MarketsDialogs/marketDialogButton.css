@@ -1,14 +1,13 @@
-.market-dialog-button{
+.market-dialog-button {
     display: block;
     height: 60px;
     display: flex;
     text-align: center;
     justify-content: center;
     user-select: none;
-    
 }
 
-.market-dialog-button button{
+.market-dialog-button button {
     margin: 10px auto auto;
     height: 45px;
     width: 100%;
@@ -16,35 +15,35 @@
     outline: none;
     border: 1px solid var(--buttonHover);
     background-color: var(--buttonColor);
-    color:var(--text);
+    color: var(--text);
     border-radius: 5px;
     cursor: pointer;
 }
 
-.market-dialog-button button:disabled{
+.market-dialog-button button:disabled {
     border: 1px solid var(--buttonColor);
     cursor: no-drop;
 }
 
-.market-dialog-button button:hover{
+.market-dialog-button button:hover {
     background-color: var(--boxBackground);
-    color:var(--secondaryText);
+    color: var(--secondaryText);
 }
 
-.market-dialog-button button:active{
-    -webkit-box-shadow: 0px 0px 20px -7px rgba(65,121,241,0.75); 
-    box-shadow: 0px 0px 20px -7px rgba(65,121,241,0.75);
+.market-dialog-button button:active {
+    -webkit-box-shadow: 0px 0px 20px -7px rgba(65, 121, 241, 0.75);
+    box-shadow: 0px 0px 20px -7px rgba(65, 121, 241, 0.75);
     background-color: var(--buttonHover);
     color: #f1f1f1;
     user-select: none;
 }
 
-.market-dialog-button button:disabled{
+.market-dialog-button button:disabled {
     background-color: #e9e9e9;
-    color:#494949;
+    color: #494949;
 }
 
-.market-dialog-button button:disabled:hover{
-    -webkit-box-shadow: none; 
+.market-dialog-button button:disabled:hover {
+    -webkit-box-shadow: none;
     box-shadow: none;
 }

@@ -1,39 +1,38 @@
-.dialog{
+.dialog {
     display: none;
     position: fixed;
-    top:0vh;
-    width:100%;
+    top: 0vh;
+    width: 100%;
     height: 100%;
     background-color: var(--overlayBackground);
     z-index: 5000;
-    left:0;
+    left: 0;
     margin: 0;
     padding: 5px;
 }
 
-.open-dialog{
+.open-dialog {
     display: block;
 }
 
-.dialog-box{
+.dialog-box {
     max-width: 400px;
     min-width: 305px;
     min-height: 350px;
     -webkit-box-shadow: var(--boxShadow);
     box-shadow: var(--boxShadow);
     border-radius: 10px;
-    padding:1rem;
+    padding: 1rem;
     position: fixed;
-    top:15%;
+    top: 15%;
     left: 50%;
     transform: translateX(-50%);
     background-color: var(--boxBackground);
     display: flex;
     flex-direction: column;
-    
 }
 
-.dialog-box .dialog-close  {
+.dialog-box .dialog-close {
     height: 10px;
     width: 10px;
     cursor: pointer;
@@ -42,21 +41,20 @@
     right: 15px;
 }
 
-.dialog-close:hover{
+.dialog-close:hover {
     opacity: 0.7;
 }
 
-
-.dialog-box .dialog-title{
+.dialog-box .dialog-title {
     display: flex;
     align-items: center;
     margin-bottom: 40px;
     height: 40px;
     color: var(--secondaryText);
-    font-size:1.3rem;
+    font-size: 1.3rem;
 }
 
-.dialog-box .dialog-content{
+.dialog-box .dialog-content {
     position: relative;
     min-height: 270px;
     display: flex;
@@ -66,12 +64,12 @@
     border-top: 1px solid var(--borderBottom);
 }
 
-.dialog-box .dialog-content .dialog-message{
+.dialog-box .dialog-content .dialog-message {
     color: var(--grayText);
     line-height: 1.5rem;
 }
 
-.dialog-box .dialog-content .dialog-button{
+.dialog-box .dialog-content .dialog-button {
     width: 100%;
     height: 50px;
     font-size: 1.1rem;
@@ -80,15 +78,15 @@
     cursor: pointer;
     border-radius: 25px;
     border: 1px solid var(--buttonColor);
-    background-color: var(--buttonColor);    
+    background-color: var(--buttonColor);
 }
 
-.dialog-box .dialog-content .dialog-button:hover{
+.dialog-box .dialog-content .dialog-button:hover {
     background-color: var(--boxColor);
-    color:var(--secondaryText);
+    color: var(--secondaryText);
 }
 
-.dialog-box .dialog-content .dialog-button:disabled{
+.dialog-box .dialog-content .dialog-button:disabled {
     pointer-events: none;
     background-color: var(--buttonHover2);
     color: var(--secondaryText);

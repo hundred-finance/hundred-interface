@@ -1,17 +1,17 @@
 export type Theme = {
-    navBackground?: string,
-    background?: string,
-    sectionBackground?: string,
-    text?: string,
-    bottomShadow?: string,
-    overlayBackground?: string,
-    buttonColor?: string,
-    buttonHover?: string,
-    buttonHover2?: string,
-    textShadow?: string,
-    spinnerColor?: string,
-    boxShadow?: string,
-}
+    navBackground?: string;
+    background?: string;
+    sectionBackground?: string;
+    text?: string;
+    bottomShadow?: string;
+    overlayBackground?: string;
+    buttonColor?: string;
+    buttonHover?: string;
+    buttonHover2?: string;
+    textShadow?: string;
+    spinnerColor?: string;
+    boxShadow?: string;
+};
 
 export const lightTheme: Theme = {
     navBackground: '#f0f0f0',
@@ -26,7 +26,7 @@ export const lightTheme: Theme = {
     textShadow: '1px 1px 1px rgba(0,0,0,.2)',
     spinnerColor: '#f0f0f0',
     boxShadow: '0px 1px 10px 1px rgba(97, 97, 97, 0.5)',
-}
+};
 
 export const darkTheme: Theme = {
     navBackground: '#101010',
@@ -38,5 +38,5 @@ export const darkTheme: Theme = {
     overlayBackground: 'rgba(250, 250, 250, 0.3)',
     boxShadow: '0px 1px 10px 1px rgba(230, 230, 230, 0.5)',
     spinnerColor: '#f0f0f0',
-    buttonHover2: "#f0f0f0"
-}
+    buttonHover2: '#f0f0f0',
+};

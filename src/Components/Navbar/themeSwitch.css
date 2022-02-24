@@ -1,4 +1,4 @@
-.theme-switch{
+.theme-switch {
     border: 1px solid var(--buttonColor);
     width: 70px;
     height: 40px;
@@ -6,26 +6,26 @@
     justify-content: space-around;
     align-items: center;
     border-radius: 20px;
-    transition: all .5s ease-in-out;
+    transition: all 0.5s ease-in-out;
     position: relative;
 }
 
-.theme-switch-dark-mode{
+.theme-switch-dark-mode {
     background-color: var(--themeSwitchBackground);
 }
 
-.theme-switch .switch-button{
+.theme-switch .switch-button {
     position: absolute;
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: var(--secondaryBackground);
     left: 7px;
-    transition: all .5s ease-in-out;
+    transition: all 0.5s ease-in-out;
     cursor: pointer;
 }
 
-.theme-switch .switch-button-dark-mode{
+.theme-switch .switch-button-dark-mode {
     background-color: var(--background);
     left: initial;
     right: 7px;

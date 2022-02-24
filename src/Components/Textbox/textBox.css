@@ -1,4 +1,4 @@
-.textbox{
+.textbox {
     width: 100%;
     position: relative;
     height: 60px;
@@ -8,20 +8,20 @@
     height: 50px;
 }
 
-.textbox .validation{
+.textbox .validation {
     color: red;
     font-size: 0.8rem;
     margin-bottom: 5px;
     position: absolute;
     bottom: -9px;
-    left:0;
+    left: 0;
 }
 
-.validation-collapse .validation{
+.validation-collapse .validation {
     display: none;
 }
 
-.textbox div{
+.textbox div {
     border: 1px solid var(--buttonColor);
     border-radius: 5px;
     height: 45px;
@@ -34,7 +34,7 @@
     background-color: var(--dialogSectionBackground);
 }
 
-.textbox div .placeholder{
+.textbox div .placeholder {
     position: absolute;
     left: 15px;
     color: var(--textboxPlaceholder);
@@ -42,7 +42,7 @@
     pointer-events: none;
 }
 
-.textbox div .placeholder-disabled{
+.textbox div .placeholder-disabled {
     display: none;
 }
 
@@ -50,34 +50,33 @@
     outline: none;
     width: 100%;
     font-size: 1.2rem;
-    padding:5px;
+    padding: 5px;
     border: none;
     color: var(--secondaryText);
     box-sizing: border-box;
     background-color: transparent;
 }
 
-
-.textbox div input:focus + .placeholder{
+.textbox div input:focus + .placeholder {
     transform: scale(0.72) translateY(-75%) translateX(-40%);
-    top:0;
+    top: 0;
     background-color: transparent;
     padding: 5px;
-    color:var(--secondaryText);
+    color: var(--secondaryText);
     text-align: center;
 }
 
-.textbox div input:valid + .placeholder{
+.textbox div input:valid + .placeholder {
     transform: scale(0.72) translateY(-75%) translateX(-40%);
-    top:0;
+    top: 0;
     background-color: transparent;
     padding: 5px;
     text-align: center;
 }
 
 .textbox div input:focus + .placeholder::after,
-.textbox div input:valid + .placeholder::after{
-    content: "";
+.textbox div input:valid + .placeholder::after {
+    content: '';
     width: 100%;
     height: 2px;
     z-index: -1;
@@ -87,35 +86,31 @@
     background-color: var(--dialogSectionBackground);
 }
 
-.textbox .textbox-button .input-button{
+.textbox .textbox-button .input-button {
     position: absolute;
-    width:66px;
+    width: 66px;
     padding: 0 5px;
     line-height: 43px;
     text-align: center;
     right: 2px;
     font-size: 0.9rem;
     cursor: pointer;
-    top:50%;
+    top: 50%;
     transform: translateY(-50%);
     columns: #646466;
     user-select: none;
     color: var(--secondaryText);
-    
 }
 
-.textbox .textbox-button .input-button:hover{
+.textbox .textbox-button .input-button:hover {
     color: var(--buttonHover);
 }
 
-.textbox .textbox-button .input-button-disabled{
+.textbox .textbox-button .input-button-disabled {
     pointer-events: none;
     cursor: pointer;
 }
 
-.textbox .textbox-button input{
+.textbox .textbox-button input {
     padding-right: 70px;
 }
-
-
-

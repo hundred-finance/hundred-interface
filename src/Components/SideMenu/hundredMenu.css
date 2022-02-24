@@ -4,14 +4,14 @@
     padding-bottom: 10px;
 }
 
-.hundred-menu-item .hundred-menu-link{
+.hundred-menu-item .hundred-menu-link {
     text-decoration: none;
     color: rgb(73, 166, 219);
     font-weight: bold;
 }
 
-.hundred-menu-item .hundred-menu-link:hover{
-    text-decoration:underline;
+.hundred-menu-item .hundred-menu-link:hover {
+    text-decoration: underline;
 }
 
 .hundred-menu-item .hundred-menu-item-button {
@@ -61,7 +61,7 @@
     margin-bottom: 20px;
 }
 
-.hundred-menu .hundred-menu-item hr{
+.hundred-menu .hundred-menu-item hr {
     margin-top: 10px;
     margin-bottom: 20px;
 }

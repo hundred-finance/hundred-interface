@@ -1,4 +1,4 @@
-.airdrop-menu{
+.airdrop-menu {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -6,7 +6,7 @@
     flex: 1;
 }
 
-.airdrop-menu-label{
+.airdrop-menu-label {
     font-size: 1.1rem;
     font-weight: bold;
     text-align: left;
@@ -15,15 +15,15 @@
     border-top: 2px solid #fff;
 }
 
-.airdrop-menu-label:first-of-type{
+.airdrop-menu-label:first-of-type {
     margin-top: -10px;
 }
 
-.airdrop-menu-label:not(:first-of-type){
+.airdrop-menu-label:not(:first-of-type) {
     margin-top: 20px;
 }
 
-.airdrop-menu-item{
+.airdrop-menu-item {
     display: flex;
     justify-content: space-between;
     padding-top: 10px;
@@ -32,7 +32,7 @@
     justify-content: center;
 }
 
-.airdrop-menu-item-values{
+.airdrop-menu-item-values {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -46,14 +46,14 @@
     padding-bottom: 10px;
 }
 
-.airdrop-menu-item .airdrop-menu-link{
+.airdrop-menu-item .airdrop-menu-link {
     text-decoration: none;
     color: rgb(73, 166, 219);
     font-weight: bold;
 }
 
-.airdrop-menu-item .airdrop-menu-link:hover{
-    text-decoration:underline;
+.airdrop-menu-item .airdrop-menu-link:hover {
+    text-decoration: underline;
 }
 
 .airdrop-menu-item .airdrop-menu-item-button {
@@ -99,7 +99,6 @@
     transition: all 0.1s ease-out;
     background-color: rgba(241, 241, 241, 0.767);
     width: 90%;
-
 }
 
 .airdrop-menu hr {
@@ -107,25 +106,25 @@
     margin-bottom: 20px;
 }
 
-.airdrop-menu .airdrop-menu-item hr{
+.airdrop-menu .airdrop-menu-item hr {
     margin-top: 10px;
     margin-bottom: 20px;
 }
 
-.airdrop-history{
+.airdrop-history {
     flex: 1;
     overflow: auto;
 }
 
 .airdrop-history::-webkit-scrollbar {
-  width: 5px;
+    width: 5px;
 }
 
-.airdrop-unclaimed{
+.airdrop-unclaimed {
     max-height: 40%;
     overflow: auto;
 }
 
 .airdrop-unclaimed::-webkit-scrollbar {
     width: 5px;
-  }
+}
