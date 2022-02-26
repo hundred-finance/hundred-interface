@@ -615,24 +615,23 @@ const Content: React.FC<Props> = (props : Props) => {
 
           if (market.isNativeToken && network.current.maximillion) {
             const maxiContract = new ethers.Contract(network.current.maximillion, MAXIMILLION_ABI, signer);
-            const tx = await maxiContract.repayBehalfExplicit(userAddress.current, market.pTokenAddress, repayAmount,
-                        );
-                        if (spinner.current) spinner.current(false);
-                        const receipt = await tx.wait();
-                        console.log(receipt);
-                        setCompleted(true);
-                    } else { 
-                      
-                      const ctoken = new ethers.Contract(market.pTokenAddress, CTOKEN_ABI, signer)          
-                      const tx = await ctoken.repayBorrow(repayAmount)
-          
-          if (spinner.current) spinner.current(false)
-
-          console.log(tx)
-          const receipt = await tx.wait()
-          console.log(receipt)
-          setCompleted(true)}
-
+            const tx = await maxiContract.repayBehalfExplicit(userAddress.current, market.pTokenAddress, repayAmount);
+            
+            if (spinner.current) spinner.current(false);
+            console.log(tx)
+            const receipt = await tx.wait();
+            console.log(receipt);
+          } 
+          else {        
+            const ctoken = new ethers.Contract(market.pTokenAddress, CTOKEN_ABI, signer)          
+            const tx = await ctoken.repayBorrow(repayAmount)
+        
+            if (spinner.current) spinner.current(false)
+            console.log(tx)
+            const receipt = await tx.wait()
+            console.log(receipt)
+          }
+          setCompleted(true);
         }
         catch(err){
           console.log(err)
