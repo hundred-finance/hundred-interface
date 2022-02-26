@@ -1,3 +1,41 @@
+const MAXIMILLION_ABI = [
+    {
+        inputs: [{ internalType: 'contract CEther', name: 'cEther_', type: 'address' }],
+        payable: false,
+        stateMutability: 'nonpayable',
+        type: 'constructor',
+    },
+    {
+        constant: true,
+        inputs: [],
+        name: 'cEther',
+        outputs: [{ internalType: 'contract CEther', name: '', type: 'address' }],
+        payable: false,
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        constant: false,
+        inputs: [{ internalType: 'address', name: 'borrower', type: 'address' }],
+        name: 'repayBehalf',
+        outputs: [],
+        payable: true,
+        stateMutability: 'payable',
+        type: 'function',
+    },
+    {
+        constant: false,
+        inputs: [
+            { internalType: 'address', name: 'borrower', type: 'address' },
+            { internalType: 'contract CEther', name: 'cEther_', type: 'address' },
+        ],
+        name: 'repayBehalfExplicit',
+        outputs: [],
+        payable: true,
+        stateMutability: 'payable',
+        type: 'function',
+    },
+];
 const COMPTROLLER_ABI = [
     {
         constant: true,
@@ -6404,4 +6442,5 @@ export {
     REWARD_POLICY_MAKER_ABI,
     AIRDROP_ABI,
     AIRDROP_V2_ABI,
+    MAXIMILLION_ABI
 };
