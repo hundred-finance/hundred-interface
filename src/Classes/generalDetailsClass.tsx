@@ -1,4 +1,4 @@
-∏import { BigNumber } from "../bigNumber"
+import { BigNumber } from "../bigNumber"
 import { CTokenInfo } from "./cTokenClass"
 import {GaugeV4} from "./gaugeV4Class";
 
