@@ -56,7 +56,7 @@ export class GeneralDetailsData{
 }
 
 export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], gauges: GaugeV4[], compAccrued: BigNumber) : GeneralDetailsData => {
-    let totalSupplyBalance = BigNumber.from("0") 
+    let totalSupplyBalance = BigNumber.from("0")
     let totalStakedBalance = BigNumber.from("0")
     let totalBorrowBalance = BigNumber.from("0")
     let allMarketsTotalSupplyBalance = BigNumber.from("0")
@@ -119,9 +119,6 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], gauges: Ga
     const tempNetApy = +totalSupplyBalance.toString() + +totalStakedBalance.toString() - +totalBorrowBalance.toString() > 0 && (+totalSupplyBalance.toString()+ +totalStakedBalance.toString()) !== 0 ? 
                       (+yearSupplyInterest.toString() + +yearStakeInterest.toString() - +yearBorrowInterest.toString()) / (+totalSupplyBalance.toString()+ +totalStakedBalance.toString()) 
                       : 0
-    // const tempNetApy = +totalSupplyBalance.toString() + +totalStakedBalance.toString() - +totalBorrowBalance.toString() > 0 ? 
-    //                   (+yearSupplyInterest.toString() + +yearStakeInterest.toString() - +yearBorrowInterest.toString()) / (+totalSupplyBalance.toString() + +totalStakedBalance.toString() - +totalBorrowBalance.toString()) 
-    //                   : 0
     //const netApy = totalSupplyBalance.gt(BigNumber.from("0")) ? (yearSupplyInterest.subSafe(yearBorrowInterest)).divSafe(totalSupplyBalance) : BigNumber.from("0")
     const  netApy = BigNumber.parseValue(tempNetApy.noExponents())
 

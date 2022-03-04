@@ -138,10 +138,13 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                 const ethcallProvider = new Provider()
                 await ethcallProvider.init(provider)
                 if(network.multicallAddress) {
-                    ethcallProvider.multicallAddress = network.multicallAddress
+                    ethcallProvider.multicall = {
+                        address: network.multicallAddress,
+                        block: 0
+                    }
                 }
     
-                const hasClaimed = await hasClaimedCall(calls, ethcallProvider)
+                const hasClaimed: any[] = await hasClaimedCall(calls, ethcallProvider) as any
                 if(hasClaimed && airdrops && airdrops.length > 0 && hasClaimed.length === airdrops.length){
                     airdrops.forEach((x, index) => {
                             x.hasClaimed = hasClaimed[index]
