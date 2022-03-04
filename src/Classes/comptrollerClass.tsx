@@ -50,11 +50,19 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
     const ethcallProvider = new Provider()
     await ethcallProvider.init(provider)
     if(network.multicallAddress) {
-        ethcallProvider.multicallAddress = network.multicallAddress
+        ethcallProvider.multicall = {
+            address: network.multicallAddress,
+            block: 0
+        }
     }
-
+    console.log("comptroller")
     const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
+console.log(ethcallProvider)
+    const contract = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
 
+    const m = await contract.getAllMarkets()
+    console.log(m)
+    
     const calls = [ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets()]
 
     const backstop = network.backstopMasterChef
@@ -64,13 +72,15 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
         const backstopContract = new Contract(backstop.address, backstopAbi)
         calls.push(backstopContract.poolLength())
     }
+    console.log(calls)
     const data = await ethcallProvider.all(calls) 
-    const oracleAddress = data[0]
-    const allMarkets = data[1]
+    const oracleAddress = data[0] as string
+    const allMarkets = data[1] as string[]
+    console.log(data)
 
     const backstopPools = []
     if(backstop){
-        const poolLength = data[2] 
+        const poolLength: any = data[2] 
         const backstopContract = new Contract(backstop.address, backstopAbi)
         const backStopCall = []
         for(let i=0; i<poolLength; i++){
@@ -82,8 +92,8 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
             for(let i=0; i<backstopData.length / 2; i++){
                 const backstopPool: BackstopPool = {
                     poolId: i,
-                    lpTokens: backstopData[i*2],
-                    underlyingTokens: backstopData[(i*2)+1]
+                    lpTokens: backstopData[i*2] as string,
+                    underlyingTokens: backstopData[(i*2)+1] as string
                 }
                 backstopPools.push(backstopPool)
             }
@@ -103,7 +113,7 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
                     for(let i=0; i<collateralsCount; i++)
                         collateralsData.push(collaterals[i])
                     collaterals.splice(0,5)
-                    x.collaterals = collateralsData
+                    x.collaterals = collateralsData as string[]
                 })
 
             }

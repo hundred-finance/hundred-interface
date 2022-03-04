@@ -67,7 +67,10 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
     await ethcallProvider.init(provider)
 
     if(network.multicallAddress) {
-        ethcallProvider.multicallAddress = network.multicallAddress
+        ethcallProvider.multicall = {
+            address: network.multicallAddress,
+            block: 0
+        }
     }
 
     let generalData: Array<GaugeV4GeneralData> = [];
@@ -76,12 +79,12 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
         const controller = network.gaugeControllerAddress
         const ethcallGaugeController = new Contract(controller, GAUGE_CONTROLLER_ABI)
 
-        const [nbGauges] = await ethcallProvider.all([ethcallGaugeController.n_gauges()])
+        const [nbGauges] = await ethcallProvider.all([ethcallGaugeController.n_gauges()]) as any
 
-        const gauges = await ethcallProvider.all(Array.from(Array(nbGauges.toNumber()).keys()).map(i => ethcallGaugeController.gauges(i)))
+        const gauges:  any[] = await ethcallProvider.all(Array.from(Array(nbGauges.toNumber()).keys()).map(i => ethcallGaugeController.gauges(i)))
         const activeGauges: string[] = [];
 
-        let lpAndMinterAddresses = await ethcallProvider.all(
+        let lpAndMinterAddresses: any = await ethcallProvider.all(
             gauges.flatMap((g) => [
                 new Contract(g, GAUGE_V4_ABI).lp_token(),
                 new Contract(g, GAUGE_V4_ABI).minter(),
@@ -102,7 +105,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
             }
         }
 
-        let rewards = await ethcallProvider.all(
+        let rewards: any = await ethcallProvider.all(
             activeGauges.flatMap((g, index) => [
                     new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
                     new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g)
@@ -139,7 +142,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                 ])
             )
 
-            const infoChunks = _.chunk(info, 7);
+            const infoChunks: any = _.chunk(info, 7);
 
             return generalData.map((g, index) => {
                 return new GaugeV4(
