@@ -167,21 +167,22 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         gaugeControllerAddress: "0x2105dE165eD364919703186905B9BB5B8015F13c",
         maximillion: "0x42b458056f887fd665ed6f160a59afe932e1f559"
     },
-    // "0xa":
-    // {
-    //     chainId: "0xa",
-    //     network: "Optimism",
-    //     symbol: "ETH",
-    //     rpcUrls: ["https://mainnet.optimism.io"],
-    //     blockExplorerUrls: ["https://optimistic.etherscan.io"],
-    //     logo: Logos["OPT"],
-    //     name: "OPT",
-    //     blocksPerYear: 2336000,
-    //     nativeTokenMarketAddress: "0xe8f12f5492ec28609d2932519456b7436d6c93bd",
-    //     unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
-    //     hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
-    //     compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-    // },
+    "0xa":
+    {
+        chainId: "0xa",
+        network: "Optimism",
+        symbol: "ETH",
+        rpcUrls: ["https://mainnet.optimism.io"],
+        blockExplorerUrls: ["https://optimistic.etherscan.io"],
+        logo: Logos["OPT"],
+        name: "OPT",
+        blocksPerYear: 2336000,
+        nativeTokenMarketAddress: "0xe8f12f5492ec28609d2932519456b7436d6c93bd",
+        unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
+        hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
+        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        maximillion: "0xedba32185baf7fef9a26ca567bc4a6cbe426e499"
+    },
     // "0x1251":
     // {
     //     chainId: "0x1251",
