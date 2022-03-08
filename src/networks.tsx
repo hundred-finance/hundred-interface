@@ -39,6 +39,19 @@ type Network = {
     airdropMulticallAddress?: string,
     maximillion?: string;
     votingAddress?: string;
+    lendly?: Lendly
+
+}
+
+export type LendlyData = {
+    nativeTokenMarketAddress: string,
+    unitrollerAddress: string,
+    hundredAddress: string,
+    gaugeControllerAddress?: string,
+}
+
+type Lendly = {
+    [key: string]: LendlyData
 }
 
 type NetworkData = {
@@ -110,8 +123,20 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         maximillion: '0x9226f7304b547891eE257d64Cfb8F8c2a42b42BB',
         votingAddress: '0x376020c5B0ba3Fd603d7722381fAA06DA8078d8a',
         minterAddress: '0x42B458056f887Fd665ed6f160A59Afe932e1F559',
-        minterAddressLendly: '0x14Cb5E017a3F10B9f6254fF24b87e2297dC8b8b3'
-
+        minterAddressLendly: '0x14Cb5E017a3F10B9f6254fF24b87e2297dC8b8b3',
+        lendly: {
+            "HND":{
+                nativeTokenMarketAddress: "",
+                unitrollerAddress: "0xeea62eD232fF4CCB6425d41AFB1b0B41d34F3114",
+                hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
+                gaugeControllerAddress: "0x788ac705a7b67562cdd1913b67ee091785fa4f68",
+            },
+            "WEVE":{
+                nativeTokenMarketAddress: "",
+                unitrollerAddress: "0x612dcaaf5b20774f2ebbed49bc82442d642b7082",
+                hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3"
+            }
+        }
     },
     "0x63564c40":
     {
