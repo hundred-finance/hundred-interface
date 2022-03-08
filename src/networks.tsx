@@ -36,8 +36,20 @@ type Network = {
     minterAddress?: string,
     gaugeControllerAddress?: string,
     airdropMulticallAddress?: string,
-    maximillion?: string;
+    maximillion?: string,
+    lendly?: Lendly
 
+}
+
+export type LendlyData = {
+    nativeTokenMarketAddress: string,
+    unitrollerAddress: string,
+    hundredAddress: string,
+    gaugeControllerAddress?: string,
+}
+
+type Lendly = {
+    [key: string]: LendlyData
 }
 
 type NetworkData = {
@@ -105,7 +117,19 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         backstopMasterChef: {address: "0xf347b0e405249c78d8b261b7c493449b9275b946", version: MasterChefVersion.v2, collaterals: 5},
         airdropMulticallAddress: "0x96a0eEa3a9cff74764b73A891c3b36a4F6B81181",
         maximillion: '0x9226f7304b547891eE257d64Cfb8F8c2a42b42BB',
-
+        lendly: {
+            "HND":{
+                nativeTokenMarketAddress: "",
+                unitrollerAddress: "0xeea62eD232fF4CCB6425d41AFB1b0B41d34F3114",
+                hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
+                gaugeControllerAddress: "0x788ac705a7b67562cdd1913b67ee091785fa4f68",
+            },
+            "WEVE":{
+                nativeTokenMarketAddress: "",
+                unitrollerAddress: "0x612dcaaf5b20774f2ebbed49bc82442d642b7082",
+                hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3"
+            }
+        }
     },
     "0x63564c40":
     {
