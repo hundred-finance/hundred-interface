@@ -331,26 +331,25 @@ const App: React.FC = () => {
         await handleClaimHnd()
 
         const signer = provider.getSigner()
-    if (network.votingAddress && address) 
-    {   
-
-     const votingContract = new ethers.Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
-     const balanceContract = new ethers.Contract(network.hundredAddress, HUNDRED_ABI)
-                      console.log("balanceContract ")
-
-    const rewards = await balanceContract.balanceOf(address)
-                  console.log("rewards ")
-
-     const tx = await votingContract.increase_amount(rewards)
-                  console.log("increase_amount ")
-
-     await tx.wait()
-        setSpinnerVisible(false)
-        console.log(tx)
-        const receipt = await tx.wait()
-        console.log(receipt)
-        setUpdateEarned(true)
-    }
+        if (network.votingAddress) 
+        {   
+        
+         const votingContract = new ethers.Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
+         const balanceContract = new ethers.Contract(network.hundredAddress, HUNDRED_ABI, provider)
+                          console.log("balanceContract" )
+        const rewards = await balanceContract.balanceOf(address)
+                      console.log(rewards.toString())
+        
+         const tx = await votingContract.increase_amount(rewards)
+                      console.log("increase_amount ")
+        
+         await tx.wait()
+            setSpinnerVisible(false)
+            console.log(tx)
+            const receipt = await tx.wait()
+            console.log(receipt)
+            setUpdateEarned(true)
+        }
        
       }
       
