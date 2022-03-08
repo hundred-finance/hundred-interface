@@ -54,7 +54,7 @@ const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
                     <a href='https://twitter.com/HundredFinance' target="_blank" rel="noreferrer">
                         <img alt="Github Icon" src={twitter} className='footer-image' />
                     </a>
-                    <a href='https://immunefi.com/bounty/hundred-finance/' target="_blank" rel='noreferrer'>
+                    <a href='https://immunefi.com/bounty/hundredfinance/' target="_blank" rel='noreferrer'>
                         <ImmunefiLogo darkMode={darkMode} isMobile={scale}/>
                     </a>
                 </div>
