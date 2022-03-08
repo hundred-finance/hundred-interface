@@ -146,7 +146,7 @@ export const fetchData = async(
         const cToken = new Contract(x, CTOKEN_ABI)
         underlyingCalls.push(cToken.underlying())
       })
-      const result = await comptrollerData.ethcallProvider.all(underlyingCalls)
+      const result: string[] = await comptrollerData.ethcallProvider.all(underlyingCalls)
 
       underlyingAddresses = result
     }
@@ -217,7 +217,7 @@ export const fetchData = async(
         }
     })
 
-    const res = await comptrollerData.ethcallProvider.all(calls)
+    const res: any[] = await comptrollerData.ethcallProvider.all(calls)
     const tokens = []
     let compAccrued = BigNumber.from("0")
     let hndBalance = BigNumber.from("0")
