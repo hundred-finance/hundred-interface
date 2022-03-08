@@ -17,6 +17,8 @@ import Logos from "../../logos"
 import { MasterChefVersion, Network } from "../../networks"
 import {GaugeV4, GaugeV4GeneralData} from "../../Classes/gaugeV4Class";
 import { Backstop, BackstopCollaterals, BackstopPool, BackstopPoolInfo, BackstopType, BackstopTypeV2, BackstopV2 } from "../../Classes/backstopClass"
+import { fetchVotingData } from "./fetchVotingData"
+import { fetchHndRewards } from "./fetchHndRewardsData"
 
 const mantissa = 1e18
 
@@ -77,7 +79,10 @@ export type MarketDataType = {
     hundredBalace: BigNumber,
     comAccrued: BigNumber,
     markets: CTokenInfo[],
-    gauges: GaugeV4GeneralData[]
+    gauges: GaugeV4GeneralData[],
+    vehndBalance: BigNumber,
+    hndRewards: BigNumber,
+    gaugeAddresses: string[],
 }
   
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -121,7 +126,14 @@ export const fetchData = async(
                  comptrollerData.ethcallComptroller.borrowGuardianPaused(nativeToken))
     }
 
-    const notNativeMarkets = markets.filter((a) => {
+  const hndClaimData = (await fetchHndRewards({gaugesData}))
+  const hndRewards = hndClaimData.totalHndRewards
+  const gaugeAddresses = hndClaimData.gaugeAddresses
+
+  const votingData = (await fetchVotingData({userAddress, comptrollerData, network}))
+  const vehndBalance = votingData.vehndBalance
+  
+  const notNativeMarkets = markets.filter((a) => {
       if (a.toLowerCase() === network.nativeTokenMarketAddress.toLowerCase()) 
         return false
       return true  
@@ -260,7 +272,10 @@ export const fetchData = async(
         hndBalance: hndBalance,
         hundredBalace: hundredBalace,
         comAccrued: compAccrued,
-        gauges: gaugesData.map(g => g.generalData)
+        gauges: gaugesData.map(g => g.generalData),
+        vehndBalance: vehndBalance,
+        hndRewards: hndRewards,
+        gaugeAddresses: gaugeAddresses
     }
   }
 

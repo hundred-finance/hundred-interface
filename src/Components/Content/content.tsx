@@ -1,7 +1,7 @@
 import { ethers} from "ethers"
 import { BigNumber } from "../../bigNumber"
 import React, { useEffect,  useRef, useState } from "react"
-import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2,MAXIMILLION_ABI } from "../../abi"
+import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2,MAXIMILLION_ABI, MINTER_ABI, VOTING_ESCROW_ABI } from "../../abi"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import { MasterChefVersion, Network } from "../../networks"
 import { Comptroller, getComptrollerData } from "../../Classes/comptrollerClass"
@@ -55,6 +55,9 @@ interface Props{
   updateEarned: boolean,
   setUpdateEarned: React.Dispatch<React.SetStateAction<boolean>>
   setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>
+  setVehndBalance: React.Dispatch<React.SetStateAction<BigNumber | null>>
+  setHndRewards: React.Dispatch<React.SetStateAction<BigNumber | null>>
+  setGaugeAddresses: React.Dispatch<React.SetStateAction<string[] | null>>
 }
 
 const Content: React.FC<Props> = (props : Props) => {
@@ -95,7 +98,6 @@ const Content: React.FC<Props> = (props : Props) => {
     comptrollerDataRef.current = comptrollerData
     marketsRef.current = marketsData
     generalDataRef.current = generalData
-
     hndPriceRef.current = props.hndPrice
     
     updateRef.current = update
@@ -122,7 +124,7 @@ const Content: React.FC<Props> = (props : Props) => {
         callUpdate()
     },[props.updateEarned])
 
-    const updateMarkets = (markets: CTokenInfo[], gauges: GaugeV4[], hndBalance: BigNumber, hundredBalace: BigNumber, compAccrued: BigNumber, cToken?: CTokenInfo, spinner?: string): void =>{
+    const updateMarkets = (markets: CTokenInfo[], gauges: GaugeV4[], hndBalance: BigNumber, hundredBalace: BigNumber, compAccrued: BigNumber, vehndBalance: BigNumber, hndRewards: BigNumber, gaugeAddresses: string[], cToken?: CTokenInfo, spinner?: string): void =>{
       if(marketsRef.current){
         markets.map((m) => {
           if(marketsRef.current && m){
@@ -169,7 +171,9 @@ const Content: React.FC<Props> = (props : Props) => {
       props.setHndEarned(data.earned)
       props.setHndBalance(hndBalance)
       props.setHundredBalance(hundredBalace)
-      // props.setHasClaimed(hasClaimed)
+      props.setVehndBalance(vehndBalance)
+      props.setHndRewards(hndRewards)
+      props.setGaugeAddresses(gaugeAddresses)
       if(selectedMarketRef.current && markets){
         const market = markets.find(x=>x?.underlying.symbol === selectedMarketRef.current?.underlying.symbol)
         if (market){
@@ -187,8 +191,7 @@ const Content: React.FC<Props> = (props : Props) => {
         if(provider.current && comptrollerDataRef.current){
           const gauges = await getGaugesData(provider.current, userAddress.current, network.current)
           const markets = await fetchData({ allMarkets: comptrollerDataRef.current.allMarkets, userAddress: userAddress.current, comptrollerData: comptrollerDataRef.current, network: network.current, marketsData: marketsRef.current, provider: provider.current, hndPrice: hndPriceRef.current, gaugesData: gauges })
-
-          updateMarkets(markets.markets, gauges, markets.hndBalance, markets.hundredBalace, markets.comAccrued, cToken, spinnerUpdate)
+          updateMarkets(markets.markets, gauges, markets.hndBalance, markets.hundredBalace, markets.comAccrued, markets.vehndBalance, markets.hndRewards, markets.gaugeAddresses, cToken, spinnerUpdate)
 
           setGaugesV4Data(gauges)
         }
