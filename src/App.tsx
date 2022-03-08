@@ -301,10 +301,11 @@ const App: React.FC = () => {
         setSpinnerVisible(true)
 
         const signer = provider.getSigner()
-        //check whether lendly or not 
-        if (network.minterAddress)
-        {
-        const minter = new ethers.Contract(network.minterAddress, MINTER_ABI, signer)
+        let mintAddress = ''
+        network.lendly ? network.minterAddressLendly ? mintAddress = network.minterAddressLendly : null: null;
+        network.minterAddress ? mintAddress = network.minterAddress : null; 
+
+        const minter = new ethers.Contract(mintAddress, MINTER_ABI, signer)
 
         const tx = await minter.mint_many(gaugeAddresses)
 
@@ -316,7 +317,7 @@ const App: React.FC = () => {
         setUpdateEarned(true)
       }
       
-      }
+      
   catch(err){
         console.log(err)
         setHndSpinner(false)
