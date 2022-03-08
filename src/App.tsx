@@ -12,7 +12,7 @@ import Footer from './Components/Footer/footer';
 import Spinner from './Components/Spinner/spinner';
 import Content from './Components/Content/content';
 import NetworksView from './Components/SideMenu/networksView';
-import { COMPTROLLER_ABI , MINTER_ABI , GAUGE_V4_ABI, VOTING_ESCROW_ABI, HUNDRED_ABI } from './abi';
+import { COMPTROLLER_ABI , MINTER_ABI , VOTING_ESCROW_ABI, HUNDRED_ABI } from './abi';
 import {ErrorBoundary} from "react-error-boundary"
 import { ToastContainer, toast } from 'react-toastify'
 import ReactToolTip from 'react-tooltip'
@@ -21,8 +21,6 @@ import HundredMenu from './Components/SideMenu/hundredMenu';
 import { BigNumber } from './bigNumber';
 import { AirdropType } from './Components/AirdropButton/airdropButton';
 import AirdropMenu from './Components/SideMenu/airdropMenu';
-import { getGaugesData } from './Classes/gaugeV4Class';
-import { Comptroller } from './Classes/comptrollerClass';
 
 declare global {
   interface Window {
