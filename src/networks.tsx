@@ -328,7 +328,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        multicallAddress: "0x19ead25619352ea106f25a1c870c0a4df65faa75"
+        multicallAddress: "0x19ead25619352ea106f25a1c870c0a4df65faa75",
+        minterAddress: "0x4adF575DBe0e6F1c5909AE9c7119927b4FaabbBd"
     },
     "0x1252":
     {
