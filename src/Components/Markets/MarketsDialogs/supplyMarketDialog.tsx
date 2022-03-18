@@ -15,6 +15,7 @@ import closeIcon from "../../../assets/icons/closeIcon.png"
 import BackstopSection from "./backstopSection";
 import {GaugeV4} from "../../../Classes/gaugeV4Class";
 import {stakingApr} from "../aprHelpers";
+import ReactToolTip from 'react-tooltip'
 
 interface Props{
     spinnerVisible: boolean,
@@ -140,6 +141,8 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                 setWithdrawValidation("Amount must be a number")
                 setNewBorrowLimit2(BigNumber.from("0"))
                 return
+            } else if (props.market && +props.market?.supplyBalanceInTokenUnit.toString() <= 0) {
+                setWithdrawValidation("No balance to withdraw")
             }else if (+withdrawInput.trim() <= 0) {
                 setWithdrawValidation("Amount must be > 0")
             } else if (props.market && +withdrawInput > +props.market?.supplyBalanceInTokenUnit) {
@@ -181,6 +184,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                 setStakeValidation("Amount must be a number");
                 setNewBorrowLimit3(BigNumber.from("0"))
                 return;
+            } else if (+supplyInput <= 0 && props.gaugeV4?.userLpBalance && +props.gaugeV4?.userLpBalance.toString() <= 0) {
+                setStakeValidation("No balance to stake");
+                setNewBorrowLimit3(BigNumber.from("0"))
             } else if (+stakeInput <= 0) {
                 setStakeValidation("Amount must be > 0");
                 setNewBorrowLimit3(BigNumber.from("0"))
@@ -346,6 +352,31 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
          BigNumber.parseValueSafe(props.market?.cash.toString(), props.market.underlying.decimals)).toString()) : setWithdrawInput("0")
     }
 
+const getSafeMaxWithdraw = () : void=> {
+        setWithdrawMax(true)
+        const withdraw = BigNumber.from('0'); 
+        if (props.market && props.generalData && +props.market.supplyBalanceInTokenUnit.toString() > 0)
+        {
+        const borrow = BigNumber.parseValueSafe(props.generalData.totalBorrowBalance.toString(),props.market.underlying.decimals) ;
+        const supply = props.generalData.totalSupplyBalance;
+        const cFactor = BigNumber.parseValueSafe(props.market.collateralFactor.toString(),props.market.underlying.decimals).mulSafe(BigNumber.parseValueSafe('0.5001', props.market.underlying.decimals));
+        const percent = +cFactor.toString() === 0 ? 0 : +borrow.toString() / +cFactor.toString()
+        const percentBN = BigNumber.parseValueSafe(percent.toString(), props.market.underlying.decimals);
+            if (+props.generalData?.totalBorrowLimitUsedPercent.toRound(2) >= 50.01){
+                setWithdrawInput(withdraw.toString())
+            }
+            else {
+                const result = convertUSDToUnderlyingToken(supply.subSafe(percentBN).toString(), props.market );
+                setWithdrawInput (BigNumber.minimum(result, props.market.supplyBalanceInTokenUnit).toString());
+
+            }
+
+        } else{ 
+        setWithdrawInput(withdraw.toString());
+
+        }
+        }
+               
     const getMaxBackstopWithdraw = () : void=> {
         
         props.market && props.market.backstop ? setBackstopWithdrawInput(props.market.backstop.userBalance.toString()) : setBackstopWithdrawInput("0")
@@ -364,6 +395,33 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         setStakeInput(formatBalance(props.gaugeV4?.userLpBalance).toString)
     }
 
+     const getSafeMaxStake = () : void=> {
+
+        setStakeMax(true)
+        const stake = BigNumber.from('0');
+             
+        if (props.market && props.generalData &&
+            props.gaugeV4?.userLpBalance && +props.market.supplyBalanceInTokenUnit.toString() > 0)
+        { 
+
+        const borrow = BigNumber.parseValueSafe(props.generalData.totalBorrowBalance.toString(),props.market.underlying.decimals) ;
+        const supply = props.generalData.totalSupplyBalance;
+        const cFactor = BigNumber.parseValueSafe(props.market.collateralFactor.toString(),props.market.underlying.decimals).mulSafe(BigNumber.parseValueSafe('0.5001', props.market.underlying.decimals));
+        const percent = +cFactor.toString() === 0 ? 0 : +borrow.toString() / +cFactor.toString()
+        const percentBN = BigNumber.parseValueSafe(percent.toString(), props.market.underlying.decimals);
+        if (+props.generalData?.totalBorrowLimitUsedPercent.toRound(2) >= 50.01) {
+            setStakeInput(stake.toString());
+        } 
+        else{
+            const result = convertUSDTohToken((supply.subSafe(percentBN)).toString(),props.market); 
+        setStakeInput(BigNumber.minimum(result, props.gaugeV4?.userLpBalance).toString());
+        }
+        }
+                
+        else {
+            setStakeInput(stake.toString());
+        }
+        }
     const getMaxUnstake = () : void=> {
         setUnstakeMax(true)
         setUnstakeInput(formatBalance(props.gaugeV4?.userStakeBalance).toString)
@@ -471,6 +529,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     return (
         props.open ? (
         <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
+            <ReactToolTip id="borrow-dialog-tooltip" effect="solid"/>
             <div className="dialog-background" onClick = {() => CloseDialog()}></div>
             <div className={`supply-box ${props.market?.backstop && +props.market.backstop.pendingHundred.toString()>0 ? "supply-box-expand" : ""}`}>
             <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>CloseDialog()} />  
@@ -566,9 +625,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                             value={stakeInput}
                                             setInput={setStakeInput}
                                             validation={stakeValidation}
-                                            button={"Max"}
-                                            onClick={() => getMaxStake()}
-                                        />
+                                            button={props.generalData && +props.generalData.totalBorrowBalance.toString() > 0  ? "Safe Max" : "Max"}
+                                            buttonTooltip="50% of borrow limit"
+                                            onClick={() => {props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? getSafeMaxStake() : getMaxStake()}}/>
                                         {props.gaugeV4 && +props.gaugeV4.userAllowance.toString() > 0 &&
                                         +props.gaugeV4.userAllowance.toString().toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
                                             ?
@@ -636,8 +695,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                 : ''
                         }
                         <TabContentItem open={props.open} tabId={props.gaugeV4 && props.market ? 3 : 2} tabChange={tabChange}>
-                            <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} button={"Max"}
-                                onClick={() => getMaxWithdraw()}/>
+                            <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} 
+                            button={props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? "Safe Max" : "Max"} buttonTooltip="50% of borrow limit"
+                            onClick={() => {props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? getSafeMaxWithdraw() : getMaxWithdraw()}}/>
                             <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.underlying.symbol}`}/>
                             <SupplyRateSection darkMode={props.darkMode} market={props.market} gaugeV4={props.gaugeV4}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
@@ -719,4 +779,13 @@ function convertGaugeLpAmountToUnderlying(amount: string, gaugeDecimals: number,
     return (+amount * +market.exchangeRate / (10 ** (market.underlying.decimals - gaugeDecimals))).toFixed(4)
 }
 
+function convertUSDToUnderlyingToken(USD: string, market: CTokenInfo ) : BigNumber{ //USD -> underlying token
+    const underlyingToken = +USD / +market.underlying.price.toString(); 
+    return BigNumber.parseValueSafe(underlyingToken.toString(), market.underlying.decimals);  
+}
+function convertUSDTohToken(USD: string, market: CTokenInfo ) : BigNumber{ //USD -> underlying -> hToken
+    const underlyingToken = +USD / +market.underlying.price.toString(); //USD -> underlying token
+    const hToken = (underlyingToken / +market.exchangeRate ) * (10 ** (market.underlying.decimals - 8)) //underlying token -> hToken
+    return BigNumber.parseValueSafe(hToken.toString(), market.underlying.decimals);  
+}
 export default SupplyMarketDialog
