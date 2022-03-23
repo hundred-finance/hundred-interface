@@ -114,8 +114,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             } else if (props.market && +supplyInput > +props.market?.underlying.walletBalance) {
               setSupplyValidation("Amount must be <= balance");
             }else if (props.market && +supplyInput > +props.market?.underlying.allowance.toString()){
-                const approve = BigNumber.parseValue((+supplyInput - +props.market?.underlying.allowance.toString()).noExponents()).toRound(4)
-              setSupplyValidation(`You must approve ${approve} ${props.market.underlying.symbol} more.`);
+              setSupplyValidation(`You must approve ${props.market.underlying.symbol} first.`);
             }
             else {
                 setSupplyValidation("");
@@ -453,13 +452,14 @@ const getSafeMaxWithdraw = () : void=> {
         if(props.market){
             if(!props.market.supplySpinner){
                 if(props.completed) setSupplyInput("")
+                setSupplyValidation("")
                 setSupplyDisabled(false)
             }
             else{
                 setSupplyDisabled(true)
             }
         }
-    }, [props.market?.supplySpinner])
+    }, [props.market?.supplySpinner,  props.completed])
 
     useEffect(() => {
         if(props.market){
@@ -485,8 +485,7 @@ const getSafeMaxWithdraw = () : void=> {
             }
 
         }
-    }, [props.market?.stakeSpinner])
-
+    }, [props.market?.stakeSpinner,  props.completed])
     useEffect(() => {
         if(props.market){
             if(!props.market.unstakeSpinner){
@@ -511,7 +510,7 @@ const getSafeMaxWithdraw = () : void=> {
             }
             
         }
-    }, [props.market?.backstopDepositSpinner])
+    }, [props.market?.backstopDepositSpinner, props.completed])
 
     useEffect(() => {
         if(props.market && props.market.backstop){

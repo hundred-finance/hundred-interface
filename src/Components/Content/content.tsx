@@ -392,6 +392,7 @@ const Content: React.FC<Props> = (props : Props) => {
         let market = marketsRef.current.find(x=> x?.underlying.symbol === symbol)
         if(market && provider.current && network.current && userAddress.current){
           try{
+            setCompleted(false)
             const signer = provider.current.getSigner()
             if(market.underlying.address){
               const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
@@ -404,6 +405,7 @@ const Content: React.FC<Props> = (props : Props) => {
             
               const receipt = await tx.wait()
               console.log(receipt)
+              market.supplySpinner = false
             }
           }
           catch(err){
@@ -454,6 +456,8 @@ const Content: React.FC<Props> = (props : Props) => {
             const receipt = await tx.wait()
             console.log(receipt)
             setCompleted(true)
+            if(selectedMarketRef.current)
+              selectedMarketRef.current.supplySpinner = false
           }
           catch(err){
             console.log(err)
@@ -657,6 +661,7 @@ const Content: React.FC<Props> = (props : Props) => {
       let market = marketsRef.current.find(x=> x?.underlying.symbol === symbol)
       if(market && market.backstop && provider.current && network.current && userAddress.current){
         try{
+          setCompleted(false)
           const signer = provider.current.getSigner()
           if(market.underlying.address && network.current.backstopMasterChef){
             const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
@@ -669,6 +674,7 @@ const Content: React.FC<Props> = (props : Props) => {
           
             const receipt = await tx.wait()
             console.log(receipt)
+          market.backstopDepositSpinner = false
           }
         }
         catch(err){
@@ -816,7 +822,6 @@ const Content: React.FC<Props> = (props : Props) => {
 
                   if(selectedMarketRef.current)
                       selectedMarketRef.current.stakeSpinner = true
-
                   market.stakeSpinner = true
 
                   await gaugeV4?.stakeCall(amount)
@@ -846,7 +851,7 @@ const Content: React.FC<Props> = (props : Props) => {
           let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
           if(market && provider.current){
               try{
-                  setCompleted(false)
+                setCompleted(false)
 
                   if(selectedMarketRef.current)
                       selectedMarketRef.current.stakeSpinner = true
@@ -857,7 +862,7 @@ const Content: React.FC<Props> = (props : Props) => {
 
                   if (spinner.current) spinner.current(false)
 
-                  setCompleted(true)
+                  market.stakeSpinner = false
               }
               catch(err){
                   console.log(err)
