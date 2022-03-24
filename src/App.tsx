@@ -12,7 +12,7 @@ import Footer from './Components/Footer/footer';
 import Spinner from './Components/Spinner/spinner';
 import Content from './Components/Content/content';
 import NetworksView from './Components/SideMenu/networksView';
-import { COMPTROLLER_ABI } from './abi';
+import { COMPTROLLER_ABI , MINTER_ABI , VOTING_ESCROW_ABI, HUNDRED_ABI } from './abi';
 import {ErrorBoundary} from "react-error-boundary"
 import { ToastContainer, toast } from 'react-toastify'
 import ReactToolTip from 'react-tooltip'
@@ -35,6 +35,9 @@ const App: React.FC = () => {
   const [hndBalance, setHndBalance] = useState<BigNumber | null>(null)
   const [hndEarned, setHndEarned] = useState<BigNumber |null>(null)
   const [hndSpinner, setHndSpinner] = useState<boolean>(false)
+  const [vehndBalance, setVehndBalance] = useState<BigNumber | null>(null)
+  const [hndRewards, setHndRewards] = useState<BigNumber | null>(null)
+  const [gaugeAddresses, setGaugeAddresses] = useState<string[] | null>(null)
   const [airdropSpinner, setAirdropSpinner] = useState<boolean>(false)
   const [network, setNetwork] = useState<Network | null>(null)
   const [hndPrice, setHndPrice] = useState<number>(0)
@@ -289,6 +292,73 @@ const App: React.FC = () => {
     }
   }
 
+  const handleClaimHnd = async (): Promise<void> => {
+    if(provider && network){
+      try{
+        setHndSpinner(true)
+        setSpinnerVisible(true)
+
+        const signer = provider.getSigner()
+        let mintAddress = ''
+        network.lendly ? network.minterAddressLendly ? mintAddress = network.minterAddressLendly : null: null;
+        network.minterAddress ? mintAddress = network.minterAddress : null; 
+
+        const minter = new ethers.Contract(mintAddress, MINTER_ABI, signer)
+
+        const tx = await minter.mint_many(gaugeAddresses)
+
+        await tx.wait()
+        setSpinnerVisible(false)
+        console.log(tx)
+        const receipt = await tx.wait()
+        console.log(receipt)
+        setUpdateEarned(true)
+      }
+      
+      
+  catch(err){
+        console.log(err)
+        setHndSpinner(false)
+        setSpinnerVisible(false)
+      }}}
+
+ const handleClaimLockHnd = async (): Promise<void> => {
+    if(provider && network && address){
+      try{
+        setHndSpinner(true)
+        setSpinnerVisible(true)
+        await handleClaimHnd()
+
+        const signer = provider.getSigner()
+        if (network.votingAddress) 
+        {   
+        
+         const votingContract = new ethers.Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
+         const balanceContract = new ethers.Contract(network.hundredAddress, HUNDRED_ABI, provider)
+                          console.log("balanceContract" )
+        const rewards = await balanceContract.balanceOf(address)
+                      console.log(rewards.toString())
+        
+         const tx = await votingContract.increase_amount(rewards)
+                      console.log("increase_amount ")
+        
+         await tx.wait()
+            setSpinnerVisible(false)
+            console.log(tx)
+            const receipt = await tx.wait()
+            console.log(receipt)
+            setUpdateEarned(true)
+        }
+       
+      }
+      
+      
+  catch(err){
+        console.log(err)
+        setHndSpinner(false)
+        setSpinnerVisible(false)
+      }}}
+
   const myErrorHandler = (error: Error, info: {componentStack: string}) => {
     console.log(error)
     console.log(info)
@@ -309,7 +379,8 @@ const App: React.FC = () => {
         <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
           spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError} 
           setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} 
-          updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed}/>
+          updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed} 
+          setVehndBalance = {setVehndBalance} setHndRewards = {setHndRewards} setGaugeAddresses ={setGaugeAddresses}/>
       </ErrorBoundary>
     )
   }
@@ -357,7 +428,8 @@ const App: React.FC = () => {
           <Content address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
             spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError} 
             setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} 
-            updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed}/>
+            updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed}
+            setVehndBalance = {setVehndBalance} setHndRewards = {setHndRewards} setGaugeAddresses = {setGaugeAddresses} />
         </ErrorBoundary>
         <ToastContainer/>
       </Wrapper>
@@ -369,7 +441,8 @@ const App: React.FC = () => {
             <NetworksView network={network}/> 
             : openHundred ? 
             <HundredMenu provider={provider} network={network} hndBalance={hndBalance} hndEarned={hndEarned} hndSpinner={hndSpinner}
-              handleCollect={handleCollect} setOpenHundred={setOpenHundred} setSideMenu={setSideMenu} address={address} hndPrice={hndPrice} hundredBalance={hundredBalance}/> 
+              handleCollect={handleCollect} handleClaimHnd={handleClaimHnd} handleClaimLockHnd = {handleClaimLockHnd} setOpenHundred={setOpenHundred} setSideMenu={setSideMenu} address={address} hndPrice={hndPrice} hundredBalance={hundredBalance} 
+              vehndBalance={vehndBalance} hndRewards={hndRewards} /> 
             : openAirdrop ? 
             <AirdropMenu airdrops={airdrops} setAirdrops={setAirdrops}  address={address} provider={provider} setSideMenu={setSideMenu} 
               setOpenAirdrop={setOpenAirdrop} spinner={airdropSpinner} setSpinner={setAirdropSpinner} network={network} successMessage={toastSuccess} errorMessage={toastError}/>
