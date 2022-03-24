@@ -218,7 +218,9 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        maximillion: "0xedba32185baf7fef9a26ca567bc4a6cbe426e499"
+        maximillion: "0xedba32185baf7fef9a26ca567bc4a6cbe426e499",
+        votingAddress: "0x1F8e8472e124F58b7F0D2598EaE3F4f482780b09",
+        minterAddress: "0x4adF575DBe0e6F1c5909AE9c7119927b4FaabbBd"
     },
     // "0x1251":
     // {
