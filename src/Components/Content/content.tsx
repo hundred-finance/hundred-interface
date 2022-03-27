@@ -824,7 +824,7 @@ const Content: React.FC<Props> = (props : Props) => {
                       selectedMarketRef.current.stakeSpinner = true
                   market.stakeSpinner = true
 
-                  await gaugeV4?.stakeCall(amount)
+                  await gaugeV4?.stakeCall(amount, market)
 
                   if (spinner.current) spinner.current(false)
 
@@ -858,7 +858,7 @@ const Content: React.FC<Props> = (props : Props) => {
 
                   market.stakeSpinner = true
 
-                  await gaugeV4?.approveCall()
+                  await gaugeV4?.approveCall(market)
 
                   if (spinner.current) spinner.current(false)
 
@@ -879,6 +879,40 @@ const Content: React.FC<Props> = (props : Props) => {
       }
   }
 
+    const handleApproveUnStake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined) => {
+        if(marketsRef.current){
+            if (spinner.current) spinner.current(true)
+            let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
+            if(market && provider.current){
+                try{
+                    setCompleted(false)
+
+                    if(selectedMarketRef.current)
+                        selectedMarketRef.current.unstakeSpinner = true
+
+                    market.unstakeSpinner = true
+
+                    await gaugeV4?.approveUnstakeCall()
+
+                    if (spinner.current) spinner.current(false)
+
+                    market.unstakeSpinner = false
+                }
+                catch(err){
+                    console.log(err)
+                }
+                finally{
+                    if (spinner.current) spinner.current(false)
+                    market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+                    if(market){
+                        setUpdate(true)
+                        await handleUpdate(market, "unstake")
+                    }
+                }
+            }
+        }
+    }
+
     const handleUnstake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined, amount: string) => {
         if(marketsRef.current){
             if (spinner.current) spinner.current(true)
@@ -892,7 +926,7 @@ const Content: React.FC<Props> = (props : Props) => {
 
                     market.unstakeSpinner = true
 
-                    await gaugeV4?.unstakeCall(amount)
+                    await gaugeV4?.unstakeCall(amount, market)
 
                     if (spinner.current) spinner.current(false)
 
@@ -981,6 +1015,7 @@ const Content: React.FC<Props> = (props : Props) => {
                 handleBackstopWithdraw={handleBackstopWithdraw}
                 handleBackstopClaim={handleBackstopClaim}
                 handleApproveStake={handleApproveStake}
+                handleApproveUnStake={handleApproveUnStake}
             />
             <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
               closeBorrowMarketDialog={closeBorrowMarketDialog} darkMode={props.darkMode} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}

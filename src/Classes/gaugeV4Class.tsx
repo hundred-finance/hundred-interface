@@ -1,19 +1,30 @@
 import { Contract, Provider } from 'ethcall'
-import {CTOKEN_ABI, GAUGE_CONTROLLER_ABI, GAUGE_V4_ABI, MINTER_ABI, REWARD_POLICY_MAKER_ABI, TOKEN_ABI} from '../abi'
+import {
+    CTOKEN_ABI,
+    GAUGE_CONTROLLER_ABI,
+    GAUGE_HELPER_ABI,
+    GAUGE_V4_ABI,
+    MINTER_ABI,
+    REWARD_POLICY_MAKER_ABI,
+    TOKEN_ABI
+} from '../abi'
 import { Network } from '../networks'
 import {BigNumber} from "../bigNumber";
 import {ethers} from "ethers";
 import _, {floor} from "lodash";
+import {CTokenInfo} from "./cTokenClass";
 
 export interface GaugeV4GeneralData {
     address : string
     lpToken: string
+    lpTokenUnderlying: string
     minter: string
     rewardPolicyMaker: string
     totalStake: BigNumber
     workingTotalStake: BigNumber
     weight: BigNumber
     veHndRewardRate: BigNumber
+    gaugeHelper: string | undefined
 }
 
 export class GaugeV4{
@@ -26,10 +37,12 @@ export class GaugeV4{
     userClaimableHnd: BigNumber
     userWorkingStakeBalance: BigNumber
     userAllowance: BigNumber
-    stakeCall: (amount: string) => void
-    unstakeCall: (amount: string) => void
+    userGaugeHelperAllowance: BigNumber
+    stakeCall: (amount: string, market: CTokenInfo) => void
+    unstakeCall: (amount: string, market: CTokenInfo) => void
     mintCall: () => void
-    approveCall: () => void
+    approveCall: (market: CTokenInfo) => void
+    approveUnstakeCall: () => void
 
     constructor(
         generalData: GaugeV4GeneralData,
@@ -40,10 +53,12 @@ export class GaugeV4{
         userClaimableHnd: BigNumber,
         userWorkingStakeBalance: BigNumber,
         userAllowance: BigNumber,
-        stakeCall: (amount: string) => void,
-        unstakeCall: (amount: string) => void,
+        userGaugeHelperAllowance: BigNumber,
+        stakeCall: (amount: string, market: CTokenInfo) => void,
+        unstakeCall: (amount: string, market: CTokenInfo) => void,
         mintCall: () => void,
-        approveCall: () => void,
+        approveCall: (market: CTokenInfo) => void,
+        approveUnstakeCall: () => void,
     ){
         this.generalData = generalData
         this.userStakeBalance = BigNumber.from(userStakeBalance.toString(), gaugeTokenDecimals)
@@ -54,10 +69,12 @@ export class GaugeV4{
         this.userClaimableHnd = BigNumber.from(userClaimableHnd.toString(), 18)
         this.userWorkingStakeBalance = userWorkingStakeBalance
         this.userAllowance = BigNumber.from(userAllowance.toString(), lpTokenDecimals)
+        this.userGaugeHelperAllowance = BigNumber.from(userGaugeHelperAllowance.toString(), gaugeTokenDecimals)
         this.stakeCall = stakeCall
         this.unstakeCall = unstakeCall
         this.mintCall = mintCall
         this.approveCall = approveCall
+        this.approveUnstakeCall = approveUnstakeCall
     }
 }
 
@@ -108,23 +125,26 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
         let rewards: any = await ethcallProvider.all(
             activeGauges.flatMap((g, index) => [
                     new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
-                    new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g)
+                    new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g),
+                    new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).underlying(),
                 ]
             )
         )
 
-        rewards = _.chunk(rewards, 2)
+        rewards = _.chunk(rewards, 3)
 
         generalData = activeLpAndMinterAddresses.map((c, index) => {
             return {
                 address: activeGauges[index],
                 lpToken: c[0],
+                lpTokenUnderlying: rewards[index][2],
                 minter: c[1],
                 rewardPolicyMaker: c[2],
                 weight: c[5],
                 totalStake: rewards[index][1],
                 workingTotalStake: c[3],
-                veHndRewardRate: rewards[index][0]
+                veHndRewardRate: rewards[index][0],
+                gaugeHelper: network.gaugeHelper
             }
         });
 
@@ -138,11 +158,16 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                     new Contract(g.lpToken, CTOKEN_ABI).decimals(),
                     new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
                     new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
-                    new Contract(g.lpToken, CTOKEN_ABI).allowance(userAddress, g.address),
+                    g.gaugeHelper ?
+                        new Contract(g.lpTokenUnderlying, CTOKEN_ABI).allowance(userAddress, g.gaugeHelper)
+                        : new Contract(g.lpToken, CTOKEN_ABI).allowance(userAddress, g.address),
+                    g.gaugeHelper ?
+                        new Contract(g.address, CTOKEN_ABI).allowance(userAddress, g.gaugeHelper)
+                        : new Contract(g.lpToken, CTOKEN_ABI).allowance(userAddress, g.address),
                 ])
             )
 
-            const infoChunks: any = _.chunk(info, 7);
+            const infoChunks: any = _.chunk(info, 8);
 
             return generalData.map((g, index) => {
                 return new GaugeV4(
@@ -154,10 +179,18 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                         infoChunks[index][4],
                         infoChunks[index][5],
                         infoChunks[index][6],
-                        (amount: string) => stake(provider, g.address, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString()),
-                        (amount: string) => unstake(provider, g.address, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString()),
+                        infoChunks[index][7],
+                        (amount: string, market: CTokenInfo) => {
+                            if (g.gaugeHelper) {
+                                stake(provider, userAddress, g, market, amount)
+                            } else {
+                                stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString())
+                            }
+                        },
+                        (amount: string, market: CTokenInfo) => unstake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString()),
                         () => mint(provider, g.address),
-                    () => approve(provider, g.address, g.lpToken)
+                    (market: CTokenInfo) => approve(provider, g, market),
+                    () => approveUnstake(provider, g),
                     )
                 }
             )
@@ -169,18 +202,60 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
-const stake = async (provider: any, gaugeAddress: string, amount: string) => {
+const stake = async (
+    provider: any,
+    userAddress: string,
+    gauge: GaugeV4GeneralData,
+    market: CTokenInfo,
+    amount: string
+) => {
     const signer = provider.getSigner()
-    const gauge = new ethers.Contract(gaugeAddress, GAUGE_V4_ABI, signer)
-    const tx = await gauge.deposit(amount)
-    await tx.wait()
+    if (!gauge.gaugeHelper) {
+        const gaugeContract = new ethers.Contract(gauge.address, GAUGE_V4_ABI, signer)
+        const tx = await gaugeContract.deposit(amount)
+        await tx.wait()
+    } else if (!market.isNativeToken) {
+        const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
+        const tx = await gaugeHelper.depositUnderlyingToGauge(
+            market.underlying.address,
+            gauge.lpToken,
+            gauge.address,
+            ethers.utils.parseUnits(amount, market.underlying.decimals),
+            userAddress
+        )
+        await tx.wait()
+    } else {
+        const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
+        const tx = await gaugeHelper.depositEtherToGauge(
+            gauge.lpToken,
+            gauge.address,
+            userAddress,
+            {
+                value: ethers.utils.parseUnits(amount, market.underlying.decimals)
+            }
+        )
+        await tx.wait()
+    }
 }
 
-const unstake = async (provider: any, address: string, amount: string) => {
+const unstake = async (provider: any, userAddress: string, gauge: GaugeV4GeneralData, market: CTokenInfo, amount: string) => {
     const signer = provider.getSigner()
-    const gauge = new ethers.Contract(address, GAUGE_V4_ABI, signer)
-    const tx = await gauge.withdraw(amount)
-    await tx.wait()
+    if (!gauge.gaugeHelper) {
+        const gaugeContract = new ethers.Contract(gauge.address, GAUGE_V4_ABI, signer)
+        const tx = await gaugeContract.withdraw(amount)
+        await tx.wait()
+    } else {
+        const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
+        const tx = await gaugeHelper.withdrawFromGaugeToUnderlying(
+            gauge.minter,
+            gauge.address,
+            gauge.lpToken,
+            amount,
+            userAddress,
+            market.isNativeToken
+        )
+        await tx.wait()
+    }
 }
 
 const mint = async (provider: any, address: string) => {
@@ -195,9 +270,24 @@ const mint = async (provider: any, address: string) => {
     await tx.wait()
 }
 
-const approve = async (provider: any, gaugeAddress: string, lpTokenAddress: string) => {
+const approve = async (provider: any, gauge: GaugeV4GeneralData, market: CTokenInfo) => {
     const signer = provider.getSigner()
-    const contract = new ethers.Contract(lpTokenAddress, TOKEN_ABI, signer);
-    const approveTx = await contract.approve(gaugeAddress, MaxUint256._value)
-    await approveTx.wait();
+    if (!gauge.gaugeHelper) {
+        const contract = new ethers.Contract(gauge.lpToken, TOKEN_ABI, signer);
+        const approveTx = await contract.approve(gauge.address, MaxUint256._value)
+        await approveTx.wait();
+    } else if (!market.isNativeToken) {
+        const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
+        const approveTx = await contract.approve(gauge.gaugeHelper, MaxUint256._value)
+        await approveTx.wait();
+    }
+}
+
+const approveUnstake = async (provider: any, gauge: GaugeV4GeneralData) => {
+    const signer = provider.getSigner()
+    if (gauge.gaugeHelper) {
+        const contract = new ethers.Contract(gauge.address, TOKEN_ABI, signer);
+        const approveTx = await contract.approve(gauge.gaugeHelper, MaxUint256._value)
+        await approveTx.wait();
+    }
 }

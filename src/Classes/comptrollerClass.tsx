@@ -55,13 +55,8 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
             block: 0
         }
     }
-    console.log("comptroller")
-    const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
-console.log(ethcallProvider)
-    const contract = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
 
-    const m = await contract.getAllMarkets()
-    console.log(m)
+    const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
     
     const calls = [ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets()]
 
@@ -72,11 +67,10 @@ console.log(ethcallProvider)
         const backstopContract = new Contract(backstop.address, backstopAbi)
         calls.push(backstopContract.poolLength())
     }
-    console.log(calls)
+
     const data = await ethcallProvider.all(calls) 
     const oracleAddress = data[0] as string
     const allMarkets = data[1] as string[]
-    console.log(data)
 
     const backstopPools = []
     if(backstop){

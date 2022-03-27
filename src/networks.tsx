@@ -36,6 +36,9 @@ type Network = {
     minterAddress?: string,
     minterAddressLendly?: string,
     gaugeControllerAddress?: string,
+    backstopGaugeControllerAddress?: string,
+    backstopGaugeMinterAddress?: string,
+    gaugeHelper?: string,
     airdropMulticallAddress?: string,
     maximillion?: string;
     votingAddress?: string;
@@ -243,7 +246,10 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         maximillion: "0x89db3b59381bc06fe9bf74532afd777e5f78ef02",
         gaugeControllerAddress: "0xF191d17dEe9943F06bB784C0492805280AeE0bf9",
         votingAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7",
-        minterAddress: "0xC3bae38Bfa2CbBE30f442649070408f484bd5882"
+        minterAddress: "0xC3bae38Bfa2CbBE30f442649070408f484bd5882",
+        backstopGaugeControllerAddress: "0x1cF3993EbA538e5f085333c86356622161Dd8C0B",
+        backstopGaugeMinterAddress: "0xc8e2C35b7C9CD784635B72df14179746B7C0f2a7",
+        gaugeHelper: "0xbF689f50cB446f171F08691367f7D9398b24D382"
     },
     // "0x1251":
     // {
