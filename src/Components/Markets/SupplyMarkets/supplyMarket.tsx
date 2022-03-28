@@ -6,10 +6,12 @@ import { GeneralDetailsData } from '../../../Classes/generalDetailsClass';
 import { BigNumber } from '../../../bigNumber';
 import { CTokenInfo } from '../../../Classes/cTokenClass';
 import ReactTooltip from 'react-tooltip';
+import {GaugeV4} from "../../../Classes/gaugeV4Class";
 
 interface Props {
     generalData: GeneralDetailsData | null;
     marketsData: (CTokenInfo | null)[] | null | undefined;
+    gaugeV4: (GaugeV4 | null)[] | null | undefined;
     enterMarketDialog: (market: CTokenInfo) => void;
     supplyMarketDialog: (market: CTokenInfo) => void;
     more: boolean;
@@ -99,6 +101,7 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                                 key={index}
                                 tooltip={`supply-${index}`}
                                 details={details}
+                                hasbackstopGauge={props.gaugeV4?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === details?.pTokenAddress.toLowerCase()) !== undefined}
                                 enterMarketDialog={props.enterMarketDialog}
                                 supplyMarketDialog={props.supplyMarketDialog}
                             />
@@ -129,6 +132,7 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                               key={index}
                               tooltip={`not-supply-${index}`}
                               details={details}
+                              hasbackstopGauge={props.gaugeV4?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === details?.pTokenAddress.toLowerCase()) !== undefined}
                               enterMarketDialog={props.enterMarketDialog}
                               supplyMarketDialog={props.supplyMarketDialog}
                           />

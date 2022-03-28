@@ -989,6 +989,7 @@ const Content: React.FC<Props> = (props : Props) => {
             <Markets
                 generalData = {generalDataRef.current}
                 marketsData = {marketsData}
+                gaugeV4 = {gaugesV4Data}
                 enterMarketDialog={enterMarketDialog}
                 supplyMarketDialog={supplyMarketDialog}
                 borrowMarketDialog={borrowMarketDialog}
