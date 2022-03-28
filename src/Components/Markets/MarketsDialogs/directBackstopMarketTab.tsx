@@ -247,14 +247,14 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
             return BigNumber.from(0)
         }
 
-        const totalBalance = BigNumber.from(props.gaugeV4.generalData.backstopTotalBalance, 18)
+        const totalBalance = BigNumber.from(props.gaugeV4.generalData.backstopTotalBalance, 8)
         const totalSupply = BigNumber.from(props.gaugeV4.generalData.backstopTotalSupply, 18)
 
         if (!stakedBalance) {
             return BigNumber.from(0)
         }
 
-        return stakedBalance.mul(totalBalance).div(totalSupply).mul(props.market.exchangeRate);
+        return stakedBalance.mul(totalBalance).mul(props.market.exchangeRate).div(totalSupply);
     }
 
 
