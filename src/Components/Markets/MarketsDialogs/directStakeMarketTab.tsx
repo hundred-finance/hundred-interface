@@ -276,7 +276,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             </div>
             <div className="input-button-group">
                 <TextBox
-                    placeholder={`0 h${props.market?.underlying.symbol}-g`}
+                    placeholder={`h${props.market?.underlying.symbol}-g`}
                     disabled={unstakeDisabled}
                     value={unstakeInput}
                     setInput={setUnstakeInput}

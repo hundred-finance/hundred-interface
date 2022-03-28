@@ -25,6 +25,7 @@ interface Props{
     market: CTokenInfo | null,
     generalData: GeneralDetailsData | null,
     gaugeV4: GaugeV4 | null | undefined
+    backstopGaugeV4: GaugeV4 | null | undefined
     open: boolean,
     getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
     darkMode: boolean,
@@ -294,14 +295,14 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                     {`${props.market?.underlying.symbol}`}
                 </div>
                 <Tab>
-                        {props.market?.backstop && props.gaugeV4 ?
+                        {(props.market?.backstop || props.backstopGaugeV4?.generalData?.backstopGauge) && props.gaugeV4 ?
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Stake" tabChange={tabChange} setTabChange={setTabChange}/>
                                 <TabHeaderItem tabId={3} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={4} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
                             </TabHeader>
-                            : props.market?.backstop ?
+                            : props.market?.backstop || props.backstopGaugeV4?.generalData?.backstopGauge ?
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
@@ -403,20 +404,6 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                         {
                             props.market?.backstop ?
                             <TabContentItem open={props.open} tabId={props.gaugeV4 && props.market ? 4 : 3} tabChange={tabChange}>
-                                {props.gaugeV4 && props.gaugeV4.generalData.gaugeHelper ?
-                                    <DirectBackstopMarketTab
-                                        market={props.market}
-                                        getMaxAmount={props.getMaxAmount}
-                                        depositDisabled={depositDisabled}
-                                        depositValidation={depositValidation}
-                                        open={props.open}
-                                        completed={props.completed}
-                                        handleApproveBackstop={props.handleApproveBackstop}
-                                        handleBackstopDeposit={props.handleBackstopDeposit}
-                                        handleBackstopWithdraw={props.handleBackstopWithdraw}
-                                        handleBackstopClaim={props.handleBackstopClaim}
-                                    />
-                                    :
                                     <BackstopMarketTab
                                         market={props.market}
                                         getMaxAmount={props.getMaxAmount}
@@ -429,10 +416,29 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                         handleBackstopWithdraw={props.handleBackstopWithdraw}
                                         handleBackstopClaim={props.handleBackstopClaim}
                                     />
-                                }
                             </TabContentItem>
                             :
                             ''
+                        }
+                        {
+                            props.backstopGaugeV4 && props.generalData && props.market ?
+                                <TabContentItem open={props.open} tabId={props.backstopGaugeV4 && props.market ? 4 : 3} tabChange={tabChange}>
+                                    <DirectBackstopMarketTab
+                                        market={props.market}
+                                        generalData={props.generalData}
+                                        gaugeV4={props.backstopGaugeV4}
+                                        supplyInput={supplyInput}
+                                        withdrawInput={withdrawInput}
+                                        open={props.open}
+                                        completed={props.completed}
+                                        handleStake={props.handleStake}
+                                        handleUnstake={props.handleUnstake}
+                                        handleMint={props.handleMint}
+                                        handleApproveStake={props.handleApproveStake}
+                                        handleApproveUnStake={props.handleApproveUnStake}/>
+                                </TabContentItem>
+                            :
+                                ''
                         }
                     </TabContent>
                 </Tab>

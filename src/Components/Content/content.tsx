@@ -12,7 +12,7 @@ import EnterMarketDialog from "../Markets/MarketsDialogs/enterMarketDialog"
 import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import SupplyMarketDialog from "../Markets/MarketsDialogs/supplyMarketDialog"
 import { fetchData} from "./fetchData"
-import {GaugeV4, getGaugesData} from "../../Classes/gaugeV4Class";
+import {GaugeV4, getBackstopGaugesData, getGaugesData} from "../../Classes/gaugeV4Class";
 import HundredMessage from "../MessageDialog/messageDialog"
 import MoonriverMessage from "../MessageDialog/moonRiverDialog"
 
@@ -190,10 +190,11 @@ const Content: React.FC<Props> = (props : Props) => {
         }
         if(provider.current && comptrollerDataRef.current){
           const gauges = await getGaugesData(provider.current, userAddress.current, network.current)
-          const markets = await fetchData({ allMarkets: comptrollerDataRef.current.allMarkets, userAddress: userAddress.current, comptrollerData: comptrollerDataRef.current, network: network.current, marketsData: marketsRef.current, provider: provider.current, hndPrice: hndPriceRef.current, gaugesData: gauges })
+          const backstopGauges = await getBackstopGaugesData(provider.current, userAddress.current, network.current)
+          const markets = await fetchData({ allMarkets: comptrollerDataRef.current.allMarkets, userAddress: userAddress.current, comptrollerData: comptrollerDataRef.current, network: network.current, marketsData: marketsRef.current, provider: provider.current, hndPrice: hndPriceRef.current, gaugesData: gauges.concat(backstopGauges) })
           updateMarkets(markets.markets, gauges, markets.hndBalance, markets.hundredBalace, markets.comAccrued, markets.vehndBalance, markets.hndRewards, markets.gaugeAddresses, cToken, spinnerUpdate)
 
-          setGaugesV4Data(gauges)
+          setGaugesV4Data(gauges.concat(backstopGauges))
         }
       }
     }
@@ -917,6 +918,7 @@ const Content: React.FC<Props> = (props : Props) => {
         if(marketsRef.current){
             if (spinner.current) spinner.current(true)
             let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
+            const nativeTokenMarket = marketsRef.current.find(x => x?.isNativeToken)
             if(market && provider.current){
                 try{
                     setCompleted(false)
@@ -926,7 +928,7 @@ const Content: React.FC<Props> = (props : Props) => {
 
                     market.unstakeSpinner = true
 
-                    await gaugeV4?.unstakeCall(amount, market)
+                    await gaugeV4?.unstakeCall(amount, market, nativeTokenMarket?.pTokenAddress)
 
                     if (spinner.current) spinner.current(false)
 
@@ -1010,6 +1012,7 @@ const Content: React.FC<Props> = (props : Props) => {
                 getMaxAmount={getMaxAmount}
                 spinnerVisible={props.spinnerVisible}
                 gaugeV4={gaugesV4Data?.find(g => g?.generalData.lpToken.toLowerCase() === selectedMarketRef.current?.pTokenAddress.toLowerCase())}
+                backstopGaugeV4={gaugesV4Data?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === selectedMarketRef.current?.pTokenAddress.toLowerCase())}
                 handleApproveBackstop={handleApproveBackstop}
                 handleBackstopDeposit={handleBackstopDeposit}
                 handleBackstopWithdraw={handleBackstopWithdraw}

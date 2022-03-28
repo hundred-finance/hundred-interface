@@ -80,6 +80,7 @@ export type MarketDataType = {
     comAccrued: BigNumber,
     markets: CTokenInfo[],
     gauges: GaugeV4GeneralData[],
+    backStopGauges: GaugeV4GeneralData[],
     vehndBalance: BigNumber,
     hndRewards: BigNumber,
     gaugeAddresses: string[],
@@ -216,10 +217,6 @@ export const fetchData = async(
             }
           }
         }
-
-        if (network.backstopGaugeControllerAddress) {
-            // TODO
-        }
     })
 
     const res: any[] = await comptrollerData.ethcallProvider.all(calls)
@@ -277,7 +274,8 @@ export const fetchData = async(
         hndBalance: hndBalance,
         hundredBalace: hundredBalace,
         comAccrued: compAccrued,
-        gauges: gaugesData.map(g => g.generalData),
+        gauges: gaugesData.filter(g => !g.generalData.backstopGauge).map(g => g.generalData),
+        backStopGauges: gaugesData.filter(g => g.generalData.backstopGauge).map(g => g.generalData),
         vehndBalance: vehndBalance,
         hndRewards: hndRewards,
         gaugeAddresses: gaugeAddresses

@@ -1,5 +1,6 @@
 import { Contract, Provider } from 'ethcall'
 import {
+    BPRO_ABI,
     CTOKEN_ABI,
     GAUGE_CONTROLLER_ABI,
     GAUGE_HELPER_ABI,
@@ -15,9 +16,13 @@ import _, {floor} from "lodash";
 import {CTokenInfo} from "./cTokenClass";
 
 export interface GaugeV4GeneralData {
+    backstopGauge: boolean
     address : string
     lpToken: string
     lpTokenUnderlying: string
+    lpBackstopTokenUnderlying: string | undefined
+    backstopTotalSupply: BigNumber,
+    backstopTotalBalance: BigNumber,
     minter: string
     rewardPolicyMaker: string
     totalStake: BigNumber
@@ -39,7 +44,7 @@ export class GaugeV4{
     userAllowance: BigNumber
     userGaugeHelperAllowance: BigNumber
     stakeCall: (amount: string, market: CTokenInfo) => void
-    unstakeCall: (amount: string, market: CTokenInfo) => void
+    unstakeCall: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => void
     mintCall: () => void
     approveCall: (market: CTokenInfo) => void
     approveUnstakeCall: () => void
@@ -55,7 +60,7 @@ export class GaugeV4{
         userAllowance: BigNumber,
         userGaugeHelperAllowance: BigNumber,
         stakeCall: (amount: string, market: CTokenInfo) => void,
-        unstakeCall: (amount: string, market: CTokenInfo) => void,
+        unstakeCall: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => void,
         mintCall: () => void,
         approveCall: (market: CTokenInfo) => void,
         approveUnstakeCall: () => void,
@@ -135,9 +140,13 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
 
         generalData = activeLpAndMinterAddresses.map((c, index) => {
             return {
+                backstopGauge: false,
                 address: activeGauges[index],
                 lpToken: c[0],
                 lpTokenUnderlying: rewards[index][2],
+                lpBackstopTokenUnderlying: undefined,
+                backstopTotalSupply: BigNumber.from(0),
+                backstopTotalBalance: BigNumber.from(0),
                 minter: c[1],
                 rewardPolicyMaker: c[2],
                 weight: c[5],
@@ -173,6 +182,139 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                 return new GaugeV4(
                         g,
                         infoChunks[index][0],
+                        infoChunks[index][1].toNumber(),
+                        infoChunks[index][2],
+                        infoChunks[index][3],
+                        infoChunks[index][4],
+                        infoChunks[index][5],
+                        infoChunks[index][6],
+                        infoChunks[index][7],
+                        (amount: string, market: CTokenInfo) => {
+                            if (g.gaugeHelper) {
+                                stake(provider, userAddress, g, market, amount)
+                            } else {
+                                stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString())
+                            }
+                        },
+                        (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => unstake(provider, userAddress, g, market, nativeTokenMarket, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString()),
+                        () => mint(provider, g.address),
+                    (market: CTokenInfo) => approve(provider, g, market),
+                    () => approveUnstake(provider, g),
+                    )
+                }
+            )
+        }
+    }
+
+    return []
+  }
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const getBackstopGaugesData = async (provider: any, userAddress: string, network: Network): Promise<Array<GaugeV4>> => {
+
+    const ethcallProvider = new Provider()
+    await ethcallProvider.init(provider)
+
+    if(network.multicallAddress) {
+        ethcallProvider.multicall = {
+            address: network.multicallAddress,
+            block: 0
+        }
+    }
+
+    let generalData: Array<GaugeV4GeneralData> = [];
+
+    if (network.backstopGaugeControllerAddress) {
+        const controller = network.backstopGaugeControllerAddress
+        const ethcallGaugeController = new Contract(controller, GAUGE_CONTROLLER_ABI)
+
+        const [nbGauges] = await ethcallProvider.all([ethcallGaugeController.n_gauges()]) as any
+
+        const gauges:  any[] = await ethcallProvider.all(Array.from(Array(nbGauges.toNumber()).keys()).map(i => ethcallGaugeController.gauges(i)))
+        const activeGauges: string[] = [];
+
+        let lpAndMinterAddresses: any = await ethcallProvider.all(
+            gauges.flatMap((g) => [
+                new Contract(g, GAUGE_V4_ABI).lp_token(),
+                new Contract(g, GAUGE_V4_ABI).minter(),
+                new Contract(g, GAUGE_V4_ABI).reward_policy_maker(),
+                new Contract(g, GAUGE_V4_ABI).working_supply(),
+                new Contract(g, GAUGE_V4_ABI).is_killed(),
+                new Contract(controller, GAUGE_CONTROLLER_ABI).gauge_relative_weight(g)
+            ])
+        )
+
+        lpAndMinterAddresses = _.chunk(lpAndMinterAddresses, 6)
+        const activeLpAndMinterAddresses: any[][] = []
+
+        for (let i = 0; i < lpAndMinterAddresses.length; i++) {
+            if (!lpAndMinterAddresses[i][4]) {
+                activeGauges.push(gauges[i]);
+                activeLpAndMinterAddresses.push(lpAndMinterAddresses[i])
+            }
+        }
+
+        let rewards: any = await ethcallProvider.all(
+            activeGauges.flatMap((g, index) => [
+                    new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
+                    new Contract(activeLpAndMinterAddresses[index][0], BPRO_ABI).balanceOf(g),
+                    new Contract(activeLpAndMinterAddresses[index][0], BPRO_ABI).LUSD(),
+                    new Contract(activeLpAndMinterAddresses[index][0], BPRO_ABI).totalSupply(),
+                ]
+            )
+        )
+
+        rewards = _.chunk(rewards, 4)
+
+        let backStopUnderlying: any = await ethcallProvider.all(
+            rewards.flatMap((r: any[], index: number) => [
+                new Contract(r[2], CTOKEN_ABI).underlying(),
+                new Contract(r[2], TOKEN_ABI).balanceOf(activeLpAndMinterAddresses[index][0]),
+            ])
+        )
+
+        backStopUnderlying = _.chunk(backStopUnderlying, 2)
+
+        generalData = activeLpAndMinterAddresses.map((c, index) => {
+            return {
+                backstopGauge: true,
+                address: activeGauges[index],
+                lpToken: c[0],
+                lpTokenUnderlying: rewards[index][2],
+                lpBackstopTokenUnderlying: backStopUnderlying[index][0],
+                backstopTotalSupply: rewards[index][3],
+                backstopTotalBalance: backStopUnderlying[index][1],
+                minter: c[1],
+                rewardPolicyMaker: c[2],
+                weight: c[5],
+                totalStake: rewards[index][1],
+                workingTotalStake: c[3],
+                veHndRewardRate: rewards[index][0],
+                gaugeHelper: network.gaugeHelper
+            }
+        });
+
+        if (generalData.length > 0) {
+
+            const info = await ethcallProvider.all(
+                generalData.flatMap((g) => [
+                    new Contract(g.address, GAUGE_V4_ABI).balanceOf(userAddress),
+                    new Contract(g.address, GAUGE_V4_ABI).decimals(),
+                    new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
+                    new Contract(g.lpToken, CTOKEN_ABI).decimals(),
+                    new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
+                    new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
+                    new Contract(g.lpBackstopTokenUnderlying ? g.lpBackstopTokenUnderlying : "", CTOKEN_ABI).allowance(userAddress, g.gaugeHelper),
+                    new Contract(g.address, CTOKEN_ABI).allowance(userAddress, g.gaugeHelper),
+                ])
+            )
+
+            const infoChunks: any = _.chunk(info, 8);
+
+            return generalData.map((g, index) => {
+                    return new GaugeV4(
+                        g,
+                        infoChunks[index][0],
                         infoChunks[index][1],
                         infoChunks[index][2],
                         infoChunks[index][3],
@@ -187,10 +329,10 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                                 stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString())
                             }
                         },
-                        (amount: string, market: CTokenInfo) => unstake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString()),
+                        (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => unstake(provider, userAddress, g, market, nativeTokenMarket, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString()),
                         () => mint(provider, g.address),
-                    (market: CTokenInfo) => approve(provider, g, market),
-                    () => approveUnstake(provider, g),
+                        (market: CTokenInfo) => approve(provider, g, market),
+                        () => approveUnstake(provider, g),
                     )
                 }
             )
@@ -198,7 +340,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
     }
 
     return []
-  }
+}
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
@@ -214,7 +356,7 @@ const stake = async (
         const gaugeContract = new ethers.Contract(gauge.address, GAUGE_V4_ABI, signer)
         const tx = await gaugeContract.deposit(amount)
         await tx.wait()
-    } else if (!market.isNativeToken) {
+    } else if (!market.isNativeToken && !gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
         const tx = await gaugeHelper.depositUnderlyingToGauge(
             market.underlying.address,
@@ -224,7 +366,18 @@ const stake = async (
             userAddress
         )
         await tx.wait()
-    } else {
+    } else if (!market.isNativeToken && gauge.backstopGauge) {
+        const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
+        const tx = await gaugeHelper.depositUnderlyingToBammGauge(
+            market.underlying.address,
+            gauge.lpTokenUnderlying,
+            gauge.lpToken,
+            gauge.address,
+            ethers.utils.parseUnits(amount, market.underlying.decimals),
+            userAddress
+        )
+        await tx.wait()
+    } else if (!gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
         const tx = await gaugeHelper.depositEtherToGauge(
             gauge.lpToken,
@@ -238,13 +391,13 @@ const stake = async (
     }
 }
 
-const unstake = async (provider: any, userAddress: string, gauge: GaugeV4GeneralData, market: CTokenInfo, amount: string) => {
+const unstake = async (provider: any, userAddress: string, gauge: GaugeV4GeneralData, market: CTokenInfo, nativeTokenMarket: string|undefined, amount: string) => {
     const signer = provider.getSigner()
     if (!gauge.gaugeHelper) {
         const gaugeContract = new ethers.Contract(gauge.address, GAUGE_V4_ABI, signer)
         const tx = await gaugeContract.withdraw(amount)
         await tx.wait()
-    } else {
+    } else if (!gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
         const tx = await gaugeHelper.withdrawFromGaugeToUnderlying(
             gauge.minter,
@@ -253,6 +406,18 @@ const unstake = async (provider: any, userAddress: string, gauge: GaugeV4General
             amount,
             userAddress,
             market.isNativeToken
+        )
+        await tx.wait()
+    } else {
+        const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
+        const tx = await gaugeHelper.withdrawFromBammGaugeToUnderlying(
+            gauge.minter,
+            gauge.address,
+            gauge.lpToken,
+            gauge.lpBackstopTokenUnderlying,
+            amount,
+            userAddress,
+            nativeTokenMarket
         )
         await tx.wait()
     }
