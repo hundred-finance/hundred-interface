@@ -368,13 +368,26 @@ const stake = async (
         await tx.wait()
     } else if (!market.isNativeToken && gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-        const tx = await gaugeHelper.depositUnderlyingToBammGauge(
+
+        const txGas = await gaugeHelper.estimateGas.depositUnderlyingToBammGauge(
             market.underlying.address,
             gauge.lpTokenUnderlying,
             gauge.lpToken,
             gauge.address,
             ethers.utils.parseUnits(amount, market.underlying.decimals),
             userAddress
+        );
+
+        const tx = await gaugeHelper.depositUnderlyingToBammGauge(
+            market.underlying.address,
+            gauge.lpTokenUnderlying,
+            gauge.lpToken,
+            gauge.address,
+            ethers.utils.parseUnits(amount, market.underlying.decimals),
+            userAddress,
+            {
+                gasLimit: txGas.mul(12).div(10)
+            }
         )
         await tx.wait()
     } else if (!gauge.backstopGauge) {
@@ -410,7 +423,8 @@ const unstake = async (provider: any, userAddress: string, gauge: GaugeV4General
         await tx.wait()
     } else {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-        const tx = await gaugeHelper.withdrawFromBammGaugeToUnderlying(
+
+        const txGas = await gaugeHelper.estimateGas.withdrawFromBammGaugeToUnderlying(
             gauge.minter,
             gauge.address,
             gauge.lpToken,
@@ -418,6 +432,19 @@ const unstake = async (provider: any, userAddress: string, gauge: GaugeV4General
             amount,
             userAddress,
             nativeTokenMarket
+        )
+
+        const tx = await gaugeHelper.withdrawFromBammGaugeToUnderlying(
+            gauge.minter,
+            gauge.address,
+            gauge.lpToken,
+            gauge.lpTokenUnderlying,
+            amount,
+            userAddress,
+            nativeTokenMarket,
+            {
+                gasLimit: txGas.mul(12).div(10)
+            }
         )
         await tx.wait()
     }
