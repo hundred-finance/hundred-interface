@@ -299,14 +299,14 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Stake" tabChange={tabChange} setTabChange={setTabChange}/>
-                                <TabHeaderItem tabId={3} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={4} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={3} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
                             </TabHeader>
                             : props.market?.backstop || props.backstopGaugeV4?.generalData?.backstopGauge ?
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                                <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={3} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
                             </TabHeader>
                             :props.gaugeV4 ? 
                             <TabHeader tabChange = {tabChange}>
@@ -379,28 +379,6 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                 </TabContentItem>
                                 : ''
                         }
-                        <TabContentItem open={props.open} tabId={props.gaugeV4 && props.market ? 3 : 2} tabChange={tabChange}>
-                            <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation} 
-                            button={props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? "Safe Max" : "Max"} buttonTooltip="50% of borrow limit"
-                            onClick={() => {props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? getSafeMaxWithdraw() : getMaxWithdraw()}}/>
-                            <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.underlying.symbol}`}/>
-                            <SupplyRateSection darkMode={props.darkMode} market={props.market} gaugeV4={props.gaugeV4}/>
-                            <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
-                            <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
-                            <MarketDialogButton disabled={withdrawInput==="" || isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData &&
-                            +newBorrowLimit2.toString() > 0 &&
-                                        +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 && 
-                                        (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent) ? true: false}
-                                onClick={() => {    props.market ?
-                                                    props.handleWithdraw(
-                                                        props.market?.underlying.symbol,
-                                                        withdrawInput,
-                                                        withdrawMax
-                                                    ) : null
-                                                }}>
-                                {props.market && props.market.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
-                            </MarketDialogButton>
-                        </TabContentItem>
                         {
                             props.market?.backstop ?
                             <TabContentItem open={props.open} tabId={props.gaugeV4 && props.market ? 4 : 3} tabChange={tabChange}>
@@ -440,6 +418,28 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             :
                                 ''
                         }
+                        <TabContentItem open={props.open} tabId={props.gaugeV4 && props.market ? 3 : 2} tabChange={tabChange}>
+                            <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation}
+                                     button={props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? "Safe Max" : "Max"} buttonTooltip="50% of borrow limit"
+                                     onClick={() => {props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? getSafeMaxWithdraw() : getMaxWithdraw()}}/>
+                            <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.underlying.symbol}`}/>
+                            <SupplyRateSection darkMode={props.darkMode} market={props.market} gaugeV4={props.gaugeV4}/>
+                            <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
+                            <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
+                            <MarketDialogButton disabled={withdrawInput==="" || isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData &&
+                                +newBorrowLimit2.toString() > 0 &&
+                                +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 &&
+                                (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent) ? true: false}
+                                                onClick={() => {    props.market ?
+                                                    props.handleWithdraw(
+                                                        props.market?.underlying.symbol,
+                                                        withdrawInput,
+                                                        withdrawMax
+                                                    ) : null
+                                                }}>
+                                {props.market && props.market.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
+                            </MarketDialogButton>
+                        </TabContentItem>
                     </TabContent>
                 </Tab>
             </div>
