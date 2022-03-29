@@ -299,14 +299,14 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
                                 <TabHeaderItem tabId={2} title="Stake" tabChange={tabChange} setTabChange={setTabChange}/>
-                                <TabHeaderItem tabId={4} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                                <TabHeaderItem tabId={3} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={3} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={4} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
                             </TabHeader>
                             : props.market?.backstop || props.backstopGaugeV4?.generalData?.backstopGauge ?
                             <TabHeader tabChange = {tabChange}>
                                 <TabHeaderItem tabId={1} title="Supply" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                                <TabHeaderItem tabId={3} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
-                                <TabHeaderItem tabId={2} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={2} title="Backstop" tabChange = {tabChange} setTabChange = {setTabChange}/>
+                                <TabHeaderItem tabId={3} title="Withdraw" tabChange = {tabChange} setTabChange = {setTabChange}/>
                             </TabHeader>
                             :props.gaugeV4 ? 
                             <TabHeader tabChange = {tabChange}>
@@ -381,7 +381,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                         }
                         {
                             props.market?.backstop ?
-                            <TabContentItem open={props.open} tabId={props.gaugeV4 && props.market ? 4 : 3} tabChange={tabChange}>
+                            <TabContentItem open={props.open} tabId={props.gaugeV4 && props.market ? 3 : 2} tabChange={tabChange}>
                                     <BackstopMarketTab
                                         market={props.market}
                                         getMaxAmount={props.getMaxAmount}
@@ -400,7 +400,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                         }
                         {
                             props.backstopGaugeV4 && props.generalData && props.market ?
-                                <TabContentItem open={props.open} tabId={props.backstopGaugeV4 && props.market ? 4 : 3} tabChange={tabChange}>
+                                <TabContentItem open={props.open} tabId={props.backstopGaugeV4 && props.market ? 3 : 2} tabChange={tabChange}>
                                     <DirectBackstopMarketTab
                                         market={props.market}
                                         generalData={props.generalData}
@@ -418,7 +418,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             :
                                 ''
                         }
-                        <TabContentItem open={props.open} tabId={props.gaugeV4 && props.market ? 3 : 2} tabChange={tabChange}>
+                        <TabContentItem open={props.open} tabId={props.gaugeV4 && props.market ? 4 : 3} tabChange={tabChange}>
                             <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation}
                                      button={props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? "Safe Max" : "Max"} buttonTooltip="50% of borrow limit"
                                      onClick={() => {props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? getSafeMaxWithdraw() : getMaxWithdraw()}}/>
