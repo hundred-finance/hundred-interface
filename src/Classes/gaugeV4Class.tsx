@@ -414,7 +414,7 @@ const unstake = async (provider: any, userAddress: string, gauge: GaugeV4General
             gauge.minter,
             gauge.address,
             gauge.lpToken,
-            gauge.lpBackstopTokenUnderlying,
+            gauge.lpTokenUnderlying,
             amount,
             userAddress,
             nativeTokenMarket
