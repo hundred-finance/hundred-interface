@@ -19,10 +19,9 @@ import ReactToolTip from 'react-tooltip'
 interface Props{
     closeBorrowMarketDialog : () => void,
     market: CTokenInfo | null,
-    generalData: GeneralDetailsData | null,
+    generalData: GeneralDetailsData | undefined,
     spinnerVisible: boolean,
     open: boolean,
-    darkMode: boolean,
     completed: boolean,
     getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
     getMaxRepayAmount: (market: CTokenInfo) => Promise<BigNumber>,
@@ -244,7 +243,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                                 <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={borrowDisabled || (props.market ? props.market.borrowPaused : false)} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"Safe Max"}
                                 buttonTooltip="50% of borrow limit" buttonDisabled={props.generalData && +props.generalData?.totalBorrowLimitUsedPercent.toRound(2) >= 50.01 ? true : false} onClick={ () => handleMaxBorrow()}/>
                                 <MarketDialogItem title={"You Borrowed"} value={`${props.market?.borrowBalanceInTokenUnit?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
-                                <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
+                                <BorrowRateSection market={props.market}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                     borrowAmount={borrowInput} repayAmount={"0"}/>
                                 <DialogMarketInfoSection market={props.market}/>
@@ -266,7 +265,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                                 <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={repayDisabled} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"Max"}
                                  onClick={ ()=> handleMaxRepay()} onChange={()=>setIsFullRepay(false)}/>
                                  <MarketDialogItem title={"Wallet Ballance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
-                                <BorrowRateSection market={props.market} darkMode={props.darkMode}/>
+                                <BorrowRateSection market={props.market}/>
                                 <BorrowLimitSection2 generalData={props.generalData} market = {props.market}
                                     borrowAmount={"0"} repayAmount={repayInput}/>
                                 <DialogMarketInfoSection market={props.market} />

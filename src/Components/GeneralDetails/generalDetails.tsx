@@ -6,7 +6,7 @@ import { GeneralDetailsItem, GeneralDetailsItemContent, GeneralDetailsItemConten
 import "./style.css"
 
 interface Props{
-    generalData: GeneralDetailsData | null
+    generalData: GeneralDetailsData | undefined
 
 }
 

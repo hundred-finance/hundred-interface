@@ -10,7 +10,7 @@ type airdropType = {
 }
 
 type airdropData = {
-    [key: string] : {
+    [key: number] : {
         airdrop1: airdropType,
         airdrop2: airdropType,
         airdrop3: airdropType
@@ -18,7 +18,7 @@ type airdropData = {
 }
 
 export const Airdrop: airdropData = {
-    "0xfa" : {
+    250 : {
         airdrop1: {
             contract : "0x4adF575DBe0e6F1c5909AE9c7119927b4FaabbBd",
             symbol: ["wFTM"],

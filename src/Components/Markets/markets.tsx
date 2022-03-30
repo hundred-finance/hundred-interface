@@ -8,12 +8,11 @@ import "./style.css"
 import SupplyMarket from "./SupplyMarkets/supplyMarket"
 
 interface Props{
-    generalData: GeneralDetailsData | null,
+    generalData: GeneralDetailsData | undefined,
     marketsData: (CTokenInfo | null)[] | null | undefined,
     enterMarketDialog: (market: CTokenInfo) => void,
     supplyMarketDialog: (market: CTokenInfo) => void,
     borrowMarketDialog: (market: CTokenInfo) => void,
-    darkMode: boolean
 }
 const Markets: React.FC<Props> = (props : Props) => {
     const [showMore, setShowMore] = useState<boolean>(false)
@@ -39,7 +38,6 @@ const Markets: React.FC<Props> = (props : Props) => {
                     enterMarketDialog = {props.enterMarketDialog}
                     supplyMarketDialog={props.supplyMarketDialog}
                     more={showMore}
-                    darkMode={props.darkMode}
                 />
                 {props.marketsData && props.marketsData.length > 6 ? <MarketContainerShowMore onClick={handleSupplyMore}>
                 {

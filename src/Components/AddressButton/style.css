@@ -31,3 +31,54 @@
     font-size: 0.7rem;
     /* color: var(--buttonColor); */
 }
+
+.wallets {
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.wallets .wallet-item{
+    display: flex;
+    align-items: center;
+    padding: 10px 10px;
+    gap: 15px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    transition: all 200ms ease-in;
+}
+
+.wallets .wallet-item .wallet-item-icon img{
+    width: 30px;
+    height: 30px;
+}
+
+.wallets .wallet-item:hover{
+    border: 1px solid var(--buttonBorder);
+    opacity: 0.9;
+  }
+  
+  .wallets .wallet-item:active{
+    background-color: var(--buttonHover);
+    color: var(--text);
+  }
+
+  .modal-error{
+      font-size: 1.1rem;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+  }
+
+  .modal-error-switch{
+      color: var(--buttonHover);
+      cursor: pointer;
+  }
+
+  .modal-error-switch:hover{
+      text-decoration: underline;
+  }

@@ -1,28 +1,23 @@
 import React from "react"
-import { useRef } from "react"
-import { Network } from "../../networks"
 import Logos from "../../logos"
 import "./hundredButton.css"
+import { useUiContext } from "../../Types/uiContext"
+import { useGlobalContext } from "../../Types/globalContext"
 
 interface Props{
-    network: Network | null,
     address: string,
-    setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>,
-    setSideMenu: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const HundredButton : React.FC<Props> = (props : Props) => {
-    const setOpenHundred = useRef<React.Dispatch<React.SetStateAction<boolean>> | null>(null)
-    setOpenHundred.current = props.setOpenHundred
-
+    const {setOpenHundred, setSideMenu} = useUiContext()
+    const {network} = useGlobalContext()
+    
     const handleOpenHundred = () :void => {
-        if(setOpenHundred.current){
-            setOpenHundred.current(true)
-            props.setSideMenu(true)
-        }
+            setOpenHundred(true)
+            setSideMenu(true)
     }
 
-    if(props.address === "" || !props.network)
+    if(props.address === "" || !{...network})
         return null
     else {
         return (

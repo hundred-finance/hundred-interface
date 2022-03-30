@@ -303,14 +303,14 @@ export const fetchData = async(
         borrowPaused: tokenData[14],
         underlying: {
             price: tokenData[12],
-            symbol: native ? network.symbol : isMaker ? ethers.utils.parseBytes32String(tokenData[15]) : tokenData[15],
-            name: native ? network.name : isMaker ? ethers.utils.parseBytes32String(tokenData[16]) : tokenData[16],
+            symbol: native ? network.networkParams.nativeCurrency.symbol : isMaker ? ethers.utils.parseBytes32String(tokenData[15]) : tokenData[15],
+            name: native ? network.networkParams.nativeCurrency.name : isMaker ? ethers.utils.parseBytes32String(tokenData[16]) : tokenData[16],
             decimals: native ? 18 : isMaker ? tokenData[17]/1 : tokenData[17],
             totalSupply: native ? 0 : tokenData[18],
             allowance: native ? ethers.constants.MaxUint256 : tokenData[19],
             walletBalance: native ? await provider.getBalance(userAddress) : tokenData[20],
             address: underlyingAddress,
-            logo: native ? Logos[network.symbol] : isMaker ? Logos["MKR"] : Logos[tokenData[15]]
+            logo: native ? Logos[network.networkParams.nativeCurrency.symbol] : isMaker ? Logos["MKR"] : Logos[tokenData[15]]
         },
         isNative: native,
         enteredMarkets: enteredMarkets,

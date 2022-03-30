@@ -9,70 +9,53 @@ import NavbarLogo from "../Navbar/navbarLogo"
 import NavbarMobile from "../Navbar/navbarMobile"
 import NavBarRight from "../Navbar/navBarRight"
 import ThemeSwitch from "../Navbar/themeSwitch"
-import { Network } from "../../networks"
 import NetworkButton from "../NetworkButton/networkButton"
 import HundredButton from "../HundredButton/hundredButton"
 import AirdropButton, { AirdropType } from "../AirdropButton/airdropButton"
-import { ethers } from "ethers"
+import { useUiContext } from "../../Types/uiContext"
 // import SideMenuButton from "../Navbar/sideMenuButton"
 
 interface Props{
-    isTablet: boolean,
-    isMobile: boolean,
-    darkMode: boolean,
-    show: boolean,
-    setShow: React.Dispatch<React.SetStateAction<boolean>>,
-    setDarkMode: React.Dispatch<React.SetStateAction<boolean>>,
     address: string,
     setAddress: React.Dispatch<React.SetStateAction<string>>,
-    setOpenAddress: React.Dispatch<React.SetStateAction<boolean>>
-    setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
-    setNetwork: React.Dispatch<React.SetStateAction<Network | null>>,
-    setOpenAirdrop: React.Dispatch<React.SetStateAction<boolean>>,
-    network: Network | null,
-    setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>,
-    setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>,
     hasClaimed: boolean,
     setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>,
-    provider: ethers.providers.Web3Provider | null
     airdrops: AirdropType[],
     setAirdrops: React.Dispatch<React.SetStateAction<AirdropType[]>>,
-    airdropSpinner: boolean
 }
 
 const TabletMenu: React.FC<Props> = (props: Props) => {
+    const {isTablet, isMobile, show} = useUiContext()
     const [menuOpen, setMenuOpen] = useState(false)
 
     return(
-        ((props.isTablet || props.isMobile) && props.show) ? 
+        ((isTablet || isMobile) && show) ? 
         (<>
-            <Navbar isMobile={props.isMobile} isTablet={props.isTablet}>
-                <NavbarLogo isMobile={props.isMobile}/>
+            <Navbar isMobile={isMobile} isTablet={isTablet}>
+                <NavbarLogo isMobile={isMobile}/>
                     <NavBarRight>
-                    {props.isTablet && !props.isMobile ?
+                    {isTablet && !isMobile ?
                         <>
-                            <AirdropButton network={props.network} address={props.address} hasClaimed={props.hasClaimed} setOpenAirdrop={props.setOpenAirdrop} spinner={props.airdropSpinner}
-                            setHasClaimed={props.setHasClaimed} provider={props.provider} airdrops={props.airdrops} setAirdrops={props.setAirdrops} setSideMenu={props.setSideMenu}/>
-                            <HundredButton network={props.network} address={props.address} setOpenHundred={props.setOpenHundred} setSideMenu={props.setSideMenu}/>
-                            <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
-                            <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
-                            setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
-                            <ThemeSwitch darkMode={props.darkMode} setDarkMode={props.setDarkMode} setOpenMenu={setMenuOpen}/>
+                            <AirdropButton address={props.address} hasClaimed={props.hasClaimed} 
+                            setHasClaimed={props.setHasClaimed} airdrops={props.airdrops} setAirdrops={props.setAirdrops}/>
+                            <HundredButton address={props.address}/>
+                            <NetworkButton/> 
+                            <AddressButton address={props.address} setAddress={props.setAddress}/>
+                            <ThemeSwitch/>
                         </>
                     : null}
                         <NavBarButton setMenuOpen={setMenuOpen} menuOpen={menuOpen}/>
                     </NavBarRight>
             </Navbar>
             <NavbarMobile menuOpen={menuOpen}>
-            {props.isMobile ? 
+            {isMobile ? 
                 <NavBarRight className="navbar-right-content">
-                    <AirdropButton network={props.network} address={props.address} hasClaimed={props.hasClaimed} setOpenAirdrop={props.setOpenAirdrop} spinner={props.airdropSpinner}
-                    setHasClaimed={props.setHasClaimed} provider={props.provider} airdrops={props.airdrops} setAirdrops={props.setAirdrops} setSideMenu={props.setSideMenu}/>
-                    <HundredButton network={props.network} address={props.address} setOpenHundred={props.setOpenHundred} setSideMenu={props.setSideMenu}/>
-                    <NetworkButton network = {props.network} setOpenNetwork={props.setOpenNetwork} setSideMenu={props.setSideMenu}/> 
-                    <AddressButton address={props.address} setAddress={props.setAddress} setNetwork={props.setNetwork}
-                     setOpenAddress={props.setOpenAddress} setSideMenu={props.setSideMenu}/>
-                    <ThemeSwitch darkMode={props.darkMode} setDarkMode={props.setDarkMode} setOpenMenu={setMenuOpen}/>
+                    <AirdropButton address={props.address} hasClaimed={props.hasClaimed}
+                    setHasClaimed={props.setHasClaimed} airdrops={props.airdrops} setAirdrops={props.setAirdrops}/>
+                    <HundredButton address={props.address}/>
+                    <NetworkButton /> 
+                    <AddressButton address={props.address} setAddress={props.setAddress}/>
+                    <ThemeSwitch/>
                 </NavBarRight>
             : null}
             <NavBarLinks>
