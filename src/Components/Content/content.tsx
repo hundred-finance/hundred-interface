@@ -888,9 +888,9 @@ const Content: React.FC<Props> = (props : Props) => {
 
     const handleApproveUnStake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined) => {
         if(marketsRef.current){
-            if (spinner.current) spinner.current(true)
+            setSpinnerVisible(true)
             let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
-            if(market && provider.current){
+            if(market && library){
                 try{
                     setCompleted(false)
 
@@ -901,7 +901,7 @@ const Content: React.FC<Props> = (props : Props) => {
 
                     await gaugeV4?.approveUnstakeCall()
 
-                    if (spinner.current) spinner.current(false)
+                    setSpinnerVisible(false)
 
                     market.unstakeSpinner = false
                 }
@@ -909,7 +909,7 @@ const Content: React.FC<Props> = (props : Props) => {
                     console.log(err)
                 }
                 finally{
-                    if (spinner.current) spinner.current(false)
+                    setSpinnerVisible(false)
                     market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
                     if(market){
                         setUpdate(true)

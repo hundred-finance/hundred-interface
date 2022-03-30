@@ -75,7 +75,7 @@ type NetworkData = {
 const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
     1 : {
         chainId: 1,
-        network: "Ethereum Mainnet",
+        network: "Ethereum",
         logo: Logos["ETH"],
         blocksPerYear: 24*60*60/13.5*365,
         networkParams: {
@@ -284,20 +284,22 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         votingAddress: "0x1F8e8472e124F58b7F0D2598EaE3F4f482780b09",
         minterAddress: "0x4adF575DBe0e6F1c5909AE9c7119927b4FaabbBd"
     },
-    "0x89" : {
-        chainId: "0x89",
+    137 : {
+        chainId: 137,
         network: "Polygon",
-        symbol: "MATIC",
-        rpcUrls:["https://rpc-mainnet.matic.network",
-                 "https://rpc-mainnet.maticvigil.com",
-                 "https://rpc-mainnet.matic.quiknode.pro",
-                 "https://matic-mainnet.chainstacklabs.com",
-                 "https://matic-mainnet-full-rpc.bwarelabs.com",
-                 "https://matic-mainnet-archive-rpc.bwarelabs.com"],
-        blockExplorerUrls: ["https://explorer.matic.network", "https://explorer-mainnet.maticvigil.com/"],
         logo: Logos["MATIC"],
-        name: "MATIC",
         blocksPerYear: 15768000,
+        networkParams: {
+            chainId: "0x89",
+            chainName: "Polygon",
+            rpcUrls: ["https://polygon-rpc.com/"],
+            nativeCurrency: {
+                name: "MATIC",
+                decimals: 18,
+                symbol: "MATIC"
+            },
+            blockExplorerUrls: ["https://polygonscan.com/"]
+        },
         nativeTokenMarketAddress: "0xEbd7f3349AbA8bB15b897e03D6c1a4Ba95B55e31",
         unitrollerAddress: "0xEdBA32185BAF7fEf9A26ca567bC4A6cbe426e499",
         hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
