@@ -97,6 +97,8 @@ const resizeWindow = ()=>{
     }
     else setIsTablet(false)
 
+    window.addEventListener('resize', resizeWindow)
+
     setShow(true)
       
     const darkmode = window.localStorage.getItem("hundred-darkmode")
