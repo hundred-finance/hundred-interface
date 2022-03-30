@@ -26,6 +26,7 @@ import { MyUiContext } from './Types/uiContext';
 import { MyGlobalContext } from './Types/globalContext';
 import { useWeb3React } from '@web3-react/core';
 import { GetConnector } from './Connectors/connectors';
+import {ExecuteWithExtraGasLimit} from "./Classes/TransactionHelper";
 
 declare global {
   interface Window {
@@ -212,10 +213,8 @@ const resizeWindow = ()=>{
         setSpinnerVisible(true)
         const signer = library.getSigner()
         const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, signer)
-        const tx = await comptroller.claimComp(address)
+        const receipt = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [address])
         setSpinnerVisible(false)
-        console.log(tx)
-        const receipt = await tx.wait()
         console.log(receipt)
         setUpdateEarned(true)
         //await getHndBalances(provider)
@@ -240,13 +239,8 @@ const resizeWindow = ()=>{
         network.minterAddress ? mintAddress = network.minterAddress : null; 
 
         const minter = new ethers.Contract(mintAddress, MINTER_ABI, signer)
-
-        const tx = await minter.mint_many(gaugeAddresses)
-
-        await tx.wait()
+        const receipt = await ExecuteWithExtraGasLimit(minter, "mint_many", [gaugeAddresses])
         setSpinnerVisible(false)
-        console.log(tx)
-        const receipt = await tx.wait()
         console.log(receipt)
         setUpdateEarned(true)
       }
@@ -271,16 +265,11 @@ const resizeWindow = ()=>{
         
          const votingContract = new ethers.Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
          const balanceContract = new ethers.Contract(network.hundredAddress, HUNDRED_ABI, library)
-        const rewards = await balanceContract.balanceOf(address)
-        
-         const tx = await votingContract.increase_amount(rewards)
-        
-         await tx.wait()
-            setSpinnerVisible(false)
-            console.log(tx)
-            const receipt = await tx.wait()
-            console.log(receipt)
-            setUpdateEarned(true)
+         const rewards = await balanceContract.balanceOf(address)
+         const receipt = await ExecuteWithExtraGasLimit(votingContract, "increase_amount", [rewards])
+         setSpinnerVisible(false)
+         console.log(receipt)
+         setUpdateEarned(true)
         }
        
       }

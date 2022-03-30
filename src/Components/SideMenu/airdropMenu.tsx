@@ -8,6 +8,7 @@ import { fireworks } from "../Fireworks/fireworks"
 import { useUiContext } from "../../Types/uiContext"
 import { useGlobalContext } from "../../Types/globalContext"
 import { useWeb3React } from "@web3-react/core"
+import {ExecuteWithExtraGasLimit} from "../../Classes/TransactionHelper";
 
 interface Props{
     airdrops: AirdropType[],
@@ -29,8 +30,7 @@ const AirdropMenu: React.FC<Props> = (props: Props) => {
                 const contract = new ethers.Contract(network.airdropMulticallAddress, AIRDROP_V2_ABI, signer)
                 const data = airdrops.map(a => a.transactionData)
                 setAirdropSpinner(true)
-                const tx = await contract.multicall(data)
-                const receipt = await tx.wait()
+                const receipt = await ExecuteWithExtraGasLimit(contract, "multicall", [data])
                 console.log(receipt)
                 fireworks("side-menu")
                 const temp = [...props.airdrops]

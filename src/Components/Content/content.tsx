@@ -18,6 +18,7 @@ import MoonriverMessage from "../MessageDialog/moonRiverDialog"
 import { useUiContext } from "../../Types/uiContext"
 import { useGlobalContext } from "../../Types/globalContext"
 import { useWeb3React } from "@web3-react/core"
+import {ExecutePayableWithExtraGasLimit, ExecuteWithExtraGasLimit} from "../../Classes/TransactionHelper";
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
@@ -329,13 +330,11 @@ const Content: React.FC<Props> = (props : Props) => {
             const addr = [market.pTokenAddress]
             const signer = library.getSigner()
             const signedComptroller = comp.comptroller.connect(signer)
-            const tx = await signedComptroller.enterMarkets(addr)
+            const receipt = await ExecuteWithExtraGasLimit(signedComptroller, "enterMarkets", [addr])
             setSpinnerVisible(false)
             market = marketsRef.current.find(m => m?.underlying.symbol === symbol)
             if(market) market.spinner = true
-            console.log(tx)
             setOpenEnterMarket(false)
-            const receipt = await tx.wait()
             console.log(receipt)
           }
           catch (err){
@@ -360,12 +359,10 @@ const Content: React.FC<Props> = (props : Props) => {
             setSpinnerVisible(true)
             const signer = library.getSigner()
             const signedComptroller = comp.comptroller.connect(signer)
-            const tx = await signedComptroller.exitMarket(market.pTokenAddress)
+            const receipt = await ExecuteWithExtraGasLimit(signedComptroller, "exitMarket", [market.pTokenAddress])
             setSpinnerVisible(false)
             market.spinner = true
-            console.log(tx)
             setOpenEnterMarket(false)
-            const receipt = await tx.wait() 
             console.log(receipt)
           }
           catch (err){
@@ -403,14 +400,16 @@ const Content: React.FC<Props> = (props : Props) => {
             const signer = library.getSigner()
             if(market.underlying.address){
               const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
-              const tx = await contract.approve(market.pTokenAddress, MaxUint256._value)
+              const receipt = await ExecuteWithExtraGasLimit(
+                  contract,
+                  "approve",
+                  [market.pTokenAddress, MaxUint256._value]
+              )
               setSpinnerVisible(false)
-              console.log(tx)
               borrowDialog ? market.repaySpinner = true : market.supplySpinner = true
-              if(selectedMarketRef.current)
+              if(selectedMarketRef.current) {
                 borrowDialog ? selectedMarketRef.current.repaySpinner = true : selectedMarketRef.current.supplySpinner = true
-            
-              const receipt = await tx.wait()
+              }
               console.log(receipt)
               market.supplySpinner = false
             }
@@ -448,19 +447,16 @@ const Content: React.FC<Props> = (props : Props) => {
           try{
             setCompleted(false)
             const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
-            const am = (market.isNativeToken) ? {value: value._value} : value._value
             if(selectedMarketRef.current)
               selectedMarketRef.current.supplySpinner = true
             market.supplySpinner = true
             const signer = library.getSigner()
             const token = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
             const ctoken = new ethers.Contract(market.pTokenAddress, token, signer)
-            const tx = await ctoken.mint(am)
-
+            const receipt = (market.isNativeToken) ?
+                await ExecutePayableWithExtraGasLimit(ctoken, value._value, "mint", []) :
+                await ExecuteWithExtraGasLimit(ctoken, "mint", [value._value])
             setSpinnerVisible(false)
-
-            console.log(tx)
-            const receipt = await tx.wait()
             console.log(receipt)
             setCompleted(true)
             if(selectedMarketRef.current)
@@ -508,19 +504,15 @@ const Content: React.FC<Props> = (props : Props) => {
             if (max){
               const accountSnapshot = await ctoken.getAccountSnapshot(userAddress.current)
               const withdraw = ethers.BigNumber.from(accountSnapshot[1].toString())
-              const tx = await ctoken.redeem(withdraw)
+              const receipt = await ExecuteWithExtraGasLimit(ctoken, "redeem", [withdraw])
               setSpinnerVisible(false)
-              console.log(tx)
-              const receipt = await tx.wait()
               console.log(receipt)
               setCompleted(true)
             }
             else{
               const withdraw = BigNumber.parseValueSafe(amount, market.underlying.decimals)
-              const tx = await ctoken.redeemUnderlying(withdraw._value)
+              const receipt = await ExecuteWithExtraGasLimit(ctoken, "redeemUnderlying", [withdraw._value])
               setSpinnerVisible(false)
-              console.log(tx)
-              const receipt = await tx.wait()
               console.log(receipt)
             }
           }
@@ -576,12 +568,8 @@ const Content: React.FC<Props> = (props : Props) => {
           const signer = library.getSigner()
           const token = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI
           const ctoken = new ethers.Contract(market.pTokenAddress, token, signer)
-          const tx = await ctoken.borrow(value._value)
-
+          const receipt = await ExecuteWithExtraGasLimit(ctoken, "borrow", [value._value])
           setSpinnerVisible(false)
-
-          console.log(tx)
-          const receipt = await tx.wait()
           console.log(receipt)
           setCompleted(true)
         }
@@ -629,20 +617,16 @@ const Content: React.FC<Props> = (props : Props) => {
 
           if (market.isNativeToken && network.maximillion) {
             const maxiContract = new ethers.Contract(network.maximillion, MAXIMILLION_ABI, signer);
-            const tx = await maxiContract.repayBehalfExplicit(userAddress.current, market.pTokenAddress, repayAmount);
-            
+            const receipt = await ExecuteWithExtraGasLimit(maxiContract, "repayBehalfExplicit", [
+                userAddress.current, market.pTokenAddress, repayAmount
+            ])
             setSpinnerVisible(false);
-            console.log(tx)
-            const receipt = await tx.wait();
             console.log(receipt);
           } 
           else {        
-            const ctoken = new ethers.Contract(market.pTokenAddress, CTOKEN_ABI, signer)          
-            const tx = await ctoken.repayBorrow(repayAmount)
-        
+            const ctoken = new ethers.Contract(market.pTokenAddress, CTOKEN_ABI, signer)
+            const receipt = await ExecuteWithExtraGasLimit(ctoken, "repayBorrow", [repayAmount])
             setSpinnerVisible(false)
-            console.log(tx)
-            const receipt = await tx.wait()
             console.log(receipt)
           }
           setCompleted(true);
@@ -672,14 +656,14 @@ const Content: React.FC<Props> = (props : Props) => {
           const signer = library.getSigner()
           if(market.underlying.address && network.backstopMasterChef){
             const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
-            const tx = await contract.approve(network.backstopMasterChef.address, MaxUint256._value)
+            const receipt = await ExecuteWithExtraGasLimit(contract, "approve", [
+                network.backstopMasterChef.address, MaxUint256._value
+            ])
             setSpinnerVisible(false)
-            console.log(tx)
             market.backstopDepositSpinner = true
-            if(selectedMarketRef.current && selectedMarketRef.current.backstop)
+            if(selectedMarketRef.current && selectedMarketRef.current.backstop) {
               selectedMarketRef.current.backstopDepositSpinner = true
-          
-            const receipt = await tx.wait()
+            }
             console.log(receipt)
           market.backstopDepositSpinner = false
           }
@@ -718,12 +702,10 @@ const Content: React.FC<Props> = (props : Props) => {
           const signer = library.getSigner()
           const backstopAbi = network.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
           const backstop = new ethers.Contract(network.backstopMasterChef.address, backstopAbi, signer)
-          const tx = await backstop.deposit(market.backstop.pool.poolId, am, userAddress.current)
-
+          const receipt = await ExecuteWithExtraGasLimit(backstop, "deposit", [
+              market.backstop.pool.poolId, am, userAddress.current
+          ])
           setSpinnerVisible(false)
-
-          console.log(tx)
-          const receipt = await tx.wait()
           console.log(receipt)
         }
         catch(err){
@@ -757,12 +739,8 @@ const Content: React.FC<Props> = (props : Props) => {
           const signer = library.getSigner()
           const backstopAbi = network.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
           const backstop = new ethers.Contract(network.backstopMasterChef.address, backstopAbi, signer)
-          const tx = await backstop.withdrawAndHarvest(market.backstop.pool.poolId, am, userAddress.current)
-
+          const receipt = await ExecuteWithExtraGasLimit(backstop, "withdrawAndHarvest", [market.backstop.pool.poolId, am, userAddress.current])
           setSpinnerVisible(false)
-
-          console.log(tx)
-          const receipt = await tx.wait()
           console.log(receipt)
         }
         catch(err){
@@ -796,12 +774,10 @@ const Content: React.FC<Props> = (props : Props) => {
           const signer = library.getSigner()
           const backstopAbi = network.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
           const backstop = new ethers.Contract(network.backstopMasterChef.address, backstopAbi, signer)
-          const tx = await backstop.harvest(market.backstop.pool.poolId, userAddress.current)
-
+          const receipt = await ExecuteWithExtraGasLimit(backstop, "harvest", [
+              market.backstop.pool.poolId, userAddress.current
+          ])
           setSpinnerVisible(false)
-
-          console.log(tx)
-          const receipt = await tx.wait()
           console.log(receipt)
         }
         catch(err){

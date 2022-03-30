@@ -14,6 +14,7 @@ import {BigNumber} from "../bigNumber";
 import {ethers} from "ethers";
 import _, {floor} from "lodash";
 import {CTokenInfo} from "./cTokenClass";
+import {ExecutePayableWithExtraGasLimit, ExecuteWithExtraGasLimit} from './TransactionHelper';
 
 export interface GaugeV4GeneralData {
     backstopGauge: boolean
@@ -354,53 +355,37 @@ const stake = async (
     const signer = provider.getSigner()
     if (!gauge.gaugeHelper) {
         const gaugeContract = new ethers.Contract(gauge.address, GAUGE_V4_ABI, signer)
-        const tx = await gaugeContract.deposit(amount)
-        await tx.wait()
+        await ExecuteWithExtraGasLimit(gaugeContract, "deposit", [amount])
     } else if (!market.isNativeToken && !gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-        const tx = await gaugeHelper.depositUnderlyingToGauge(
+        await ExecuteWithExtraGasLimit(gaugeHelper, "depositUnderlyingToGauge", [
             market.underlying.address,
             gauge.lpToken,
             gauge.address,
             ethers.utils.parseUnits(amount, market.underlying.decimals),
             userAddress
-        )
-        await tx.wait()
+        ])
     } else if (!market.isNativeToken && gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-
-        const txGas = await gaugeHelper.estimateGas.depositUnderlyingToBammGauge(
-            market.underlying.address,
-            gauge.lpTokenUnderlying,
-            gauge.lpToken,
-            gauge.address,
-            ethers.utils.parseUnits(amount, market.underlying.decimals),
-            userAddress
-        );
-
-        const tx = await gaugeHelper.depositUnderlyingToBammGauge(
+        await ExecuteWithExtraGasLimit(gaugeHelper, "depositUnderlyingToBammGauge", [
             market.underlying.address,
             gauge.lpTokenUnderlying,
             gauge.lpToken,
             gauge.address,
             ethers.utils.parseUnits(amount, market.underlying.decimals),
             userAddress,
-            {
-                gasLimit: txGas.mul(12).div(10)
-            }
-        )
-        await tx.wait()
+        ])
     } else if (!gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-        const tx = await gaugeHelper.depositEtherToGauge(
+        await ExecutePayableWithExtraGasLimit(
+            gaugeHelper,
+            ethers.utils.parseUnits(amount, market.underlying.decimals),
+            "depositEtherToGauge",
+            [
             gauge.lpToken,
             gauge.address,
-            userAddress,
-            {
-                value: ethers.utils.parseUnits(amount, market.underlying.decimals)
-            }
-        )
-        await tx.wait()
+            userAddress
+        ])
     }
 }
 
@@ -408,45 +393,29 @@ const unstake = async (provider: any, userAddress: string, gauge: GaugeV4General
     const signer = provider.getSigner()
     if (!gauge.gaugeHelper) {
         const gaugeContract = new ethers.Contract(gauge.address, GAUGE_V4_ABI, signer)
-        const tx = await gaugeContract.withdraw(amount)
-        await tx.wait()
+        await ExecuteWithExtraGasLimit(gaugeContract, "withdraw", [amount])
     } else if (!gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-        const tx = await gaugeHelper.withdrawFromGaugeToUnderlying(
+        await ExecuteWithExtraGasLimit(gaugeHelper, "withdrawFromGaugeToUnderlying", [
             gauge.minter,
             gauge.address,
             gauge.lpToken,
             amount,
             userAddress,
             market.isNativeToken
-        )
-        await tx.wait()
+        ])
     } else {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-
-        const txGas = await gaugeHelper.estimateGas.withdrawFromBammGaugeToUnderlying(
-            gauge.minter,
-            gauge.address,
-            gauge.lpToken,
-            gauge.lpTokenUnderlying,
-            amount,
-            userAddress,
-            nativeTokenMarket
+        await ExecuteWithExtraGasLimit(gaugeHelper, "withdrawFromBammGaugeToUnderlying", [
+                gauge.minter,
+                gauge.address,
+                gauge.lpToken,
+                gauge.lpTokenUnderlying,
+                amount,
+                userAddress,
+                nativeTokenMarket,
+            ]
         )
-
-        const tx = await gaugeHelper.withdrawFromBammGaugeToUnderlying(
-            gauge.minter,
-            gauge.address,
-            gauge.lpToken,
-            gauge.lpTokenUnderlying,
-            amount,
-            userAddress,
-            nativeTokenMarket,
-            {
-                gasLimit: txGas.mul(12).div(10)
-            }
-        )
-        await tx.wait()
     }
 }
 
@@ -455,23 +424,19 @@ const mint = async (provider: any, address: string) => {
     const gauge = new ethers.Contract(address, GAUGE_V4_ABI, signer)
 
     const minterAddress = await gauge.minter()
-
     const minter = new ethers.Contract(minterAddress, MINTER_ABI, signer)
 
-    const tx = await minter.mint(address)
-    await tx.wait()
+    await ExecuteWithExtraGasLimit(minter, "mint", [address])
 }
 
 const approve = async (provider: any, gauge: GaugeV4GeneralData, market: CTokenInfo) => {
     const signer = provider.getSigner()
     if (!gauge.gaugeHelper) {
         const contract = new ethers.Contract(gauge.lpToken, TOKEN_ABI, signer);
-        const approveTx = await contract.approve(gauge.address, MaxUint256._value)
-        await approveTx.wait();
+        await ExecuteWithExtraGasLimit(contract, "approve", [gauge.address, MaxUint256._value])
     } else if (!market.isNativeToken) {
         const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
-        const approveTx = await contract.approve(gauge.gaugeHelper, MaxUint256._value)
-        await approveTx.wait();
+        await ExecuteWithExtraGasLimit(contract, "approve", [gauge.gaugeHelper, MaxUint256._value])
     }
 }
 
@@ -479,7 +444,8 @@ const approveUnstake = async (provider: any, gauge: GaugeV4GeneralData) => {
     const signer = provider.getSigner()
     if (gauge.gaugeHelper) {
         const contract = new ethers.Contract(gauge.address, TOKEN_ABI, signer);
-        const approveTx = await contract.approve(gauge.gaugeHelper, MaxUint256._value)
-        await approveTx.wait();
+        await ExecuteWithExtraGasLimit(contract, "approve", [gauge.gaugeHelper, MaxUint256._value])
     }
 }
+
+
