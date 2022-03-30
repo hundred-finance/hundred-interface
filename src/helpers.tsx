@@ -118,3 +118,9 @@ export const compareHndAPR = (a: CTokenInfo | null, b: CTokenInfo | null): numbe
   }
   return 0
 }
+
+
+export const toHex = (num: number) : string => {
+  const val = Number(num);
+  return "0x" + val.toString(16);
+};

@@ -1,32 +1,35 @@
-import React from "react"
-import { useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import { Network } from "../../networks"
+import { useGlobalContext } from "../../Types/globalContext"
+import { useUiContext } from "../../Types/uiContext"
 import "./networkButton.css"
 
-interface Props{
-    network: Network | null,
-    setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>,
-    setSideMenu: React.Dispatch<React.SetStateAction<boolean>>
-}
+const NetworkButton : React.FC = () => {
+    const {setOpenNetwork, setSideMenu} = useUiContext()
+    const {network} = useGlobalContext()
+    const netWorkRef = useRef<Network | null>(null)
+    netWorkRef.current = network
 
-const NetworkButton : React.FC<Props> = (props : Props) => {
-    const setOpenNetwork = useRef<React.Dispatch<React.SetStateAction<boolean>> | null>(null)
-    setOpenNetwork.current = props.setOpenNetwork
-
+    useEffect(() => {
+        const temp = {...network} as Network
+        if(temp)
+            netWorkRef.current = temp
+    }, [network])
+    
     const handleOpenNetworks = () :void => {
-        if(setOpenNetwork.current){
-            setOpenNetwork.current(true)
-            props.setSideMenu(true)
-        }
+            setOpenNetwork(true)
+            setSideMenu(true)
     }
 
-    if(props.network){
+
+
+    if(netWorkRef.current){
         return (
             <div className="network-button" onClick={() => handleOpenNetworks()}>
             {
                 <div className="network-button-content">
-                    <img src={props.network.logo} alt="" className="network-logo"/>
-                    <span className="network-name">{props.network.network}</span>
+                    <img src={netWorkRef.current.logo} alt="" className="network-logo"/>
+                    <span className="network-name">{netWorkRef.current.network}</span>
                     <span className="arrow">&#9660;</span>    
                 </div>
             }

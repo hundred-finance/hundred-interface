@@ -23,12 +23,11 @@ interface Props{
     spinnerVisible: boolean,
     closeSupplyMarketDialog: () => void,
     market: CTokenInfo | null,
-    generalData: GeneralDetailsData | null,
+    generalData: GeneralDetailsData | undefined,
     gaugeV4: GaugeV4 | null | undefined
     backstopGaugeV4: GaugeV4 | null | undefined
     open: boolean,
     getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
-    darkMode: boolean,
     completed: boolean,
     handleSupply: (symbol: string, amount: string) => Promise<void>,
     handleEnable: (symbol: string, borrowDialog: boolean) => Promise<void>,
@@ -324,7 +323,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={supplyDisabled || (props.market ? props.market?.mintPaused : false)} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
                                 onClick={()=>getMaxAmount()}/>
                             <MarketDialogItem title={"Wallet Balance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
-                            <SupplyRateSection darkMode={props.darkMode} market={props.market} gaugeV4={props.gaugeV4} />
+                            <SupplyRateSection market={props.market} gaugeV4={props.gaugeV4} />
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit1}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                            
@@ -423,7 +422,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                      button={props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? "Safe Max" : "Max"} buttonTooltip="50% of borrow limit"
                                      onClick={() => {props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? getSafeMaxWithdraw() : getMaxWithdraw()}}/>
                             <MarketDialogItem title={"You Supplied"} value={`${props.market?.supplyBalanceInTokenUnit?.toFixed(4)} ${props.market?.underlying.symbol}`}/>
-                            <SupplyRateSection darkMode={props.darkMode} market={props.market} gaugeV4={props.gaugeV4}/>
+                            <SupplyRateSection market={props.market} gaugeV4={props.gaugeV4}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
                             <MarketDialogButton disabled={withdrawInput==="" || isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData &&

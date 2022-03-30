@@ -8,10 +8,10 @@ import {GaugeV4} from "../../../Classes/gaugeV4Class";
 interface Props{
     market: CTokenInfo | null,
     gaugeV4: GaugeV4 | null | undefined,
-    darkMode: boolean
 }
 
 const SupplyRateSection:React.FC<Props> = (props: Props) => {
+
     return (
         <div className="dialog-section">
             <div className="dialog-section-title">

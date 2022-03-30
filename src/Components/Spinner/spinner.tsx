@@ -1,21 +1,18 @@
 import React, { useEffect } from "react"
 import { HuLogoSpinner } from "../../assets/huIcons/huIcons"
-import { Theme } from "../../theme"
+import { useUiContext } from "../../Types/uiContext"
 
-interface Props{
-    open: boolean,
-    theme: Theme
-}
+const Spinner: React.FC = () => {
+    const {spinnerVisible, theme} = useUiContext()
 
-const Spinner: React.FC<Props> = (props : Props) => {
     const style : React.CSSProperties ={
         position: 'fixed',
-        minHeight: `${props.open ? '100%' : '0'}`,
-        height: `${props.open ? '100%' : '0'}`,
-        width: `${props.open ? '100%' : '0'}`,
-        top: `${props.open ? '0' : '50%'}`,
-        left: `${props.open ? '0' : '50%'}`,
-        backgroundColor: `${props.theme ? props.theme.overlayBackground : 'rgba(0, 0, 0, 0.2)'}`,
+        minHeight: `${spinnerVisible ? '100%' : '0'}`,
+        height: `${spinnerVisible ? '100%' : '0'}`,
+        width: `${spinnerVisible ? '100%' : '0'}`,
+        top: `${spinnerVisible ? '0' : '50%'}`,
+        left: `${spinnerVisible ? '0' : '50%'}`,
+        backgroundColor: `${theme ? theme.overlayBackground : 'rgba(0, 0, 0, 0.2)'}`,
         overflow: 'hidden',
         zIndex: 9999
     }
@@ -25,25 +22,25 @@ const Spinner: React.FC<Props> = (props : Props) => {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        display: `${props.open ? 'block' : 'none'}`,
+        display: `${spinnerVisible ? 'block' : 'none'}`,
     }
 
     useEffect(() => {
         /**
          * Alert if clicked on outside of element
          */
-        if(props.open){
+        if(spinnerVisible){
             document.getElementsByTagName("body")[0].style.overflow = 'hidden'
         }
         else{
             document.getElementsByTagName("body")[0].style.overflow = 'auto'
         }
-    }, [props.open]);
+    }, [spinnerVisible]);
 
     return(
-        props.open ? (
+        spinnerVisible ? (
         <div style={style} >
-            <HuLogoSpinner style={loader} width="80px" height="80px" color={props.theme.spinnerColor}/>
+            <HuLogoSpinner style={loader} width="80px" height="80px" color={theme.spinnerColor}/>
         </div>) : null
     )
 }

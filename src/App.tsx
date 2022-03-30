@@ -4,7 +4,7 @@ import { ethers } from 'ethers'
 import './App.css';
 import Wrapper from './Components/Wrapper/wrapper'
 import Menu from './Components/Menu/menu'
-import {NETWORKS, Network} from './networks'
+import { Network } from './networks'
 import TabletMenu from './Components/Menu/tabletMenu';
 import SideMenu from './Components/SideMenu/sideMenu';
 import AccountSettings from './Components/SideMenu/accountSettings';
@@ -21,6 +21,11 @@ import HundredMenu from './Components/SideMenu/hundredMenu';
 import { BigNumber } from './bigNumber';
 import { AirdropType } from './Components/AirdropButton/airdropButton';
 import AirdropMenu from './Components/SideMenu/airdropMenu';
+import Buffer from "buffer"
+import { MyUiContext } from './Types/uiContext';
+import { MyGlobalContext } from './Types/globalContext';
+import { useWeb3React } from '@web3-react/core';
+import { GetConnector } from './Connectors/connectors';
 
 declare global {
   interface Window {
@@ -28,25 +33,25 @@ declare global {
   }
 }
 
+global.Buffer = window.Buffer || Buffer.Buffer
+
 const App: React.FC = () => {
+  const { library, activate} = useWeb3React()
+
   const [address, setAddress] = useState<string>("")
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null)
   const [hundredBalance, setHundredBalace] = useState<BigNumber | null>(null)
   const [hndBalance, setHndBalance] = useState<BigNumber | null>(null)
   const [hndEarned, setHndEarned] = useState<BigNumber |null>(null)
-  const [hndSpinner, setHndSpinner] = useState<boolean>(false)
   const [vehndBalance, setVehndBalance] = useState<BigNumber | null>(null)
   const [hndRewards, setHndRewards] = useState<BigNumber | null>(null)
   const [gaugeAddresses, setGaugeAddresses] = useState<string[] | null>(null)
-  const [airdropSpinner, setAirdropSpinner] = useState<boolean>(false)
   const [network, setNetwork] = useState<Network | null>(null)
   const [hndPrice, setHndPrice] = useState<number>(0)
   const [hasClaimed, setHasClaimed] = useState<boolean>(false)
   const [airdrops, setAirdrops] = useState<AirdropType[]>([])
+  const updatePrice = useRef<NodeJS.Timeout | null>(null)
+  const [updateEarned, setUpdateEarned] = useState<boolean>(false)
 
-  // const addressRef = useRef<string>(address)
-  // const setAddressRef = useRef<React.Dispatch<React.SetStateAction<string>>>(setAddress)
-  // const setProviderRef = useRef<React.Dispatch<React.SetStateAction<ethers.providers.Web3Provider | null>>>(setProvider)
   const networkRef = useRef<Network | null>(null)
  
   networkRef.current = network
@@ -62,89 +67,72 @@ const App: React.FC = () => {
   const [openNetwork, setOpenNetwork] = useState<boolean>(false)
   const [openHundred, setOpenHundred] = useState<boolean>(false)
   const [openAirdrop, setOpenAirdrop] = useState<boolean>(false)
-  const [updatePrice, setUpdatePrice] = useState<number | null>(null)
-  const [updateEarned, setUpdateEarned] = useState<boolean>(false)
+  const [hndSpinner, setHndSpinner] = useState<boolean>(false)
+  const [airdropSpinner, setAirdropSpinner] = useState<boolean>(false)
+  const [switchModal, setSwitchModal] = useState(false)
+  
+
+const resizeWindow = ()=>{
+  if (document.documentElement.clientWidth < (!hasClaimed ? 750 : 925)){
+    setIsMobile(true)
+    setIsTablet(false)
+  }
+  else if (document.documentElement.clientWidth < (!hasClaimed ? 1064 : 1192)){
+
+    setIsTablet(true)
+    setIsMobile(false)
+  }
+  else setIsTablet(false)
+}
 
   useEffect(() => {
     if (document.documentElement.clientWidth < (!hasClaimed ? 750 : 925)){
       setIsMobile(true)
       setIsTablet(false)
     }
-    else if (document.documentElement.clientWidth < (!hasClaimed ? 1064 : 1190)){
+    else if (document.documentElement.clientWidth < (!hasClaimed ? 1064 : 1192)){
   
       setIsTablet(true)
       setIsMobile(false)
     }
     else setIsTablet(false)
 
+    window.addEventListener('resize', resizeWindow)
+
     setShow(true)
-
-    window.addEventListener('resize', ()=>{
-      if (document.documentElement.clientWidth < (!hasClaimed ? 750 : 925)){
-        setIsMobile(true)
-        setIsTablet(false)
-      }
-      else if (document.documentElement.clientWidth < (!hasClaimed ? 1064 : 1190)){
-    
-        setIsTablet(true)
-        setIsMobile(false)
-      }
-      else setIsTablet(false)
-    });
-
-    const connect: () => void = async () => {
-      if (window.ethereum) {
-        try {
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
-          window.ethereum.on('chainChanged', (chainId: string) => {
-            const net = NETWORKS[chainId]
-            if (net){
-              setHasClaimed(false)
-              setProvider(null)
-              setNetwork(net)
-            }
-            else setNetwork(null)
-          })
-          window.ethereum.on('accountsChanged', (accounts: string[]) => {
-            if(accounts && accounts.length > 0){
-              setAddress(accounts[0])
-            }
-            else
-              setAddress("")
-          })
-        } catch (error: any) {
-          if (error.code === 4001) {
-            // User rejected request
-          }
-      
-          console.log(error)
-        }
-      }
-    }
       
     const darkmode = window.localStorage.getItem("hundred-darkmode")
-    const addr = window.localStorage.getItem("hundred-address")
+    const net = window.localStorage.getItem("hundred-network")
+    const prov = window.localStorage.getItem("hundred-provider")
+    
+    let tempNet: Network | null = null
+
+
 
     if(darkmode && darkmode === "dark")
       setDarkMode(true)
     else
       setDarkMode(false)
     
-    const onLoadSetAddress = async (addr: string) : Promise<void>=>{
-      if(window.ethereum){
-        const accounts: string[] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if(accounts && accounts.length > 0 && accounts[0].toLowerCase() === addr.toLowerCase()){
-          setAddress(addr)
-          connect() 
-        }
-      }
-    }
+    if(net)
+      tempNet = JSON.parse(net) as Network
 
-    if(addr && addr !== "")
-      onLoadSetAddress(addr)
+    if(prov) 
+    {
+      const con = GetConnector(+prov, tempNet ? tempNet.chainId : undefined)
+      activate(con)
+    }
+    
 
     setSpinnerVisible(false)
+    const hndPrice = getHndPrice()
+    Promise.all([hndPrice])
   }, [])
+
+  useEffect(() => {
+    window.localStorage.setItem("hundred-network", JSON.stringify(network))
+    
+  }, [network])
 
   useEffect(() => {
     if(darkMode){
@@ -157,60 +145,8 @@ const App: React.FC = () => {
     }
   }, [darkMode])
 
-  useEffect(() => {
-    window.localStorage.setItem("hundred-address", address)
-    if(address === ""){
-      setProvider(null)
-    }
-    else{
-      try {
-        const chain = window.ethereum.chainId
-        if(networkRef.current && networkRef.current.chainId === chain){
-          try{
-            const prov = new ethers.providers.Web3Provider(window.ethereum)
-            setProvider(prov)
-          }
-          catch(err){
-            console.log(err)
-          }
-        }
-        else{
-            setNetwork(NETWORKS[chain]) 
-        }
-      }
-      catch (err){
-        console.log(err)
-      }
-    }
-  }, [address])
-
-  useEffect(() => {
-    setSideMenu(false)
-    if(networkRef.current)
-    {
-      setOpenNetwork(false)
-      // if(networkRef.current.chainId !== "0xa4b1")
-      //   if(messageRef.current)
-      //     messageRef.current.show()
-      try{
-        const prov = new ethers.providers.Web3Provider(window.ethereum)
-        setProvider(prov)
-        if(address) setSpinnerVisible(true)
-        getHndPrice()
-      }
-      catch(err){
-        console.log(err)
-      }
-    }
-    else{
-      setProvider(null)
-      if(updatePrice) window.clearTimeout(updatePrice)
-    }
-
-  }, [network])
-
   const getHndPrice = async () : Promise<void>  => {
-    if(updatePrice) window.clearTimeout(updatePrice)
+    if(updatePrice.current) clearTimeout(updatePrice.current)
     try{
         const url =  "https://api.coingecko.com/api/v3/simple/price?ids=hundred-finance&vs_currencies=usd"
         const headers = {}
@@ -231,7 +167,7 @@ const App: React.FC = () => {
         console.log(err)
     }
     finally{
-      setUpdatePrice(window.setTimeout(getHndPrice, 60000))
+      updatePrice.current = setTimeout(getHndPrice, 60000)
     }
   }
 
@@ -270,11 +206,11 @@ const App: React.FC = () => {
   }, [updateEarned])
 
   const handleCollect = async (): Promise<void> => {
-    if(provider && network){
+    if(library && network){
       try{
         setHndSpinner(true)
         setSpinnerVisible(true)
-        const signer = provider.getSigner()
+        const signer = library.getSigner()
         const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, signer)
         const tx = await comptroller.claimComp(address)
         setSpinnerVisible(false)
@@ -293,12 +229,12 @@ const App: React.FC = () => {
   }
 
   const handleClaimHnd = async (): Promise<void> => {
-    if(provider && network){
+    if(library && network){
       try{
         setHndSpinner(true)
         setSpinnerVisible(true)
 
-        const signer = provider.getSigner()
+        const signer = library.getSigner()
         let mintAddress = ''
         network.lendly ? network.minterAddressLendly ? mintAddress = network.minterAddressLendly : null: null;
         network.minterAddress ? mintAddress = network.minterAddress : null; 
@@ -323,24 +259,21 @@ const App: React.FC = () => {
       }}}
 
  const handleClaimLockHnd = async (): Promise<void> => {
-    if(provider && network && address){
+    if(library && network && address){
       try{
         setHndSpinner(true)
         setSpinnerVisible(true)
         await handleClaimHnd()
 
-        const signer = provider.getSigner()
+        const signer = library.getSigner()
         if (network.votingAddress) 
         {   
         
          const votingContract = new ethers.Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
-         const balanceContract = new ethers.Contract(network.hundredAddress, HUNDRED_ABI, provider)
-                          console.log("balanceContract" )
+         const balanceContract = new ethers.Contract(network.hundredAddress, HUNDRED_ABI, library)
         const rewards = await balanceContract.balanceOf(address)
-                      console.log(rewards.toString())
         
          const tx = await votingContract.increase_amount(rewards)
-                      console.log("increase_amount ")
         
          await tx.wait()
             setSpinnerVisible(false)
@@ -376,8 +309,8 @@ const App: React.FC = () => {
   const errorFallback = () => {
     return(
       <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
-        <Content  address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-          spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError} 
+        <Content  address={address}
+          hndPrice={hndPrice}
           setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} 
           updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed} 
           setVehndBalance = {setVehndBalance} setHndRewards = {setHndRewards} setGaugeAddresses ={setGaugeAddresses}/>
@@ -413,46 +346,61 @@ const App: React.FC = () => {
 
   return (
     theme ?
-    <div id="app" className={`App scroller ${darkMode ? "App-dark" : ""}`}>
-      <Wrapper sideMenu={sideMenu}>
-        {!isTablet && !isMobile ? 
-          <Menu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network} setOpenHundred={setOpenHundred}
-            address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setOpenAirdrop={setOpenAirdrop} airdropSpinner={airdropSpinner}
-            setNetwork={setNetwork} setOpenNetwork={setOpenNetwork} hasClaimed={hasClaimed} setHasClaimed={setHasClaimed} provider={provider} airdrops={airdrops} setAirdrops={setAirdrops}/>
-          : <TabletMenu isTablet={isTablet} isMobile ={isMobile} darkMode={darkMode} show={show} setDarkMode={setDarkMode} network={network} airdropSpinner={airdropSpinner}
-              address={address} setAddress={setAddress} setOpenAddress={setOpenAddress} setSideMenu={setSideMenu} setNetwork={setNetwork} setOpenAirdrop={setOpenAirdrop}
-              setOpenNetwork={setOpenNetwork} setShow={setShow} setOpenHundred={setOpenHundred} hasClaimed={hasClaimed} airdrops={airdrops} setAirdrops={setAirdrops}
-              setHasClaimed={setHasClaimed} provider={provider}/>
-        }
-        <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
-          <Content address={address} provider={provider} network={network} setSpinnerVisible={setSpinnerVisible} 
-            spinnerVisible={spinnerVisible} darkMode={darkMode} hndPrice={hndPrice} toastError={toastError} 
-            setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} 
-            updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed}
-            setVehndBalance = {setVehndBalance} setHndRewards = {setHndRewards} setGaugeAddresses = {setGaugeAddresses} />
-        </ErrorBoundary>
-        <ToastContainer/>
-      </Wrapper>
-      <Footer darkMode={darkMode} isMobile={isMobile}/>
-      <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress} setOpenNetwork={setOpenNetwork} setOpenHundred={setOpenHundred} setOpenAirdrop={setOpenAirdrop}>
-        { openAddress ? 
-            <AccountSettings address={address} setAddress={setAddress} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress}/> 
-            : (openNetwork ? 
-            <NetworksView network={network}/> 
-            : openHundred ? 
-            <HundredMenu provider={provider} network={network} hndBalance={hndBalance} hndEarned={hndEarned} hndSpinner={hndSpinner}
-              handleCollect={handleCollect} handleClaimHnd={handleClaimHnd} handleClaimLockHnd = {handleClaimLockHnd} setOpenHundred={setOpenHundred} setSideMenu={setSideMenu} address={address} hndPrice={hndPrice} hundredBalance={hundredBalance} 
-              vehndBalance={vehndBalance} hndRewards={hndRewards} /> 
-            : openAirdrop ? 
-            <AirdropMenu airdrops={airdrops} setAirdrops={setAirdrops}  address={address} provider={provider} setSideMenu={setSideMenu} 
-              setOpenAirdrop={setOpenAirdrop} spinner={airdropSpinner} setSpinner={setAirdropSpinner} network={network} successMessage={toastSuccess} errorMessage={toastError}/>
-            : null)
-        }
-      </SideMenu>
-      <ReactToolTip id="tooltip" effect="solid"/>
-      <Spinner open={spinnerVisible} theme={theme}/>
-      {/* <MessageModal ref={messageRef} showNetworks={setOpenNetwork}/> */}
-    </div>
+    <MyGlobalContext.Provider value={({network, setNetwork})}>
+        <MyUiContext.Provider value={({sideMenu, setSideMenu,
+                                    darkMode, setDarkMode,
+                                    spinnerVisible, setSpinnerVisible,
+                                    isMobile, setIsMobile,
+                                    isTablet, setIsTablet,
+                                    show, setShow,
+                                    theme, setTheme,
+                                    openAddress, setOpenAddress,
+                                    openNetwork, setOpenNetwork,
+                                    openHundred, setOpenHundred,
+                                    openAirdrop, setOpenAirdrop,
+                                    hndSpinner, setHndSpinner,
+                                    airdropSpinner, setAirdropSpinner,
+                                    toastSuccessMessage: toastSuccess, toastErrorMessage: toastError,
+                                    switchModal, setSwitchModal})}>
+          <div id="app" className={`App scroller ${darkMode ? "dark-theme" : ""}`}>
+            <Wrapper sideMenu={sideMenu}>
+              {!isTablet && !isMobile ? 
+                <Menu address={address} setAddress={setAddress} 
+                      hasClaimed={hasClaimed} setHasClaimed={setHasClaimed}
+                      airdrops={airdrops} setAirdrops={setAirdrops}/>
+                : <TabletMenu address={address} setAddress={setAddress}
+                    hasClaimed={hasClaimed} airdrops={airdrops} setAirdrops={setAirdrops}
+                    setHasClaimed={setHasClaimed}/>
+              }
+              <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
+                <Content address={address}
+                  hndPrice={hndPrice} 
+                  setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} 
+                  updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed}
+                  setVehndBalance = {setVehndBalance} setHndRewards = {setHndRewards} setGaugeAddresses = {setGaugeAddresses} />
+              </ErrorBoundary>
+              <ToastContainer/>
+            </Wrapper>
+            <Footer darkMode={darkMode} isMobile={isMobile}/>
+            <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress} setOpenNetwork={setOpenNetwork} setOpenHundred={setOpenHundred} setOpenAirdrop={setOpenAirdrop}>
+              { openAddress ? 
+                  <AccountSettings address={address} setAddress={setAddress}/> 
+                  : (openNetwork ? 
+                  <NetworksView/> 
+                  : openHundred ? 
+                  <HundredMenu hndBalance={hndBalance} hndEarned={hndEarned}
+                    handleCollect={handleCollect} handleClaimHnd={handleClaimHnd} handleClaimLockHnd = {handleClaimLockHnd} address={address} hndPrice={hndPrice} hundredBalance={hundredBalance} 
+                    vehndBalance={vehndBalance} hndRewards={hndRewards} /> 
+                  : openAirdrop ? 
+                  <AirdropMenu airdrops={airdrops} setAirdrops={setAirdrops}  address={address}/>
+                  : null)
+              }
+            </SideMenu>
+            <ReactToolTip id="tooltip" effect="solid"/>
+            <Spinner/>
+          </div>
+        </MyUiContext.Provider>
+    </MyGlobalContext.Provider>
     : <div className="App">
       </div>
   )

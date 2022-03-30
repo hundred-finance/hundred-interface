@@ -1,12 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-*, *::after, *::before{
-  font-family: 'Roboto', sans-serif;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 html{
   font-size: 14px;
@@ -21,60 +13,9 @@ html{
   height: 100%;
   position: relative;
   text-align: center;
-  --navBackground: #111111;
-  --background: #f9fafb;
-  --logoBackground: #f9fafb;
-  --sectionBackground: #101010;
-  --secondaryBackground: #f9fafb;
-  --boxBackground: #fff;
-  --text: #FFF;
-  --secondaryText: #000;
-  --bottomShadow: 0px 1px 10px 1px rgba(17, 162, 234, 0.5);
-  --overlayBackground: rgba(0, 0, 0, 0.6);
-  --buttonColor: #10337a;
-  --buttonHover: #2853ff;
-  --buttonHover2: #f0f0f0;
-  --textShadow: 1px 1px 1px rgba(17, 162, 234, .2);
-  --spinnerColor: #f0f0f0;
-  --boxShadow: 0px 0px 15px -1px rgba(97, 97, 97, 0.5);
-  --titleShadow:0px 3px 15px -3px rgba(97, 97, 97, 0.5);
-  --containerTitleShadow:0px 5px 5px -1px rgba(0,0,0,0.41);
-  --tableHeaderShadow:0px 2px 5px -1px rgba(0,0,0,0.41);
-  --tableRowShadow:0px 0px 3px -1px rgba(0,0,0,0.41);
-  --textboxPlaceholder:rgba(51, 51, 51, .5);
-  --textPositive: #006d5e;
-  --dialogSectionBackground:#f9f9f9;
-  --borderBottom: rgba(10, 6, 6, 0.05);
-  --grayText: #727A89;
-  --showMore: #092665;
-  --navbarButtonHover: #444;
   background-color: var(--background);
 }
 
-.App-dark{
-  --navBackground: #101010;
-  --background: #101010;
-  --logoBackground: hsla(210, 20%, 98%, 0.9);
-  --sectionBackground: #101010;
-  --secondaryBackground: #101010;
-  --boxBackground: #000;
-  --text: #EEE;
-  --secondaryText: #fff;
-  --bottomShadow: 0px 1px 10px 1px rgba(230, 230, 230, 0.5);
-  --overlayBackground: rgba(250, 250, 250, 0.2);
-  --boxShadow: 0px 0px 15px -1px rgba(230, 230, 230, 0.5);
-  --titleShadow:0px 3px 15px -3px rgba(230, 230, 230, 0.5);
-  --containerTitleShadow:0px 5px 5px -1px rgba(255,255,255,0.41);
-  --tableHeaderShadow:0px 2px 5px -1px rgba(255,255,255,0.41);
-  --tableRowShadow:0px 0px 3px -1px rgba(255,255,255,0.41);
-  --textboxPlaceholder:rgb(238, 238, 238,.5);
-  --textPositive: #00ffdd;
-  --dialogSectionBackground:#333;
-  --borderBottom: rgba(255, 255, 255, 0.05);
-  --showMore: #fff;
-  --themeSwitchBackground: #f9fafb;
-  background-color: var(--background);
-}
 
 /* width */
 ::-webkit-scrollbar {

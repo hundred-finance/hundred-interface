@@ -7,7 +7,7 @@ import "./dialogSection.css"
 import ReactToolTip from "react-tooltip"
 
 interface Props{
-    generalData : GeneralDetailsData | null,
+    generalData : GeneralDetailsData | undefined,
     borrowAmount: string,
     repayAmount: string,
     market: CTokenInfo | null

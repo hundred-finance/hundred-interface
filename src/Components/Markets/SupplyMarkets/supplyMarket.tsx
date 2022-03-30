@@ -6,19 +6,21 @@ import { GeneralDetailsData } from '../../../Classes/generalDetailsClass';
 import { BigNumber } from '../../../bigNumber';
 import { CTokenInfo } from '../../../Classes/cTokenClass';
 import ReactTooltip from 'react-tooltip';
+import { useUiContext } from '../../../Types/uiContext';
 import {GaugeV4} from "../../../Classes/gaugeV4Class";
 
 interface Props {
-    generalData: GeneralDetailsData | null;
+    generalData: GeneralDetailsData | undefined;
     marketsData: (CTokenInfo | null)[] | null | undefined;
     gaugeV4: (GaugeV4 | null)[] | null | undefined;
     enterMarketDialog: (market: CTokenInfo) => void;
     supplyMarketDialog: (market: CTokenInfo) => void;
     more: boolean;
-    darkMode: boolean;
 }
 
 const SupplyMarket: React.FC<Props> = (props: Props) => {
+    const {darkMode} = useUiContext()
+
     useEffect(() => {
         ReactTooltip.rebuild();
     });
@@ -28,8 +30,8 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
             <ReactTooltip
                 place="top"
                 effect="solid"
-                backgroundColor={`${props.darkMode ? '#f9fafb' : ''}`}
-                textColor={`${props.darkMode ? '#101010' : ''}`}
+                backgroundColor={`${darkMode ? '#f9fafb' : ''}`}
+                textColor={`${darkMode ? '#101010' : ''}`}
             />
 
           {/* React tooltip for adding info icon and doc link to APR table header */}

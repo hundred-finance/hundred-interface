@@ -1,5 +1,19 @@
 import Logos from "./logos"
 
+type NativeCurrency = {
+    name: string,
+    decimals: number,
+    symbol: string
+}
+
+type NetworkParams = {
+    chainId: string,
+    rpcUrls: string[],
+    chainName: string,
+    nativeCurrency: NativeCurrency,
+    blockExplorerUrls: string[]
+}
+
 export enum MasterChefVersion {
     v1,
     v2
@@ -12,14 +26,11 @@ type BackstopMasterChef = {
 }
 
 type Network = {
-    chainId: string,
+    chainId: number,
     network: string,
-    symbol: string,
-    rpcUrls?: string[],
-    blockExplorerUrls?: string[],
     logo: string,
-    name: string,
     blocksPerYear: number,
+    networkParams: NetworkParams,
     addLiquidity?: string,
     trade?: string,
     stakeLp?: string,
@@ -58,17 +69,26 @@ type Lendly = {
 }
 
 type NetworkData = {
-    [key:string]: Network
+    [key:number]: Network
 }
 
 const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
-    "0x1" : {
-        chainId: "0x1",
-        network: "Ethereum Mainnet",
-        symbol: "ETH",
+    1 : {
+        chainId: 1,
+        network: "Ethereum",
         logo: Logos["ETH"],
-        name: "Ethereum",
         blocksPerYear: 24*60*60/13.5*365,
+        networkParams: {
+            chainId: "0x1",
+            chainName: "Ethereum",
+            rpcUrls:["https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+            nativeCurrency: {
+                name: "ETH",
+                decimals: 18,
+                symbol: "ETH"
+            },
+            blockExplorerUrls: ["https://etherscan.io"]
+        }, 
         trade: "https://app.balancer.fi/#/trade",
         addLiquidity: "https://app.balancer.fi/#/pool/0x56b2811bf75bb258d2234af4f43b479bb55c3b46000200000000000000000091",
         nativeTokenMarketAddress: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
@@ -77,15 +97,22 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         maximillion: '0x97F3763F8C0bE87Cab0e99Ee4b7806acA772FeDA',
     },
-    "0xa4b1": {
-        chainId: "0xa4b1",
+    42161: {
+        chainId: 42161,
         network: "Arbitrum One", 
-        symbol: "AETH",
-        rpcUrls: ["https://arb1.arbitrum.io/rpc"],
-        blockExplorerUrls: ["https://arbiscan.io"],
         logo: Logos["ARBITRUM"],
-        name: "AETH",
         blocksPerYear: 24*60*60/13.5*365,
+        networkParams: {
+            chainId: "0xa4b1",
+            chainName: "Arbitrum",
+            rpcUrls: ["https://arb1.arbitrum.io/rpc"],
+            nativeCurrency: {
+                name: "AETH",
+                decimals: 18,
+                symbol: "AETH"
+            },
+            blockExplorerUrls: ["https://arbiscan.io"]
+        },
         addLiquidity: "https://app.dodoex.io/liquidity?network=arbitrum&poolAddress=0x65e17c52128396443d4a9a61eacf0970f05f8a20",
         trade: "https://app.dodoex.io/exchange/WETH-HND?network=arbitrum",
         stakeLp:"https://app.dodoex.io/mining?network=arbitrum&mining=0x52c7b4aa3f67d3533aaf1153430758c702a3594b",
@@ -101,15 +128,22 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         votingAddress: '0xBa57440fA35Fdb671E58F6F56c1A4447aB1f6C2B',
         minterAddress: '0xc3CC9369fcB8491DaD4FA64cE1Fbd3DD2d70034f'
 },
-    "0xfa": {
-        chainId: "0xfa",
+    250: {
+        chainId: 250,
         network: "Fantom Opera", 
-        symbol: "FTM",
-        rpcUrls: ["https://rpc.ftm.tools/"],
-        blockExplorerUrls: ["https://ftmscan.com/"],
         logo: Logos["FTM"],
-        name: "FTM",
         blocksPerYear: 24*60*60*365,
+        networkParams: {
+            chainId: "0xfa",
+            chainName: "Fantom Opera",
+            rpcUrls: ["https://rpc.ftm.tools/"],
+            nativeCurrency: {
+                name: "FTM",
+                decimals: 18,
+                symbol: "FTM"
+            },
+            blockExplorerUrls: ["https://ftmscan.com"]
+        },
         nativeTokenMarketAddress: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
         addLiquidity: "https://app.beets.fi/#/pool/0xd57cda2caebb9b64bb88905c4de0f0da217a77d7000100000000000000000073",
         stakeLp: "https://app.beets.fi/#/pool/0xd57cda2caebb9b64bb88905c4de0f0da217a77d7000100000000000000000073",
@@ -141,19 +175,23 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
             }
         }
     },
-    "0x63564c40":
+    1666600000:
     {
-        chainId: "0x63564c40",
+        chainId: 1666600000,
         network: "Harmony",
-        symbol: "ONE",
-        rpcUrls: ["https://api.harmony.one",
-                  "https://s1.api.harmony.one",
-                  "https://s2.api.harmony.one",
-                  "https://s3.api.harmony.one"],
-        blockExplorerUrls: ["https://explorer.harmony.one/"],
         logo: Logos["ONE"],
-        name: "ONE",
         blocksPerYear: 15778476,
+        networkParams : {
+            chainId: "0x63564c40",
+            chainName: "Harmony Mainnet",
+            rpcUrls: ["https://api.harmony.one"],
+            nativeCurrency: {
+                name: "ONE",
+                decimals: 18,
+                symbol: "ONE"
+            },
+            blockExplorerUrls: ["https://explorer.harmony.one"]
+        },
         nativeTokenMarketAddress: "0xbb93c7f378b9b531216f9ad7b5748be189a55807",
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
@@ -166,15 +204,22 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         minterAddress: '0xb4300e088a3AE4e624EE5C71Bc1822F68BB5f2bc'
 
     },
-    "0x505":
+    1285:
     {
-        chainId: "0x505",
+        chainId: 1285,
         network: "Moonriver",
-        symbol: "MOVR",
-        rpcUrls: ["https://rpc.moonriver.moonbeam.network"],
-        blockExplorerUrls: ["https://moonriver.moonscan.io/"],
         logo: Logos["MOVR"],
-        name: "MOVR",
+        networkParams : {
+            chainId: "0x505",
+            chainName: "Moonriver",
+            rpcUrls: ["https://rpc.moonriver.moonbeam.network"],
+            nativeCurrency: {
+                name: "MOVR",
+                decimals: 18,
+                symbol: "MOVR"
+            },
+            blockExplorerUrls: ["https://moonriver.moonscan.io/"],
+        },
         blocksPerYear: 2465386,
         nativeTokenMarketAddress: "0xd6fcbccfc375c2c61d7ee2952b329dceba2d4e10",
         unitrollerAddress: "0x7d166777bd19a916c2edf5f1fc1ec138b37e7391",
@@ -189,15 +234,22 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         minterAddress: '0x08110737CB8276B155aB18533dacF7d27e2357c8'
 
     },
-    "0x64": {
-        chainId: "0x64",
+    100: {
+        chainId: 100,
         network: "Gnosis Chain", 
-        symbol: "xDai",
-        rpcUrls: ["https://rpc.xdaichain.com/"],
-        blockExplorerUrls: ["https://blockscout.com/xdai/mainnet/"],
         logo: Logos["GNOSIS"],
-        name: "Gnosis",
         blocksPerYear: 6307200,
+        networkParams: {
+            chainId: "0x64",
+            chainName: "Gnosis Chain",
+            rpcUrls: ["https://rpc.xdaichain.com/"],
+            nativeCurrency: {
+                name: "xDAI",
+                decimals: 18,
+                symbol: "xDAI"
+            },
+            blockExplorerUrls: ["https://blockscout.com/xdai/mainnet/"],
+        },
         nativeTokenMarketAddress: "0x090a00a2de0ea83def700b5e216f87a5d4f394fe",
         unitrollerAddress: "0x0F390559F258eB8591C8e31Cf0905E97cf36ACE2",
         hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
@@ -207,16 +259,23 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         minterAddress: '0x818b3dff96d01590Caf72965e6F50b24331EfdEC',
         maximillion: "0x42b458056f887fd665ed6f160a59afe932e1f559"
     },
-    "0xa":
+    10:
     {
-        chainId: "0xa",
+        chainId: 10,
         network: "Optimism",
-        symbol: "ETH",
-        rpcUrls: ["https://mainnet.optimism.io"],
-        blockExplorerUrls: ["https://optimistic.etherscan.io"],
         logo: Logos["OPT"],
-        name: "OPT",
         blocksPerYear: 2336000,
+        networkParams: {
+            chainId: "0xa",
+            chainName: "Optimism",
+            rpcUrls: ["https://mainnet.optimism.io"],
+            nativeCurrency: {
+                name: "ETH",
+                decimals: 18,
+                symbol: "ETH"
+            },
+            blockExplorerUrls: ["https://optimistic.etherscan.io"],
+        },
         nativeTokenMarketAddress: "0xe8f12f5492ec28609d2932519456b7436d6c93bd",
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
@@ -225,20 +284,22 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         votingAddress: "0x1F8e8472e124F58b7F0D2598EaE3F4f482780b09",
         minterAddress: "0x4adF575DBe0e6F1c5909AE9c7119927b4FaabbBd"
     },
-    "0x89" : {
-        chainId: "0x89",
+    137 : {
+        chainId: 137,
         network: "Polygon",
-        symbol: "MATIC",
-        rpcUrls:["https://rpc-mainnet.matic.network",
-                 "https://rpc-mainnet.maticvigil.com",
-                 "https://rpc-mainnet.matic.quiknode.pro",
-                 "https://matic-mainnet.chainstacklabs.com",
-                 "https://matic-mainnet-full-rpc.bwarelabs.com",
-                 "https://matic-mainnet-archive-rpc.bwarelabs.com"],
-        blockExplorerUrls: ["https://explorer.matic.network", "https://explorer-mainnet.maticvigil.com/"],
         logo: Logos["MATIC"],
-        name: "MATIC",
         blocksPerYear: 15768000,
+        networkParams: {
+            chainId: "0x89",
+            chainName: "Polygon",
+            rpcUrls: ["https://polygon-rpc.com/"],
+            nativeCurrency: {
+                name: "MATIC",
+                decimals: 18,
+                symbol: "MATIC"
+            },
+            blockExplorerUrls: ["https://polygonscan.com/"]
+        },
         nativeTokenMarketAddress: "0xEbd7f3349AbA8bB15b897e03D6c1a4Ba95B55e31",
         unitrollerAddress: "0xEdBA32185BAF7fEf9A26ca567bC4A6cbe426e499",
         hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
@@ -293,16 +354,23 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
     //     COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
     // }
 } : {
-    "0x2a":
+    42:
     {
-        chainId: "0x2a",
+        chainId: 42,
         network: "KOVAN Test Network",
-        symbol: "ETH",
-        rpcUrls: ["https://kovan.infura.io/v3/undefined"],
-        blockExplorerUrls: ["https://kovan.etherscan.io"],
         logo: Logos["ETH"],
-        name: "ETH",
-        blocksPerYear: 2336000	,
+        blocksPerYear: 2336000,
+        networkParams: {
+            chainId: "0x2a",
+            chainName: "Kovan",
+            rpcUrls: ["https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+            nativeCurrency: {
+                name: "ETH",
+                decimals: 18,
+                symbol: "ETH"
+            },
+            blockExplorerUrls: ["https://kovan.etherscan.io"]
+        },
         nativeTokenMarketAddress: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010054c81c8c01951E6A631dD228bB02d8D1e5",
@@ -311,48 +379,69 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         gaugeControllerAddress: "0x2E08596F46f51d1E88207790270aF2BD94602762",
         votingAddress: "0xbeD8EFa1973F6E1fB3515bf94aa760174431b3F8"
     },
-    "0x6357d2e0":
+    1666700000:
     {
-        chainId: "0x6357d2e0",
-        network: "Harmony Testnet Shard 0",
-        symbol: "ETH",
-        rpcUrls: ["https://api.s0.b.hmny.io"],
-        blockExplorerUrls: ["https://explorer.testnet.harmony.one/"],
+        chainId: 1666700000,
+        network: "Harmony Testnet",
         logo: Logos["ONE"],
-        name: "ONE",
         blocksPerYear: 15017140,
+        networkParams: {
+            chainId: "0x6357d2e0",
+            chainName: "Harmony Testnet",
+            rpcUrls: ["https://api.s0.b.hmny.io"],
+            nativeCurrency: {
+                name: "ONE",
+                decimals: 18,
+                symbol: "ONE"
+            },
+            blockExplorerUrls: ["https://explorer.testnet.harmony.one/"]
+        },
         nativeTokenMarketAddress: "0xfCD8570AD81e6c77b8D252bEbEBA62ed980BD64D",
         unitrollerAddress: "0x0F390559F258eB8591C8e31Cf0905E97cf36ACE2",
         hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         multicallAddress: "0xd078799c53396616844e2fa97f0dd2b4c145a685"
     },
-    "0x45":
+    69:
     {
-        chainId: "0x45",
+        chainId: 69,
         network: "Optimism Kovan",
-        symbol: "ETH",
-        rpcUrls: ["https://kovan.optimism.io"],
-        blockExplorerUrls: ["https://kovan-optimistic.etherscan.io"],
         logo: Logos["OPT"],
-        name: "OPT",
         blocksPerYear: 15017140,
+        networkParams: {
+            chainId: "0x45",
+            chainName: "Optimism Kovan",
+            rpcUrls: ["https://kovan.optimism.io"],
+            nativeCurrency: {
+                name: "ETH",
+                decimals: 18,
+                symbol: "ETH"
+            },
+            blockExplorerUrls: ["https://kovan-optimistic.etherscan.io"]
+        },
         nativeTokenMarketAddress: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         multicallAddress: "0x19ead25619352ea106f25a1c870c0a4df65faa75"
     },
-    "0x1252":
+    4690:
     {
-        chainId: "0x1252",
+        chainId: 4690,
         network: "IoTeX Testnet",
-        symbol: "IOTX",
-        rpcUrls: ["https://babel-api.testnet.iotex.io"],
-        blockExplorerUrls: ["https://testnet.iotexscan.io/"],
         logo: Logos["IOTX"],
-        name: "IOTX-T",
         blocksPerYear: 6307200,
+        networkParams: {
+            chainId: "0x1252",
+            chainName: "IoTeX Testnet",
+            rpcUrls: ["https://babel-api.testnet.iotex.io"],
+            nativeCurrency: {
+                name: "IOTX-T",
+                decimals: 18,
+                symbol: "IOTX-T"
+            },
+            blockExplorerUrls: ["https://testnet.iotexscan.io/"],
+        },
         nativeTokenMarketAddress: "",
         unitrollerAddress: "0x8c6139ff1e9d7c1e32bdafd79948d0895ba0a831",
         hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
@@ -361,5 +450,5 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
     }
 }
 
-export { NETWORKS }
+export default NETWORKS 
 export type { Network }

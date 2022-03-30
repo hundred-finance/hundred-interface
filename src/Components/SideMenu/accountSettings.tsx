@@ -1,19 +1,31 @@
+import { useWeb3React } from "@web3-react/core"
+import { ethers } from "ethers"
 import React from "react"
 import { getShortenAddress } from "../../helpers"
+import { useUiContext } from "../../Types/uiContext"
 import "./accountSettings.css"
 
 interface Props{
     address: string,
-    setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
-    setOpenAddress: React.Dispatch<React.SetStateAction<boolean>>,
     setAddress: React.Dispatch<React.SetStateAction<string>>,
 }
 
 
 const AccountSettings: React.FC<Props> = (props: Props) => {
+    const {setSideMenu, setOpenAddress} = useUiContext()
+    const { connector, deactivate} = useWeb3React<ethers.providers.Web3Provider>()
+
     const handleDisconnect = () => {
-        props.setSideMenu(false) 
-        props.setOpenAddress(false)
+        try{
+            (connector as any).close()
+        }
+        catch{}
+    
+        window.localStorage.removeItem("provider")
+        deactivate()
+
+        setSideMenu(false) 
+        setOpenAddress(false)
         props.setAddress("")
     }
 

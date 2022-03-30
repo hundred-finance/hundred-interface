@@ -9,13 +9,12 @@ import SupplyMarket from "./SupplyMarkets/supplyMarket"
 import {GaugeV4} from "../../Classes/gaugeV4Class";
 
 interface Props{
-    generalData: GeneralDetailsData | null,
+    generalData: GeneralDetailsData | undefined,
     marketsData: (CTokenInfo | null)[] | null | undefined,
     gaugeV4: (GaugeV4 | null)[] | null | undefined,
     enterMarketDialog: (market: CTokenInfo) => void,
     supplyMarketDialog: (market: CTokenInfo) => void,
     borrowMarketDialog: (market: CTokenInfo) => void,
-    darkMode: boolean
 }
 const Markets: React.FC<Props> = (props : Props) => {
     const [showMore, setShowMore] = useState<boolean>(false)
@@ -42,7 +41,6 @@ const Markets: React.FC<Props> = (props : Props) => {
                     enterMarketDialog = {props.enterMarketDialog}
                     supplyMarketDialog={props.supplyMarketDialog}
                     more={showMore}
-                    darkMode={props.darkMode}
                 />
                 {props.marketsData && props.marketsData.length > 6 ? <MarketContainerShowMore onClick={handleSupplyMore}>
                 {

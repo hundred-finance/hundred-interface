@@ -19,7 +19,7 @@ const votingCalls = []
     
 }
   const votingResult = await comptrollerData.ethcallProvider.all(votingCalls)
-  let vehndBalance = BigNumber.from("0",)
-  vehndBalance = BigNumber.from(votingResult[0], 18)
+  
+  const vehndBalance = votingResult[0] ? BigNumber.from(votingResult[0], 18) : BigNumber.from("0")
 return {vehndBalance:vehndBalance}
 }

@@ -8,7 +8,7 @@ import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
 import { BigNumber } from "../../../bigNumber"
 
 interface Props{
-  generalData: GeneralDetailsData | null,
+  generalData: GeneralDetailsData | undefined,
   marketsData: (CTokenInfo | null)[] | null | undefined,
   borrowMarketDialog: (market: CTokenInfo) => void,
   more: boolean

@@ -1,21 +1,17 @@
-import React, { useEffect, useState} from "react"
+import React, { useEffect, useRef, useState} from "react"
 import "./hundredMenu.css"
-import {ethers} from "ethers"
 import { Spinner } from "../../assets/huIcons/huIcons"
 import { Network } from "../../networks"
 import { BigNumber } from "../../bigNumber"
+import { useUiContext } from "../../Types/uiContext"
+import { useGlobalContext } from "../../Types/globalContext"
 
 interface Props{
     hndPrice: number,
     hndBalance: BigNumber | null,
     hndEarned: BigNumber | null,
     hndRewards: BigNumber | null,
-    hndSpinner: boolean,
     address: string,
-    provider: ethers.providers.Web3Provider | null,
-    network: Network | null,
-    setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
-    setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>,
     handleCollect: () => Promise<void>,
     handleClaimHnd: () => Promise<void>, 
     handleClaimLockHnd: () => Promise<void>, 
@@ -26,12 +22,21 @@ interface Props{
 
 
 const HundredMenu: React.FC<Props> = (props: Props) => {
+    const {hndSpinner} = useUiContext()
+    const {network} = useGlobalContext()
+
+    const networkRef = useRef<Network | null>(null)
+    networkRef.current = network
+    useEffect(() => {
+        networkRef.current = {...network} as any
+    }, [network])
+
     const [tvl, setTvl] = useState<BigNumber | null>(null)
 
     useEffect(() => {
-        if(props.network  && props.network.hundredLiquidityPoolAddress && props.hundredBalance){
-            if(props.network.liquidity){
-                const temp = +props.hundredBalance.toString() / (props.network.hndPoolPercent ? props.network.hndPoolPercent : 1) * props.hndPrice
+        if(networkRef.current  && networkRef.current.hundredLiquidityPoolAddress && props.hundredBalance){
+            if(networkRef.current.liquidity){
+                const temp = +props.hundredBalance.toString() / (networkRef.current.hndPoolPercent ? networkRef.current.hndPoolPercent : 1) * props.hndPrice
                 setTvl(BigNumber.parseValue(temp.noExponents()))
             }
             else{
@@ -47,10 +52,10 @@ const HundredMenu: React.FC<Props> = (props: Props) => {
             <hr/>
             <div className="hundred-menu-item">
                 <div className="hundred-menu-item-label"><label>HND Price </label><span>${BigNumber.parseValue(props.hndPrice.toString()).toRound(2, true, true)}</span></div>
-                {tvl ? <div className="hundred-menu-item-label"><label>{props.network?.liquidity ? "Liquidity" : "TVL"}</label><span>${tvl.toRound(2, true, true)}</span></div> : null}
-                {props.network  && props.network.trade ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={props.network.trade} target="_blank" rel="noreferrer">Trade</a></div> : null}
-                {props.network  && props.network.addLiquidity ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={props.network.addLiquidity} target="_blank" rel="noreferrer">Add Liquidity</a></div> : null}
-                {props.network  && props.network.stakeLp ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={props.network.stakeLp} target="_blank" rel="noreferrer">Stake LP</a></div> : null}
+                {tvl ? <div className="hundred-menu-item-label"><label>{networkRef.current?.liquidity ? "Liquidity" : "TVL"}</label><span>${tvl.toRound(2, true, true)}</span></div> : null}
+                {networkRef.current  && networkRef.current.trade ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={networkRef.current.trade} target="_blank" rel="noreferrer">Trade</a></div> : null}
+                {networkRef.current  && networkRef.current.addLiquidity ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={networkRef.current.addLiquidity} target="_blank" rel="noreferrer">Add Liquidity</a></div> : null}
+                {networkRef.current  && networkRef.current.stakeLp ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={networkRef.current.stakeLp} target="_blank" rel="noreferrer">Stake LP</a></div> : null}
             </div>
             <div className="hundred-menu-item">
                 <hr/>
@@ -63,8 +68,8 @@ const HundredMenu: React.FC<Props> = (props: Props) => {
 
                 {props.hndEarned && +props.hndEarned.toString() > 0 ? 
                     <><div className="hundred-menu-item-label"><label>HND Earned (Legacy)</label><span>{props.hndEarned ? props.hndEarned?.gt(BigNumber.from(0)) ? props.hndEarned?.toRound(2, true, true) : "0.00" : "--"}</span></div>
-                    <div className={`${props.hndSpinner ? "hundred-menu-item-button-disabled" : "hundred-menu-item-button"}`} onClick={() => !props.hndSpinner ? props.handleCollect() : null}>
-                        {props.hndSpinner ? (<Spinner size={"25px"}/>) : "Claim Legacy HND"}</div></> : null
+                    <div className={`${hndSpinner ? "hundred-menu-item-button-disabled" : "hundred-menu-item-button"}`} onClick={() => !hndSpinner ? props.handleCollect() : null}>
+                        {hndSpinner ? (<Spinner size={"25px"}/>) : "Claim Legacy HND"}</div></> : null
                 }
             </div>
         </div>
