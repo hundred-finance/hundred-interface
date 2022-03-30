@@ -417,7 +417,16 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             :
                                 ''
                         }
-                        <TabContentItem open={props.open} tabId={props.gaugeV4 && props.market ? 4 : 3} tabChange={tabChange}>
+                        <TabContentItem
+                            open={props.open}
+                            tabId={
+                                (props.market?.backstop || props.backstopGaugeV4?.generalData?.backstopGauge) && props.gaugeV4 ?
+                                    4
+                                    :
+                                    props.market?.backstop || props.backstopGaugeV4?.generalData?.backstopGauge || props.gaugeV4 ?
+                                        3 : 2
+                            }
+                            tabChange={tabChange}>
                             <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={withdrawDisabled} value={withdrawInput} setInput={setWithdrawInput} validation={withdrawValidation}
                                      button={props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? "Safe Max" : "Max"} buttonTooltip="50% of borrow limit"
                                      onClick={() => {props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? getSafeMaxWithdraw() : getMaxWithdraw()}}/>
