@@ -80,6 +80,7 @@ export type MarketDataType = {
     comAccrued: BigNumber,
     markets: CTokenInfo[],
     gauges: GaugeV4GeneralData[],
+    backStopGauges: GaugeV4GeneralData[],
     vehndBalance: BigNumber,
     hndRewards: BigNumber,
     gaugeAddresses: string[],
@@ -184,6 +185,7 @@ export const fetchData = async(
                    tokenContract.totalSupply(), 
                    tokenContract.allowance(userAddress, a), 
                    tokenContract.balanceOf(userAddress))
+
         if(network.backstopMasterChef && comptrollerData.backstopPools.length > 0){
           const bstop = comptrollerData.backstopPools.find(x=>x.underlyingTokens.toLowerCase() === underlyingAddress.toLowerCase())
           if(bstop){
@@ -272,7 +274,8 @@ export const fetchData = async(
         hndBalance: hndBalance,
         hundredBalace: hundredBalace,
         comAccrued: compAccrued,
-        gauges: gaugesData.map(g => g.generalData),
+        gauges: gaugesData.filter(g => !g.generalData.backstopGauge).map(g => g.generalData),
+        backStopGauges: gaugesData.filter(g => g.generalData.backstopGauge).map(g => g.generalData),
         vehndBalance: vehndBalance,
         hndRewards: hndRewards,
         gaugeAddresses: gaugeAddresses

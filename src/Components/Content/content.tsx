@@ -12,7 +12,7 @@ import EnterMarketDialog from "../Markets/MarketsDialogs/enterMarketDialog"
 import BorrowMarketDialog from "../Markets/MarketsDialogs/borrowMarketsDialog"
 import SupplyMarketDialog from "../Markets/MarketsDialogs/supplyMarketDialog"
 import { fetchData} from "./fetchData"
-import {GaugeV4, getGaugesData} from "../../Classes/gaugeV4Class";
+import {GaugeV4, getBackstopGaugesData, getGaugesData} from "../../Classes/gaugeV4Class";
 import HundredMessage from "../MessageDialog/messageDialog"
 import MoonriverMessage from "../MessageDialog/moonRiverDialog"
 import { useUiContext } from "../../Types/uiContext"
@@ -195,10 +195,11 @@ const Content: React.FC<Props> = (props : Props) => {
         if(library && comptroller){
           const net = {...network}
           const gauges = await getGaugesData(library, userAddress.current, net)
+          const backstopGauges = await getBackstopGaugesData(library, userAddress.current, net)
           const markets = await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: userAddress.current, comptrollerData: comptroller, network: net, marketsData: marketsRef.current, provider: library, hndPrice: hndPriceRef.current, gaugesData: gauges })
           updateMarkets(markets.markets, gauges, markets.hndBalance, markets.hundredBalace, markets.comAccrued, markets.vehndBalance, markets.hndRewards, markets.gaugeAddresses, cToken, spinnerUpdate)
 
-          setGaugesV4Data(gauges)
+          setGaugesV4Data(gauges.concat(backstopGauges))
         }
       }
     }
@@ -830,7 +831,7 @@ const Content: React.FC<Props> = (props : Props) => {
                       selectedMarketRef.current.stakeSpinner = true
                   market.stakeSpinner = true
 
-                  await gaugeV4?.stakeCall(amount)
+                  await gaugeV4?.stakeCall(amount, market)
 
                   setSpinnerVisible(false)
 
@@ -864,7 +865,7 @@ const Content: React.FC<Props> = (props : Props) => {
 
                   market.stakeSpinner = true
 
-                  await gaugeV4?.approveCall()
+                  await gaugeV4?.approveCall(market)
 
                   setSpinnerVisible(false)
 
@@ -885,11 +886,11 @@ const Content: React.FC<Props> = (props : Props) => {
       }
   }
 
-    const handleUnstake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined, amount: string) => {
+    const handleApproveUnStake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined) => {
         if(marketsRef.current){
-            setSpinnerVisible(true)
+            if (spinner.current) spinner.current(true)
             let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
-            if(market && library){
+            if(market && provider.current){
                 try{
                     setCompleted(false)
 
@@ -898,7 +899,42 @@ const Content: React.FC<Props> = (props : Props) => {
 
                     market.unstakeSpinner = true
 
-                    await gaugeV4?.unstakeCall(amount)
+                    await gaugeV4?.approveUnstakeCall()
+
+                    if (spinner.current) spinner.current(false)
+
+                    market.unstakeSpinner = false
+                }
+                catch(err){
+                    console.log(err)
+                }
+                finally{
+                    if (spinner.current) spinner.current(false)
+                    market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+                    if(market){
+                        setUpdate(true)
+                        await handleUpdate(market, "unstake")
+                    }
+                }
+            }
+        }
+    }
+
+    const handleUnstake = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined, amount: string) => {
+        if(marketsRef.current){
+            setSpinnerVisible(true)
+            let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
+            const nativeTokenMarket = marketsRef.current.find(x => x?.isNativeToken)
+            if(market && library && nativeTokenMarket){
+                try{
+                    setCompleted(false)
+
+                    if(selectedMarketRef.current)
+                        selectedMarketRef.current.unstakeSpinner = true
+
+                    market.unstakeSpinner = true
+
+                    await gaugeV4?.unstakeCall(amount, market, nativeTokenMarket?.pTokenAddress)
 
                     setSpinnerVisible(false)
 
@@ -959,6 +995,7 @@ const Content: React.FC<Props> = (props : Props) => {
             <Markets
                 generalData = {generalData}
                 marketsData = {marketsData}
+                gaugeV4 = {gaugesV4Data}
                 enterMarketDialog={enterMarketDialog}
                 supplyMarketDialog={supplyMarketDialog}
                 borrowMarketDialog={borrowMarketDialog}
@@ -980,11 +1017,13 @@ const Content: React.FC<Props> = (props : Props) => {
                 getMaxAmount={getMaxAmount}
                 spinnerVisible={spinnerVisible}
                 gaugeV4={gaugesV4Data?.find(g => g?.generalData.lpToken.toLowerCase() === selectedMarketRef.current?.pTokenAddress.toLowerCase())}
+                backstopGaugeV4={gaugesV4Data?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === selectedMarketRef.current?.pTokenAddress.toLowerCase())}
                 handleApproveBackstop={handleApproveBackstop}
                 handleBackstopDeposit={handleBackstopDeposit}
                 handleBackstopWithdraw={handleBackstopWithdraw}
                 handleBackstopClaim={handleBackstopClaim}
                 handleApproveStake={handleApproveStake}
+                handleApproveUnStake={handleApproveUnStake}
             />
             <BorrowMarketDialog completed={completed} open={openBorrowMarketDialog} market={selectedMarket} generalData={generalData} 
               closeBorrowMarketDialog={closeBorrowMarketDialog} getMaxAmount={getMaxAmount} handleEnable = {handleEnable}

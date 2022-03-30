@@ -55,8 +55,9 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
             block: 0
         }
     }
-    const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
 
+    const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
+    
     const calls = [ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets()]
 
     const backstop = network.backstopMasterChef

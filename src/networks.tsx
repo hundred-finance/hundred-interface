@@ -47,6 +47,9 @@ type Network = {
     minterAddress?: string,
     minterAddressLendly?: string,
     gaugeControllerAddress?: string,
+    backstopGaugeControllerAddress?: string,
+    backstopGaugeMinterAddress?: string,
+    gaugeHelper?: string,
     airdropMulticallAddress?: string,
     maximillion?: string;
     votingAddress?: string;
@@ -281,6 +284,32 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         votingAddress: "0x1F8e8472e124F58b7F0D2598EaE3F4f482780b09",
         minterAddress: "0x4adF575DBe0e6F1c5909AE9c7119927b4FaabbBd"
     },
+    "0x89" : {
+        chainId: "0x89",
+        network: "Polygon",
+        symbol: "MATIC",
+        rpcUrls:["https://rpc-mainnet.matic.network",
+                 "https://rpc-mainnet.maticvigil.com",
+                 "https://rpc-mainnet.matic.quiknode.pro",
+                 "https://matic-mainnet.chainstacklabs.com",
+                 "https://matic-mainnet-full-rpc.bwarelabs.com",
+                 "https://matic-mainnet-archive-rpc.bwarelabs.com"],
+        blockExplorerUrls: ["https://explorer.matic.network", "https://explorer-mainnet.maticvigil.com/"],
+        logo: Logos["MATIC"],
+        name: "MATIC",
+        blocksPerYear: 15768000,
+        nativeTokenMarketAddress: "0xEbd7f3349AbA8bB15b897e03D6c1a4Ba95B55e31",
+        unitrollerAddress: "0xEdBA32185BAF7fEf9A26ca567bC4A6cbe426e499",
+        hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
+        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
+        maximillion: "0x89db3b59381bc06fe9bf74532afd777e5f78ef02",
+        gaugeControllerAddress: "0xF191d17dEe9943F06bB784C0492805280AeE0bf9",
+        votingAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7",
+        minterAddress: "0xC3bae38Bfa2CbBE30f442649070408f484bd5882",
+        backstopGaugeControllerAddress: "0x1cF3993EbA538e5f085333c86356622161Dd8C0B",
+        backstopGaugeMinterAddress: "0xc8e2C35b7C9CD784635B72df14179746B7C0f2a7",
+        gaugeHelper: "0xbF689f50cB446f171F08691367f7D9398b24D382"
+    },
     // "0x1251":
     // {
     //     chainId: "0x1251",
@@ -321,25 +350,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
     //     UNITROLLER_ADDRESS: "0x0F390559F258eB8591C8e31Cf0905E97cf36ACE2",
     //     HUNDRED_ADDRESS: "0x100100745f72c0b072C55E7fe0750Ba212E380A7",
     //     COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-    // },  
-    // "0x89": {
-    //     chainId: "0x89",
-    //     network: "Polygon",
-    //     symbol: "MATIC",
-    //     rpcUrls:["https://rpc-mainnet.matic.network",
-    //              "https://rpc-mainnet.maticvigil.com",
-    //              "https://rpc-mainnet.matic.quiknode.pro",
-    //              "https://matic-mainnet.chainstacklabs.com",
-    //              "https://matic-mainnet-full-rpc.bwarelabs.com",
-    //              "https://matic-mainnet-archive-rpc.bwarelabs.com"],
-    //     blockExplorelUrls: ["https://explorer.matic.network", "https://explorer-mainnet.maticvigil.com/"],
-    //     logo: Logos["MATIC"],
-    //     name: "Matic",
-    //     nativeTokenMarketAddress: "0xebd7f3349aba8bb15b897e03d6c1a4ba95b55e31",
-    //     UNITROLLER_ADDRESS: "0xEdBA32185BAF7fEf9A26ca567bC4A6cbe426e499",
-    //     HUNDRED_ADDRESS: "0xfCD8570AD81e6c77b8D252bEbEBA62ed980BD64D",
-    //     COMPOUND_LENS_ADDRESS: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-    // }       
+    // }
 } : {
     42:
     {
