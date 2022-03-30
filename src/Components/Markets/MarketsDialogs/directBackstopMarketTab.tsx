@@ -1,7 +1,6 @@
 import { BigNumber } from "../../../bigNumber";
 import React, {useEffect, useState} from "react"
 import TextBox from "../../Textbox/textBox";
-import BorrowLimitSection from "./borrowLimitSection";
 import MarketDialogButton from "./marketDialogButton";
 import "./supplyMarketDialog.css"
 import MarketDialogItem from "./marketDialogItem";
@@ -28,7 +27,6 @@ interface Props{
     handleApproveUnStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
 }
 const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
-    const [newBorrowLimit3, setNewBorrowLimit3] = useState<BigNumber>(BigNumber.from(0))
     const [stakeInput, setStakeInput] = useState<string>("")
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [stakeDisabled, setStakeDisabled] = useState<boolean>(false)
@@ -43,37 +41,22 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
 
             if(stakeInput.trim() === ""){
                 setStakeValidation("")
-                setNewBorrowLimit3(BigNumber.from("0"))
                 return;
             }
 
             if(isNaN(+stakeInput) || isNaN(parseFloat(stakeInput))){
                 setStakeValidation("Amount must be a number");
-                setNewBorrowLimit3(BigNumber.from("0"))
                 return;
             } else if (+props.supplyInput <= 0 && props.market.underlying.walletBalance && +props.market.underlying.walletBalance.toString() <= 0) {
                 setStakeValidation("No balance to stake");
-                setNewBorrowLimit3(BigNumber.from("0"))
             } else if (+stakeInput <= 0) {
                 setStakeValidation("Amount must be > 0");
-                setNewBorrowLimit3(BigNumber.from("0"))
                 return
             } else if (+stakeInput > +props.market.underlying.walletBalance) {
                 setStakeValidation("Amount must be <= balance");
-                setNewBorrowLimit3(BigNumber.from("0"))
                 return
             } else{
                 setStakeValidation("");
-            }
-
-            if(props.market && props.generalData){
-                const totalBorrow = +props.generalData.totalBorrowLimit.toString()
-                const stake = props.market.isEnterMarket && stakeInput.trim() !== "" ? +stakeInput : 0
-                const price = +props.market.underlying.price.toString()
-                const collateral = +props.market.collateralFactor.toString()
-                const newTotalSupply = stake * price * collateral
-                const borrow = totalBorrow - newTotalSupply
-                setNewBorrowLimit3(BigNumber.parseValue(borrow.noExponents()))
             }
         }
 
@@ -132,25 +115,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
 
     const getSafeMaxStake = () : void=> {
         const stake = BigNumber.from('0');
-
-        if (props.market && props.generalData && props.market.underlying.walletBalance)
-        {
-            const borrow = BigNumber.parseValueSafe(props.generalData.totalBorrowBalance.toString(),props.market.underlying.decimals) ;
-            const supply = props.generalData.totalSupplyBalance;
-            const cFactor = BigNumber.parseValueSafe(props.market.collateralFactor.toString(),props.market.underlying.decimals)
-                .mulSafe(BigNumber.parseValueSafe('0.5001', props.market.underlying.decimals));
-            const percent = +cFactor.toString() === 0 ? 0 : +borrow.toString() / +cFactor.toString()
-            const percentBN = BigNumber.parseValueSafe(percent.toString(), props.market.underlying.decimals);
-
-            if (+props.generalData?.totalBorrowLimitUsedPercent.toRound(2) >= 50.01) {
-                setStakeInput(stake.toString());
-            } else{
-                const result = supply.subSafe(percentBN);
-                setStakeInput(BigNumber.minimum(result, props.market.underlying.walletBalance).toString());
-            }
-        } else {
-            setStakeInput(stake.toString());
-        }
+        setStakeInput(stake.toString());
     }
 
     const getMaxUnstake = () : void=> {
@@ -200,14 +165,6 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
 
         }
     }, [props.market?.unstakeSpinner])
-
-    function isBorrowLimitUsed() {
-        return newBorrowLimit3 && props.generalData &&
-            (+newBorrowLimit3.toString() > 0 || +newBorrowLimit3.toString() < 0) &&
-            (+newBorrowLimit3.toString() > 0 ? +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() > 0.9 : +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * -1 > 0.9) &&
-            (+newBorrowLimit3.toString() > 0 ? +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * 100 :
-                +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit3.toString() * -1 * 100) > +props.generalData.totalBorrowLimitUsedPercent;
-    }
 
     function getStakedBalance() {
         const stakedBalance = BigNumber.from(props.gaugeV4.userStakedTokenBalance, props.gaugeV4.lpTokenDecimals)
@@ -283,7 +240,6 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 title={"APR"}
                 value={stakingApr(props.market, props.gaugeV4)}
             />
-            <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit3}/>
             <div className="native-asset-amount">
                 <span className="dialog-section-content-value"/>
                 <div className="amount-select">
@@ -300,14 +256,13 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     value={stakeInput}
                     setInput={setStakeInput}
                     validation={stakeValidation}
-                    button={props.generalData && +props.generalData.totalBorrowBalance.toString() > 0  ? "Safe Max" : "Max"}
-                    buttonTooltip="50% of borrow limit"
-                    onClick={() => {props.generalData && +props.generalData.totalBorrowBalance.toString() > 0 ? getSafeMaxStake() : getMaxStake()}}/>
+                    button={"Max"}
+                    onClick={() => getMaxStake()}/>
                 {props.gaugeV4 && +props.gaugeV4.userAllowance.toString() > 0 &&
                 +props.gaugeV4.userAllowance.toString().toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
                     ?
                     <MarketDialogButton
-                        disabled={stakeInput === "" || stakeValidation !== "" || isBorrowLimitUsed()}
+                        disabled={stakeInput === "" || stakeValidation !== ""}
                         onClick={() => props.handleStake(props.market?.underlying.symbol, props?.gaugeV4, stakeInput)}
                     >
                         {props.market && props.market.stakeSpinner ? (
@@ -315,7 +270,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     </MarketDialogButton>
                     :
                     <MarketDialogButton
-                        disabled={stakeInput === "" || stakeValidation !== "" || isBorrowLimitUsed()}
+                        disabled={stakeInput === "" || stakeValidation !== ""}
                         onClick={() => props.handleApproveStake(props.market?.underlying.symbol, props?.gaugeV4)}
                     >
                         {props.market && props.market.stakeSpinner ? (
@@ -334,7 +289,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
             </div>
             <div className="input-button-group">
                 <TextBox
-                    placeholder={`bh${props.market?.underlying.symbol}-g`}
+                    placeholder={`bh${props.market?.underlying.symbol}-gauge`}
                     disabled={unstakeDisabled}
                     value={unstakeInput}
                     setInput={setUnstakeInput}
