@@ -253,7 +253,11 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
         const ratio = (10 ** (props.market.underlying.decimals - 8)).noExponents()
         const ratioDecimals = ratio.split(".").length > 1 ? ratio.split(".")[1].length : 0
 
-        if (!stakedBalance) {
+        if (+ratio === 0) {
+            return BigNumber.from(0)
+        }
+
+        if (+totalSupply === 0) {
             return BigNumber.from(0)
         }
 
