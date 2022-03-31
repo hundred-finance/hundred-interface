@@ -213,8 +213,8 @@ const resizeWindow = ()=>{
         setSpinnerVisible(true)
         const signer = library.getSigner()
         const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, signer)
-        const receipt = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [address])
-        setSpinnerVisible(false)
+        const receipt = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [address], () => setSpinnerVisible(false))
+        
         console.log(receipt)
         setUpdateEarned(true)
         //await getHndBalances(provider)
@@ -239,8 +239,7 @@ const resizeWindow = ()=>{
         network.minterAddress ? mintAddress = network.minterAddress : null; 
 
         const minter = new ethers.Contract(mintAddress, MINTER_ABI, signer)
-        const receipt = await ExecuteWithExtraGasLimit(minter, "mint_many", [gaugeAddresses])
-        setSpinnerVisible(false)
+        const receipt = await ExecuteWithExtraGasLimit(minter, "mint_many", [gaugeAddresses], () => setSpinnerVisible(false))
         console.log(receipt)
         setUpdateEarned(true)
       }
@@ -266,8 +265,8 @@ const resizeWindow = ()=>{
          const votingContract = new ethers.Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
          const balanceContract = new ethers.Contract(network.hundredAddress, HUNDRED_ABI, library)
          const rewards = await balanceContract.balanceOf(address)
-         const receipt = await ExecuteWithExtraGasLimit(votingContract, "increase_amount", [rewards])
-         setSpinnerVisible(false)
+         const receipt = await ExecuteWithExtraGasLimit(votingContract, "increase_amount", [rewards], () => setSpinnerVisible(false))
+         
          console.log(receipt)
          setUpdateEarned(true)
         }
