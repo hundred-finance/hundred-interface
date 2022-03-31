@@ -113,10 +113,10 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
         setStakeInput(formatBalance(props.market.underlying.walletBalance).toString)
     }
 
-    const getSafeMaxStake = () : void=> {
-        const stake = BigNumber.from('0');
-        setStakeInput(stake.toString());
-    }
+    // const getSafeMaxStake = () : void=> {
+    //     const stake = BigNumber.from('0');
+    //     setStakeInput(stake.toString());
+    // }
 
     const getMaxUnstake = () : void=> {
         setUnstakeInput(formatBalance(props.gaugeV4?.userStakeBalance).toString)
