@@ -70,7 +70,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
             }
         }
 
-        const getAirdrop = async (network: Network, userAddress: string, provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider) => {
+        const getAirdrop = async (network: Network, userAddress: string, provider: any) => {
             const airdrop = Airdrop[network.chainId]
             const calls: any[] = []
             if(airdrop){
