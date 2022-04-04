@@ -4,7 +4,7 @@ import { GeneralDetailsData } from "../../Classes/generalDetailsClass"
 import "./borrowLimit.css"
 
 interface Props{
-    generalData: GeneralDetailsData | null,
+    generalData: GeneralDetailsData | undefined,
     newBorrowLimit?: BigNumber | null
 }
 

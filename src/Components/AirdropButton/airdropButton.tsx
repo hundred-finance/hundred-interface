@@ -10,18 +10,16 @@ import "./airdropButton.css"
 import {AIRDROP_ABI, AIRDROP_V2_ABI} from "../../abi";
 import {Spinner} from "../../assets/huIcons/huIcons";
 import {Contract, Provider} from "ethcall";
+import { useUiContext } from "../../Types/uiContext";
+import { useGlobalContext } from "../../Types/globalContext";
+import { useWeb3React } from "@web3-react/core";
 
 interface Props{
-    network: Network | null,
     address: string,
     hasClaimed: boolean,
     setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>,
-    provider: ethers.providers.Web3Provider | null,
     airdrops: AirdropType[],
-    spinner: boolean,
-    setAirdrops: React.Dispatch<React.SetStateAction<AirdropType[]>>,
-    setOpenAirdrop: React.Dispatch<React.SetStateAction<boolean>>,
-    setSideMenu: React.Dispatch<React.SetStateAction<boolean>>
+    setAirdrops: React.Dispatch<React.SetStateAction<AirdropType[]>>
 }
 
 type AirdropAmount = {
@@ -36,6 +34,10 @@ export type AirdropType = {
 }
 
 const AirdropButton: React.FC<Props> = (props : Props) => {
+    const {setOpenAirdrop, setSideMenu, airdropSpinner} = useUiContext()
+    const { library, chainId } = useWeb3React()
+    const {network} = useGlobalContext()
+
     const [totalAmount, setTotalAmount] = useState<AirdropAmount[]>([])
 
     const parseAirdropAmount = (value: string | string[], symbols: string[]) : AirdropAmount[] => {
@@ -68,7 +70,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
             }
         }
 
-        const getAirdrop = async (network: Network, userAddress: string, provider: ethers.providers.Web3Provider) => {
+        const getAirdrop = async (network: Network, userAddress: string, provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider) => {
             const airdrop = Airdrop[network.chainId]
             const calls: any[] = []
             if(airdrop){
@@ -156,12 +158,14 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
             }
         } 
         
-    
-        if(props.network && props.address !== "" && props.provider && props.provider !== undefined){
-            
+        props.setAirdrops([])
+        props.setHasClaimed(false)
+        setTotalAmount([])
+        if(library && network && network.chainId === chainId && props.address !== ""){
             try{
                 
-                getAirdrop(props.network, props.address, props.provider)
+                    getAirdrop(network, props.address, library)
+                
                 
             }
             catch(err){
@@ -170,10 +174,10 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
             }
         }
         
-    }, [props.provider, props.network])
+    }, [library, network])
 
     useEffect(() => {
-        if(props.airdrops.length > 0){
+        if([...props.airdrops].length > 0){
             const airdrops = [...props.airdrops]
             airdropAmount(airdrops)
             props.setHasClaimed(true)
@@ -226,19 +230,19 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
     };
 
     const handleOpenAirdropMenu = () =>{
-        props.setOpenAirdrop(true)
-        props.setSideMenu(true)
+        setOpenAirdrop(true)
+        setSideMenu(true)
     }
     
       return (
-            props.airdrops.length > 0 && props.hasClaimed ? 
-            <div className={`airdrop-button ${!props.spinner ? "airdrop-button-hover" : "airdrop-button-spinner"}`} onClick={() => props.spinner ? null : handleOpenAirdropMenu()}>
+            [...props.airdrops].length > 0 && props.hasClaimed ? 
+            <div className={`airdrop-button ${!airdropSpinner ? "airdrop-button-hover" : "airdrop-button-spinner"}`} onClick={() => airdropSpinner ? null : handleOpenAirdropMenu()}>
                 <div className="airdrop-button-content">
-                    {totalAmount.length > 0 ? 
+                    {[...totalAmount].length > 0 ? 
                         <>
                             <span className="airdrop-name"><StarBpro active={true} backstop={false}/></span>
                             <span className="airdrop-amount">
-                                {totalAmount.map((x, index) => {
+                                {[...totalAmount].map((x, index) => {
                                     return <div key={index}>{x.value.toRound(2, true, true)} {x.symbol}</div>
                             })}
                             </span>
@@ -247,7 +251,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                     }
                     
                 </div>
-                {props.spinner ? 
+                {airdropSpinner ? 
                     <div className="airdrop-spinner"><Spinner size={"30px"}/></div>
                     : null
                 }

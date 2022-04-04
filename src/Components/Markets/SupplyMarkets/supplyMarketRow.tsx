@@ -11,11 +11,17 @@ import {GeneralDetailsItemContentItem} from "../../GeneralDetails/generalDetails
 interface Props{
   tooltip?: string,
   details: CTokenInfo | null,
+  hasbackstopGauge: boolean,
   supplyMarketDialog: (market: CTokenInfo) => void,
   enterMarketDialog: (market: CTokenInfo) => void,
 }
 
 const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
+
+    function hasBackstop() {
+        return props.hasbackstopGauge || !!props.details?.backstop;
+    }
+
     return (
         <tr className={props.details?.spinner ? "disable-row" : ""}>
         <td onClick={() =>props.details ? (!props?.details?.spinner ? props.supplyMarketDialog(props.details) : null) : null}>
@@ -28,7 +34,7 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         </td>
         <td className={`apy ${props.details ? (+props.details?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`}>
             <div className="supply-apy">
-              <StarBpro active={props.details && +props.details?.hndAPR.toString() > 0 ? true : false} backstop={props.details?.backstop ? true : false}/>
+              <StarBpro active={props.details && +props.details?.hndAPR.toString() > 0 ? true : false} backstop={hasBackstop()}/>
                 <GeneralDetailsItemContentItem className="general-details-item-content-item-pointer" onClick={() => props.details && !props?.details.spinner ? props.supplyMarketDialog(props?.details) : null}
                     label={`${ props.details && +props?.details?.totalMaxSupplyApy.toString() > 0 ? formatSupplyApyRange(+props.details.totalMinSupplyApy, +props.details.totalMaxSupplyApy) : "0.00"}%`}
                     value=""

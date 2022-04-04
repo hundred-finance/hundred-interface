@@ -17,6 +17,8 @@ import Logos from "../../logos"
 import { MasterChefVersion, Network } from "../../networks"
 import {GaugeV4, GaugeV4GeneralData} from "../../Classes/gaugeV4Class";
 import { Backstop, BackstopCollaterals, BackstopPool, BackstopPoolInfo, BackstopType, BackstopTypeV2, BackstopV2 } from "../../Classes/backstopClass"
+import { fetchVotingData } from "./fetchVotingData"
+import { fetchHndRewards } from "./fetchHndRewardsData"
 
 const mantissa = 1e18
 
@@ -77,7 +79,11 @@ export type MarketDataType = {
     hundredBalace: BigNumber,
     comAccrued: BigNumber,
     markets: CTokenInfo[],
-    gauges: GaugeV4GeneralData[]
+    gauges: GaugeV4GeneralData[],
+    backStopGauges: GaugeV4GeneralData[],
+    vehndBalance: BigNumber,
+    hndRewards: BigNumber,
+    gaugeAddresses: string[],
 }
   
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -121,7 +127,14 @@ export const fetchData = async(
                  comptrollerData.ethcallComptroller.borrowGuardianPaused(nativeToken))
     }
 
-    const notNativeMarkets = markets.filter((a) => {
+  const hndClaimData = (await fetchHndRewards({gaugesData}))
+  const hndRewards = hndClaimData.totalHndRewards
+  const gaugeAddresses = hndClaimData.gaugeAddresses
+
+  const votingData = (await fetchVotingData({userAddress, comptrollerData, network}))
+  const vehndBalance = votingData.vehndBalance
+  
+  const notNativeMarkets = markets.filter((a) => {
       if (a.toLowerCase() === network.nativeTokenMarketAddress.toLowerCase()) 
         return false
       return true  
@@ -172,6 +185,7 @@ export const fetchData = async(
                    tokenContract.totalSupply(), 
                    tokenContract.allowance(userAddress, a), 
                    tokenContract.balanceOf(userAddress))
+
         if(network.backstopMasterChef && comptrollerData.backstopPools.length > 0){
           const bstop = comptrollerData.backstopPools.find(x=>x.underlyingTokens.toLowerCase() === underlyingAddress.toLowerCase())
           if(bstop){
@@ -260,7 +274,11 @@ export const fetchData = async(
         hndBalance: hndBalance,
         hundredBalace: hundredBalace,
         comAccrued: compAccrued,
-        gauges: gaugesData.map(g => g.generalData)
+        gauges: gaugesData.filter(g => !g.generalData.backstopGauge).map(g => g.generalData),
+        backStopGauges: gaugesData.filter(g => g.generalData.backstopGauge).map(g => g.generalData),
+        vehndBalance: vehndBalance,
+        hndRewards: hndRewards,
+        gaugeAddresses: gaugeAddresses
     }
   }
 
@@ -288,14 +306,14 @@ export const fetchData = async(
         borrowPaused: tokenData[14],
         underlying: {
             price: tokenData[12],
-            symbol: native ? network.symbol : isMaker ? ethers.utils.parseBytes32String(tokenData[15]) : tokenData[15],
-            name: native ? network.name : isMaker ? ethers.utils.parseBytes32String(tokenData[16]) : tokenData[16],
+            symbol: native ? network.networkParams.nativeCurrency.symbol : isMaker ? ethers.utils.parseBytes32String(tokenData[15]) : tokenData[15],
+            name: native ? network.networkParams.nativeCurrency.name : isMaker ? ethers.utils.parseBytes32String(tokenData[16]) : tokenData[16],
             decimals: native ? 18 : isMaker ? tokenData[17]/1 : tokenData[17],
             totalSupply: native ? 0 : tokenData[18],
             allowance: native ? ethers.constants.MaxUint256 : tokenData[19],
             walletBalance: native ? await provider.getBalance(userAddress) : tokenData[20],
             address: underlyingAddress,
-            logo: native ? Logos[network.symbol] : isMaker ? Logos["MKR"] : Logos[tokenData[15]]
+            logo: native ? Logos[network.networkParams.nativeCurrency.symbol] : isMaker ? Logos["MKR"] : Logos[tokenData[15]]
         },
         isNative: native,
         enteredMarkets: enteredMarkets,

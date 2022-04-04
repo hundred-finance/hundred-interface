@@ -1,84 +1,80 @@
+import { useWeb3React } from "@web3-react/core"
+import { WalletConnectConnector } from "@web3-react/walletconnect-connector"
 import React from "react"
-import { Network, NETWORKS } from "../../networks"
+import { toHex } from "../../helpers"
+import NETWORKS from "../../networks"
+import { useGlobalContext } from "../../Types/globalContext"
+import { useUiContext } from "../../Types/uiContext"
+import Modal from "../Modal/modal"
 import "./networksView.css"
 
-interface Props {
-    network : Network | null
-}
+const NetworksView : React.FC = () => {
 
-interface SwitchEthereumChainParameter {
-    chainId: string
-}
-
-interface AddEthereumChainParameter {
-    chainId: string; // A 0x-prefixed hexadecimal string
-    chainName: string;
-    nativeCurrency: {
-      name: string;
-      symbol: string; // 2-6 characters long
-      decimals: 18;
-    };
-    rpcUrls: string[];
-    blockExplorerUrls?: string[];
-    iconUrls?: string[]; // Currently ignored.
-  }
-
-  type errorType = {
-      code: number
-  }
-
-const NetworksView : React.FC<Props> = ({network} : Props) => {
-
-    const switchNetwork = async(item: Network):Promise<void> => {
-        try {
-            const net: SwitchEthereumChainParameter = { chainId : item.chainId }
-            if (window.ethereum){
-                await window.ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [net]
-                })
-            }
-        } catch (error) {
-            if((error as errorType).code !== 4001)
-                handleNetworkClick(item)
-        }
-    }
+    const { connector, library } = useWeb3React()
+    const {network, setNetwork} = useGlobalContext()
     
-    const handleNetworkClick = async (item: Network):Promise<void> => {
-        if(item.chainId === "0x1" || item.chainId === "0x2a"){
-            return
-        }
+    const {setOpenNetwork, setSideMenu, setSwitchModal, switchModal} = useUiContext()
 
-        const net: AddEthereumChainParameter = {chainId : item.chainId,
-                                                chainName: item.network,
-                                                nativeCurrency:{
-                                                    name: item.symbol,
-                                                    symbol: item.symbol,
-                                                    decimals: 18
-                                                },
-                                                rpcUrls: item.rpcUrls ? item.rpcUrls : [],
-                                                blockExplorerUrls: item.blockExplorerUrls ? item.blockExplorerUrls : []
-                                            }
-        
-        if (window.ethereum) {
+    const switchNetwork = async (chain: number) => {
+      if (connector instanceof WalletConnectConnector){
+        setSwitchModal(true)
+      }
+      if (connector){
+        try {
+            if(library)
+                await library.provider.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: toHex(chain) }]
+                });
+            else{
+                const prov = await connector.getProvider()
+                if(prov)
+                    await prov.request({
+                        method: "wallet_switchEthereumChain",
+                        params: [{ chainId: toHex(chain) }]
+                    });
+            }
+            setSwitchModal(false)
+            setOpenNetwork(false)
+            setSideMenu(false)
+        } catch (switchError: any) {
+          console.log(switchError)
+          if (switchError.code === 4902) {
             try {
-              await window.ethereum.request({ 
-                  method: 'wallet_addEthereumChain',
-                  params: [net]
-                })
+                if(library)
+                    await library.provider.request({
+                        method: "wallet_addEthereumChain",
+                        params: [NETWORKS[chain].networkParams]
+                    });
+                else{
+                    const prov = await connector.getProvider()
+                    await prov.request({
+                        method: "wallet_addEthereumChain",
+                        params: [NETWORKS[chain].networkParams]
+                    });
+                }
+                setSwitchModal(false)
+                setOpenNetwork(false)
+                setSideMenu(false)
+            } catch (error) {
+              console.log("Error" , error)
             }
-            catch(err){
-                console.log(err)
-            }
+          }
         }
-    }
+      }
+      else{
+        setNetwork(NETWORKS[chain])
+      }
+    };
+    
     return (
+        <>
         <div className="networks-view">
             <div className="networks-caption">Networks</div>
             {
                 Object.values(NETWORKS).map(( value, index) => {
                     return(
-                        <div className={`network-item ${value.chainId === network?.chainId ? "network-selected" : ""}`} key={index} onClick={() => value.chainId === network?.chainId ? null : switchNetwork(value)}>
+                        <div className={`network-item ${value.chainId === network?.chainId ? "network-selected" : ""}`} key={index} onClick={() => value.chainId === network?.chainId ? null : switchNetwork(value.chainId)}>
                             <img src={value.logo} className="network-logo" alt="" />
                             <span>{value.network}</span>
                         </div>  
@@ -86,6 +82,16 @@ const NetworksView : React.FC<Props> = ({network} : Props) => {
                 })
             }
         </div>
+        <Modal open={switchModal} close={() => setSwitchModal(false)} title="Switch Network">
+                <div className='modal-error'>
+                    <div className='modal-error-message'>
+                        <p>
+                            Please switch from your wallet.
+                        </p>
+                    </div>
+                </div>
+            </Modal>
+        </>
     )
 }
 

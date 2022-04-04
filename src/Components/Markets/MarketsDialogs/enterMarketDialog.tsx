@@ -9,7 +9,7 @@ interface Props{
   open: boolean,
   closeMarketDialog: () => void,
   market: CTokenInfo | null,
-  generalData: GeneralDetailsData | null,
+  generalData: GeneralDetailsData | undefined,
   handleExitMarket: (symbol: string) => Promise<void>
   handleEnterMarket: (symbol: string) => Promise<void>
 }
