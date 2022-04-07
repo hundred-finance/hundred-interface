@@ -434,7 +434,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <SupplyRateSection market={props.market} gaugeV4={props.gaugeV4}/>
                             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit2}/>
                             <DialogMarketInfoSection market={props.market} collateralFactorText={"Loan-to-Value"}/>
-                            <MarketDialogButton disabled={withdrawInput==="" || isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData &&
+                            <MarketDialogButton disabled={withdrawInput==="" || (props.market && props.market.withdrawSpinner) || isNaN(+withdrawInput) || withdrawValidation!=="" || (newBorrowLimit2 && props.generalData &&
                                 +newBorrowLimit2.toString() > 0 &&
                                 +props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() > 0.9 &&
                                 (+props.generalData?.totalBorrowBalance.toString() / +newBorrowLimit2.toString() * 100) > +props.generalData.totalBorrowLimitUsedPercent) ? true: false}
