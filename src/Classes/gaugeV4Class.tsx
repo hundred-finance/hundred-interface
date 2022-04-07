@@ -95,7 +95,6 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
             block: 0
         }
     }
-
     let generalData: Array<GaugeV4GeneralData> = [];
 
     if (network.gaugeControllerAddress) {
@@ -105,6 +104,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
         const [nbGauges] = await ethcallProvider.all([ethcallGaugeController.n_gauges()]) as any
 
         const gauges:  any[] = await ethcallProvider.all(Array.from(Array(nbGauges.toNumber()).keys()).map(i => ethcallGaugeController.gauges(i)))
+
         const activeGauges: string[] = [];
 
         let lpAndMinterAddresses: any = await ethcallProvider.all(
@@ -128,16 +128,36 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
             }
         }
 
-        let rewards: any = await ethcallProvider.all(
-            activeGauges.flatMap((g, index) => [
-                    new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
-                    new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g),
-                    new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).underlying(),
-                ]
-            )
-        )
+        const calls : any = []
 
-        rewards = _.chunk(rewards, 3)
+        activeGauges.forEach((g, index) => {
+            calls.push(new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
+                      new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g))
+            if(activeLpAndMinterAddresses[index][0] && activeLpAndMinterAddresses[index][0].toLowerCase() !== network.nativeTokenMarketAddress.toLowerCase())
+                calls.push(new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).underlying())
+        })
+
+        const rewardsData: any[]= await ethcallProvider.all(calls)
+        const rewards = activeLpAndMinterAddresses.map(g => {
+            if(g[0].toLowerCase() === network.nativeTokenMarketAddress.toLowerCase()){
+                const temp = rewardsData.splice(0, 2)
+                temp.push("0x0")
+                return temp
+            }
+            return rewardsData.splice(0,3)
+        })
+
+        // let rewards: any = await ethcallProvider.all(
+        //     activeGauges.flatMap((g, index) => [
+        //             new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
+        //             new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g),
+        //             new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).underlying(),
+        //         ]
+        //     )
+        // )
+        // console.log("Gauges rewards", rewards)
+
+        // rewards = _.chunk(rewards, 3)
 
         generalData = activeLpAndMinterAddresses.map((c, index) => {
             return {
