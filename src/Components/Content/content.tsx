@@ -195,12 +195,15 @@ const Content: React.FC<Props> = (props : Props) => {
         }
         if(library && comptroller){
           const net = {...network}
-          const gauges = await getGaugesData(library, userAddress.current, net, () => setSpinnerVisible(false))
+          let gauges = await getGaugesData(library, userAddress.current, net, () => setSpinnerVisible(false))
           const backstopGauges = await getBackstopGaugesData(library, userAddress.current, net, () => setSpinnerVisible(false))
+
+          gauges = [...gauges, ...backstopGauges]
+
           const markets = await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: userAddress.current, comptrollerData: comptroller, network: net, marketsData: marketsRef.current, provider: library, hndPrice: hndPriceRef.current, gaugesData: gauges })
           updateMarkets(markets.markets, gauges, markets.hndBalance, markets.hundredBalace, markets.comAccrued, markets.vehndBalance, markets.hndRewards, markets.gaugeAddresses, cToken, spinnerUpdate)
 
-          setGaugesV4Data(gauges.concat(backstopGauges))
+          setGaugesV4Data(gauges)
         }
       }
     }

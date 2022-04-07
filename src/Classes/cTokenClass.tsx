@@ -73,6 +73,8 @@ export class CTokenInfo{
     hndAPR: BigNumber
     veHndAPR: BigNumber
     veHndMaxAPR: BigNumber
+    veHndBackstopAPR: BigNumber
+    veHndBackstopMaxAPR: BigNumber
     borrowRatePerBlock: BigNumber
 
     oldTotalSupplyApy: BigNumber
@@ -106,6 +108,8 @@ export class CTokenInfo{
                 hndAPR: BigNumber,
                 veHndAPR: BigNumber,
                 veHndMaxAPR: BigNumber,
+                veHndBackstopAPR: BigNumber,
+                veHndBackstopMaxAPR: BigNumber,
                 borrowRatePerBlock: BigNumber,
                 totalMaxSupplyApy: BigNumber,
                 totalMinSupplyApy: BigNumber,
@@ -150,6 +154,8 @@ export class CTokenInfo{
         this.hndAPR = hndAPR
         this.veHndAPR = veHndAPR
         this.veHndMaxAPR = veHndMaxAPR
+        this.veHndBackstopAPR = veHndBackstopAPR
+        this.veHndBackstopMaxAPR = veHndBackstopMaxAPR
         this.borrowRatePerBlock = borrowRatePerBlock
         this.totalMaxSupplyApy = totalMaxSupplyApy
         this.totalMinSupplyApy = totalMinSupplyApy

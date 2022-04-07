@@ -71,19 +71,28 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], gauges: Ga
     let totalLiquidity = BigNumber.from("0")
     let totalAccrued = 0
 
-    //const gaugeYearlyRewards = gauges.length > 0 ? +gauges[0].generalData.veHndRewardRate * 3600 * 24 * 365 / 1e18 : 0
-    marketsData[0]?.veHndAPR
     marketsData.map((market) => {  
       if(market){
         const gauge = gauges.find(g => g.generalData.lpToken.toLowerCase() === market.pTokenAddress.toLowerCase())
         const stake = gauge ? +gauge.generalData.totalStake * +market.exchangeRate * +market.underlying.price / (10 ** market.underlying.decimals) : 0
         const userStake = gauge ? +gauge.userStakedTokenBalance * +market.exchangeRate * +market.underlying.price / (10 ** market.underlying.decimals) : 0
 
+        const backstopGauge = gauges.find(g => g.generalData.lpTokenUnderlying.toLowerCase() === market.pTokenAddress.toLowerCase())
+        let backstopStake = 0
+        let userBackstopStake = 0
+        if (backstopGauge) {
+            const totalBalance = BigNumber.from(backstopGauge.generalData.backstopTotalBalance, 8)
+            const totalSupply = BigNumber.from(backstopGauge.generalData.backstopTotalSupply, 18)
+
+            backstopStake = +backstopGauge.generalData.totalStake * +market.exchangeRate * +market.underlying.price * +totalBalance / (+totalSupply * 1e10 * (10 ** market.underlying.decimals))
+            userBackstopStake += +backstopGauge.userStakedTokenBalance * +market.exchangeRate * +market.underlying.price * +totalBalance / (+totalSupply * 1e10 * (10 ** market.underlying.decimals))
+        }
+
         totalSupplyBalance = BigNumber.parseValue((+totalSupplyBalance.toString() + +market.supplyBalance.toString()).noExponents())
         totalBorrowBalance = BigNumber.parseValue((+totalBorrowBalance.toString() + +market.borrowBalance.toString()).noExponents())
-        totalStakedBalance = BigNumber.parseValue((+totalStakedBalance.toString() + userStake).noExponents())
+        totalStakedBalance = BigNumber.parseValue((+totalStakedBalance.toString() + userStake + userBackstopStake).noExponents())
 
-        allMarketsTotalStakeBalance = BigNumber.parseValue((+allMarketsTotalStakeBalance.toString() + stake).noExponents())
+        allMarketsTotalStakeBalance = BigNumber.parseValue((+allMarketsTotalStakeBalance.toString() + stake + backstopStake).noExponents())
 
         if (+market?.marketTotalSupply?.toString() > 0) {
           allMarketsTotalSupplyBalance = BigNumber.parseValue((+allMarketsTotalSupplyBalance.toString() + +market.marketTotalSupply.toString()).noExponents())
@@ -96,7 +105,7 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], gauges: Ga
         totalBorrowLimit = totalBorrowLimit.addSafe(market.isEnterMarket ? market.supplyBalance.mul(market.collateralFactor) : BigNumber.from("0"))
         
         yearSupplyInterest = BigNumber.parseValue((+yearSupplyInterest.toString() + (+market.supplyBalance.toString() * (+market.supplyApy.toString() + +market.hndAPR.toString()))).noExponents())
-        yearStakeInterest = BigNumber.parseValue((+yearStakeInterest.toString() + (userStake * +market.veHndAPR.toString())).noExponents())
+        yearStakeInterest = BigNumber.parseValue((+yearStakeInterest.toString() + (userStake * +market.veHndAPR.toString() + userBackstopStake * +market.veHndBackstopAPR.toString())).noExponents())
         yearBorrowInterest = BigNumber.parseValue((+yearBorrowInterest.toString() + (+market.borrowBalance.toString() * +market.borrowApy.toString())).noExponents())
         yearSupplyHndRewards = BigNumber.parseValue((+yearSupplyHndRewards.toString() + +market.hndAPR.toString()).noExponents())
         if (market && market.liquidity.gt(BigNumber.from("0"))) {
