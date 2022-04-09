@@ -264,7 +264,13 @@ export const fetchData = async(
     const blockNum = await blockProvider.getBlockNumber()
 
     const tokensInfo = await Promise.all(tokens.map(async(t)=>{
-        const tokenInfo = await getCtokenInfo(t, network, hndPrice, blockNum, gaugesData.find(g => g.generalData.lpToken.toLowerCase() === t.tokenAddress.toLowerCase()))
+        const tokenInfo = await getCtokenInfo(
+            t, network, hndPrice, blockNum,
+            gaugesData.filter(g =>
+                g.generalData.lpToken.toLowerCase() === t.tokenAddress.toLowerCase() ||
+                g.generalData.lpTokenUnderlying.toLowerCase() === t.tokenAddress.toLowerCase()
+            )
+        )
         return tokenInfo
     }))
 
@@ -285,10 +291,6 @@ export const fetchData = async(
  const getTokenData = async(tokenData: any[], native: boolean, network: Network, provider: ethers.providers.Web3Provider, 
                             userAddress: string, underlyingAddress: string, enteredMarkets: string[], tokenAddress: string, backstop: BackstopPool | null): Promise<Token> =>{
     const isMaker = underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? true : false
-    // if(backstop) {
-    //   console.log("BACKSTOP")
-    //   console.log(tokenData)
-    // }
     const token: Token = {
         accountSnapshot: tokenData[0],
         exchangeRate: tokenData[1],
@@ -376,7 +378,7 @@ export const fetchData = async(
     return token
   }
 
-  const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, blockNum: number, gauge: GaugeV4 | undefined) : Promise<CTokenInfo> => {
+  const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, blockNum: number, gauges: GaugeV4[] | undefined) : Promise<CTokenInfo> => {
 
       const decimals = token.underlying.decimals
 
@@ -425,8 +427,15 @@ export const fetchData = async(
       const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
 
       const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
+
       let veHndAPR = BigNumber.from(0)
       let veHndMaxAPR = BigNumber.from(0)
+
+      let veHndBackstopAPR = BigNumber.from(0)
+      let veHndBackstopMaxAPR = BigNumber.from(0)
+
+      const gauge = gauges?.find(g => g.generalData.lpToken.toLowerCase() === token.tokenAddress.toLowerCase())
+      const backstopGauge = gauges?.find(g => g.generalData.lpTokenUnderlying.toLowerCase() === token.tokenAddress.toLowerCase())
 
       if (gauge && +gauge.userWorkingStakeBalance > 0) {
           veHndAPR = BigNumber.parseValue(
@@ -455,21 +464,46 @@ export const fetchData = async(
           )
       }
 
-    const totalMaxSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString())+ +supplyApy.toString()).noExponents())
-    const totalMinSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString())+ +supplyApy.toString()).noExponents())
-    const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
-    const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +supplyApy.toString()).noExponents())
+      if (backstopGauge && +backstopGauge.userWorkingStakeBalance > 0) {
+          const totalBalance = BigNumber.from(backstopGauge.generalData.backstopTotalBalance, 8)
+          const totalSupply = BigNumber.from(backstopGauge.generalData.backstopTotalSupply, 18)
 
-    // if (gauge) {
-    //     console.log(
-    //         veHndAPR.toString(),
-    //         hndPrice,
-    //         underlying.price.toString(),
-    //         +gauge.weight / 1e18,
-    //         +gauge.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18,
-    //         +gauge.totalStake / 1e8 * +underlying.price
-    //     )
-    // }
+          const ratio = (10 ** (underlying.decimals - 8)).noExponents()
+
+          veHndBackstopAPR = BigNumber.parseValue(
+              ((+backstopGauge.generalData.weight / 1e18) *
+                  (+backstopGauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18) *
+                  (+backstopGauge.userWorkingStakeBalance / +backstopGauge.generalData.workingTotalStake)
+                  / (+backstopGauge.userStakedTokenBalance * +exchangeRateStored * +totalBalance * +underlying.price / ((10 ** underlying.decimals) * +totalSupply * +ratio))).noExponents()
+          )
+          veHndBackstopMaxAPR = veHndBackstopAPR
+      } else if (backstopGauge && +backstopGauge.generalData.totalStake > 0) {
+
+          const referenceStake = 10000 * (10 ** underlying.decimals)
+          const totalBalance = BigNumber.from(backstopGauge.generalData.backstopTotalBalance, 8)
+          const totalSupply = BigNumber.from(backstopGauge.generalData.backstopTotalSupply, 18)
+
+          const workingStake = +backstopGauge.generalData.workingTotalStake * +exchangeRateStored * +totalBalance / (+totalSupply * 1e10)
+
+          veHndBackstopAPR = BigNumber.parseValue(
+              ((+backstopGauge.generalData.weight / 1e18) *
+                  (referenceStake * 0.4 / (workingStake  + referenceStake * 0.4)) *
+                  (+backstopGauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
+                  / 10000 ).noExponents()
+          )
+
+          veHndBackstopMaxAPR = BigNumber.parseValue(
+              ((+backstopGauge.generalData.weight / 1e18) *
+                  (referenceStake / (workingStake + referenceStake)) *
+                  (+backstopGauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
+                  / 10000).noExponents()
+          )
+      }
+
+    const totalMaxSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString(), +veHndBackstopMaxAPR.toString())+ +supplyApy.toString()).noExponents())
+    const totalMinSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString(), +veHndBackstopAPR.toString())+ +supplyApy.toString()).noExponents())
+    const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
+    const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +veHndBackstopAPR.toString() + +supplyApy.toString()).noExponents())
 
     let accrued  = 0
     if(+token.totalSupply > 0){
@@ -527,6 +561,8 @@ export const fetchData = async(
       hndAPR,
       veHndAPR,
       veHndMaxAPR,
+      veHndBackstopAPR,
+      veHndBackstopMaxAPR,
       borrowRatePerBlock,
       totalMaxSupplyApy,
       totalMinSupplyApy,

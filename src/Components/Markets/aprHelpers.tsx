@@ -9,7 +9,15 @@ export function stakingApr(market: CTokenInfo|null, gauge: GaugeV4|null|undefine
     }
 
     if (+gauge.userWorkingStakeBalance > 0) {
+        if (gauge.generalData.backstopGauge) {
+            return `${formatApr(market?.veHndBackstopAPR)}%`
+        }
         return `${formatApr(market?.veHndAPR)}%`
+    }
+
+
+    if (gauge.generalData.backstopGauge) {
+        return `${formatApr(market?.veHndBackstopAPR)}-${formatApr(market?.veHndBackstopMaxAPR)}%`
     }
 
     return `${formatApr(market?.veHndAPR)}-${formatApr(market?.veHndMaxAPR)}%`
