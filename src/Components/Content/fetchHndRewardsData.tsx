@@ -10,14 +10,15 @@ export type hndRewardsDataType = {
 export const fetchHndRewards = async(
 { gaugesData }: {gaugesData: GaugeV4[]}) : Promise<hndRewardsDataType> => {
  const gaugeAddresses = Array(8).fill(ethers.constants.AddressZero);
- const totalHndRewards = BigNumber.from('0');
-                                    
+ let result = 0
  for (let i = 0; i < gaugesData.length; i++) {
   gaugeAddresses[i] = (gaugesData[i].generalData.address);
-  totalHndRewards.add(gaugesData[i].userClaimableHnd); 
+  const hndNum = +gaugesData[i].userClaimableHnd.toString(); 
+  result += hndNum
+}
+  const totalHndRewards = BigNumber.parseValue(result.toString())
 
-  }
   return {
-totalHndRewards:totalHndRewards,
+totalHndRewards: totalHndRewards,
 gaugeAddresses: gaugeAddresses
 }}
