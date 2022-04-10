@@ -468,13 +468,11 @@ export const fetchData = async(
           const totalBalance = BigNumber.from(backstopGauge.generalData.backstopTotalBalance, 8)
           const totalSupply = BigNumber.from(backstopGauge.generalData.backstopTotalSupply, 18)
 
-          const ratio = (10 ** (underlying.decimals - 8)).noExponents()
-
           veHndBackstopAPR = BigNumber.parseValue(
               ((+backstopGauge.generalData.weight / 1e18) *
                   (+backstopGauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18) *
                   (+backstopGauge.userWorkingStakeBalance / +backstopGauge.generalData.workingTotalStake)
-                  / (+backstopGauge.userStakedTokenBalance * +exchangeRateStored * +totalBalance * +underlying.price / ((10 ** underlying.decimals) * +totalSupply * +ratio))).noExponents()
+                  / (+backstopGauge.userStakedTokenBalance * +exchangeRateStored * +totalBalance * +underlying.price / ((10 ** underlying.decimals) * +totalSupply * 1e10))).noExponents()
           )
           veHndBackstopMaxAPR = veHndBackstopAPR
       } else if (backstopGauge && +backstopGauge.generalData.totalStake > 0) {
