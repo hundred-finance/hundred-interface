@@ -198,12 +198,12 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        gaugeControllerAddress: "0xa8cD5D59827514BCF343EC19F531ce1788Ea48f8",
+        gaugeControllerAddress: "0x61F95b38f880a6C5A4b7DD15560D7bB8B3E36f35",
         trade: "https://app.sushi.com/swap?inputCurrency=0x10010078a54396f62c96df8532dc2b4847d47ed3",
         addLiquidity: "https://app.sushi.com/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH",
         maximillion: '0x2c7a9d9919f042C4C120199c69e126124d09BE7c',
         votingAddress: '0xE4e43864ea18d5E5211352a4B810383460aB7fcC',
-        minterAddress: '0xb4300e088a3AE4e624EE5C71Bc1822F68BB5f2bc'
+        minterAddress: '0xd7f3Bf2085AD32ff95E1bCC408d37F10f6949270'
 
     },
     1285: {
