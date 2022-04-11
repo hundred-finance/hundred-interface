@@ -259,7 +259,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         gaugeControllerAddress: "0x2105dE165eD364919703186905B9BB5B8015F13c",
         votingAddress: '0xf64E1a3eF0d2F5659dC4c10983e595B797C6ecA4',
         minterAddress: '0x818b3dff96d01590Caf72965e6F50b24331EfdEC',
-        maximillion: "0x42b458056f887fd665ed6f160a59afe932e1f559"
+        maximillion: "0x42b458056f887fd665ed6f160a59afe932e1f559",
+        gaugeHelper: '0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02'
     },
     10: {
         chainId: 10,
