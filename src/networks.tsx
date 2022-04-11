@@ -233,8 +233,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         addLiquidity: "https://app.solarbeam.io/exchange/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH",
         maximillion: '0xbd193db8a909cAC57Cdb981Ea81B5dc270287F19',
         votingAddress: '0x243E33aa7f6787154a8E59d3C27a66db3F8818ee',
-        minterAddress: '0x08110737CB8276B155aB18533dacF7d27e2357c8'
-
+        minterAddress: '0x08110737CB8276B155aB18533dacF7d27e2357c8',
+        gaugeHelper: '0x530d28814AF3155b6eAee3eE14E5F4d869A87703'
     },
     100: {
         chainId: 100,
