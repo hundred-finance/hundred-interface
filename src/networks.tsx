@@ -203,7 +203,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         addLiquidity: "https://app.sushi.com/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH",
         maximillion: '0x2c7a9d9919f042C4C120199c69e126124d09BE7c',
         votingAddress: '0xE4e43864ea18d5E5211352a4B810383460aB7fcC',
-        minterAddress: '0xd7f3Bf2085AD32ff95E1bCC408d37F10f6949270'
+        minterAddress: '0xd7f3Bf2085AD32ff95E1bCC408d37F10f6949270',
+        gaugeHelper: '0xa57CF50eCdf1e5D20CA4398DEA325c1b7D81fe81'
 
     },
     1285: {
