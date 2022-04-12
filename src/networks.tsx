@@ -222,17 +222,17 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
             blockExplorerUrls: ["https://moonriver.moonscan.io/"],
         },
         blocksPerYear: 2465386,
-        nativeTokenMarketAddress: "0xd6fcbccfc375c2c61d7ee2952b329dceba2d4e10",
-        unitrollerAddress: "0x7d166777bd19a916c2edf5f1fc1ec138b37e7391",
+        nativeTokenMarketAddress: "0x42b458056f887fd665ed6f160a59afe932e1f559",
+        unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         multicallAddress: "0x9fdd7e3e2df5998c7866cd2471d7d30e04496dfa",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        gaugeControllerAddress: "0xca78ca5C3Da9a5a4C960C1757456E99d9F1bc76d",
+        gaugeControllerAddress: "0xb4300e088a3AE4e624EE5C71Bc1822F68BB5f2bc",
         trade: "https://app.solarbeam.io/exchange/swap?inputCurrency=0x10010078a54396f62c96df8532dc2b4847d47ed3",
         addLiquidity: "https://app.solarbeam.io/exchange/add/0x10010078a54396f62c96df8532dc2b4847d47ed3/ETH",
         maximillion: '0xbd193db8a909cAC57Cdb981Ea81B5dc270287F19',
         votingAddress: '0x243E33aa7f6787154a8E59d3C27a66db3F8818ee',
-        minterAddress: '0x08110737CB8276B155aB18533dacF7d27e2357c8'
+        minterAddress: '0x607312a5C671D0C511998171e634DE32156e69d0'
 
     },
     100: {
