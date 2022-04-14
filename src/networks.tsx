@@ -125,7 +125,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         gaugeControllerAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7",
         maximillion: '0x26596af66A10Cb6c6fe890273eD37980D50f2448',
         votingAddress: '0xBa57440fA35Fdb671E58F6F56c1A4447aB1f6C2B',
-        minterAddress: '0xc3CC9369fcB8491DaD4FA64cE1Fbd3DD2d70034f'
+        minterAddress: '0xc3CC9369fcB8491DaD4FA64cE1Fbd3DD2d70034f',
+        gaugeHelper: '0xb8481a3ce515ea8caa112dba0d1ecfc03937fbcd'
     },
     250: {
         chainId: 250,
@@ -164,6 +165,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         votingAddress: '0x376020c5B0ba3Fd603d7722381fAA06DA8078d8a',
         minterAddress: '0x42B458056f887Fd665ed6f160A59Afe932e1F559',
         minterAddressLendly: '0x14Cb5E017a3F10B9f6254fF24b87e2297dC8b8b3',
+        gaugeHelper: '0x4bf3d7d97ba0d15f4c4c36156c793098847b67a9',
         lendly: {
             "HND": {
                 nativeTokenMarketAddress: "",
