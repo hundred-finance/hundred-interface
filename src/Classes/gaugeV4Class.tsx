@@ -139,6 +139,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
 
         const rewardsData: any[]= await ethcallProvider.all(calls)
         const rewards = activeLpAndMinterAddresses.map(g => {
+            console.log
             if(g[0].toLowerCase() === network.nativeTokenMarketAddress.toLowerCase()){
                 const temp = rewardsData.splice(0, 2)
                 temp.push("0x0")
@@ -188,7 +189,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                     new Contract(g.lpToken, CTOKEN_ABI).decimals(),
                     new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
                     new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
-                    g.gaugeHelper ?
+                    g.gaugeHelper && g.lpTokenUnderlying !== "0x0" ?
                         new Contract(g.lpTokenUnderlying, CTOKEN_ABI).allowance(userAddress, g.gaugeHelper)
                         : new Contract(g.lpToken, CTOKEN_ABI).allowance(userAddress, g.address),
                     g.gaugeHelper ?
