@@ -16,7 +16,8 @@ export const fetchHndRewards = async(
   const hndNum = +gaugesData[i].userClaimableHnd.toString(); 
   result += hndNum
 }
-  const totalHndRewards = BigNumber.parseValue(result.toString())
+
+const totalHndRewards = BigNumber.parseValue(result.noExponents())
 
   return {
 totalHndRewards: totalHndRewards,
