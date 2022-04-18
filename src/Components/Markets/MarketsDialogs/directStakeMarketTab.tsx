@@ -195,8 +195,8 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     validation={stakeValidation}
                     button={"Max"}
                     onClick={() => getMaxStake()}/>
-                {props.gaugeV4 && +props.gaugeV4.userAllowance.toString() > 0 &&
-                +props.gaugeV4.userAllowance.toString().toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
+                {props.gaugeV4 && stakeInput === "" || stakeValidation !== "" || (+props.gaugeV4.userAllowance.toString() > 0 &&
+                +props.gaugeV4.userAllowance.toString().toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput))
                     ?
                     <MarketDialogButton
                         disabled={stakeInput === "" || stakeValidation !== ""}
@@ -234,8 +234,8 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     button={"Max"}
                     onClick={() => getMaxUnstake()}
                 />
-                {props.gaugeV4 && +props.gaugeV4.userGaugeHelperAllowance.toString() > 0 &&
-                +props.gaugeV4.userGaugeHelperAllowance.toString().toString() >= (unstakeInput.trim() === "" || isNaN(+unstakeInput) || isNaN(parseFloat(unstakeInput)) ? 0 : +unstakeInput)
+                {props.gaugeV4 && unstakeInput === "" || unstakeValidation !== "" || (+props.gaugeV4.userGaugeHelperAllowance.toString() > 0 &&
+                +props.gaugeV4.userGaugeHelperAllowance.toString().toString() >= (unstakeInput.trim() === "" || isNaN(+unstakeInput) || isNaN(parseFloat(unstakeInput)) ? 0 : +unstakeInput))
                     ?
                     <MarketDialogButton
                         disabled={unstakeInput === "" || unstakeValidation !== ""}
