@@ -122,10 +122,10 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         hundredLiquidityPoolAddress: "0x65E17c52128396443d4A9A61EaCf0970F05F8a20",
         backstopMasterChef: {address: "0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02", version: MasterChefVersion.v1},
-        gaugeControllerAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7",
+        gaugeControllerAddress: "0xBA427dDccba3B63497D8148276Bf64783FaBBe7E",
         maximillion: '0x26596af66A10Cb6c6fe890273eD37980D50f2448',
-        votingAddress: '0xBa57440fA35Fdb671E58F6F56c1A4447aB1f6C2B',
-        minterAddress: '0xc3CC9369fcB8491DaD4FA64cE1Fbd3DD2d70034f',
+        votingAddress: '0x6b5f15E939C8d797E6bd8D5fFda24eDeC655D08d',
+        minterAddress: '0xc246F4d921dd446cE5c6Bb3aABd64C2d714e21C1',
         gaugeHelper: '0xb8481a3ce515ea8caa112dba0d1ecfc03937fbcd'
     },
     250: {
