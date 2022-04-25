@@ -171,7 +171,8 @@ const Logos: { [key: string]: string } = {
     "WBTC.eth"  : WBTClogo,
     "renBTC"    : HRENBTClogo,
     "GNO"       : GNOlogo,
-    "GNOSIS"    : GNOSISlogo
+    "GNOSIS"    : GNOSISlogo,
+    "ioDAI"     : DAIlogo
 }
 
 export default Logos

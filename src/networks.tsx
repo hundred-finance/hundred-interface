@@ -38,7 +38,7 @@ type Network = {
     blockRpc?: string,
     unitrollerAddress: string,
     hundredAddress: string,
-    compoundLensAddress: string,
+    compoundLensAddress?: string,
     hundredLiquidityPoolAddress?: string,
     hndPoolPercent?: number,
     liquidity?: boolean, 
@@ -317,6 +317,33 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         backstopGaugeControllerAddress: "0x1cF3993EbA538e5f085333c86356622161Dd8C0B",
         backstopGaugeMinterAddress: "0xc8e2C35b7C9CD784635B72df14179746B7C0f2a7",
         gaugeHelper: "0xbF689f50cB446f171F08691367f7D9398b24D382"
+    },
+    4689: {
+        chainId: 4689,
+        network: "IoTeX",
+        logo: Logos["IOTX"],
+        blocksPerYear: 6311390,
+        networkParams: {
+            chainId: "0x1251",
+            chainName: "IoTeX",
+            rpcUrls: ["https://babel-api.iotex.io/"],
+            nativeCurrency: {
+                name: "IOTX",
+                decimals: 18,
+                symbol: "IOTX"
+            },
+            blockExplorerUrls: ["https://iotexscan.io/"]
+        },
+        nativeTokenMarketAddress: "0x243E33aa7f6787154a8E59d3C27a66db3F8818ee",
+        unitrollerAddress: "0x8c6139ff1e9d7c1e32bdafd79948d0895ba0a831",
+        hundredAddress: "0xe0a6D4684aabBE8C08a57b3A4B54855C08165c1D",
+        maximillion: "0x30a026ae9e2a1363e96a5e5ab12786a46066beb8",
+        // gaugeControllerAddress: "0xF191d17dEe9943F06bB784C0492805280AeE0bf9",
+        // votingAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7",
+        // minterAddress: "0xC3bae38Bfa2CbBE30f442649070408f484bd5882",
+        // backstopGaugeControllerAddress: "0x1cF3993EbA538e5f085333c86356622161Dd8C0B",
+        // backstopGaugeMinterAddress: "0xc8e2C35b7C9CD784635B72df14179746B7C0f2a7",
+        // gaugeHelper: "0xbF689f50cB446f171F08691367f7D9398b24D382"
     },
 }: {
     42: {
