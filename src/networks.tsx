@@ -338,12 +338,12 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x8c6139ff1e9d7c1e32bdafd79948d0895ba0a831",
         hundredAddress: "0xe0a6D4684aabBE8C08a57b3A4B54855C08165c1D",
         maximillion: "0x30a026ae9e2a1363e96a5e5ab12786a46066beb8",
-        // gaugeControllerAddress: "0xF191d17dEe9943F06bB784C0492805280AeE0bf9",
-        // votingAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7",
-        // minterAddress: "0xC3bae38Bfa2CbBE30f442649070408f484bd5882",
+        gaugeControllerAddress: "0x4adF575DBe0e6F1c5909AE9c7119927b4FaabbBd",
+        votingAddress: "0xec378cdd60E890332F7A8CC251315327a4f244B6",
+        minterAddress: "0x3A4148DDDd121fbceD8717CB7B82370Be27F76bf",
         // backstopGaugeControllerAddress: "0x1cF3993EbA538e5f085333c86356622161Dd8C0B",
         // backstopGaugeMinterAddress: "0xc8e2C35b7C9CD784635B72df14179746B7C0f2a7",
-        // gaugeHelper: "0xbF689f50cB446f171F08691367f7D9398b24D382"
+        gaugeHelper: "0x376020c5B0ba3Fd603d7722381fAA06DA8078d8a"
     },
 }: {
     42: {
