@@ -323,7 +323,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                             <TextBox placeholder={`0 ${props.market?.underlying.symbol}`} disabled={supplyDisabled || (props.market ? props.market?.mintPaused : false)} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} 
                                 onClick={()=>getMaxAmount()}/>
                             {props.gaugeV4 ? 
-                                <div style={{textAlign:"left"}}>If you want to Stake, please go directly to that tab<br/>(there is no need to Supply first).</div>
+                                <div style={{textAlign:"left"}}>If you want to Stake, please go directly to that tab<br/>(there is no need to Supply first). </div>
                                 : null
                             }   
                             <MarketDialogItem title={"Wallet Balance"} value={`${props.market?.underlying.walletBalance?.toRound(4, true)} ${props.market?.underlying.symbol}`}/>
