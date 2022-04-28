@@ -164,7 +164,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         hundredLiquidityPoolAddress: "0x20dd72ed959b6147912c2e529f0a0c651c33c9ce",
-        gaugeControllerAddress: "0xb1c4426C86082D91a6c097fC588E5D5d8dD1f5a8",
+        gaugeControllerAddress: "0x89Aa51685a2B658be8a7b9C3Af70D66557544181",
         hndPoolPercent: 0.6,
         liquidity: true,
         backstopMasterChef: {
@@ -174,8 +174,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         },
         airdropMulticallAddress: "0x96a0eEa3a9cff74764b73A891c3b36a4F6B81181",
         maximillion: '0x9226f7304b547891eE257d64Cfb8F8c2a42b42BB',
-        votingAddress: '0x376020c5B0ba3Fd603d7722381fAA06DA8078d8a',
-        minterAddress: '0x42B458056f887Fd665ed6f160A59Afe932e1F559',
+        votingAddress: '0x6c63287CC629417E96b77DD7184748Bb6536A4e2',
+        minterAddress: '0x2105dE165eD364919703186905B9BB5B8015F13c',
         minterAddressLendly: '0x14Cb5E017a3F10B9f6254fF24b87e2297dC8b8b3',
         gaugeHelper: '0x4bf3d7d97ba0d15f4c4c36156c793098847b67a9',
         lendly: {
