@@ -85,7 +85,7 @@ export class GaugeV4{
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getGaugesData = async (provider: any, userAddress: string, network: Network, spinner: () => void): Promise<Array<GaugeV4>> => {
+export const getGaugesData = async (provider: any, userAddress: string, network: Network, spinner: () => void, oldData?: boolean): Promise<Array<GaugeV4>> => {
     const ethcallProvider = new Provider()
     await ethcallProvider.init(provider)
 
@@ -97,8 +97,10 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
     }
     let generalData: Array<GaugeV4GeneralData> = [];
 
-    if (network.gaugeControllerAddress) {
-        const controller = network.gaugeControllerAddress
+    const gaugeControllerAddress = oldData ? network.oldData ? network.oldData.gaugeControllerAddress : undefined : network.gaugeControllerAddress ? network.gaugeControllerAddress : undefined 
+
+    if (gaugeControllerAddress) {
+        const controller = gaugeControllerAddress
         const ethcallGaugeController = new Contract(controller, GAUGE_CONTROLLER_ABI)
 
         const [nbGauges] = await ethcallProvider.all([ethcallGaugeController.n_gauges()]) as any

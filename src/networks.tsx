@@ -14,6 +14,12 @@ type NetworkParams = {
     blockExplorerUrls: string[]
 }
 
+type OldData = {
+    gaugeControllerAddress: string,
+    votingAddress: string,
+    minterAddress: string
+}
+
 export enum MasterChefVersion {
     v1,
     v2
@@ -51,9 +57,10 @@ type Network = {
     backstopGaugeMinterAddress?: string,
     gaugeHelper?: string,
     airdropMulticallAddress?: string,
-    maximillion?: string;
-    votingAddress?: string;
-    lendly?: Lendly
+    maximillion?: string,
+    votingAddress?: string,
+    lendly?: Lendly,
+    oldData?: OldData
 }
 
 export type LendlyData = {
@@ -126,7 +133,12 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         maximillion: '0x26596af66A10Cb6c6fe890273eD37980D50f2448',
         votingAddress: '0x6b5f15E939C8d797E6bd8D5fFda24eDeC655D08d',
         minterAddress: '0xc246F4d921dd446cE5c6Bb3aABd64C2d714e21C1',
-        gaugeHelper: '0xb8481a3ce515ea8caa112dba0d1ecfc03937fbcd'
+        gaugeHelper: '0xb8481a3ce515ea8caa112dba0d1ecfc03937fbcd',
+        oldData: {
+            gaugeControllerAddress: "0xb4BAfc3d60662De362c0cB0f5e2DE76603Ea77D7",
+            votingAddress: '0xBa57440fA35Fdb671E58F6F56c1A4447aB1f6C2B',
+            minterAddress: '0xc3CC9369fcB8491DaD4FA64cE1Fbd3DD2d70034f'
+        }
     },
     250: {
         chainId: 250,
@@ -206,8 +218,12 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         maximillion: '0x2c7a9d9919f042C4C120199c69e126124d09BE7c',
         votingAddress: '0xE4e43864ea18d5E5211352a4B810383460aB7fcC',
         minterAddress: '0xd7f3Bf2085AD32ff95E1bCC408d37F10f6949270',
-        gaugeHelper: '0xa57CF50eCdf1e5D20CA4398DEA325c1b7D81fe81'
-
+        gaugeHelper: '0xa57CF50eCdf1e5D20CA4398DEA325c1b7D81fe81',
+        oldData: {
+            gaugeControllerAddress: "0xa8cD5D59827514BCF343EC19F531ce1788Ea48f8",
+            votingAddress: '0xE4e43864ea18d5E5211352a4B810383460aB7fcC',
+            minterAddress: '0xb4300e088a3AE4e624EE5C71Bc1822F68BB5f2bc'
+        }
     },
     1285: {
         chainId: 1285,
@@ -236,7 +252,12 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         maximillion: '0xbd193db8a909cAC57Cdb981Ea81B5dc270287F19',
         votingAddress: '0x243E33aa7f6787154a8E59d3C27a66db3F8818ee',
         minterAddress: '0x08110737CB8276B155aB18533dacF7d27e2357c8',
-        gaugeHelper: '0x530d28814AF3155b6eAee3eE14E5F4d869A87703'
+        gaugeHelper: '0x530d28814AF3155b6eAee3eE14E5F4d869A87703',
+        oldData: {
+            gaugeControllerAddress: "0xb4300e088a3AE4e624EE5C71Bc1822F68BB5f2bc",
+            votingAddress: '0x243E33aa7f6787154a8E59d3C27a66db3F8818ee',
+            minterAddress: '0x607312a5C671D0C511998171e634DE32156e69d0'
+        }
     },
     100: {
         chainId: 100,
