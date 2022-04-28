@@ -97,7 +97,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
     }
     let generalData: Array<GaugeV4GeneralData> = [];
 
-    const gaugeControllerAddress = oldData ? network.oldData ? network.oldData.gaugeControllerAddress : undefined : network.gaugeControllerAddress ? network.gaugeControllerAddress : undefined 
+    const gaugeControllerAddress = oldData ? network.oldGauge ? network.oldGauge.gaugeControllerAddress : undefined : network.gaugeControllerAddress ? network.gaugeControllerAddress : undefined 
 
     if (gaugeControllerAddress) {
         const controller = gaugeControllerAddress

@@ -67,6 +67,8 @@ const Content: React.FC<Props> = (props : Props) => {
     const [comptrollerData, setComptrollerData] = useState<Comptroller | null>(null)
     const [marketsData, setMarketsData] = useState<(CTokenInfo | null)[] | null | undefined>(null)
     const [gaugesV4Data, setGaugesV4Data] = useState<(GaugeV4 | null)[] | null | undefined>(null)
+    const [gMessage, setGmessage] = useState<JSX.Element>()
+    const [showGMessage, setShowGMessage] = useState(false)
     const [generalData, setGeneralData] = useState<GeneralDetailsData>()
     const [selectedMarket, setSelectedMarket] = useState<CTokenInfo | null>(null)
     const [openEnterMarket, setOpenEnterMarket] = useState(false)
@@ -199,19 +201,50 @@ const Content: React.FC<Props> = (props : Props) => {
           const backstopGauges = await getBackstopGaugesData(library, userAddress.current, net, () => setSpinnerVisible(false))
 
           gauges = [...gauges, ...backstopGauges]
-          
+
+          const markets = await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: userAddress.current, comptrollerData: comptroller, network: net, marketsData: marketsRef.current, provider: library, hndPrice: hndPriceRef.current, gaugesData: gauges })
           if(firstUpdate){
             const oldGauges = await getGaugesData(library, userAddress.current, net, () => setSpinnerVisible(false), true)
             console.log(oldGauges)
-            if(oldGauges.length > 0) gauges.push(...oldGauges)
+            if(oldGauges.length > 0){
+              const oldGaugeData: { symbol: string; stakeBalance: BigNumber }[] = []
+              let message = "You have "
+              oldGauges.forEach(g => {
+                if(+g.userStakeBalance.toString() > 0){
+                  const market = markets.markets.find(m => m.pTokenAddress.toLowerCase() === g.generalData.lpToken.toLowerCase())
+                  if(market){
+                    const temp = {
+                      symbol: `h${market.underlying.symbol}-Gauge`,
+                      stakeBalance: g.userStakeBalance
+                    }
+                    oldGaugeData.push(temp)
+                  }
+                }
+              })
+              
+                oldGaugeData.forEach((g, index) => {
+                  message += g.symbol + (index + 1 === oldGaugeData.length ? " " : ", ")
+                })
+                if(oldGaugeData.length > 0){
+                  setGmessage(gaugeMessage(message))
+                  setShowGMessage(true)
+                }
+            }
           }
-
-          const markets = await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: userAddress.current, comptrollerData: comptroller, network: net, marketsData: marketsRef.current, provider: library, hndPrice: hndPriceRef.current, gaugesData: gauges })
           updateMarkets(markets.markets, gauges, markets.hndBalance, markets.hundredBalace, markets.comAccrued, markets.vehndBalance, markets.hndRewards, markets.gaugeAddresses, cToken, spinnerUpdate)
 
           setGaugesV4Data(gauges)
         }
       }
+    }
+
+    const gaugeMessage = (message: string) => {
+      return (
+        <div>
+          <p>{message} on <a style={{color: "#2853ff"}} href="https://old.hundred.finance" target={"_blank"} rel="noreferrer">https://old.hundred.finance</a>.</p>
+          <p>Please unstake from there and stake on the main site.</p>
+        </div>
+      )
     }
 
     const handleUpdate = async (market: CTokenInfo | undefined, spinnerUpdate: string | undefined, firstUpdate: boolean) : Promise<void> => {
@@ -1013,6 +1046,8 @@ const Content: React.FC<Props> = (props : Props) => {
               handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={spinnerVisible}/>
             <HundredMessage isOpen={showMessage} onRequestClose={() => setShowMessage(false)} contentLabel="Info" className={`${darkMode ? "mymodal-dark" : ""}`}
               message={<MoonriverMessage/>}/>
+            <HundredMessage isOpen={showGMessage} onRequestClose={() => setShowGMessage(false)} contentLabel="Info" className={`${darkMode ? "mymodal-dark" : ""}`}
+              message={gMessage}/>
         </div>
     )
 }
