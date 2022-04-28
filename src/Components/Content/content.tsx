@@ -67,6 +67,8 @@ const Content: React.FC<Props> = (props : Props) => {
     const [comptrollerData, setComptrollerData] = useState<Comptroller | null>(null)
     const [marketsData, setMarketsData] = useState<(CTokenInfo | null)[] | null | undefined>(null)
     const [gaugesV4Data, setGaugesV4Data] = useState<(GaugeV4 | null)[] | null | undefined>(null)
+    const [gMessage, setGmessage] = useState<JSX.Element>()
+    const [showGMessage, setShowGMessage] = useState(false)
     const [generalData, setGeneralData] = useState<GeneralDetailsData>()
     const [selectedMarket, setSelectedMarket] = useState<CTokenInfo | null>(null)
     const [openEnterMarket, setOpenEnterMarket] = useState(false)
@@ -120,7 +122,7 @@ const Content: React.FC<Props> = (props : Props) => {
 
     useEffect(() => {
       const callUpdate = async () => {
-        await dataUpdate()
+        await dataUpdate(undefined, undefined, false)
       }
 
       updateEarnedRef.current = props.updateEarned
@@ -186,7 +188,7 @@ const Content: React.FC<Props> = (props : Props) => {
       }
     }
 
-    const dataUpdate = async (cToken?: CTokenInfo, spinnerUpdate?:string) => {
+    const dataUpdate = async (cToken: CTokenInfo | undefined, spinnerUpdate :string | undefined, firstUpdate: boolean) => {
       if(library && network && userAddress.current){
         let comptroller: Comptroller | null = comptrollerData
         if(!comptroller){
@@ -201,6 +203,34 @@ const Content: React.FC<Props> = (props : Props) => {
           gauges = [...gauges, ...backstopGauges]
 
           const markets = await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: userAddress.current, comptrollerData: comptroller, network: net, marketsData: marketsRef.current, provider: library, hndPrice: hndPriceRef.current, gaugesData: gauges })
+          if(firstUpdate){
+            const oldGauges = await getGaugesData(library, userAddress.current, net, () => setSpinnerVisible(false), true)
+            console.log(oldGauges)
+            if(oldGauges.length > 0){
+              const oldGaugeData: { symbol: string; stakeBalance: BigNumber }[] = []
+              let message = "You have "
+              oldGauges.forEach(g => {
+                if(+g.userStakeBalance.toString() > 0){
+                  const market = markets.markets.find(m => m.pTokenAddress.toLowerCase() === g.generalData.lpToken.toLowerCase())
+                  if(market){
+                    const temp = {
+                      symbol: `h${market.underlying.symbol}-Gauge`,
+                      stakeBalance: g.userStakeBalance
+                    }
+                    oldGaugeData.push(temp)
+                  }
+                }
+              })
+              
+                oldGaugeData.forEach((g, index) => {
+                  message += g.symbol + (index + 1 === oldGaugeData.length ? " " : ", ")
+                })
+                if(oldGaugeData.length > 0){
+                  setGmessage(gaugeMessage(message))
+                  setShowGMessage(true)
+                }
+            }
+          }
           updateMarkets(markets.markets, gauges, markets.hndBalance, markets.hundredBalace, markets.comAccrued, markets.vehndBalance, markets.hndRewards, markets.gaugeAddresses, cToken, spinnerUpdate)
 
           setGaugesV4Data(gauges)
@@ -208,7 +238,16 @@ const Content: React.FC<Props> = (props : Props) => {
       }
     }
 
-    const handleUpdate = async (market?: CTokenInfo, spinnerUpdate?: string) : Promise<void> => {
+    const gaugeMessage = (message: string) => {
+      return (
+        <div>
+          <p>{message} on <a style={{color: "#2853ff"}} href="https://old.hundred.finance" target={"_blank"} rel="noreferrer">https://old.hundred.finance</a>.</p>
+          <p>Please unstake from there and stake on the main site.</p>
+        </div>
+      )
+    }
+
+    const handleUpdate = async (market: CTokenInfo | undefined, spinnerUpdate: string | undefined, firstUpdate: boolean) : Promise<void> => {
       //await dataUpdate(market, spinnerUpdate)
       try {
         //console.log(`Update every: ${updateErrorCounterRef.current * 10 + 10}sec`)
@@ -217,24 +256,24 @@ const Content: React.FC<Props> = (props : Props) => {
           setSpinnerVisible(true)
         }
         
-        await dataUpdate(market, spinnerUpdate)
+        await dataUpdate(market, spinnerUpdate, firstUpdate)
 
         if(!updateRef.current) setSpinnerVisible(false)
         setUpdate(true)
 
         props.setUpdateEarned(false)
         setUpdateErrorCounter(0) 
-        updateHandle.current = setTimeout(handleUpdate, 10000)
+        updateHandle.current = setTimeout(handleUpdate, 10000, market, spinnerUpdate, false)
       } 
       catch (error) {
         console.log(error)
         if(marketsRef.current)
-        updateHandle.current = setTimeout(handleUpdate, (updateErrorCounterRef.current < 2 ? updateErrorCounterRef.current + 1 : updateErrorCounterRef.current) * 10000 + 10000, market, spinnerUpdate)
+        updateHandle.current = setTimeout(handleUpdate, (updateErrorCounterRef.current < 2 ? updateErrorCounterRef.current + 1 : updateErrorCounterRef.current) * 10000 + 10000, market, spinnerUpdate, firstUpdate)
         else{
           if(updateErrorCounterRef.current < 2)
-            updateHandle.current = setTimeout(handleUpdate, (updateErrorCounterRef.current + 1) * 1000, market, spinnerUpdate )
+            updateHandle.current = setTimeout(handleUpdate, (updateErrorCounterRef.current + 1) * 1000, market, spinnerUpdate, firstUpdate )
           else if (updateErrorCounterRef.current === 3)
-            updateHandle.current = setTimeout(handleUpdate, 5000, market, spinnerUpdate)
+            updateHandle.current = setTimeout(handleUpdate, 5000, market, spinnerUpdate, firstUpdate)
           else if (updateErrorCounterRef.current === 7)
           {
             if(!updateRef.current) setSpinnerVisible(false)
@@ -242,7 +281,7 @@ const Content: React.FC<Props> = (props : Props) => {
             toastErrorMessage(`${err?.message.replace(".", "")} on Page Load\n${err?.data?.message}\nPlease refresh the page after a few minutes.`)
           }
           else
-            updateHandle.current = setTimeout(handleUpdate, 10000, market, spinnerUpdate)
+            updateHandle.current = setTimeout(handleUpdate, 10000, market, spinnerUpdate, firstUpdate)
         }
         setUpdateErrorCounter(updateErrorCounterRef.current+1)
       }
@@ -251,7 +290,7 @@ const Content: React.FC<Props> = (props : Props) => {
     //Get Comptroller Data
     useEffect(() => {
         const getData= async () => {
-            await handleUpdate()
+            await handleUpdate(undefined, undefined, true)
             if(network && network.chainId === 1285){
               const moonriverMsg = window.localStorage.getItem("hundred-moonriver-dont-show")
               if(moonriverMsg && moonriverMsg === "true")
@@ -302,7 +341,7 @@ const Content: React.FC<Props> = (props : Props) => {
     }
 
     const getMaxRepayAmount = async (market: CTokenInfo) : Promise<BigNumber> => {
-      if(market.isNativeToken) handleUpdate(market, "repay")
+      if(market.isNativeToken) handleUpdate(market, "repay", false)
       const borrowAPYPerDay = market.borrowApy.div(BigNumber.from('365'));
       const maxRepayFactor = BigNumber.from("1").addSafe(borrowAPYPerDay)// e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
       
@@ -347,7 +386,7 @@ const Content: React.FC<Props> = (props : Props) => {
             setSpinnerVisible(false)
             market = marketsRef.current.find(x=> x?.underlying.symbol === symbol)
             if (market) 
-              await handleUpdate(market, "spinner")
+              await handleUpdate(market, "spinner", false)
           }
         }
       }
@@ -375,7 +414,7 @@ const Content: React.FC<Props> = (props : Props) => {
             setSpinnerVisible(false)
             market = marketsRef.current.find(x=> x?.underlying.symbol === symbol)
             if (market) 
-              await handleUpdate(market, "spinner")
+              await handleUpdate(market, "spinner", false)
           }
         }
       }
@@ -427,7 +466,7 @@ const Content: React.FC<Props> = (props : Props) => {
             setSpinnerVisible(false)
             market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
             if(market){
-              borrowDialog ? await handleUpdate(market, "repay") : await handleUpdate(market, "supply")
+              borrowDialog ? await handleUpdate(market, "repay", false) : await handleUpdate(market, "supply", false)
             }
 
             // setUpdate(true)
@@ -472,7 +511,7 @@ const Content: React.FC<Props> = (props : Props) => {
             setSpinnerVisible(false)
             market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
             if(market){
-              await handleUpdate(market, "supply")
+              await handleUpdate(market, "supply", false)
             }
               
 
@@ -525,7 +564,7 @@ const Content: React.FC<Props> = (props : Props) => {
             market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
             if(market){
               setUpdate(true)
-              await handleUpdate(market, "withdraw")
+              await handleUpdate(market, "withdraw", false)
             }
 
             // market = marketsRef.current.find(x => x?.symbol === symbol)
@@ -582,7 +621,7 @@ const Content: React.FC<Props> = (props : Props) => {
           market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
           if(market){
               setUpdate(true)
-              await handleUpdate(market, "borrow")
+              await handleUpdate(market, "borrow", false)
           }
           // if(market)
           //   market.borrowSpinner = false
@@ -640,7 +679,7 @@ const Content: React.FC<Props> = (props : Props) => {
           market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
           if(market){
               setUpdate(true)
-              await handleUpdate(market, "repay")
+              await handleUpdate(market, "repay", false)
             }
         }
       }
@@ -679,7 +718,7 @@ const Content: React.FC<Props> = (props : Props) => {
           setSpinnerVisible(false)
           market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
           if(market && market.backstop){
-            await handleUpdate(market, "deposit")
+            await handleUpdate(market, "deposit",  false)
           }
         }
       }
@@ -715,7 +754,7 @@ const Content: React.FC<Props> = (props : Props) => {
           setSpinnerVisible(false)
           market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
           if(market){
-            await handleUpdate(market, "deposit")
+            await handleUpdate(market, "deposit", false)
           }
           setCompleted(true)
         }
@@ -751,7 +790,7 @@ const Content: React.FC<Props> = (props : Props) => {
           setSpinnerVisible(false)
           market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
           if(market){
-            await handleUpdate(market, "backstopWithdraw")
+            await handleUpdate(market, "backstopWithdraw", false)
             if(selectedMarketRef.current && selectedMarketRef.current.underlying.symbol === market.underlying.symbol)
               selectedMarketRef.current.backstopWithdrawSpinner = false
           }
@@ -788,7 +827,7 @@ const Content: React.FC<Props> = (props : Props) => {
           setSpinnerVisible(false)
           market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
           if(market){
-            await handleUpdate(market, "backstopClaim")
+            await handleUpdate(market, "backstopClaim", false)
           }
           setCompleted(true)
         }
@@ -822,7 +861,7 @@ const Content: React.FC<Props> = (props : Props) => {
                   market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
                   if(market){
                       setUpdate(true)
-                      await handleUpdate(market, "stake")
+                      await handleUpdate(market, "stake", false)
                   }
               }
           }
@@ -856,7 +895,7 @@ const Content: React.FC<Props> = (props : Props) => {
                   market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
                   if(market){
                       setUpdate(true)
-                      await handleUpdate(market, "stake")
+                      await handleUpdate(market, "stake", false)
                   }
               }
           }
@@ -890,7 +929,7 @@ const Content: React.FC<Props> = (props : Props) => {
                     market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
                     if(market){
                         setUpdate(true)
-                        await handleUpdate(market, "unstake")
+                        await handleUpdate(market, "unstake", false)
                     }
                 }
             }
@@ -925,7 +964,7 @@ const Content: React.FC<Props> = (props : Props) => {
                     market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
                     if(market){
                         setUpdate(true)
-                        await handleUpdate(market, "unstake")
+                        await handleUpdate(market, "unstake", false)
                     }
                 }
             }
@@ -959,7 +998,7 @@ const Content: React.FC<Props> = (props : Props) => {
                     market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
                     if(market){
                         setUpdate(true)
-                        await handleUpdate(market, "mint")
+                        await handleUpdate(market, "mint", false)
                     }
                 }
             }
@@ -1007,6 +1046,8 @@ const Content: React.FC<Props> = (props : Props) => {
               handleBorrow={handleBorrow} handleRepay={handleRepay} getMaxRepayAmount={getMaxRepayAmount} spinnerVisible={spinnerVisible}/>
             <HundredMessage isOpen={showMessage} onRequestClose={() => setShowMessage(false)} contentLabel="Info" className={`${darkMode ? "mymodal-dark" : ""}`}
               message={<MoonriverMessage/>}/>
+            <HundredMessage isOpen={showGMessage} onRequestClose={() => setShowGMessage(false)} contentLabel="Info" className={`${darkMode ? "mymodal-dark" : ""}`}
+              message={gMessage}/>
         </div>
     )
 }
