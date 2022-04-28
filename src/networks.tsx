@@ -190,6 +190,11 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
                 unitrollerAddress: "0x612dcaaf5b20774f2ebbed49bc82442d642b7082",
                 hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3"
             }
+        },
+        oldData: {
+            gaugeControllerAddress: "0xb1c4426C86082D91a6c097fC588E5D5d8dD1f5a8",
+            votingAddress: '0x376020c5B0ba3Fd603d7722381fAA06DA8078d8a',
+            minterAddress: '0x42B458056f887Fd665ed6f160A59Afe932e1F559',
         }
     },
     1666600000: {
