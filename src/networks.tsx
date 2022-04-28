@@ -367,8 +367,6 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         gaugeControllerAddress: "0x4adF575DBe0e6F1c5909AE9c7119927b4FaabbBd",
         votingAddress: "0xec378cdd60E890332F7A8CC251315327a4f244B6",
         minterAddress: "0x3A4148DDDd121fbceD8717CB7B82370Be27F76bf",
-        // backstopGaugeControllerAddress: "0x1cF3993EbA538e5f085333c86356622161Dd8C0B",
-        // backstopGaugeMinterAddress: "0xc8e2C35b7C9CD784635B72df14179746B7C0f2a7",
         gaugeHelper: "0x376020c5B0ba3Fd603d7722381fAA06DA8078d8a"
     },
 }: {
