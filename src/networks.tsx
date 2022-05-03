@@ -352,7 +352,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         networkParams: {
             chainId: "0x1251",
             chainName: "IoTeX",
-            rpcUrls: ["https://babel-api.iotex.io/"],
+            rpcUrls: ["https://babel-api.mainnet.iotex.io/"],
             nativeCurrency: {
                 name: "IOTX",
                 decimals: 18,
