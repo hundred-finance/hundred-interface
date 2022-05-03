@@ -4,13 +4,14 @@ import { UnsupportedChainIdError } from '@web3-react/core'
 import { InjectedConnector, NoEthereumProviderError, UserRejectedRequestError as UserRejectedRequestErrorInjected } from '@web3-react/injected-connector'
 import { WalletConnectConnector, UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
-
-
+import { UAuthConnector } from '@uauth/web3-react'
+import UAuth from '@uauth/js'
 
 export enum connectrorsEnum{
     Metamask,
     WalletConnect,
-    Coinbase
+    Coinbase,
+    Unstoppable
 }
 
 const Networks = Object.values(NETWORKS)
@@ -46,6 +47,16 @@ export const GetConnector = (c: any, chain?: number) => {
             appName: 'Hundred Finance Dashboard',
             supportedChainIds: supportedChains
           })
+    }
+    if(c === connectrorsEnum.Unstoppable) {
+      return new UAuthConnector({
+        uauth: new UAuth({
+          clientID: '5de2aae9-2e5a-40c7-92f2-b1b6ff7b0332',
+          redirectUri: 'https://hundred.finance', // use http://localhost:3000 for testing || https://hundred.finance in production
+          scope: 'openid wallet'
+        }),
+        connectors: { injected, walletconnect: walletConnect }
+      })
     }
     return injected
 }

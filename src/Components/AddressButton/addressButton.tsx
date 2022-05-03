@@ -9,6 +9,7 @@ import Modal from '../Modal/modal';
 import mm from '../../assets/icons/mm.png'
 import wc from '../../assets/icons/wc.png'
 import cbw from '../../assets/icons/cbw.png'
+import ud from '../../assets/icons/unstoppable.png'
 import { useGlobalContext } from '../../Types/globalContext';
 import { ethers } from 'ethers';
 import { connectrorsEnum, GetConnector, getErrorMessage } from '../../Connectors/connectors';
@@ -116,6 +117,12 @@ const AddressButton: React.FC<Props> = (props: Props) => {
                             <img src={cbw} alt=""/>
                         </div>
                         <div className='wallet-item-name'>Coinbase Wallet</div>
+                    </div>
+                    <div className='wallet-item' onClick={() => handleConnect(connectrorsEnum.Unstoppable)}>
+                        <div className='wallet-item-icon'>
+                            <img src={ud} alt=""/>
+                        </div>
+                        <div className='wallet-item-name'>Unstoppable Domains</div>
                     </div>
                 </div>
             </Modal>
