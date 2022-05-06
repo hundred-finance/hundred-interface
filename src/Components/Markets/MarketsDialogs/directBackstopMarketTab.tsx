@@ -262,7 +262,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 +props.gaugeV4.userAllowance.toString().toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
                     ?
                     <MarketDialogButton
-                        disabled={stakeInput === "" || stakeValidation !== ""}
+                        disabled={stakeInput === "" || stakeValidation !== "" || stakeDisabled == true}
                         onClick={() => props.handleStake(props.market?.underlying.symbol, props?.gaugeV4, stakeInput)}
                     >
                         {props.market && props.market.stakeSpinner ? (
@@ -270,7 +270,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     </MarketDialogButton>
                     :
                     <MarketDialogButton
-                        disabled={stakeInput === "" || stakeValidation !== ""}
+                        disabled={stakeInput === "" || stakeValidation !== "" || stakeDisabled == true}
                         onClick={() => props.handleApproveStake(props.market?.underlying.symbol, props?.gaugeV4)}
                     >
                         {props.market && props.market.stakeSpinner ? (
@@ -301,7 +301,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 +props.gaugeV4.userGaugeHelperAllowance.toString().toString() >= (unstakeInput.trim() === "" || isNaN(+unstakeInput) || isNaN(parseFloat(unstakeInput)) ? 0 : +unstakeInput)
                     ?
                     <MarketDialogButton
-                        disabled={unstakeInput === "" || unstakeValidation !== ""}
+                        disabled={unstakeInput === "" || unstakeValidation !== "" || unstakeDisabled == true}
                         onClick={() => props.handleUnstake(props.market?.underlying.symbol, props?.gaugeV4, unstakeInput)}
                     >
                         {props.market && props.market.unstakeSpinner ? (
@@ -309,13 +309,15 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     </MarketDialogButton>
                     :
                     <MarketDialogButton
-                        disabled={unstakeInput === "" || unstakeValidation !== ""}
+                        disabled={unstakeInput === "" || unstakeValidation !== "" || unstakeDisabled == true}
                         onClick={() => props.handleApproveUnStake(props.market?.underlying.symbol, props?.gaugeV4)}
                     >
                         {props.market && props.market.unstakeSpinner ? (
                             <Spinner size={"20px"}/>) : "Approve"}
                     </MarketDialogButton>
                 }
+                {                    console.log("test", +props.gaugeV4.userGaugeHelperAllowance.toString() > 0)
+}
             </div>
             <MarketDialogButton
                 disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0))}
