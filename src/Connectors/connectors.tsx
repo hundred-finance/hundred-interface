@@ -49,10 +49,15 @@ export const GetConnector = (c: any, chain?: number) => {
           })
     }
     if(c === connectrorsEnum.Unstoppable) {
-      return new UAuthConnector({
+      new UAuthConnector({
         uauth: new UAuth({
           clientID: '5de2aae9-2e5a-40c7-92f2-b1b6ff7b0332',
-          redirectUri: 'https://hundred.finance', // use http://localhost:3000 for testing || https://hundred.finance in production
+          /**
+           * @param redirectUri
+           * use http://localhost:3000 for local environment
+           * use https://hundred.finance for production
+           */
+          redirectUri: 'https://hundred.finance',
           scope: 'openid wallet'
         }),
         connectors: { injected, walletconnect: walletConnect }

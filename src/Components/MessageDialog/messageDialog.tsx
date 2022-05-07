@@ -35,6 +35,7 @@ const HundredMessage:React.FC<Props> = (props: Props) => {
 type TitleProps = {
     onRequestClose: () => void,
     darkMode: boolean
+    children?: any
 }
 
 const HundredMessageTitle:React.FC<TitleProps> = ({onRequestClose, darkMode, children}) => {
@@ -53,6 +54,7 @@ type ItemProps = {
     disabled?: boolean,
     hover?: boolean,
     onClick?: () => void
+    children?: any
 }
 
 const HundredMessageItem: React.FC<ItemProps> = ({disabled, hover, onClick, children}) => {
