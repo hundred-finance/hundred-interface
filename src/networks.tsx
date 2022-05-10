@@ -390,9 +390,11 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010054c81c8c01951E6A631dD228bB02d8D1e5",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        minterAddress: "0x4646F704ceEBB522126CFD024506C509A5D19694",
-        gaugeControllerAddress: "0x2E08596F46f51d1E88207790270aF2BD94602762",
-        votingAddress: "0xbeD8EFa1973F6E1fB3515bf94aa760174431b3F8"
+        minterAddress: "0xE52b96F1268B2f774E3fB7B5F1eA778E85379B52",
+        gaugeControllerAddress: "0xcd64350439ef028Af5086aBD5deDf4F38E4432D4",
+        votingAddress: "0x2b6E60A4e47f791028Cd27208b4Abb5B7D688F6F",
+        gaugeHelper: "0xB8481A3cE515EA8cAa112dba0D1ecfc03937fbcD",
+        maximillion: "0x6bb6ebCf3aC808E26545d59EA60F27A202cE8586"
     },
     1666700000: {
         chainId: 1666700000,
