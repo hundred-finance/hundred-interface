@@ -281,9 +281,9 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x6bb6ebcf3ac808e26545d59ea60f27a202ce8586",
         hundredAddress: "0x10010054c81c8c01951e6a631dd228bb02d8d1e5",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        //gaugeControllerAddress: "0x2105dE165eD364919703186905B9BB5B8015F13c",
-        //votingAddress: '0xf64E1a3eF0d2F5659dC4c10983e595B797C6ecA4',
-        //minterAddress: '0x818b3dff96d01590Caf72965e6F50b24331EfdEC',
+        gaugeControllerAddress: "0x2105dE165eD364919703186905B9BB5B8015F13c",
+        votingAddress: '0xf64E1a3eF0d2F5659dC4c10983e595B797C6ecA4',
+        minterAddress: '0x818b3dff96d01590Caf72965e6F50b24331EfdEC',
         maximillion: "0x42b458056f887fd665ed6f160a59afe932e1f559",
         gaugeHelper: '0x89db3b59381bc06fe9bf74532afd777e5f78ef02',
         oldGauge: {
