@@ -167,17 +167,14 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         gaugeControllerAddress: "0x89Aa51685a2B658be8a7b9C3Af70D66557544181",
         hndPoolPercent: 0.6,
         liquidity: true,
-        backstopMasterChef: {
-            address: "0xf347b0e405249c78d8b261b7c493449b9275b946",
-            version: MasterChefVersion.v2,
-            collaterals: 5
-        },
         airdropMulticallAddress: "0x96a0eEa3a9cff74764b73A891c3b36a4F6B81181",
         maximillion: '0x9226f7304b547891eE257d64Cfb8F8c2a42b42BB',
         votingAddress: '0x6c63287CC629417E96b77DD7184748Bb6536A4e2',
         minterAddress: '0x2105dE165eD364919703186905B9BB5B8015F13c',
         minterAddressLendly: '0x14Cb5E017a3F10B9f6254fF24b87e2297dC8b8b3',
         gaugeHelper: '0x4bf3d7d97ba0d15f4c4c36156c793098847b67a9',
+        backstopGaugeControllerAddress: "0x6A0E5dD021dB29B5869630c4cBCb5B6E7A7b3ed6",
+        backstopGaugeMinterAddress: "0xb1A76e5454E4aF0C4F8f7b071df14a3B4011e8AF",
         lendly: {
             "HND": {
                 nativeTokenMarketAddress: "",
@@ -280,15 +277,15 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
             },
             blockExplorerUrls: ["https://blockscout.com/xdai/mainnet/"],
         },
-        nativeTokenMarketAddress: "0x090a00a2de0ea83def700b5e216f87a5d4f394fe",
-        unitrollerAddress: "0x0F390559F258eB8591C8e31Cf0905E97cf36ACE2",
-        hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
+        nativeTokenMarketAddress: "0x6edcb931168c9f7c20144f201537c0243b19dca4",
+        unitrollerAddress: "0x6bb6ebcf3ac808e26545d59ea60f27a202ce8586",
+        hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         gaugeControllerAddress: "0x2105dE165eD364919703186905B9BB5B8015F13c",
         votingAddress: '0xf64E1a3eF0d2F5659dC4c10983e595B797C6ecA4',
         minterAddress: '0x818b3dff96d01590Caf72965e6F50b24331EfdEC',
         maximillion: "0x42b458056f887fd665ed6f160a59afe932e1f559",
-        gaugeHelper: '0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02'
+        gaugeHelper: '0x89db3b59381bc06fe9bf74532afd777e5f78ef02'
     },
     10: {
         chainId: 10,
@@ -367,6 +364,8 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         gaugeControllerAddress: "0x4adF575DBe0e6F1c5909AE9c7119927b4FaabbBd",
         votingAddress: "0xec378cdd60E890332F7A8CC251315327a4f244B6",
         minterAddress: "0x3A4148DDDd121fbceD8717CB7B82370Be27F76bf",
+        backstopGaugeControllerAddress: "0x505921434646503376759A1FFc2e1a85e0725AEC",
+        backstopGaugeMinterAddress: "0x514b6B2A6B7651aa4aBcb2917c2B8aaFBF78BBf1",
         gaugeHelper: "0x376020c5B0ba3Fd603d7722381fAA06DA8078d8a"
     },
 }: {
