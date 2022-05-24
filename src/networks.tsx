@@ -279,7 +279,7 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         },
         nativeTokenMarketAddress: "0x6edcb931168c9f7c20144f201537c0243b19dca4",
         unitrollerAddress: "0x6bb6ebcf3ac808e26545d59ea60f27a202ce8586",
-        hundredAddress: "0x10010054c81c8c01951e6a631dd228bb02d8d1e5",
+        hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         gaugeControllerAddress: "0x2105dE165eD364919703186905B9BB5B8015F13c",
         votingAddress: '0xf64E1a3eF0d2F5659dC4c10983e595B797C6ecA4',
