@@ -161,7 +161,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             }
 
         }
-    }, [props.market?.unstakeSpinner])
+    }, [props.market?.unstakeSpinner, props.completed])
 
     return (
         <>
@@ -255,7 +255,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 }
             </div>
             <MarketDialogButton
-                disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0))}
+                disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0)) || props.market.mintSpinner}
                 onClick={() => props.handleMint(props.market?.underlying.symbol, props?.gaugeV4)}
             >
                 {props.market && props.market.mintSpinner ? (

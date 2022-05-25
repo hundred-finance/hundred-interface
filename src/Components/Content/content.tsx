@@ -1,7 +1,8 @@
 import { ethers} from "ethers"
+import { Contract, Provider } from 'ethcall'
 import { BigNumber } from "../../bigNumber"
 import React, { useEffect,  useRef, useState } from "react"
-import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2,MAXIMILLION_ABI } from "../../abi"
+import {CTOKEN_ABI, TOKEN_ABI, CETHER_ABI, BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2,MAXIMILLION_ABI, GAUGE_V4_ABI, HUNDRED_ABI } from "../../abi"
 import GeneralDetails from "../GeneralDetails/generalDetails"
 import { MasterChefVersion } from "../../networks"
 import { Comptroller, getComptrollerData } from "../../Classes/comptrollerClass"
@@ -59,7 +60,7 @@ interface Props{
 }
 
 const Content: React.FC<Props> = (props : Props) => {
-    const {setSpinnerVisible, spinnerVisible, darkMode, toastErrorMessage} = useUiContext()
+    const {setSpinnerVisible, spinnerVisible, darkMode, toastSuccessMessage, toastErrorMessage } = useUiContext()
     const {network} = useGlobalContext()
     const { chainId, library } = useWeb3React()
 
@@ -205,7 +206,6 @@ const Content: React.FC<Props> = (props : Props) => {
           const markets = await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: userAddress.current, comptrollerData: comptroller, network: net, marketsData: marketsRef.current, provider: library, hndPrice: hndPriceRef.current, gaugesData: gauges })
           if(firstUpdate){
             const oldGauges = await getGaugesData(library, userAddress.current, net, () => setSpinnerVisible(false), true)
-            console.log(oldGauges)
             if(oldGauges.length > 0){
               const oldGaugeData: { symbol: string; stakeBalance: BigNumber }[] = []
               let message = "You have "
@@ -439,28 +439,27 @@ const Content: React.FC<Props> = (props : Props) => {
         if(market && library && network && userAddress.current){
           try{
             setCompleted(false)
+            borrowDialog ? market.repaySpinner = true : market.supplySpinner = true
+            if(selectedMarketRef.current) {
+              borrowDialog ? selectedMarketRef.current.repaySpinner = true : selectedMarketRef.current.supplySpinner = true
+            }
             const signer = library.getSigner()
             if(market.underlying.address){
               const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
+              const tokenContractWeb3 = new Contract(market.underlying.address, TOKEN_ABI);
               const receipt = await ExecuteWithExtraGasLimit(
                   contract,
                   "approve",
                   [market.pTokenAddress, MaxUint256._value]
               , () => setSpinnerVisible(false))
-
-              borrowDialog ? market.repaySpinner = true : market.supplySpinner = true
-              if(selectedMarketRef.current) {
-                borrowDialog ? selectedMarketRef.current.repaySpinner = true : selectedMarketRef.current.supplySpinner = true
-              }
-              console.log(receipt)
-              market.supplySpinner = false
-            }
-          }
+              console.log('receipt: ', receipt);
+              toastSuccessMessage("Transaction complete, updating contracts")
+              await checkUserBalanceIsUpdated(null, tokenContractWeb3, 0, "approveSupply")
+          }}
           catch(err){
             const error = err as MetamaskError
             toastErrorMessage(`${error?.message.replace(".", "")} on Approve\n${error?.data?.message}`)
             console.log(err)
-
           }
           finally{
             setSpinnerVisible(false)
@@ -489,22 +488,33 @@ const Content: React.FC<Props> = (props : Props) => {
           try{
             setCompleted(false)
             const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
-            if(selectedMarketRef.current)
+            if(selectedMarketRef.current){
               selectedMarketRef.current.supplySpinner = true
-            market.supplySpinner = true
-            const signer = library.getSigner()
-            const token = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
-            const ctoken = new ethers.Contract(market.pTokenAddress, token, signer)
-            const receipt = (market.isNativeToken) ?
-                await ExecutePayableWithExtraGasLimit(ctoken, value._value, "mint", [], () => setSpinnerVisible(false)) :
-                await ExecuteWithExtraGasLimit(ctoken, "mint", [value._value], () => setSpinnerVisible(false))
-            // setSpinnerVisible(false)
-            console.log(receipt)
-            setCompleted(true)
-            if(selectedMarketRef.current)
-              selectedMarketRef.current.supplySpinner = false
+              market.supplySpinner = true
+              //STEP 1: ethcall setup
+              const ethcallProvider = new Provider()
+              await ethcallProvider.init(library) //library = provider
+              const signer = library.getSigner()
+              const token = (market.isNativeToken) ? CETHER_ABI : CTOKEN_ABI
+              const ctoken = new ethers.Contract(market.pTokenAddress, token, signer)
+              const tokenContractWeb3 = new Contract(selectedMarketRef.current?.pTokenAddress, token)
+              //STEP 2: fetch user's current account snapshot
+              const call = [tokenContractWeb3.getAccountSnapshot(userAddress.current)]
+              const currBalanceResult : any = [] = await ethcallProvider.all(call)  
+              const currBalance = currBalanceResult[0][1] //cTokenBalance
+              //STEP 3: execute txn
+              market.isNativeToken ?
+                  await ExecutePayableWithExtraGasLimit(ctoken, value._value, "mint", [], () => setSpinnerVisible(false)) :
+                  await ExecuteWithExtraGasLimit(ctoken, "mint", [value._value], () => setSpinnerVisible(false))
+              setCompleted(true)
+              //STEP 4: check updated balance
+              toastSuccessMessage("Transaction complete, updating contracts")
+              await checkUserBalanceIsUpdated(null, tokenContractWeb3, currBalance, "supply")
+            }
           }
           catch(err){
+            const error = err as MetamaskError
+            toastErrorMessage(`${error?.message.replace(".", "")} on Supply\n${error?.data?.message}`)
             console.log(err)
           }
           finally{
@@ -538,11 +548,18 @@ const Content: React.FC<Props> = (props : Props) => {
             const token = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI
             const ctoken = new ethers.Contract(market.pTokenAddress, token, signer)
 
-            if (selectedMarketRef.current)
-              selectedMarketRef.current.withdrawSpinner = true
-
+            if (selectedMarketRef.current){
+            selectedMarketRef.current.withdrawSpinner = true
             market.withdrawSpinner = true
-            console.log(max)
+            //STEP 1: ethcall setup
+            const ethcallProvider = new Provider()
+            await ethcallProvider.init(library) //library = provider
+            //STEP 2: fetch user's current data
+            const tokenContractWeb3 = new Contract(selectedMarketRef.current?.pTokenAddress, token)
+            const call = [tokenContractWeb3.getAccountSnapshot(userAddress.current)]
+            const currBalanceResult : any = [] = await ethcallProvider.all(call)  
+            const currBalance = currBalanceResult[0][1] //cTokenBalance
+            //STEP 3: execute txn
             if (max){
               const accountSnapshot = await ctoken.getAccountSnapshot(userAddress.current)
               const withdraw = ethers.BigNumber.from(accountSnapshot[1].toString())
@@ -554,11 +571,17 @@ const Content: React.FC<Props> = (props : Props) => {
               const withdraw = BigNumber.parseValueSafe(amount, market.underlying.decimals)
               const receipt = await ExecuteWithExtraGasLimit(ctoken, "redeemUnderlying", [withdraw._value], () => setSpinnerVisible(false))
               console.log(receipt)
+              setCompleted(true)
             }
-          }
-          catch(err){
-            console.log(err)
-          }
+          //STEP 4: check updated balance
+          toastSuccessMessage("Transaction complete, updating contracts")
+          await checkUserBalanceIsUpdated(null, tokenContractWeb3, currBalance, "withdraw")
+          }}
+            catch(err){
+              const error = err as MetamaskError
+              toastErrorMessage(`${error?.message.replace(".", "")} on Withdraw\n${error?.data?.message}`)
+              console.log(err)
+            }
           finally{
             setSpinnerVisible(false)
             market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
@@ -847,14 +870,20 @@ const Content: React.FC<Props> = (props : Props) => {
                       selectedMarketRef.current.stakeSpinner = true
                   market.stakeSpinner = true
 
-                  await gaugeV4?.stakeCall(amount, market)
+                  if (gaugeV4){
+                    await gaugeV4.stakeCall(amount, market) //error likely here or in directstakemarkettab
+                    toastSuccessMessage("Transaction complete, updating contracts")
+                    await checkUserBalanceIsUpdated(gaugeV4, null, gaugeV4.userStakedTokenBalance, "stake")
+                  }
 
                   setSpinnerVisible(false)
 
                   setCompleted(true)
               }
               catch(err){
-                  console.log(err)
+                const error = err as MetamaskError
+                toastErrorMessage(`${error?.message.replace(".", "")} on Stake\n${error?.data?.message}`)
+                console.log(err)
               }
               finally{
                   setSpinnerVisible(false)
@@ -882,13 +911,13 @@ const Content: React.FC<Props> = (props : Props) => {
                   market.stakeSpinner = true
 
                   await gaugeV4?.approveCall(market)
-
-                  setSpinnerVisible(false)
-
-                  market.stakeSpinner = false
+                  toastSuccessMessage("Transaction complete, updating contracts")
+                  await checkUserBalanceIsUpdated(gaugeV4, null, 0, "approveStake")
               }
-              catch(err){
-                  console.log(err)
+              catch(err){                
+                const error = err as MetamaskError
+                toastErrorMessage(`${error?.message.replace(".", "")} on Approve Stake\n${error?.data?.message}`)
+                console.log(err)
               }
               finally{
                   setSpinnerVisible(false)
@@ -916,13 +945,13 @@ const Content: React.FC<Props> = (props : Props) => {
                     market.unstakeSpinner = true
 
                     await gaugeV4?.approveUnstakeCall()
-
-                    setSpinnerVisible(false)
-
-                    market.unstakeSpinner = false
+                    toastSuccessMessage("Transaction complete, updating contracts")
+                    await checkUserBalanceIsUpdated(gaugeV4, null, 0, "approveUnstake")
                 }
-                catch(err){
-                    console.log(err)
+                catch(err){                
+                  const error = err as MetamaskError
+                  toastErrorMessage(`${error?.message.replace(".", "")} on Approve Unstake\n${error?.data?.message}`)
+                  console.log(err)
                 }
                 finally{
                     setSpinnerVisible(false)
@@ -949,15 +978,20 @@ const Content: React.FC<Props> = (props : Props) => {
                         selectedMarketRef.current.unstakeSpinner = true
 
                     market.unstakeSpinner = true
-
+                  if (gaugeV4){
                     await gaugeV4?.unstakeCall(amount, market, nativeTokenMarket?.pTokenAddress)
+                    toastSuccessMessage("Transaction complete, updating contracts")
+                    await checkUserBalanceIsUpdated(gaugeV4, null, gaugeV4.userStakedTokenBalance, "unstake")
+                  }                    
 
                     setSpinnerVisible(false)
 
                     setCompleted(true)
                 }
                 catch(err){
-                    console.log(err)
+                  const error = err as MetamaskError
+                  toastErrorMessage(`${error?.message.replace(".", "")} on Unstake\n${error?.data?.message}`)
+                  console.log(err)
                 }
                 finally{
                     setSpinnerVisible(false)
@@ -983,16 +1017,29 @@ const Content: React.FC<Props> = (props : Props) => {
                         selectedMarketRef.current.mintSpinner = true
 
                     market.mintSpinner = true
-
-                    await gaugeV4?.mintCall()
+                    if (gaugeV4 && network){
+                      //STEP 1: ethcall setup
+                      const ethcallProvider = new Provider()
+                      await ethcallProvider.init(library) //library = provider
+                      //STEP 2: fetch user's hnd balance
+                      const call = [new Contract(network.hundredAddress, HUNDRED_ABI).balanceOf(userAddress.current)]
+                      const currHndBalanceResult = await ethcallProvider.all(call)  
+                      const currHndBalance : any = currHndBalanceResult[0]
+                      //STEP 3: execute txn, check contract is updated
+                      await gaugeV4?.mintCall()
+                      toastSuccessMessage("Transaction complete, updating contracts")
+                      await checkUserBalanceIsUpdated(gaugeV4, null, currHndBalance, "claimHnd")
+                   }                    
 
                     setSpinnerVisible(false)
 
                     setCompleted(true)
                 }
-                catch(err){
+                  catch(err){
+                    const error = err as MetamaskError
+                    toastErrorMessage(`${error?.message.replace(".", "")} on Claim Hnd\n${error?.data?.message}`)
                     console.log(err)
-                }
+                  }
                 finally{
                     setSpinnerVisible(false)
                     market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
@@ -1004,6 +1051,73 @@ const Content: React.FC<Props> = (props : Props) => {
             }
         }
     }
+
+    async function checkUserBalanceIsUpdated(gaugeV4: GaugeV4 | null | undefined, tokenContract: Contract | null | undefined, currBalanceInput: any, action: string)  {
+      //STEP 1: ethcall setup
+      const ethcallProvider = new Provider()
+      await ethcallProvider.init(library) //library = provider
+      let userBalanceIsUpdated = false; 
+      let newBalance : BigNumber;
+      const currBalance = BigNumber.from(currBalanceInput)
+      const call : any = [];
+
+      //STEP 2: fetch user data
+      if (network && selectedMarketRef.current) {
+        if (gaugeV4) { 
+        const gaugeHelper = gaugeV4?.generalData.gaugeHelper
+        const lpTokenUnderlying = gaugeV4?.generalData.lpTokenUnderlying
+        const lpToken = gaugeV4?.generalData.lpToken
+        const gaugeAddress = gaugeV4?.generalData.address          
+        if (action === "stake" || action === "unstake"){
+          call.push(new Contract(gaugeV4.generalData.address, GAUGE_V4_ABI).balanceOf(userAddress.current))
+        } else if (action === "claimHnd"){
+          call.push(new Contract(network.hundredAddress, HUNDRED_ABI).balanceOf(userAddress.current))
+        } else if (action === "approveStake"){
+          if (gaugeHelper && lpTokenUnderlying !== "0x0") {
+            const cTokenContract = new Contract(lpTokenUnderlying, CTOKEN_ABI)
+            call.push(cTokenContract.allowance(userAddress.current, gaugeHelper))
+          } else {
+            const cTokenContract = new Contract(lpToken, CTOKEN_ABI) 
+            call.push(cTokenContract.allowance(userAddress.current, gaugeAddress))
+          }
+        } else if (action === "approveUnstake"){
+          if (gaugeHelper) {
+          const gaugeContract = new Contract(gaugeAddress, CTOKEN_ABI)
+          call.push(gaugeContract.allowance(userAddress.current, gaugeHelper))
+        } else {
+          const cTokenContract = new Contract(lpToken, CTOKEN_ABI) 
+          call.push(cTokenContract.allowance(userAddress.current, gaugeAddress))
+        }}}
+        else {
+          if (tokenContract) {
+            if (action === "supply" || action === "withdraw" ) {
+              call.push(tokenContract.getAccountSnapshot(userAddress.current)) //returns array of 4 BigNumbers
+            } else if (action === "approveSupply") {
+              call.push(tokenContract.allowance(userAddress.current, selectedMarketRef.current.pTokenAddress))
+            }}}
+      
+      const newBalanceResult : BigNumber[] = await ethcallProvider.all(call)  
+      if (action === "supply" || action === "withdraw" ) { //Results from the web3@0.20 getAccountSnapshot call must be individually converted into a number or string.
+        const getAccountSnapshotString = newBalanceResult[0].toString();
+        const getAccountSnapshotArray = getAccountSnapshotString.split(',');
+        newBalance = BigNumber.from(getAccountSnapshotArray[1]) //cTokenBalance
+      } else {
+        newBalance = BigNumber.from(newBalanceResult[0]) //allowance or balance
+      } 
+      //STEP 3: check userBalance has been updated, if not, check again recursively 
+      if ((newBalance.eq(currBalance)) === false){ 
+          userBalanceIsUpdated = true
+          return userBalanceIsUpdated
+        } else if (newBalance.eq(currBalance)){
+          const delay = (ms : number) => new Promise((resolve) => setTimeout(resolve, ms));
+          await delay(2000); //wait 2 seconds, run again
+          if (gaugeV4){
+            await checkUserBalanceIsUpdated(gaugeV4, undefined, currBalanceInput, action)
+          } else {
+            await checkUserBalanceIsUpdated(undefined, tokenContract, currBalanceInput, action)}
+        } else {(newBalance.toString() === "NaN" || newBalance.toString() === "undefined" ) 
+          return toastErrorMessage("Error while updating balance, contact Hundred Finance team")
+        }}}
     
     return (
         <div className="content">

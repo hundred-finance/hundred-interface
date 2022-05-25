@@ -316,8 +316,6 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                             <Spinner size={"20px"}/>) : "Approve"}
                     </MarketDialogButton>
                 }
-                {                    console.log("test", +props.gaugeV4.userGaugeHelperAllowance.toString() > 0)
-}
             </div>
             <MarketDialogButton
                 disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0))}
