@@ -277,15 +277,15 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
             },
             blockExplorerUrls: ["https://blockscout.com/xdai/mainnet/"],
         },
-        nativeTokenMarketAddress: "0x090a00a2de0ea83def700b5e216f87a5d4f394fe",
-        unitrollerAddress: "0x0F390559F258eB8591C8e31Cf0905E97cf36ACE2",
-        hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
+        nativeTokenMarketAddress: "0x6edcb931168c9f7c20144f201537c0243b19dca4",
+        unitrollerAddress: "0x6bb6ebcf3ac808e26545d59ea60f27a202ce8586",
+        hundredAddress: "0x10010078a54396f62c96df8532dc2b4847d47ed3",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
         gaugeControllerAddress: "0x2105dE165eD364919703186905B9BB5B8015F13c",
         votingAddress: '0xf64E1a3eF0d2F5659dC4c10983e595B797C6ecA4',
         minterAddress: '0x818b3dff96d01590Caf72965e6F50b24331EfdEC',
         maximillion: "0x42b458056f887fd665ed6f160a59afe932e1f559",
-        gaugeHelper: '0x89db3B59381bC06FE9BF74532Afd777e5F78Ef02'
+        gaugeHelper: '0x89db3b59381bc06fe9bf74532afd777e5f78ef02'
     },
     10: {
         chainId: 10,
@@ -389,9 +389,13 @@ const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
         unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
         hundredAddress: "0x10010054c81c8c01951E6A631dD228bB02d8D1e5",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        minterAddress: "0x4646F704ceEBB522126CFD024506C509A5D19694",
-        gaugeControllerAddress: "0x2E08596F46f51d1E88207790270aF2BD94602762",
-        votingAddress: "0xbeD8EFa1973F6E1fB3515bf94aa760174431b3F8"
+        minterAddress: "0xE52b96F1268B2f774E3fB7B5F1eA778E85379B52",
+        gaugeControllerAddress: "0xcd64350439ef028Af5086aBD5deDf4F38E4432D4",
+        backstopGaugeControllerAddress: "0x192356AD583E85020A0a71540E4d538a5684849e",
+        backstopGaugeMinterAddress: "0x0f4ED02A5b441176487Ff529392d9134F350550f",
+        votingAddress: "0x2b6E60A4e47f791028Cd27208b4Abb5B7D688F6F",
+        gaugeHelper: "0xB8481A3cE515EA8cAa112dba0D1ecfc03937fbcD",
+        maximillion: "0x6bb6ebCf3aC808E26545d59EA60F27A202cE8586"
     },
     1666700000: {
         chainId: 1666700000,
