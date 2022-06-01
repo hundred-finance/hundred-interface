@@ -26,7 +26,7 @@ interface Props{
     handleApproveStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
     handleApproveUnStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
 }
-const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
+const DirectBackstopMarketTab:React.FC<Props> = (props: Props) =>{
     const [stakeInput, setStakeInput] = useState<string>("")
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [stakeDisabled, setStakeDisabled] = useState<boolean>(false)
@@ -328,4 +328,4 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
     )
 }
 
-export default DirectBackstopStakeMarketTab
+export default DirectBackstopMarketTab

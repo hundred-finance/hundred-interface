@@ -454,7 +454,8 @@ const Content: React.FC<Props> = (props : Props) => {
               , () => setSpinnerVisible(false))
               console.log('receipt: ', receipt);
               toastSuccessMessage("Transaction complete, updating contracts")
-              await checkUserBalanceIsUpdated(null, tokenContractWeb3, 0, "approveSupply")
+              const checkReceipt = await checkUserBalanceIsUpdated(null, tokenContractWeb3, 0, "approveSupply")
+              console.log('checkReceipt: ', checkReceipt);
           }}
           catch(err){
             const error = err as MetamaskError
@@ -509,7 +510,8 @@ const Content: React.FC<Props> = (props : Props) => {
               setCompleted(true)
               //STEP 4: check updated balance
               toastSuccessMessage("Transaction complete, updating contracts")
-              await checkUserBalanceIsUpdated(null, tokenContractWeb3, currBalance, "supply")
+              const checkReceipt = await checkUserBalanceIsUpdated(null, tokenContractWeb3, currBalance, "supply")
+              console.log('checkReceipt: ', checkReceipt);
             }
           }
           catch(err){
@@ -575,8 +577,9 @@ const Content: React.FC<Props> = (props : Props) => {
             }
           //STEP 4: check updated balance
           toastSuccessMessage("Transaction complete, updating contracts")
-          await checkUserBalanceIsUpdated(null, tokenContractWeb3, currBalance, "withdraw")
-          }}
+          const checkReceipt = await checkUserBalanceIsUpdated(null, tokenContractWeb3, currBalance, "withdraw")
+          console.log('checkReceipt: ', checkReceipt);
+        }}
             catch(err){
               const error = err as MetamaskError
               toastErrorMessage(`${error?.message.replace(".", "")} on Withdraw\n${error?.data?.message}`)
@@ -873,7 +876,8 @@ const Content: React.FC<Props> = (props : Props) => {
                   if (gaugeV4){
                     await gaugeV4.stakeCall(amount, market) //error likely here or in directstakemarkettab
                     toastSuccessMessage("Transaction complete, updating contracts")
-                    await checkUserBalanceIsUpdated(gaugeV4, null, gaugeV4.userStakedTokenBalance, "stake")
+                    const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4, null, gaugeV4.userStakedTokenBalance, "stake")
+                    console.log('checkReceipt: ', checkReceipt);
                   }
 
                   setSpinnerVisible(false)
@@ -912,8 +916,9 @@ const Content: React.FC<Props> = (props : Props) => {
 
                   await gaugeV4?.approveCall(market)
                   toastSuccessMessage("Transaction complete, updating contracts")
-                  await checkUserBalanceIsUpdated(gaugeV4, null, 0, "approveStake")
-              }
+                  const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4, null, 0, "approveStake")
+                  console.log('checkReceipt: ', checkReceipt);
+                }
               catch(err){                
                 const error = err as MetamaskError
                 toastErrorMessage(`${error?.message.replace(".", "")} on Approve Stake\n${error?.data?.message}`)
@@ -946,8 +951,9 @@ const Content: React.FC<Props> = (props : Props) => {
 
                     await gaugeV4?.approveUnstakeCall()
                     toastSuccessMessage("Transaction complete, updating contracts")
-                    await checkUserBalanceIsUpdated(gaugeV4, null, 0, "approveUnstake")
-                }
+                    const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4, null, 0, "approveUnstake")
+                    console.log('checkReceipt: ', checkReceipt);
+                  }
                 catch(err){                
                   const error = err as MetamaskError
                   toastErrorMessage(`${error?.message.replace(".", "")} on Approve Unstake\n${error?.data?.message}`)
@@ -981,7 +987,8 @@ const Content: React.FC<Props> = (props : Props) => {
                   if (gaugeV4){
                     await gaugeV4?.unstakeCall(amount, market, nativeTokenMarket?.pTokenAddress)
                     toastSuccessMessage("Transaction complete, updating contracts")
-                    await checkUserBalanceIsUpdated(gaugeV4, null, gaugeV4.userStakedTokenBalance, "unstake")
+                    const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4, null, gaugeV4.userStakedTokenBalance, "unstake")
+                    console.log('checkReceipt: ', checkReceipt);
                   }                    
 
                     setSpinnerVisible(false)
@@ -1028,7 +1035,8 @@ const Content: React.FC<Props> = (props : Props) => {
                       //STEP 3: execute txn, check contract is updated
                       await gaugeV4?.mintCall()
                       toastSuccessMessage("Transaction complete, updating contracts")
-                      await checkUserBalanceIsUpdated(gaugeV4, null, currHndBalance, "claimHnd")
+                      const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4, null, currHndBalance, "claimHnd")
+                      console.log('checkReceipt: ', checkReceipt);
                    }                    
 
                     setSpinnerVisible(false)
@@ -1052,7 +1060,7 @@ const Content: React.FC<Props> = (props : Props) => {
         }
     }
 
-    async function checkUserBalanceIsUpdated(gaugeV4: GaugeV4 | null | undefined, tokenContract: Contract | null | undefined, currBalanceInput: any, action: string)  {
+    async function checkUserBalanceIsUpdated(gaugeV4: GaugeV4 | null | undefined, tokenContract: Contract | null | undefined, currBalanceInput: any, action: string): Promise<boolean> {
       //STEP 1: ethcall setup
       const ethcallProvider = new Provider()
       await ethcallProvider.init(library) //library = provider
@@ -1112,12 +1120,11 @@ const Content: React.FC<Props> = (props : Props) => {
           const delay = (ms : number) => new Promise((resolve) => setTimeout(resolve, ms));
           await delay(2000); //wait 2 seconds, run again
           if (gaugeV4){
-            await checkUserBalanceIsUpdated(gaugeV4, undefined, currBalanceInput, action)
+            return await checkUserBalanceIsUpdated(gaugeV4, undefined, currBalanceInput, action)
           } else {
-            await checkUserBalanceIsUpdated(undefined, tokenContract, currBalanceInput, action)}
-        } else {(newBalance.toString() === "NaN" || newBalance.toString() === "undefined" ) 
-          return toastErrorMessage("Error while updating balance, contact Hundred Finance team")
-        }}}
+            return await checkUserBalanceIsUpdated(undefined, tokenContract, currBalanceInput, action)
+          }}}
+    return false}
     
     return (
         <div className="content">
