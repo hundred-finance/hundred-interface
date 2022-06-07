@@ -52,6 +52,7 @@ export const GetConnector = (c: any, chain?: number) => {
     if(c === connectrorsEnum.Unstoppable) {
       const clientId = process.env.REACT_APP_CLIENT_ID
       const redirectUri = process.env.REACT_APP_REDIRECT_URI
+      
       if(clientId && redirectUri){
         return new UAuthConnector({
           uauth: new UAuth({
