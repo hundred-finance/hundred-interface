@@ -2,17 +2,18 @@ import React, { useEffect, useRef, useState } from 'react';
 import { getShortenAddress } from '../../helpers';
 import './style.css';
 import useENS from '../../hooks/useENS';
-import Davatar from '@davatar/react';
 import { useUiContext } from '../../Types/uiContext';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import Modal from '../Modal/modal';
 import mm from '../../assets/icons/mm.png'
 import wc from '../../assets/icons/wc.png'
 import cbw from '../../assets/icons/cbw.png'
+import ud from '../../assets/icons/unstoppable.png'
 import { useGlobalContext } from '../../Types/globalContext';
 import { ethers } from 'ethers';
 import { connectrorsEnum, GetConnector, getErrorMessage } from '../../Connectors/connectors';
 import NETWORKS from '../../networks';
+import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
 interface Props {
     address: string;
@@ -71,8 +72,8 @@ const AddressButton: React.FC<Props> = (props: Props) => {
     }, [chainId])
   
     useEffect(() => {
-        console.log(error)
         if(error){
+        console.log(error)
           setShowError(true)
         }
     }, [error])
@@ -89,7 +90,7 @@ const AddressButton: React.FC<Props> = (props: Props) => {
             <div className="address-button" onClick={() => (account ? handleAddress() : setShowModal(true))}>
                 {account ? (
                     <div className="address">
-                        <Davatar size={30} address={account} generatedAvatarType="jazzicon" />
+                        <Jazzicon diameter={30} seed={jsNumberForAddress(account)} />
                         {ensName || getShortenAddress(account)}
                         <span className="arrow">&#9660;</span>
                     </div>
@@ -116,6 +117,12 @@ const AddressButton: React.FC<Props> = (props: Props) => {
                             <img src={cbw} alt=""/>
                         </div>
                         <div className='wallet-item-name'>Coinbase Wallet</div>
+                    </div>
+                    <div className='wallet-item' onClick={() => handleConnect(connectrorsEnum.Unstoppable)}>
+                        <div className='wallet-item-icon'>
+                            <img src={ud} alt=""/>
+                        </div>
+                        <div className='wallet-item-name'>Unstoppable Domains</div>
                     </div>
                 </div>
             </Modal>

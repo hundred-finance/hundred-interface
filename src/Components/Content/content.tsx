@@ -205,7 +205,6 @@ const Content: React.FC<Props> = (props : Props) => {
           const markets = await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: userAddress.current, comptrollerData: comptroller, network: net, marketsData: marketsRef.current, provider: library, hndPrice: hndPriceRef.current, gaugesData: gauges })
           if(firstUpdate){
             const oldGauges = await getGaugesData(library, userAddress.current, net, () => setSpinnerVisible(false), true)
-            console.log(oldGauges)
             if(oldGauges.length > 0){
               const oldGaugeData: { symbol: string; stakeBalance: BigNumber }[] = []
               let message = "You have "
