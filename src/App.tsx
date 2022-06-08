@@ -297,7 +297,7 @@ const resizeWindow = ()=>{
   const errorFallback = () => {
     return(
       <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
-        <Content  address={address}
+        <Content 
           hndPrice={hndPrice}
           setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} 
           updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed} 
@@ -334,7 +334,8 @@ const resizeWindow = ()=>{
 
   return (
     theme ?
-    <MyGlobalContext.Provider value={({network, setNetwork})}>
+    <MyGlobalContext.Provider value={({network, setNetwork,
+                                       address, setAddress})}>
         <MyUiContext.Provider value={({sideMenu, setSideMenu,
                                     darkMode, setDarkMode,
                                     spinnerVisible, setSpinnerVisible,
@@ -353,15 +354,13 @@ const resizeWindow = ()=>{
           <div id="app" className={`App scroller ${darkMode ? "dark-theme" : ""}`}>
             <Wrapper sideMenu={sideMenu}>
               {!isTablet && !isMobile ? 
-                <Menu address={address} setAddress={setAddress} 
-                      hasClaimed={hasClaimed} setHasClaimed={setHasClaimed}
+                <Menu hasClaimed={hasClaimed} setHasClaimed={setHasClaimed}
                       airdrops={airdrops} setAirdrops={setAirdrops}/>
-                : <TabletMenu address={address} setAddress={setAddress}
-                    hasClaimed={hasClaimed} airdrops={airdrops} setAirdrops={setAirdrops}
+                : <TabletMenu hasClaimed={hasClaimed} airdrops={airdrops} setAirdrops={setAirdrops}
                     setHasClaimed={setHasClaimed}/>
               }
               <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
-                <Content address={address}
+                <Content
                   hndPrice={hndPrice} 
                   setHndEarned={setHndEarned} setHndBalance={setHndBalance} setHundredBalance={setHundredBalace} 
                   updateEarned={updateEarned} setUpdateEarned={setUpdateEarned} setHasClaimed={setHasClaimed}
@@ -372,7 +371,7 @@ const resizeWindow = ()=>{
             <Footer darkMode={darkMode} isMobile={isMobile}/>
             <SideMenu open={sideMenu} setSideMenu={setSideMenu} setOpenAddress={setOpenAddress} setOpenNetwork={setOpenNetwork} setOpenHundred={setOpenHundred} setOpenAirdrop={setOpenAirdrop}>
               { openAddress ? 
-                  <AccountSettings address={address} setAddress={setAddress}/> 
+                  <AccountSettings/> 
                   : (openNetwork ? 
                   <NetworksView/> 
                   : openHundred ? 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getShortenAddress } from '../../helpers';
 import './style.css';
 import useENS from '../../hooks/useENS';
@@ -15,25 +15,15 @@ import { connectrorsEnum, GetConnector, getErrorMessage } from '../../Connectors
 import NETWORKS from '../../networks';
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
-interface Props {
-    address: string;
-    setAddress: React.Dispatch<React.SetStateAction<string>>;
-}
-
-const AddressButton: React.FC<Props> = (props: Props) => {
+const AddressButton: React.FC = () => {
     const {setOpenAddress, setSideMenu, setOpenNetwork, setSwitchModal} = useUiContext()
-    const { chainId, account, activate, error} = useWeb3React<ethers.providers.Web3Provider>()
-    const { setNetwork, network} = useGlobalContext()
+    const { chainId, account, activate, error, connector} = useWeb3React<ethers.providers.Web3Provider>()
+    const { setNetwork, network, address, setAddress} = useGlobalContext()
 
     const [showModal, setShowModal] = useState(false)
     const [showError, setShowError] = useState(false)
 
-    const setAddress = useRef<React.Dispatch<React.SetStateAction<string>> | null>(null);
-    const address = useRef<string>();
-    const { ensName } = useENS(props.address);
-
-    setAddress.current = props.setAddress;
-    address.current = props.address;
+    const { ensName } = useENS(address);
 
     const handleAddress = () => {
         setOpenAddress(true);
@@ -53,12 +43,17 @@ const AddressButton: React.FC<Props> = (props: Props) => {
         try{
           activate( con )
           window.localStorage.setItem("hundred-provider", c)
+          console.log(connector)
         }
         catch(err){
           console.log(err)
         }
     }
-  
+
+    useEffect(() => {
+        console.log(connector)
+    }, [connector])
+
     useEffect(() => {
         setSwitchModal(false)
         setOpenNetwork(false)
@@ -80,9 +75,9 @@ const AddressButton: React.FC<Props> = (props: Props) => {
 
     useEffect(() => {
         if(account) 
-            props.setAddress(account)
+            setAddress(account)
         else if(!error) 
-            props.setAddress("")
+            setAddress("")
     }, [account])
 
     return (
