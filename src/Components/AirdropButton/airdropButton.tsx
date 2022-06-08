@@ -15,7 +15,6 @@ import { useGlobalContext } from "../../Types/globalContext";
 import { useWeb3React } from "@web3-react/core";
 
 interface Props{
-    address: string,
     hasClaimed: boolean,
     setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>,
     airdrops: AirdropType[],
@@ -36,7 +35,7 @@ export type AirdropType = {
 const AirdropButton: React.FC<Props> = (props : Props) => {
     const {setOpenAirdrop, setSideMenu, airdropSpinner} = useUiContext()
     const { library, chainId } = useWeb3React()
-    const {network} = useGlobalContext()
+    const {network, address} = useGlobalContext()
 
     const [totalAmount, setTotalAmount] = useState<AirdropAmount[]>([])
 
@@ -161,10 +160,10 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
         props.setAirdrops([])
         props.setHasClaimed(false)
         setTotalAmount([])
-        if(library && network && network.chainId === chainId && props.address !== ""){
+        if(library && network && network.chainId === chainId && address !== ""){
             try{
                 
-                    getAirdrop(network, props.address, library)
+                    getAirdrop(network, address, library)
                 
                 
             }

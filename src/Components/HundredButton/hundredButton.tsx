@@ -4,20 +4,16 @@ import "./hundredButton.css"
 import { useUiContext } from "../../Types/uiContext"
 import { useGlobalContext } from "../../Types/globalContext"
 
-interface Props{
-    address: string,
-}
-
-const HundredButton : React.FC<Props> = (props : Props) => {
+const HundredButton : React.FC = () => {
     const {setOpenHundred, setSideMenu} = useUiContext()
-    const {network} = useGlobalContext()
+    const {network, address} = useGlobalContext()
     
     const handleOpenHundred = () :void => {
             setOpenHundred(true)
             setSideMenu(true)
     }
 
-    if(props.address === "" || !{...network})
+    if(address === "" || !{...network})
         return null
     else {
         return (

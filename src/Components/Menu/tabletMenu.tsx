@@ -16,8 +16,6 @@ import { useUiContext } from "../../Types/uiContext"
 // import SideMenuButton from "../Navbar/sideMenuButton"
 
 interface Props{
-    address: string,
-    setAddress: React.Dispatch<React.SetStateAction<string>>,
     hasClaimed: boolean,
     setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>,
     airdrops: AirdropType[],
@@ -36,11 +34,11 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
                     <NavBarRight>
                     {isTablet && !isMobile ?
                         <>
-                            <AirdropButton address={props.address} hasClaimed={props.hasClaimed} 
+                            <AirdropButton hasClaimed={props.hasClaimed} 
                             setHasClaimed={props.setHasClaimed} airdrops={props.airdrops} setAirdrops={props.setAirdrops}/>
-                            <HundredButton address={props.address}/>
+                            <HundredButton />
                             <NetworkButton/> 
-                            <AddressButton address={props.address} setAddress={props.setAddress}/>
+                            <AddressButton />
                             <ThemeSwitch/>
                         </>
                     : null}
@@ -50,11 +48,11 @@ const TabletMenu: React.FC<Props> = (props: Props) => {
             <NavbarMobile menuOpen={menuOpen}>
             {isMobile ? 
                 <NavBarRight className="navbar-right-content">
-                    <AirdropButton address={props.address} hasClaimed={props.hasClaimed}
+                    <AirdropButton hasClaimed={props.hasClaimed}
                     setHasClaimed={props.setHasClaimed} airdrops={props.airdrops} setAirdrops={props.setAirdrops}/>
-                    <HundredButton address={props.address}/>
+                    <HundredButton />
                     <NetworkButton /> 
-                    <AddressButton address={props.address} setAddress={props.setAddress}/>
+                    <AddressButton />
                     <ThemeSwitch/>
                 </NavBarRight>
             : null}

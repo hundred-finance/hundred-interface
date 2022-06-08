@@ -291,6 +291,7 @@ export const fetchData = async(
  const getTokenData = async(tokenData: any[], native: boolean, network: Network, provider: ethers.providers.Web3Provider, 
                             userAddress: string, underlyingAddress: string, enteredMarkets: string[], tokenAddress: string, backstop: BackstopPool | null): Promise<Token> =>{
     const isMaker = underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? true : false
+    
     const token: Token = {
         accountSnapshot: tokenData[0],
         exchangeRate: tokenData[1],
@@ -300,9 +301,16 @@ export const fetchData = async(
         borrowRatePerBlock: tokenData[5],
         cash: tokenData[6],
         cTokenBalanceOfUser: tokenData[7],
-        markets: tokenData[8] as Markets,
+        markets: {
+          isListed: tokenData[8][0],
+          collateralFactorMantissa: tokenData[8][1],
+          isComped: tokenData[8][2]
+        },
         compSpeeds: tokenData[9],
-        compSupplyState: tokenData[10] as CompSupplyState,
+        compSupplyState: {
+          index: tokenData[10][0],
+          block: tokenData[10][1]
+        },
         compSupplierIndex: tokenData[11],
         mintPaused: tokenData[13],
         borrowPaused: tokenData[14],
@@ -379,7 +387,6 @@ export const fetchData = async(
   }
 
   const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, blockNum: number, gauges: GaugeV4[] | undefined) : Promise<CTokenInfo> => {
-
       const decimals = token.underlying.decimals
 
       const underlying = new Underlying(token.underlying.address, token.underlying.symbol, token.underlying.name, token.underlying.logo, token.underlying.decimals,

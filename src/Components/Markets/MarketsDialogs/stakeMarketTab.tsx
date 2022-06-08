@@ -75,7 +75,6 @@ const StakeMarketTab:React.FC<Props> = (props: Props) =>{
                 const newTotalSupply = stake * price * collateral
                 const borrow = totalBorrow - newTotalSupply
                 setNewBorrowLimit3(BigNumber.parseValue(borrow.noExponents()))
-                console.log(borrow.noExponents())
             }
         }
 

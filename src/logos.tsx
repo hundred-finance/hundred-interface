@@ -75,6 +75,7 @@ import HRENBTClogo from "./assets/images/RENBTC-logo.png"
 import GNOlogo from "./assets/images/GNO-logo.png"
 import GNOSISlogo from "./assets/images/GNOSIS-logo.png"
 import XDailogo from "./assets/images/XDAI-logo.svg"
+import vGNOlogo from "./assets/images/vGNO-logo.png"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -172,7 +173,8 @@ const Logos: { [key: string]: string } = {
     "renBTC"    : HRENBTClogo,
     "GNO"       : GNOlogo,
     "GNOSIS"    : GNOSISlogo,
-    "ioDAI"     : DAIlogo
+    "ioDAI"     : DAIlogo,
+    "vGNO"      : vGNOlogo
 }
 
 export default Logos
