@@ -351,7 +351,7 @@ export const fetchData = async(
           decimals: tokenData[29],
           symbol: tokenData[30],
           underlyingBalance : tokenData[31],
-          masterchefBalance : tokenData[30],
+          masterchefBalance : tokenData[32],
           fetchPrice: tokenData[33],
           ethBalance: await provider.getBalance(backstop.lpTokens),
         }
@@ -360,20 +360,20 @@ export const fetchData = async(
         token.backstop = {
           pool : backstop,
           poolInfo :  poolInfo,
-          userBalance : tokenData[22][0],
-          pendingHundred: tokenData[23],
-          hundredPerSecond: tokenData[24],
-          totalAllocPoint: tokenData[25],
-          allowance: tokenData[26],
-          totalSupply : tokenData[27],
-          decimals: tokenData[28],
-          symbol: tokenData[29],
-          underlyingBalance : tokenData[30],
-          masterchefBalance : tokenData[31],
+          userBalance : tokenData[23][0],
+          pendingHundred: tokenData[24],
+          hundredPerSecond: tokenData[25],
+          totalAllocPoint: tokenData[26],
+          allowance: tokenData[27],
+          totalSupply : tokenData[28],
+          decimals: tokenData[29],
+          symbol: tokenData[30],
+          underlyingBalance : tokenData[31],
+          masterchefBalance : tokenData[32],
           collaterals:[]
         }
         if(backstop.collaterals){
-          tokenData.splice(0, 32)
+          tokenData.splice(0, 33)
           for(let i=0; i< backstop.collaterals?.length; i++){
             const collateral: BackstopCollaterals = {
               fetchPrice: tokenData[0],
