@@ -2,17 +2,13 @@ import { useWeb3React } from "@web3-react/core"
 import { ethers } from "ethers"
 import React from "react"
 import { getShortenAddress } from "../../helpers"
+import { useGlobalContext } from "../../Types/globalContext"
 import { useUiContext } from "../../Types/uiContext"
 import "./accountSettings.css"
 
-interface Props{
-    address: string,
-    setAddress: React.Dispatch<React.SetStateAction<string>>,
-}
-
-
-const AccountSettings: React.FC<Props> = (props: Props) => {
+const AccountSettings: React.FC = () => {
     const {setSideMenu, setOpenAddress} = useUiContext()
+    const {address, setAddress} = useGlobalContext()
     const { connector, deactivate} = useWeb3React<ethers.providers.Web3Provider>()
 
     const handleDisconnect = () => {
@@ -26,14 +22,14 @@ const AccountSettings: React.FC<Props> = (props: Props) => {
 
         setSideMenu(false) 
         setOpenAddress(false)
-        props.setAddress("")
+        setAddress("")
     }
 
     return (
         <div className="account-settings">
             <div className="account-settings-item">
                 <hr/>
-                <div className="account-settings-item-label"><label>Address </label><span>{getShortenAddress(props.address)}</span></div>
+                <div className="account-settings-item-label"><label>Address </label><span>{getShortenAddress(address)}</span></div>
                 <div className="account-settings-item-button" onClick={() => handleDisconnect()}>Disconnect</div>
             </div>
         </div>

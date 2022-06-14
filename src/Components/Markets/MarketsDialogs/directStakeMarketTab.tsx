@@ -195,8 +195,8 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     validation={stakeValidation}
                     button={"Max"}
                     onClick={() => getMaxStake()}/>
-                {props.gaugeV4 && stakeInput === "" || stakeValidation !== "" || (+props.gaugeV4.userAllowance.toString() > 0 &&
-                +props.gaugeV4.userAllowance.toString().toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput))
+                {props.market && +props.market.underlying.gaugeHelperAllowance.toString() > 0 &&
+                +props.market.underlying.gaugeHelperAllowance.toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
                     ?
                     <MarketDialogButton
                         disabled={stakeInput === "" || stakeValidation !== "" || stakeDisabled == true}

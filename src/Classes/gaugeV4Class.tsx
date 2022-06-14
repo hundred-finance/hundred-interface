@@ -141,7 +141,6 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
 
         const rewardsData: any[]= await ethcallProvider.all(calls)
         const rewards = activeLpAndMinterAddresses.map(g => {
-            console.log
             if(g[0].toLowerCase() === network.nativeTokenMarketAddress.toLowerCase()){
                 const temp = rewardsData.splice(0, 2)
                 temp.push("0x0")

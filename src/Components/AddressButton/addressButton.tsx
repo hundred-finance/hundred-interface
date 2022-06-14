@@ -1,38 +1,29 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getShortenAddress } from '../../helpers';
 import './style.css';
 import useENS from '../../hooks/useENS';
-import Davatar from '@davatar/react';
 import { useUiContext } from '../../Types/uiContext';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import Modal from '../Modal/modal';
 import mm from '../../assets/icons/mm.png'
 import wc from '../../assets/icons/wc.png'
 import cbw from '../../assets/icons/cbw.png'
+import ud from '../../assets/icons/unstoppable.png'
 import { useGlobalContext } from '../../Types/globalContext';
 import { ethers } from 'ethers';
 import { connectrorsEnum, GetConnector, getErrorMessage } from '../../Connectors/connectors';
 import NETWORKS from '../../networks';
+import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
-interface Props {
-    address: string;
-    setAddress: React.Dispatch<React.SetStateAction<string>>;
-}
-
-const AddressButton: React.FC<Props> = (props: Props) => {
+const AddressButton: React.FC = () => {
     const {setOpenAddress, setSideMenu, setOpenNetwork, setSwitchModal} = useUiContext()
-    const { chainId, account, activate, error} = useWeb3React<ethers.providers.Web3Provider>()
-    const { setNetwork, network} = useGlobalContext()
+    const { chainId, account, activate, error, connector} = useWeb3React<ethers.providers.Web3Provider>()
+    const { setNetwork, network, address, setAddress} = useGlobalContext()
 
     const [showModal, setShowModal] = useState(false)
     const [showError, setShowError] = useState(false)
 
-    const setAddress = useRef<React.Dispatch<React.SetStateAction<string>> | null>(null);
-    const address = useRef<string>();
-    const { ensName } = useENS(props.address);
-
-    setAddress.current = props.setAddress;
-    address.current = props.address;
+    const { ensName } = useENS(address);
 
     const handleAddress = () => {
         setOpenAddress(true);
@@ -52,12 +43,17 @@ const AddressButton: React.FC<Props> = (props: Props) => {
         try{
           activate( con )
           window.localStorage.setItem("hundred-provider", c)
+          console.log(connector)
         }
         catch(err){
           console.log(err)
         }
     }
-  
+
+    useEffect(() => {
+        console.log(connector)
+    }, [connector])
+
     useEffect(() => {
         setSwitchModal(false)
         setOpenNetwork(false)
@@ -71,17 +67,17 @@ const AddressButton: React.FC<Props> = (props: Props) => {
     }, [chainId])
   
     useEffect(() => {
-        console.log(error)
         if(error){
+        console.log(error)
           setShowError(true)
         }
     }, [error])
 
     useEffect(() => {
         if(account) 
-            props.setAddress(account)
+            setAddress(account)
         else if(!error) 
-            props.setAddress("")
+            setAddress("")
     }, [account])
 
     return (
@@ -89,7 +85,7 @@ const AddressButton: React.FC<Props> = (props: Props) => {
             <div className="address-button" onClick={() => (account ? handleAddress() : setShowModal(true))}>
                 {account ? (
                     <div className="address">
-                        <Davatar size={30} address={account} generatedAvatarType="jazzicon" />
+                        <Jazzicon diameter={30} seed={jsNumberForAddress(account)} />
                         {ensName || getShortenAddress(account)}
                         <span className="arrow">&#9660;</span>
                     </div>
@@ -116,6 +112,12 @@ const AddressButton: React.FC<Props> = (props: Props) => {
                             <img src={cbw} alt=""/>
                         </div>
                         <div className='wallet-item-name'>Coinbase Wallet</div>
+                    </div>
+                    <div className='wallet-item' onClick={() => handleConnect(connectrorsEnum.Unstoppable)}>
+                        <div className='wallet-item-icon'>
+                            <img src={ud} alt=""/>
+                        </div>
+                        <div className='wallet-item-name'>Unstoppable Domains</div>
                     </div>
                 </div>
             </Modal>

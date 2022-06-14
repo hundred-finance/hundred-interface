@@ -22,8 +22,10 @@ export class Underlying{
   price: BigNumber
   walletBalance: BigNumber
   allowance: BigNumber
+  gaugeHelperAllowance: BigNumber
 
-  constructor(address: string, symbol: string, name: string, logo: string, decimals: number, totalSupply: ethers.BigNumber, price: ethers.BigNumber, walletBalance: ethers.BigNumber, allowance: ethers.BigNumber){
+  constructor(address: string, symbol: string, name: string, logo: string, decimals: number, totalSupply: ethers.BigNumber,
+    price: ethers.BigNumber, walletBalance: ethers.BigNumber, allowance: ethers.BigNumber, gaugeHelperAllowance: ethers.BigNumber){
     this.address = address 
     this.symbol = symbol
     this.name = name 
@@ -33,6 +35,7 @@ export class Underlying{
     this.price = BigNumber.from(price, 36-decimals)
     this.walletBalance = BigNumber.from(walletBalance, decimals) 
     this.allowance = BigNumber.from(allowance, decimals)
+    this.gaugeHelperAllowance = BigNumber.from(gaugeHelperAllowance, decimals)
   }
 }
 
