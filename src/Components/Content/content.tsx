@@ -59,16 +59,9 @@ interface Props{
 }
 
 const Content: React.FC<Props> = (props : Props) => {
-<<<<<<< HEAD
     const {setSpinnerVisible, spinnerVisible, darkMode, toastSuccessMessage, toastErrorMessage } = useUiContext()
-    const {network} = useGlobalContext()
-=======
-    const {setSpinnerVisible, spinnerVisible, darkMode, toastErrorMessage} = useUiContext()
     const {network, address} = useGlobalContext()
->>>>>>> main
     const { chainId, library } = useWeb3React()
-
-
     const [comptrollerData, setComptrollerData] = useState<Comptroller | null>(null)
     const [marketsData, setMarketsData] = useState<(CTokenInfo | null)[] | null | undefined>(null)
     const [gaugesV4Data, setGaugesV4Data] = useState<(GaugeV4 | null)[] | null | undefined>(null)
