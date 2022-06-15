@@ -9,15 +9,18 @@ import mm from '../../assets/icons/mm.png'
 import wc from '../../assets/icons/wc.png'
 import cbw from '../../assets/icons/cbw.png'
 import ud from '../../assets/icons/unstoppable.png'
+import xdefi from "../../assets/icons/XDEFIWallet.jpeg"
 import { useGlobalContext } from '../../Types/globalContext';
 import { ethers } from 'ethers';
 import { connectrorsEnum, GetConnector, getErrorMessage } from '../../Connectors/connectors';
 import NETWORKS from '../../networks';
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
+import { XDEFIWalletNotDefaultError, XDEFIWalletNotFoundError } from '../../Connectors/xdefi-connector';
+import { MetamaskNotFounfError } from '../../Connectors/metamask-connector';
 
 const AddressButton: React.FC = () => {
     const {setOpenAddress, setSideMenu, setOpenNetwork, setSwitchModal} = useUiContext()
-    const { chainId, account, activate, error, connector} = useWeb3React<ethers.providers.Web3Provider>()
+    const { chainId, account, activate, error} = useWeb3React<ethers.providers.Web3Provider>()
     const { setNetwork, network, address, setAddress} = useGlobalContext()
 
     const [showModal, setShowModal] = useState(false)
@@ -39,20 +42,17 @@ const AddressButton: React.FC = () => {
     const handleConnect = (c: any) => {
         setShowModal(false)
         const con = GetConnector(c, network ? network.chainId : undefined)
+        console.log(con)
       //   setActivatingConnector(con)
         try{
           activate( con )
           window.localStorage.setItem("hundred-provider", c)
-          console.log(connector)
         }
         catch(err){
           console.log(err)
         }
     }
 
-    useEffect(() => {
-        console.log(connector)
-    }, [connector])
 
     useEffect(() => {
         setSwitchModal(false)
@@ -119,18 +119,31 @@ const AddressButton: React.FC = () => {
                         </div>
                         <div className='wallet-item-name'>Unstoppable Domains</div>
                     </div>
+                    <div className='wallet-item' onClick={() => handleConnect(connectrorsEnum.xDefi)}>
+                        <div className='wallet-item-icon'>
+                            <img src={xdefi} alt=""/>
+                        </div>
+                        <div className='wallet-item-name'>xDefi Wallet</div>
+                    </div>
                 </div>
             </Modal>
+            {error instanceof UnsupportedChainIdError ? (
             <Modal open={showError} close={() => setShowError(false)} title="Error">
                 <div className='modal-error'>
                     <div className='modal-error-message'>
                         <span>{getErrorMessage(error)}</span>
-                        {error instanceof UnsupportedChainIdError ? (
-                            <><p>Please <span className='modal-error-switch'onClick={ openSwitchNetwork }>switch</span></p></>
-                        ) : null}
+                        <><p>Please <span className='modal-error-switch'onClick={ openSwitchNetwork }>switch</span></p></>
                     </div>
                 </div>
-            </Modal>
+            </Modal>)
+            : error instanceof XDEFIWalletNotFoundError || error instanceof XDEFIWalletNotDefaultError || error instanceof MetamaskNotFounfError? (
+                <Modal open={showError} close={() => setShowError(false)} title="Error">
+                    <div className='modal-error'>
+                        <div className='modal-error-message'>
+                            <span>{getErrorMessage(error)}</span>
+                        </div>
+                    </div>
+                </Modal>) : null}
         </>
     );
 };
