@@ -29,6 +29,7 @@ import { GetConnector } from './Connectors/connectors';
 import {ExecuteWithExtraGasLimit} from "./Classes/TransactionHelper";
 import { XFI } from './Connectors/xdefi-connector/declarations';
 import { xDefiConnector } from './Connectors/xdefi-connector';
+import { MetamaskConnector } from './Connectors/metamask-connector';
 
 declare global {
   interface Window {
@@ -124,6 +125,9 @@ const resizeWindow = ()=>{
       const con = GetConnector(+prov, tempNet ? tempNet.chainId : undefined)
       if (con instanceof xDefiConnector && window.ethereum && window.ethereum.__XDEFI)
         activate(con)
+      else if (con instanceof MetamaskConnector && window.ethereum && !window.ethereum.__XDEFI)
+        activate(con)
+      else activate(con)
     }
     
 
