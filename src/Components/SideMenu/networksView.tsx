@@ -73,8 +73,12 @@ const NetworksView : React.FC = () => {
             <div className="networks-caption">Networks</div>
             {
                 Object.values(NETWORKS).map(( value, index) => {
+                    let disabled = false
+                    if(connector?.supportedChainIds)
+                        disabled = !connector.supportedChainIds.includes(value.chainId) ? true : false
+
                     return(
-                        <div className={`network-item ${value.chainId === network?.chainId ? "network-selected" : ""}`} key={index} onClick={() => value.chainId === network?.chainId ? null : switchNetwork(value.chainId)}>
+                        <div className={`network-item ${value.chainId === network?.chainId ? "network-selected" : ""} ${disabled ? "network-item-disabled" : "" }`} key={index} onClick={() => value.chainId === network?.chainId || disabled ? null : switchNetwork(value.chainId)}>
                             <img src={value.logo} className="network-logo" alt="" />
                             <span>{value.network}</span>
                         </div>  

@@ -27,10 +27,14 @@ import { MyGlobalContext } from './Types/globalContext';
 import { useWeb3React } from '@web3-react/core';
 import { GetConnector } from './Connectors/connectors';
 import {ExecuteWithExtraGasLimit} from "./Classes/TransactionHelper";
+import { XFI } from './Connectors/xdefi-connector/declarations';
+import { xDefiConnector } from './Connectors/xdefi-connector';
+import { MetamaskConnector } from './Connectors/metamask-connector';
 
 declare global {
   interface Window {
-    ethereum: any,
+    ethereum: any
+    xfi?: XFI
   }
 }
 
@@ -108,8 +112,6 @@ const resizeWindow = ()=>{
     
     let tempNet: Network | null = null
 
-
-
     if(darkmode && darkmode === "dark")
       setDarkMode(true)
     else
@@ -121,7 +123,11 @@ const resizeWindow = ()=>{
     if(prov) 
     {
       const con = GetConnector(+prov, tempNet ? tempNet.chainId : undefined)
-      activate(con)
+      if (con instanceof xDefiConnector && window.ethereum && window.ethereum.__XDEFI)
+        activate(con)
+      else if (con instanceof MetamaskConnector && window.ethereum && !window.ethereum.__XDEFI)
+        activate(con)
+      else activate(con)
     }
     
 

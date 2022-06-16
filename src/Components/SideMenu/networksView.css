@@ -36,6 +36,15 @@
     padding-left: 10px;
 }
 
+.networks-view .network-item-disabled{
+    opacity: .5;
+    cursor: default;
+}
+
+.networks-view .network-item-disabled:hover {
+    border: 1px solid transparent;
+}
+
 .networks-view .network-selected {
     background-color: var(--buttonColor);
     color: var(--buttonHover2);
