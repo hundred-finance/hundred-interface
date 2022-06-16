@@ -294,11 +294,19 @@ export const fetchData = async(
                             userAddress: string, underlyingAddress: string, enteredMarkets: string[], tokenAddress: string, backstop: BackstopPool | null): Promise<Token> =>{
     const isMaker = underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? true : false
     
+    const [ 
+        accountSnapshot, exchangeRate, totalSupply, totalBorrows,
+        supplyRatePerBlock, borrowRatePerBlock, cash, tokenData, 
+        markets, compSpeeds, compSupplyState, comSuppleirIndex,
+        price, mintPaused, borrowPaused, symbol_, name_,
+        decimals, allowance_, walletBalance_, gaugeHelperAllowance_,
+        poolInfo 
+    ] = tokenData;
     const token: Token = {
-        accountSnapshot: tokenData[0],
-        exchangeRate: tokenData[1],
-        totalSupply: tokenData[2],
-        totalBorrows: tokenData[3],
+        accountSnapshot,
+        exchangeRate,
+        totalSupply,
+        totalBorrows,
         supplyRatePerBlock: tokenData[4],
         borrowRatePerBlock: tokenData[5],
         cash: tokenData[6],
@@ -333,48 +341,54 @@ export const fetchData = async(
         tokenAddress: tokenAddress
     }
     if(backstop){
+      const [ [ accHundredPerShare, lastRewardTime, allocPoint ],
+              [ userBalance ], pendingHundred, hundredPerSecond,
+              totalAllocPoint, allowance, totalSupply, decimals,
+              symbol, underlyingBalance, masterchefBalance, fetchPrice
+            ] = tokenData[22..];
       const poolInfo : BackstopPoolInfo = {
-        accHundredPerShare: tokenData[22][0],
-        lastRewardTime: tokenData[22][1],
-        allocPoint: tokenData[22][2]
+        accHundredPerShare,
+        lastRewardTime,
+        allocPoint
       }
       if(network.backstopMasterChef?.version === MasterChefVersion.v1){
         token.backstop = {
           pool : backstop,
-          poolInfo :  poolInfo,
-          userBalance : tokenData[23][0],
-          pendingHundred: tokenData[24],
-          hundredPerSecond: tokenData[25],
-          totalAllocPoint: tokenData[26],
-          allowance: tokenData[27],
-          totalSupply : tokenData[28],
-          decimals: tokenData[29],
-          symbol: tokenData[30],
-          underlyingBalance : tokenData[31],
-          masterchefBalance : tokenData[32],
-          fetchPrice: tokenData[33],
+          poolInfo,
+          userBalance,
+          pendingHundred,
+          hundredPerSecond,
+          totalAllocPoint,
+          allowance,
+          totalSupply,
+          decimals,
+          symbol,
+          underlyingBalance,
+          masterchefBalance,
+          fetchPrice,
           ethBalance: await provider.getBalance(backstop.lpTokens),
         }
       }
       else if(network.backstopMasterChef?.version === MasterChefVersion.v2){
         token.backstop = {
           pool : backstop,
-          poolInfo :  poolInfo,
-          userBalance : tokenData[23][0],
-          pendingHundred: tokenData[24],
-          hundredPerSecond: tokenData[25],
-          totalAllocPoint: tokenData[26],
-          allowance: tokenData[27],
-          totalSupply : tokenData[28],
-          decimals: tokenData[29],
-          symbol: tokenData[30],
-          underlyingBalance : tokenData[31],
-          masterchefBalance : tokenData[32],
+          poolInfo,
+          userBalance,
+          pendingHundred,
+          hundredPerSecond,
+          totalAllocPoint,
+          allowance,
+          totalSupply,
+          decimals,
+          symbol,
+          underlyingBalance,
+          masterchefBalance,
           collaterals:[]
         }
         if(backstop.collaterals){
           tokenData.splice(0, 33)
-          for(let i=0; i< backstop.collaterals?.length; i++){
+          for(let i=0; i< backstop.collaterals?.length; i++) {
+              
             const collateral: BackstopCollaterals = {
               fetchPrice: tokenData[0],
               balance: tokenData[1],
