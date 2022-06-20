@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import './footer.css';
 import {HuLogo, ImmunefiLogo} from "../../assets/huIcons/huIcons"
@@ -6,29 +6,11 @@ import {HuLogo, ImmunefiLogo} from "../../assets/huIcons/huIcons"
 import discord from '../../assets/icons/discord.png'
 import medium from '../../assets/icons/medium.png'
 import twitter from '../../assets/icons/twitter.png'
+import { useUiContext } from '../../Types/uiContext';
 
-interface Props{
-    isMobile: boolean,
-    darkMode: boolean
-}
-
-const Footer : React.FC<Props> = ({isMobile, darkMode} : Props) => {
-    const [scale, setScale] = useState<boolean>(false)
-
-    useEffect(() => {
-        if (document.documentElement.clientWidth < 331){
-          setScale(true)
-        }
-        else setScale(false)
+const Footer : React.FC = () => {
+    const {isMobile, darkMode, scale} = useUiContext()
     
-        window.addEventListener('resize', ()=>{
-          if (document.documentElement.clientWidth < 330){
-            setScale(true)
-          }
-          else setScale(false)
-        });
-      }, [])
-
     return (
         <div className='footer'>
             <div className='footer-content'>

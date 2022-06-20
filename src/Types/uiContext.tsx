@@ -32,6 +32,8 @@ export type UiContext = {
     toastErrorMessage: (message: string, autoClose?: boolean, closeDelay?:number) => void,
     switchModal: boolean,
     setSwitchModal: (m: boolean) => void,
+    scale: boolean, 
+    setScale: (h: boolean) => void,
 }
 
 export const MyUiContext = createContext<UiContext>({
@@ -64,7 +66,9 @@ export const MyUiContext = createContext<UiContext>({
     toastSuccessMessage : () => undefined,
     toastErrorMessage: () => undefined,
     switchModal: false,
-    setSwitchModal: () => undefined
+    setSwitchModal: () => undefined,
+    scale: false,
+    setScale: () => undefined
 })
 
 export const useUiContext = () : UiContext => useContext(MyUiContext)

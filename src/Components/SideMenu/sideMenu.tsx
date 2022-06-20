@@ -1,17 +1,13 @@
 import React, { ReactNode } from "react"
+import { useUiContext } from "../../Types/uiContext"
 import "./sideMenu.css"
 
 interface Props{
-    open: boolean,
-    setSideMenu: React.Dispatch<React.SetStateAction<boolean>>,
-    setOpenAddress: React.Dispatch<React.SetStateAction<boolean>>,
-    setOpenNetwork: React.Dispatch<React.SetStateAction<boolean>>,
-    setOpenHundred: React.Dispatch<React.SetStateAction<boolean>>,
-    setOpenAirdrop: React.Dispatch<React.SetStateAction<boolean>>,
     children: ReactNode
 }
 
-const SideMenu: React.FC<Props> = ({open, setSideMenu, setOpenAddress, children, setOpenNetwork, setOpenAirdrop, setOpenHundred} : Props) => {
+const SideMenu: React.FC<Props> = ({children} : Props) => {
+    const {sideMenu, setSideMenu, setOpenAddress, setOpenNetwork, setOpenAirdrop, setOpenHundred} = useUiContext()
 
     const handleClose = () => {
         setSideMenu(false)
@@ -23,7 +19,7 @@ const SideMenu: React.FC<Props> = ({open, setSideMenu, setOpenAddress, children,
 
     
     return (
-        open ?(
+        sideMenu ?(
         <div id="side-menu" className="sideMenu">
             <div className="sideMenu-overlay" onClick={() => handleClose()}>
             </div>

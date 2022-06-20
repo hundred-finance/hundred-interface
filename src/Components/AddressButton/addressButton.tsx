@@ -11,7 +11,7 @@ import cbw from '../../assets/icons/cbw.png'
 import ud from '../../assets/icons/unstoppable.png'
 import xdefi from "../../assets/icons/XDEFIWallet.jpeg"
 import { useGlobalContext } from '../../Types/globalContext';
-import { ethers } from 'ethers';
+import { providers } from 'ethers';
 import { connectrorsEnum, GetConnector, getErrorMessage } from '../../Connectors/connectors';
 import NETWORKS from '../../networks';
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
@@ -20,7 +20,7 @@ import { MetamaskNotFounfError } from '../../Connectors/metamask-connector';
 
 const AddressButton: React.FC = () => {
     const {setOpenAddress, setSideMenu, setOpenNetwork, setSwitchModal} = useUiContext()
-    const { chainId, account, activate, error} = useWeb3React<ethers.providers.Web3Provider>()
+    const { chainId, account, activate, error} = useWeb3React<providers.Web3Provider>()
     const { setNetwork, network, address, setAddress} = useGlobalContext()
 
     const [showModal, setShowModal] = useState(false)

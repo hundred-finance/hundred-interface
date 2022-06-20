@@ -14,13 +14,6 @@ import { useUiContext } from "../../Types/uiContext";
 import { useGlobalContext } from "../../Types/globalContext";
 import { useWeb3React } from "@web3-react/core";
 
-interface Props{
-    hasClaimed: boolean,
-    setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>,
-    airdrops: AirdropType[],
-    setAirdrops: React.Dispatch<React.SetStateAction<AirdropType[]>>
-}
-
 type AirdropAmount = {
     symbol: string,
     value: BigNumber
@@ -32,10 +25,10 @@ export type AirdropType = {
     transactionData: { target: string; data: any; }
 }
 
-const AirdropButton: React.FC<Props> = (props : Props) => {
+const AirdropButton: React.FC = () => {
     const {setOpenAirdrop, setSideMenu, airdropSpinner} = useUiContext()
     const { library, chainId } = useWeb3React()
-    const {network, address} = useGlobalContext()
+    const {network, address, hasClaimed, setHasClaimed, airdrops, setAirdrops} = useGlobalContext()
 
     const [totalAmount, setTotalAmount] = useState<AirdropAmount[]>([])
 
@@ -73,7 +66,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
             const airdrop = Airdrop[network.chainId]
             const calls: any[] = []
             if(airdrop){
-                const airdrops: AirdropType[] = []
+                const airdropsData: AirdropType[] = []
                 Object.values(airdrop).map(a => {
                     const hasAirdrop = Object.keys(a.accounts).find(x => x.toLowerCase() === userAddress.toLowerCase())
                     if (hasAirdrop)
@@ -132,7 +125,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                             transactionData: transactionData,
                             hasClaimed: false,
                         }
-                        airdrops.push(airdropValue)
+                        airdropsData.push(airdropValue)
                     }
                 })
     
@@ -146,19 +139,19 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
                 }
     
                 const hasClaimed: any[] = await hasClaimedCall(calls, ethcallProvider) as any
-                if(hasClaimed && airdrops && airdrops.length > 0 && hasClaimed.length === airdrops.length){
-                    airdrops.forEach((x, index) => {
+                if(hasClaimed && airdropsData && airdropsData.length > 0 && hasClaimed.length === airdropsData.length){
+                    airdropsData.forEach((x, index) => {
                             x.hasClaimed = hasClaimed[index]
                     })
                 }
 
-                props.setAirdrops(airdrops)
+                setAirdrops(airdropsData)
                 
             }
         } 
         
-        props.setAirdrops([])
-        props.setHasClaimed(false)
+        setAirdrops([])
+        setHasClaimed(false)
         setTotalAmount([])
         if(library && network && network.chainId === chainId && address !== ""){
             try{
@@ -169,19 +162,19 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
             }
             catch(err){
                 console.log(err)
-                props.setAirdrops([])
+                setAirdrops([])
             }
         }
         
     }, [library, network])
 
     useEffect(() => {
-        if([...props.airdrops].length > 0){
-            const airdrops = [...props.airdrops]
-            airdropAmount(airdrops)
-            props.setHasClaimed(true)
+        if([...airdrops].length > 0){
+            const airdropsData = [...airdrops]
+            airdropAmount(airdropsData)
+            setHasClaimed(true)
         }
-    }, [props.airdrops])
+    }, [airdrops])
     
     function generateLeaf(address: string, value: string | string[]): Buffer {
         return Buffer.from(
@@ -192,8 +185,8 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
         );
     }
     
-    const airdropAmount = (airdrops: AirdropType[]): void => {
-        const temp = airdrops.filter(x=>!x.hasClaimed).map(x=>x.amount).concat()
+    const airdropAmount = (airdropsData: AirdropType[]): void => {
+        const temp = airdropsData.filter(x=>!x.hasClaimed).map(x=>x.amount).concat()
         if(temp.length > 0){
             const amounts: AirdropAmount[] = []
             temp.forEach(air => {
@@ -234,7 +227,7 @@ const AirdropButton: React.FC<Props> = (props : Props) => {
     }
     
       return (
-            [...props.airdrops].length > 0 && props.hasClaimed ? 
+            [...airdrops].length > 0 && hasClaimed ? 
             <div className={`airdrop-button ${!airdropSpinner ? "airdrop-button-hover" : "airdrop-button-spinner"}`} onClick={() => airdropSpinner ? null : handleOpenAirdropMenu()}>
                 <div className="airdrop-button-content">
                     {[...totalAmount].length > 0 ? 

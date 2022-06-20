@@ -9,17 +9,10 @@ import NavbarLogo from "../Navbar/navbarLogo"
 import NavBarRight from "../Navbar/navBarRight"
 import ThemeSwitch from "../Navbar/themeSwitch"
 import NetworkButton from "../NetworkButton/networkButton"
-import AirdropButton, { AirdropType } from "../AirdropButton/airdropButton"
+import AirdropButton from "../AirdropButton/airdropButton"
 import { useUiContext } from "../../Types/uiContext"
 
-interface Props {
-  hasClaimed: boolean,
-  setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>,
-  airdrops: AirdropType[],
-  setAirdrops: React.Dispatch<React.SetStateAction<AirdropType[]>>
-}
-
-const Menu : React.FC<Props> = (props: Props) => {
+const Menu : React.FC = () => {
   const {isTablet, isMobile, show} = useUiContext()
     return(
         (!isTablet && !isMobile && show) ? (
@@ -35,8 +28,7 @@ const Menu : React.FC<Props> = (props: Props) => {
                   </NavBarLinks>
                 </NavbarLeft>
                 <NavBarRight>
-                  <AirdropButton hasClaimed={props.hasClaimed}
-                                setHasClaimed={props.setHasClaimed} airdrops={props.airdrops} setAirdrops={props.setAirdrops}/>
+                  <AirdropButton/>
                   <HundredButton/>
                   <NetworkButton/>
                   <AddressButton/>

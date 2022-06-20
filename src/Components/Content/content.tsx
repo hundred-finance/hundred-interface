@@ -44,22 +44,11 @@ type MetamaskError = {
   message: string;
 };
 
-interface Props{
-  hndPrice: number,
-  setHndEarned: React.Dispatch<React.SetStateAction<BigNumber | null>>,
-  setHndBalance: React.Dispatch<React.SetStateAction<BigNumber | null>>
-  setHundredBalance: React.Dispatch<React.SetStateAction<BigNumber | null>>
-  updateEarned: boolean,
-  setUpdateEarned: React.Dispatch<React.SetStateAction<boolean>>
-  setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>
-  setVehndBalance: React.Dispatch<React.SetStateAction<BigNumber | null>>
-  setHndRewards: React.Dispatch<React.SetStateAction<BigNumber | null>>
-  setGaugeAddresses: React.Dispatch<React.SetStateAction<string[] | null>>
-}
-
-const Content: React.FC<Props> = (props : Props) => {
+const Content: React.FC = () => {
     const {setSpinnerVisible, spinnerVisible, darkMode, toastErrorMessage} = useUiContext()
-    const {network, address} = useGlobalContext()
+    const {network, address, hndPrice, setHndEarned, setHndBalance, 
+           setHundredBalance, updateEarned, setUpdateEarned, 
+           setVehndBalance, setHndRewards, setGaugeAddresses} = useGlobalContext()
     const { chainId, library } = useWeb3React()
 
 
@@ -96,12 +85,12 @@ const Content: React.FC<Props> = (props : Props) => {
 
     marketsRef.current = marketsData
     
-    hndPriceRef.current = props.hndPrice
+    hndPriceRef.current = hndPrice
     
     updateRef.current = update
     selectedMarketRef.current = selectedMarket
     updateErrorCounterRef.current = updateErrorCounter
-    updateEarnedRef.current = props.updateEarned
+    updateEarnedRef.current = updateEarned
 
     const providerRef = useRef<ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider | undefined>()
 
@@ -116,18 +105,18 @@ const Content: React.FC<Props> = (props : Props) => {
     },[updateErrorCounter])
 
     useEffect(() => {
-      hndPriceRef.current = props.hndPrice
-    },[props.hndPrice])
+      hndPriceRef.current = hndPrice
+    },[hndPrice])
 
     useEffect(() => {
       const callUpdate = async () => {
         await dataUpdate(undefined, undefined, false)
       }
 
-      updateEarnedRef.current = props.updateEarned
-      if(props.updateEarned)
+      updateEarnedRef.current = updateEarned
+      if(updateEarned)
         callUpdate()
-    },[props.updateEarned])
+    },[updateEarned])
 
     const updateMarkets = (markets: CTokenInfo[], gauges: GaugeV4[], hndBalance: BigNumber, hundredBalace: BigNumber, compAccrued: BigNumber, vehndBalance: BigNumber, hndRewards: BigNumber, gaugeAddresses: string[], cToken?: CTokenInfo, spinner?: string): void =>{
       if(marketsRef.current){
@@ -173,12 +162,12 @@ const Content: React.FC<Props> = (props : Props) => {
       const data = getGeneralDetails(markets, gauges, compAccrued)
       setMarketsData(markets)
       setGeneralData(data)
-      props.setHndEarned(data.earned)
-      props.setHndBalance(hndBalance)
-      props.setHundredBalance(hundredBalace)
-      props.setVehndBalance(vehndBalance)
-      props.setHndRewards(hndRewards)
-      props.setGaugeAddresses(gaugeAddresses)
+      setHndEarned(data.earned)
+      setHndBalance(hndBalance)
+      setHundredBalance(hundredBalace)
+      setVehndBalance(vehndBalance)
+      setHndRewards(hndRewards)
+      setGaugeAddresses(gaugeAddresses)
       if(selectedMarketRef.current && markets){
         const market = markets.find(x=>x?.underlying.symbol === selectedMarketRef.current?.underlying.symbol)
         if (market){
@@ -259,7 +248,7 @@ const Content: React.FC<Props> = (props : Props) => {
         if(!updateRef.current) setSpinnerVisible(false)
         setUpdate(true)
 
-        props.setUpdateEarned(false)
+        setUpdateEarned(false)
         setUpdateErrorCounter(0) 
         updateHandle.current = setTimeout(handleUpdate, 10000, market, spinnerUpdate, false)
       } 

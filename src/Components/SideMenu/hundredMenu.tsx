@@ -5,28 +5,22 @@ import { Network } from "../../networks"
 import { BigNumber } from "../../bigNumber"
 import { useUiContext } from "../../Types/uiContext"
 import { useGlobalContext } from "../../Types/globalContext"
+import { Contract } from 'ethers'
+import { useWeb3React } from "@web3-react/core"
+import { ExecuteWithExtraGasLimit } from "../../Classes/TransactionHelper"
+import { COMPTROLLER_ABI, HUNDRED_ABI, MINTER_ABI, VOTING_ESCROW_ABI } from "../../abi"
 
-interface Props{
-    hndPrice: number,
-    hndBalance: BigNumber | null,
-    hndEarned: BigNumber | null,
-    hndRewards: BigNumber | null,
-    address: string,
-    handleCollect: () => Promise<void>,
-    handleClaimHnd: () => Promise<void>, 
-    handleClaimLockHnd: () => Promise<void>, 
-    hundredBalance: BigNumber | null,
-    vehndBalance: BigNumber | null,
+const HundredMenu: React.FC = () => {
+    const { library } = useWeb3React()
 
-}
-
-
-const HundredMenu: React.FC<Props> = (props: Props) => {
-    const {hndSpinner} = useUiContext()
-    const {network} = useGlobalContext()
+    const {hndSpinner, setHndSpinner, setSpinnerVisible} = useUiContext()
+    const {network, hndPrice, hndBalance, hndEarned, 
+           hundredBalance, hndRewards, vehndBalance, address, 
+           setUpdateEarned, gaugeAddresses} = useGlobalContext()
 
     const networkRef = useRef<Network | null>(null)
     networkRef.current = network
+
     useEffect(() => {
         networkRef.current = {...network} as any
     }, [network])
@@ -34,24 +28,98 @@ const HundredMenu: React.FC<Props> = (props: Props) => {
     const [tvl, setTvl] = useState<BigNumber | null>(null)
 
     useEffect(() => {
-        if(networkRef.current  && networkRef.current.hundredLiquidityPoolAddress && props.hundredBalance){
+        if(networkRef.current  && networkRef.current.hundredLiquidityPoolAddress && hundredBalance){
             if(networkRef.current.liquidity){
-                const temp = +props.hundredBalance.toString() / (networkRef.current.hndPoolPercent ? networkRef.current.hndPoolPercent : 1) * props.hndPrice
+                const temp = +hundredBalance.toString() / (networkRef.current.hndPoolPercent ? networkRef.current.hndPoolPercent : 1) *hndPrice
                 setTvl(BigNumber.parseValue(temp.noExponents()))
             }
             else{
-                const temp = +props.hundredBalance.toString() * 2 * props.hndPrice
+                const temp = +hundredBalance.toString() * 2 * hndPrice
                 setTvl(BigNumber.parseValue(temp.noExponents()))
             }
         }
         else setTvl(null)
-    }, [props.hndPrice, props.hundredBalance])
+    }, [hndPrice, hundredBalance])
+
+    const handleCollect = async (): Promise<void> => {
+        if(library && network){
+          try{
+            setHndSpinner(true)
+            setSpinnerVisible(true)
+            const signer = library.getSigner()
+            const comptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI, signer)
+            const receipt = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [address], () => setSpinnerVisible(false))
+            
+            console.log(receipt)
+            setUpdateEarned(true)
+            //await getHndBalances(provider)
+          }
+          catch(err){
+            console.log(err)
+            setHndSpinner(false)
+            setSpinnerVisible(false)
+          }
+        }
+      }
+
+      const handleClaimHnd = async (): Promise<void> => {
+        if(library && network){
+          try{
+            setHndSpinner(true)
+            setSpinnerVisible(true)
+    
+            const signer = library.getSigner()
+            let mintAddress = ''
+            network.lendly ? network.minterAddressLendly ? mintAddress = network.minterAddressLendly : null: null;
+            network.minterAddress ? mintAddress = network.minterAddress : null; 
+    
+            const minter = new Contract(mintAddress, MINTER_ABI, signer)
+            const receipt = await ExecuteWithExtraGasLimit(minter, "mint_many", [gaugeAddresses], () => setSpinnerVisible(false))
+            console.log(receipt)
+            setUpdateEarned(true)
+          }
+          
+          
+      catch(err){
+            console.log(err)
+            setHndSpinner(false)
+            setSpinnerVisible(false)
+          }}}
+    
+     const handleClaimLockHnd = async (): Promise<void> => {
+        if(library && network && address){
+          try{
+            setHndSpinner(true)
+            setSpinnerVisible(true)
+            await handleClaimHnd()
+    
+            const signer = library.getSigner()
+            if (network.votingAddress) 
+            {   
+            
+             const votingContract = new Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
+             const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI, library)
+             const rewards = await balanceContract.balanceOf(address)
+             const receipt = await ExecuteWithExtraGasLimit(votingContract, "increase_amount", [rewards], () => setSpinnerVisible(false))
+             
+             console.log(receipt)
+             setUpdateEarned(true)
+            }
+           
+          }
+          
+          
+      catch(err){
+            console.log(err)
+            setHndSpinner(false)
+            setSpinnerVisible(false)
+          }}}
 
     return (
         <div className="hundred-menu">
             <hr/>
             <div className="hundred-menu-item">
-                <div className="hundred-menu-item-label"><label>HND Price </label><span>${BigNumber.parseValue(props.hndPrice.toString()).toRound(2, true, true)}</span></div>
+                <div className="hundred-menu-item-label"><label>HND Price </label><span>${BigNumber.parseValue(hndPrice.toString()).toRound(2, true, true)}</span></div>
                 {tvl ? <div className="hundred-menu-item-label"><label>{networkRef.current?.liquidity ? "Liquidity" : "TVL"}</label><span>${tvl.toRound(2, true, true)}</span></div> : null}
                 {networkRef.current  && networkRef.current.trade ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={networkRef.current.trade} target="_blank" rel="noreferrer">Trade</a></div> : null}
                 {networkRef.current  && networkRef.current.addLiquidity ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={networkRef.current.addLiquidity} target="_blank" rel="noreferrer">Add Liquidity</a></div> : null}
@@ -59,16 +127,16 @@ const HundredMenu: React.FC<Props> = (props: Props) => {
             </div>
             <div className="hundred-menu-item">
                 <hr/>
-                <div className="hundred-menu-item-label"><label>HND Balance </label><span>{props.hndBalance ? (props.hndBalance.gt(BigNumber.from(0)) ? props.hndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
-                <div className="hundred-menu-item-label"><label>veHND Balance </label><span>{props.vehndBalance ? (props.vehndBalance.gt(BigNumber.from(0)) ? props.vehndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
-                <div className="hundred-menu-item-label"><label>HND Earned </label><span>{props.hndRewards ? (props.hndRewards.gt(BigNumber.from(0)) ? props.hndRewards.toRound(2, true, true) : "0.00") : "--"}</span></div>
+                <div className="hundred-menu-item-label"><label>HND Balance </label><span>{hndBalance ? (hndBalance.gt(BigNumber.from(0)) ? hndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
+                <div className="hundred-menu-item-label"><label>veHND Balance </label><span>{vehndBalance ? (vehndBalance.gt(BigNumber.from(0)) ? vehndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
+                <div className="hundred-menu-item-label"><label>HND Earned </label><span>{hndRewards ? (hndRewards.gt(BigNumber.from(0)) ? hndRewards.toRound(2, true, true) : "0.00") : "--"}</span></div>
                
-                <div className= {`${props.hndRewards ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => props.handleClaimHnd()}>Claim HND</div>
-                <div className= {`${props.vehndBalance ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => props.handleClaimLockHnd()}>Claim and Lock HND</div>
+                <div className= {`${hndRewards ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimHnd()}>Claim HND</div>
+                <div className= {`${vehndBalance ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimLockHnd()}>Claim and Lock HND</div>
 
-                {props.hndEarned && +props.hndEarned.toString() > 0 ? 
-                    <><div className="hundred-menu-item-label"><label>HND Earned (Legacy)</label><span>{props.hndEarned ? props.hndEarned?.gt(BigNumber.from(0)) ? props.hndEarned?.toRound(2, true, true) : "0.00" : "--"}</span></div>
-                    <div className={`${hndSpinner ? "hundred-menu-item-button-disabled" : "hundred-menu-item-button"}`} onClick={() => !hndSpinner ? props.handleCollect() : null}>
+                {hndEarned && +hndEarned.toString() > 0 ? 
+                    <><div className="hundred-menu-item-label"><label>HND Earned (Legacy)</label><span>{hndEarned ? hndEarned?.gt(BigNumber.from(0)) ? hndEarned?.toRound(2, true, true) : "0.00" : "--"}</span></div>
+                    <div className={`${hndSpinner ? "hundred-menu-item-button-disabled" : "hundred-menu-item-button"}`} onClick={() => !hndSpinner ? handleCollect() : null}>
                         {hndSpinner ? (<Spinner size={"25px"}/>) : "Claim Legacy HND"}</div></> : null
                 }
             </div>
