@@ -1,8 +1,6 @@
 import React from 'react';
-
 import './footer.css';
 import {HuLogo, ImmunefiLogo} from "../../assets/huIcons/huIcons"
-
 import discord from '../../assets/icons/discord.png'
 import medium from '../../assets/icons/medium.png'
 import twitter from '../../assets/icons/twitter.png'

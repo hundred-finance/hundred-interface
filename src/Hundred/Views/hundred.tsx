@@ -1,11 +1,16 @@
 import { useWeb3React } from '@web3-react/core'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { toast, ToastContainer } from 'react-toastify'
+import { Comptroller } from '../../Classes/comptrollerClass'
+import { CTokenInfo, CTokenSpinner, SpinnersEnum } from '../../Classes/cTokenClass'
+import { GaugeV4 } from '../../Classes/gaugeV4Class'
+import { GeneralDetailsData } from '../../Classes/generalDetailsClass'
 import Content from '../../Components/Content/content'
 import Footer from '../../Components/Footer/footer'
 import Menu from '../../Components/Menu/menu'
 import TabletMenu from '../../Components/Menu/tabletMenu'
+import HundredMessage from '../../Components/MessageDialog/messageDialog'
 import AccountSettings from '../../Components/SideMenu/accountSettings'
 import AirdropMenu from '../../Components/SideMenu/airdropMenu'
 import HundredMenu from '../../Components/SideMenu/hundredMenu'
@@ -17,15 +22,40 @@ import { MetamaskConnector } from '../../Connectors/metamask-connector'
 import { xDefiConnector } from '../../Connectors/xdefi-connector'
 import { Network } from '../../networks'
 import { useGlobalContext } from '../../Types/globalContext'
+import { MyHundredDataContext } from '../../Types/hundredDataContext'
 import { useUiContext } from '../../Types/uiContext'
 import useHndPrice from '../Data/hndPrice'
+import useFetchData from '../Data/hundredData'
 
 const Hundred: React.FC = () => {
   const { activate } = useWeb3React()
   const {isMobile, isTablet, openAddress, openNetwork, 
-         openHundred, openAirdrop,  setSpinnerVisible} = useUiContext()
+         openHundred, openAirdrop,  setSpinnerVisible, darkMode} = useUiContext()
   const { network} = useGlobalContext()
+  
+  const [showGMessage, setShowGMessage] = useState<boolean>(false)
+  const [gMessageText, setGMessageText] = useState<JSX.Element>()
+
   useHndPrice()
+
+  const {comptrollerData, setComptrollerData, marketsData, setMarketsData, marketsSpinners,
+    setMarketsSpinners, gaugesV4Data, setGaugesV4Data, generalData, setGeneralData,
+   selectedMarket, setSelectedMarket, selectedMarketSpinners, setSelectedMarketSpinners, updateMarket} = useFetchData()
+
+
+  const setGMessage = (message: string) => {
+    setGMessageText(gaugeMessage(message))
+    setShowGMessage(true)
+  }
+
+  const gaugeMessage = (message: string) => {
+    return (
+      <div>
+        <p>{message} on <a style={{color: "#2853ff"}} href="https://old.hundred.finance" target={"_blank"} rel="noreferrer">https://old.hundred.finance</a>.</p>
+        <p>Please unstake from there and stake on the main site.</p>
+      </div>
+    )
+  }
 
   useEffect(() => {
     const net = window.localStorage.getItem("hundred-network")
@@ -46,7 +76,6 @@ const Hundred: React.FC = () => {
       else activate(con)
     }
     
-
     setSpinnerVisible(false)
     
   }, [])
@@ -55,6 +84,24 @@ const Hundred: React.FC = () => {
     window.localStorage.setItem("hundred-network", JSON.stringify(network))
     
   }, [network])
+
+  const toggleSpinners = (symbol: string, spinner: SpinnersEnum) => {
+    if(marketsSpinners){
+      const spinners = [...marketsSpinners]
+      const marketSpinners = spinners.find(s => s.symbol === symbol)
+      if(marketSpinners){
+        switch (spinner){
+          case SpinnersEnum.enterMarket :
+            marketSpinners.enterMarketSpinner = !marketSpinners.enterMarketSpinner
+            break
+          case SpinnersEnum.borrow : 
+            marketSpinners.borrowSpinner = !marketSpinners.borrowSpinner
+        }
+        marketSpinners.spinner = marketSpinners.enableMainSpinner()
+        setMarketsSpinners(spinners)
+      }
+    }
+  }
 
 
   const myErrorHandler = (error: Error, info: {componentStack: string}) => {
@@ -80,6 +127,14 @@ const Hundred: React.FC = () => {
   }
     
   return (
+    <MyHundredDataContext.Provider value={({comptrollerData, setComptrollerData,
+                                            marketsData, setMarketsData,
+                                            marketsSpinners, setMarketsSpinners,
+                                            gaugesV4Data, setGaugesV4Data,
+                                            generalData, setGeneralData,
+                                            selectedMarket, setSelectedMarket,
+                                            selectedMarketSpinners, setSelectedMarketSpinners,
+                                            toggleSpinners, setGMessage, updateMarket})}>
     <>
         <Wrapper>
             {!isTablet && !isMobile ? 
@@ -103,7 +158,10 @@ const Hundred: React.FC = () => {
                   : null)
               }
             </SideMenu>
+            <HundredMessage isOpen={showGMessage} onRequestClose={() => setShowGMessage(false)} contentLabel="Info" className={`${darkMode ? "mymodal-dark" : ""}`}
+              message={gMessageText}/>
     </>
+    </MyHundredDataContext.Provider>
   )
 }
 

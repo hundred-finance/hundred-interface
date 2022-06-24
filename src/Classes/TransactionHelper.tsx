@@ -8,9 +8,13 @@ export const ExecuteWithExtraGasLimit = async (
     gasIncreasePercentage = 0
 ) : Promise<any> => {
     const txGas = await contract.estimateGas[functionName](...args)
-    const tx = await contract[functionName](...args, { gasLimit: txGas.add(txGas.mul(gasIncreasePercentage).div(100))})
-    if (spinner) spinner()
-    return await tx.wait()
+    if(spinner){
+        const tx = await contract[functionName](...args, { gasLimit: txGas.add(txGas.mul(gasIncreasePercentage).div(100))})
+        if (spinner) spinner()
+        return await tx.wait()
+    }
+    
+    return await contract[functionName](...args, { gasLimit: txGas.add(txGas.mul(gasIncreasePercentage).div(100))})
 }
 
 export const ExecutePayableWithExtraGasLimit = async (
@@ -22,7 +26,10 @@ export const ExecutePayableWithExtraGasLimit = async (
     gasIncreasePercentage = 0
 ) : Promise<any> => {
     const txGas = await contract.estimateGas[functionName](...args, { value: value })
-    const tx = await contract[functionName](...args, { gasLimit: txGas.add(txGas.mul(gasIncreasePercentage).div(100)), value: value })
-    if(spinner) spinner()
-    return await tx.wait()
+    if(spinner){
+        const tx = await contract[functionName](...args, { gasLimit: txGas.add(txGas.mul(gasIncreasePercentage).div(100)), value: value })
+        if(spinner) spinner()
+            return await tx.wait()
+    }
+    return await contract[functionName](...args, { gasLimit: txGas.add(txGas.mul(gasIncreasePercentage).div(100)), value: value })
 }

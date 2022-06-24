@@ -4,17 +4,17 @@ import {compareHndAPR, compareLiquidity, compareSymbol} from "../../../helpers"
 
 import "../style.css"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
-import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
 import { BigNumber } from "../../../bigNumber"
+import { useHundredDataContext } from "../../../Types/hundredDataContext"
 
 interface Props{
-  generalData: GeneralDetailsData | undefined,
-  marketsData: (CTokenInfo | null)[] | null | undefined,
   borrowMarketDialog: (market: CTokenInfo) => void,
   more: boolean
 }
 
 const BorrowMarket: React.FC<Props> = (props : Props) => {
+  const {generalData, marketsData, marketsSpinners} = useHundredDataContext()
+  
     return (
         <div className="market-content">
             <table className = "market-table">
@@ -28,7 +28,7 @@ const BorrowMarket: React.FC<Props> = (props : Props) => {
                     </tr>
                 </thead>
                 <tbody className="market-table-content">
-                {props.generalData?.totalBorrowBalance?.gt(BigNumber.from("0")) && (
+                {{...generalData}?.totalBorrowBalance?.gt(BigNumber.from("0")) && (
                     <tr>
                       <td
                         style={{
@@ -46,12 +46,13 @@ const BorrowMarket: React.FC<Props> = (props : Props) => {
                       <td></td>
                     </tr>
                   )}
-                  {props.marketsData?.filter((item) => item?.borrowBalance?.gt(BigNumber.from("0")))
+                  {marketsData.length > 0 && marketsSpinners.length > 0 ? [...marketsData]?.filter((item) => item?.borrowBalance?.gt(BigNumber.from("0")))
                     .sort(compareSymbol).sort(compareLiquidity).sort(compareHndAPR)
-                    .map((details, index) => (
-                      <BorrowMarketRow key={index} details={details} borrowMarketDialog={props.borrowMarketDialog}/>
-                    ))}
-                  {props.generalData?.totalBorrowBalance?.gt(BigNumber.from("0")) && (
+                    .map((market, index) => {
+                      const spinners = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
+                      return <BorrowMarketRow key={index} market={market} marketSpinners={spinners} borrowMarketDialog={props.borrowMarketDialog}/>
+                    }) : null}
+                  {{...generalData}?.totalBorrowBalance?.gt(BigNumber.from("0")) && (
                     <tr>
                       <td
                         style={{
@@ -69,15 +70,17 @@ const BorrowMarket: React.FC<Props> = (props : Props) => {
                       <td></td>
                     </tr>
                   )}
-                  {props.marketsData?.filter((item) => item?.borrowBalance?.lte(BigNumber.from("0")))
+                  {marketsData.length > 0 && marketsSpinners.length > 0 ? [...marketsData]?.filter((item) => item?.borrowBalance?.lte(BigNumber.from("0")))
                     .sort(compareSymbol).sort(compareLiquidity).sort(compareHndAPR)
-                    .map((details, index) => {
-                      if(props.more || (!props.more && index < 6))
+                    .map((market, index) => {
+                      if(props.more || (!props.more && index < 6)){
+                        const spinners = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
                         return (
-                          <BorrowMarketRow key={index} details={details} borrowMarketDialog={props.borrowMarketDialog} />
+                          <BorrowMarketRow key={index} market={market} marketSpinners={spinners} borrowMarketDialog={props.borrowMarketDialog} />
                         )
+                      }
                       else return null
-                  })}
+                  }) : null}
                 </tbody>
             </table> 
         </div>   

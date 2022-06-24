@@ -49,7 +49,6 @@ const App: React.FC = () => {
   const [openNetwork, setOpenNetwork] = useState<boolean>(false)
   const [openHundred, setOpenHundred] = useState<boolean>(false)
   const [openAirdrop, setOpenAirdrop] = useState<boolean>(false)
-  const [hndSpinner, setHndSpinner] = useState<boolean>(false)
   const [airdropSpinner, setAirdropSpinner] = useState<boolean>(false)
   const [switchModal, setSwitchModal] = useState(false)
   const [scale, setScale] = useState(false)
@@ -77,12 +76,6 @@ const App: React.FC = () => {
       setTheme(lightTheme)
     }
   }, [darkMode])
-
-  useEffect(() => {
-    if(!updateEarned){
-      setHndSpinner(false)
-    }
-  }, [updateEarned])
 
   const toastError = (error: string, autoClose = true, closeDelay = 10000) => {
     toast.error(error, {
@@ -135,7 +128,6 @@ const App: React.FC = () => {
                                     openNetwork, setOpenNetwork,
                                     openHundred, setOpenHundred,
                                     openAirdrop, setOpenAirdrop,
-                                    hndSpinner, setHndSpinner,
                                     airdropSpinner, setAirdropSpinner,
                                     toastSuccessMessage: toastSuccess, toastErrorMessage: toastError,
                                     switchModal, setSwitchModal,

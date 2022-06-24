@@ -24,8 +24,6 @@ export type UiContext = {
     setOpenHundred: (h: boolean) => void,
     openAirdrop: boolean,
     setOpenAirdrop: (a: boolean) => void,
-    hndSpinner: boolean, 
-    setHndSpinner: (h: boolean) => void,
     airdropSpinner: boolean,
     setAirdropSpinner: (a: boolean) => void
     toastSuccessMessage: (m: string, autoClose?: boolean, closeDelay?: number) => void,
@@ -33,7 +31,7 @@ export type UiContext = {
     switchModal: boolean,
     setSwitchModal: (m: boolean) => void,
     scale: boolean, 
-    setScale: (h: boolean) => void,
+    setScale: (h: boolean) => void
 }
 
 export const MyUiContext = createContext<UiContext>({
@@ -59,8 +57,6 @@ export const MyUiContext = createContext<UiContext>({
     setOpenHundred: () => undefined,
     openAirdrop: false,
     setOpenAirdrop: () => undefined,
-    hndSpinner: false,
-    setHndSpinner: () => undefined,
     airdropSpinner: false,
     setAirdropSpinner : () => undefined,
     toastSuccessMessage : () => undefined,

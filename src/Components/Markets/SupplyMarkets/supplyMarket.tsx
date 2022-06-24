@@ -2,17 +2,13 @@ import React, { useEffect } from 'react';
 import '../style.css';
 import SupplyMarketRow from './supplyMarketRow';
 import { compareSymbol, compareLiquidity, compareHndAPR } from '../../../helpers';
-import { GeneralDetailsData } from '../../../Classes/generalDetailsClass';
 import { BigNumber } from '../../../bigNumber';
 import { CTokenInfo } from '../../../Classes/cTokenClass';
 import ReactTooltip from 'react-tooltip';
 import { useUiContext } from '../../../Types/uiContext';
-import {GaugeV4} from "../../../Classes/gaugeV4Class";
+import { useHundredDataContext } from '../../../Types/hundredDataContext';
 
 interface Props {
-    generalData: GeneralDetailsData | undefined;
-    marketsData: (CTokenInfo | null)[] | null | undefined;
-    gaugeV4: (GaugeV4 | null)[] | null | undefined;
     enterMarketDialog: (market: CTokenInfo) => void;
     supplyMarketDialog: (market: CTokenInfo) => void;
     more: boolean;
@@ -20,6 +16,7 @@ interface Props {
 
 const SupplyMarket: React.FC<Props> = (props: Props) => {
     const {darkMode} = useUiContext()
+    const {generalData, marketsData, gaugesV4Data, marketsSpinners} = useHundredDataContext()
 
     useEffect(() => {
         ReactTooltip.rebuild();
@@ -76,7 +73,7 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                     </tr>
                 </thead>
                 <tbody className="market-table-content">
-                    {props.generalData?.totalSupplyBalance?.gt(BigNumber.from('0')) && (
+                    {{...generalData}?.totalSupplyBalance?.gt(BigNumber.from('0')) && (
                         <tr>
                             <td
                                 style={{
@@ -93,22 +90,24 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                             <td></td>
                         </tr>
                     )}
-                    {props.marketsData
+                    {marketsData.length > 0 && marketsSpinners.length > 0 ? [...marketsData]
                         ?.filter((item) => item?.supplyBalance?.gt(BigNumber.from('0')))
                         .sort(compareSymbol)
                         .sort(compareLiquidity)
                         .sort(compareHndAPR)
-                        .map((details, index) => (
-                            <SupplyMarketRow
+                        .map((market, index) => {
+                            const spinners = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
+                            return (<SupplyMarketRow
                                 key={index}
                                 tooltip={`supply-${index}`}
-                                details={details}
-                                hasbackstopGauge={props.gaugeV4?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === details?.pTokenAddress.toLowerCase()) !== undefined}
+                                market={market}
+                                marketSpinners={spinners}
+                                hasbackstopGauge={[...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === market?.pTokenAddress.toLowerCase()) !== undefined}
                                 enterMarketDialog={props.enterMarketDialog}
                                 supplyMarketDialog={props.supplyMarketDialog}
-                            />
-                        ))}
-                    {props.generalData?.totalSupplyBalance.gt(BigNumber.from('0')) && (
+                            />)
+                            }): null}
+                    {(generalData ? {...generalData}?.totalSupplyBalance.gt(BigNumber.from('0')) : false) && (
                         <tr>
                             <td
                                 style={{
@@ -125,22 +124,25 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                             <td></td>
                         </tr>
                     )}
-                  {props.marketsData?.filter((item) => item?.supplyBalance?.lte(BigNumber.from("0")))
+                  {marketsData.length > 0 && marketsSpinners.length > 0 ? [...marketsData]?.filter((item) => item?.supplyBalance?.lte(BigNumber.from("0")))
                     .sort(compareSymbol).sort(compareLiquidity).sort(compareHndAPR)
-                    .map((details, index) => {
-                      if(props.more || (!props.more && index < 6)) 
+                    .map((market, index) => {
+                      if(props.more || (!props.more && index < 6)) {
+                        const spinners = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
                         return (
-                          <SupplyMarketRow
-                              key={index}
-                              tooltip={`not-supply-${index}`}
-                              details={details}
-                              hasbackstopGauge={props.gaugeV4?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === details?.pTokenAddress.toLowerCase()) !== undefined}
-                              enterMarketDialog={props.enterMarketDialog}
-                              supplyMarketDialog={props.supplyMarketDialog}
-                          />
-                        )
+                            <SupplyMarketRow
+                                key={index}
+                                tooltip={`not-supply-${index}`}
+                                market={market}
+                                marketSpinners={spinners}
+                                hasbackstopGauge={[...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === market?.pTokenAddress.toLowerCase()) !== undefined}
+                                enterMarketDialog={props.enterMarketDialog}
+                                supplyMarketDialog={props.supplyMarketDialog}
+                            />
+                          )
+                      }
                         else return null;
-                        })}
+                        }) : null}
                 </tbody>
             </table>
         </div>

@@ -11,12 +11,13 @@ import { ExecuteWithExtraGasLimit } from "../../Classes/TransactionHelper"
 import { COMPTROLLER_ABI, HUNDRED_ABI, MINTER_ABI, VOTING_ESCROW_ABI } from "../../abi"
 
 const HundredMenu: React.FC = () => {
+    const [hndSpinner, setHndSpinner] = useState<boolean>(false)
     const { library } = useWeb3React()
 
-    const {hndSpinner, setHndSpinner, setSpinnerVisible} = useUiContext()
+    const { setSpinnerVisible} = useUiContext()
     const {network, hndPrice, hndBalance, hndEarned, 
            hundredBalance, hndRewards, vehndBalance, address, 
-           setUpdateEarned, gaugeAddresses} = useGlobalContext()
+           setUpdateEarned, gaugeAddresses, updateEarned} = useGlobalContext()
 
     const networkRef = useRef<Network | null>(null)
     networkRef.current = network
@@ -41,6 +42,14 @@ const HundredMenu: React.FC = () => {
         else setTvl(null)
     }, [hndPrice, hundredBalance])
 
+
+  useEffect(() => {
+    if(!updateEarned){
+      setHndSpinner(false)
+    }
+  }, [updateEarned])
+
+
     const handleCollect = async (): Promise<void> => {
         if(library && network){
           try{
@@ -56,6 +65,10 @@ const HundredMenu: React.FC = () => {
           }
           catch(err){
             console.log(err)
+            setHndSpinner(false)
+            setSpinnerVisible(false)
+          }
+          finally{
             setHndSpinner(false)
             setSpinnerVisible(false)
           }
@@ -78,13 +91,16 @@ const HundredMenu: React.FC = () => {
             console.log(receipt)
             setUpdateEarned(true)
           }
-          
-          
-      catch(err){
+          catch(err){
             console.log(err)
             setHndSpinner(false)
             setSpinnerVisible(false)
-          }}}
+          }
+          finally{
+            setHndSpinner(false)
+            setSpinnerVisible(false)
+          }
+        }}
     
      const handleClaimLockHnd = async (): Promise<void> => {
         if(library && network && address){
@@ -105,15 +121,17 @@ const HundredMenu: React.FC = () => {
              console.log(receipt)
              setUpdateEarned(true)
             }
-           
           }
-          
-          
-      catch(err){
+          catch(err){
             console.log(err)
             setHndSpinner(false)
             setSpinnerVisible(false)
-          }}}
+          }
+          finally{
+            setHndSpinner(false)
+            setSpinnerVisible(false)
+          }
+        }}
 
     return (
         <div className="hundred-menu">
@@ -131,8 +149,8 @@ const HundredMenu: React.FC = () => {
                 <div className="hundred-menu-item-label"><label>veHND Balance </label><span>{vehndBalance ? (vehndBalance.gt(BigNumber.from(0)) ? vehndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
                 <div className="hundred-menu-item-label"><label>HND Earned </label><span>{hndRewards ? (hndRewards.gt(BigNumber.from(0)) ? hndRewards.toRound(2, true, true) : "0.00") : "--"}</span></div>
                
-                <div className= {`${hndRewards ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimHnd()}>Claim HND</div>
-                <div className= {`${vehndBalance ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimLockHnd()}>Claim and Lock HND</div>
+                <div className= {`${!hndSpinner ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimHnd()}>{hndSpinner ? (<Spinner size={"25px"}/>) : "Claim HND"}</div>
+                <div className= {`${!hndSpinner ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimLockHnd()}>{hndSpinner ? (<Spinner size={"25px"}/>) : "Claim and Lock HND"}</div>
 
                 {hndEarned && +hndEarned.toString() > 0 ? 
                     <><div className="hundred-menu-item-label"><label>HND Earned (Legacy)</label><span>{hndEarned ? hndEarned?.gt(BigNumber.from(0)) ? hndEarned?.toRound(2, true, true) : "0.00" : "--"}</span></div>
