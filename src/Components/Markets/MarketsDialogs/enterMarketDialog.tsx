@@ -10,8 +10,8 @@ import { ExecuteWithExtraGasLimit } from "../../../Classes/TransactionHelper";
 import ReactDOM from "react-dom"
 import { UpdateTypeEnum } from "../../../Hundred/Data/hundredData";
 import { useGlobalContext } from "../../../Types/globalContext";
-import { Contract } from "ethers";
-import { COMPTROLLER_ABI } from "../../../abi";
+// import { Contract } from "ethers";
+// import { COMPTROLLER_ABI } from "../../../abi";
 
 interface Props{
   open: boolean,

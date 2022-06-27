@@ -44,11 +44,11 @@ export class GaugeV4{
     userWorkingStakeBalance: BigNumber
     userAllowance: BigNumber
     userGaugeHelperAllowance: BigNumber
-    stakeCall: (amount: string, market: CTokenInfo) => void
-    unstakeCall: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => void
-    mintCall: () => void
-    approveCall: (market: CTokenInfo) => void
-    approveUnstakeCall: () => void
+    stakeCall: (amount: string, market: CTokenInfo) => Promise<void>
+    unstakeCall: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => Promise<void>
+    mintCall: () => Promise<void>
+    approveCall: (market: CTokenInfo) => Promise<void>
+    approveUnstakeCall: () => Promise<void>
 
     constructor(
         generalData: GaugeV4GeneralData,
@@ -60,11 +60,11 @@ export class GaugeV4{
         userWorkingStakeBalance: BigNumber,
         userAllowance: BigNumber,
         userGaugeHelperAllowance: BigNumber,
-        stakeCall: (amount: string, market: CTokenInfo) => void,
-        unstakeCall: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => void,
-        mintCall: () => void,
-        approveCall: (market: CTokenInfo) => void,
-        approveUnstakeCall: () => void,
+        stakeCall: (amount: string, market: CTokenInfo) => Promise<void>,
+        unstakeCall: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => Promise<void>,
+        mintCall: () => Promise<void>,
+        approveCall: (market: CTokenInfo) => Promise<void>,
+        approveUnstakeCall: () => Promise<void>,
     ){
         this.generalData = generalData
         this.userStakeBalance = BigNumber.from(userStakeBalance.toString(), gaugeTokenDecimals)
@@ -214,15 +214,15 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                         infoChunks[index][7],
                         (amount: string, market: CTokenInfo) => {
                             if (g.gaugeHelper) {
-                                stake(provider, userAddress, g, market, amount, spinner)
+                                return(stake(provider, userAddress, g, market, amount, spinner))
                             } else {
-                                stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString(), spinner)
+                                return(stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString(), spinner))
                             }
                         },
-                        (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => unstake(provider, userAddress, g, market, nativeTokenMarket, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString(), spinner),
-                        () => mint(provider, g.address, spinner),
-                    (market: CTokenInfo) => approve(provider, g, market, spinner),
-                    () => approveUnstake(provider, g, spinner),
+                        (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => {return unstake(provider, userAddress, g, market, nativeTokenMarket, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString(), spinner)},
+                        () => {return mint(provider, g.address, spinner)},
+                    (market: CTokenInfo) => {return approve(provider, g, market, spinner)},
+                    () => {return approveUnstake(provider, g, spinner)},
                     )
                 }
             )
@@ -347,15 +347,15 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string, 
                         infoChunks[index][7],
                         (amount: string, market: CTokenInfo) => {
                             if (g.gaugeHelper) {
-                                stake(provider, userAddress, g, market, amount, spinner)
+                                return(stake(provider, userAddress, g, market, amount, spinner))
                             } else {
-                                stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString(), spinner)
+                                return(stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString(), spinner))
                             }
                         },
-                        (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => unstake(provider, userAddress, g, market, nativeTokenMarket, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString(), spinner),
-                        () => mint(provider, g.address, spinner),
-                        (market: CTokenInfo) => approve(provider, g, market, spinner),
-                        () => approveUnstake(provider, g, spinner),
+                         (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => {return unstake(provider, userAddress, g, market, nativeTokenMarket, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString(), spinner)},
+                        () => {return mint(provider, g.address, spinner)},
+                        (market: CTokenInfo) => {return approve(provider, g, market, spinner)},
+                        () => {return approveUnstake(provider, g, spinner)},
                     )
                 }
             )

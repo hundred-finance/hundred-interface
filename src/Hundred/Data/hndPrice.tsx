@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef } from 'react';
 import { useGlobalContext } from "../../Types/globalContext"
 
 const useHndPrice = async ()  => {
-    const [timeoutId, setTimeoutId] = useState<string | number | NodeJS.Timeout | undefined>()
+    const timeoutId = useRef<string | number | NodeJS.Timeout | undefined>();
     const {setHndPrice} = useGlobalContext()
 
     useEffect(() => {
       
       const updatePrice = async () => {
-        if(timeoutId) clearTimeout(timeoutId)
+        if(timeoutId) clearTimeout((Number(timeoutId.current)))
         try{
           const url =  "https://api.coingecko.com/api/v3/simple/price?ids=hundred-finance&vs_currencies=usd"
           const headers = {}
@@ -30,13 +30,12 @@ const useHndPrice = async ()  => {
         }
         finally{
           const id = setTimeout(updatePrice, 60000)
-          setTimeoutId(id)
+          timeoutId.current = id
         }
       }
       
       updatePrice()
-
-      return () => clearTimeout(timeoutId)
+      return () => clearTimeout(Number(timeoutId.current));
     }, [])
   }
 

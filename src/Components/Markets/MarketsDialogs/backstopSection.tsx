@@ -1,15 +1,10 @@
 import { BigNumber } from "../../../bigNumber"
 import React from "react"
 import "./dialogSection.css"
-import { CTokenInfo } from "../../../Classes/cTokenClass"
+import { useHundredDataContext } from "../../../Types/hundredDataContext"
 
-interface Props{
-    market: CTokenInfo
-    
-}
-
-const BackstopSection:React.FC<Props> = (props : Props) => {
-    
+const BackstopSection:React.FC = () => {
+    const { selectedMarket } = useHundredDataContext();
     // const BorrowLimit = () : void => {
     //     const value = props.generalData && props.newBorrowLimit && props.newBorrowLimit.gt(BigNumber.from(0)) ?  +props.generalData?.totalBorrowBalance.toString() / (+props.newBorrowLimit.toString()) * 100 : 0
     //     setBorrowLimit(BigNumber.parseValue(value.toFixed(18)))
@@ -27,7 +22,7 @@ const BackstopSection:React.FC<Props> = (props : Props) => {
                     TVL
                 </div>
                 <div className="dialog-section-content-value">
-                    ${props.market.backstop?.tvl.toRound(2, true)}
+                    ${selectedMarket?.backstop?.tvl.toRound(2, true)}
                 </div>
             </div>
             <div className="dialog-section-content">
@@ -35,9 +30,9 @@ const BackstopSection:React.FC<Props> = (props : Props) => {
                     APR
                 </div>
                 <div className="dialog-section-content-value">
-                    {props.market.backstop ?
-                        props.market.backstop.apr.toNumeral() * 100 > 10000 ? ">10,000"
-                         : BigNumber.parseValue((props.market.backstop.apr.toNumeral() * 100).noExponents()).toRound(2, true, true) : 0.00}%
+                    {selectedMarket?.backstop ?
+                        selectedMarket?.backstop.apr.toNumeral() * 100 > 10000 ? ">10,000"
+                         : BigNumber.parseValue((selectedMarket?.backstop.apr.toNumeral() * 100).noExponents()).toRound(2, true, true) : 0.00}%
                 </div>
             </div>
             <div className="dialog-section-content">
@@ -45,17 +40,17 @@ const BackstopSection:React.FC<Props> = (props : Props) => {
                     Backstop Balance
                 </div>
                 <div className="dialog-section-content-value">
-                    {props.market.backstop?.userBalance.toRound(2, true)} {props.market.backstop?.symbol} 
+                    {selectedMarket?.backstop?.userBalance.toRound(2, true)} {selectedMarket?.backstop?.symbol} 
                 </div>
             </div>
-            {props.market.backstop && (props.market.backstop as any).ethBalance  ? 
+            {selectedMarket?.backstop && (selectedMarket?.backstop as any).ethBalance  ? 
             <div className="dialog-section-content-details">
                 <div className="dialog-section-content-header-details">
                 </div>
                 <div className="dialog-section-content-value-details">
-                ({props.market.backstop ? BigNumber.parseValue((+props.market.backstop.userBalance.toString() * +props.market.backstop.sharePrice.toString()).noExponents()).toRound(2, true) : 0} {props.market.underlying.symbol} + {
-                    props.market.backstop ? +(props.market.backstop as any).userEthBalance.toRound(2) === 0 && +(props.market.backstop as any).userEthBalance.toString() > 0 ? ">"+(props.market.backstop as any).userEthBalance.toRound(2,true,true) :
-                    (props.market.backstop as any).userEthBalance.toRound(2, true, true)  : 0} ETH)
+                ({selectedMarket?.backstop ? BigNumber.parseValue((+selectedMarket?.backstop.userBalance.toString() * +selectedMarket?.backstop.sharePrice.toString()).noExponents()).toRound(2, true) : 0} {selectedMarket?.underlying.symbol} + {
+                    selectedMarket?.backstop ? +(selectedMarket?.backstop as any).userEthBalance.toRound(2) === 0 && +(selectedMarket?.backstop as any).userEthBalance.toString() > 0 ? ">"+(selectedMarket?.backstop as any).userEthBalance.toRound(2,true,true) :
+                    (selectedMarket?.backstop as any).userEthBalance.toRound(2, true, true)  : 0} ETH)
                 </div>
             </div> : null}
         </div>

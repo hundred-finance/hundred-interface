@@ -41,7 +41,7 @@ const useFetchData = () => {
     const {library, chainId, account} = useWeb3React()
 
     useEffect(() => {
-        return () => clearTimeout(timeoutId.current)
+        return () => clearTimeout(Number(timeoutId.current));
     }, [])
 
     const getComptroller = async () => {
@@ -135,7 +135,7 @@ const useFetchData = () => {
     const updateData = async () => {
         try{
             update.current = true
-            clearTimeout(timeoutId.current)
+            clearTimeout(Number(timeoutId.current));
             console.log("UpdateData")
             await getData()
             timeoutId.current = setTimeout(updateData, 10000)
@@ -163,7 +163,7 @@ const useFetchData = () => {
 
     useEffect(() => {
         console.log("FEtch")
-        clearTimeout(timeoutId.current)
+        clearTimeout(Number(timeoutId.current));
         timeoutId.current = undefined
         firstLoad.current = true
         setComptrollerData(undefined)
@@ -210,7 +210,7 @@ const useFetchData = () => {
             count++
         }
         if(timeoutId){
-            clearTimeout(timeoutId.current)
+            clearTimeout(Number(timeoutId.current));
             timeoutId.current = undefined
             console.log("Update stopped")
         }
