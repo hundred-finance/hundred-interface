@@ -315,6 +315,8 @@ const Content: React.FC = () => {
     const supplyMarketDialog = (market: CTokenInfo) => {
 
       setSelectedMarket(market)
+      const selectedSpinner = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
+      setSelectedMarketSpinners(selectedSpinner)
       setOpenSupplyDialog(true)
     }
 

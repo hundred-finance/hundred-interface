@@ -1,15 +1,15 @@
-import { BigNumber } from "../../../bigNumber";
+import { BigNumber } from "../../../../bigNumber";
 import React, {useEffect, useState} from "react"
-import TextBox from "../../Textbox/textBox";
+import TextBox from "../../../Textbox/textBox";
 import BorrowLimitSection from "./borrowLimitSection";
-import MarketDialogButton from "./marketDialogButton";
-import "./supplyMarketDialog.css"
-import MarketDialogItem from "./marketDialogItem";
-import {Spinner} from "../../../assets/huIcons/huIcons";
-import { CTokenInfo } from "../../../Classes/cTokenClass";
-import {GaugeV4} from "../../../Classes/gaugeV4Class";
-import {stakingApr} from "../aprHelpers";
-import { useHundredDataContext } from "../../../Types/hundredDataContext";
+import MarketDialogButton from "../marketDialogButton";
+import "../supplyMarketDialog.css"
+import MarketDialogItem from "../marketDialogItem";
+import {Spinner} from "../../../../assets/huIcons/huIcons";
+import { CTokenInfo } from "../../../../Classes/cTokenClass";
+import {GaugeV4} from "../../../../Classes/gaugeV4Class";
+import {stakingApr} from "../../aprHelpers";
+import { useHundredDataContext } from "../../../../Types/hundredDataContext";
 
 interface Props{
     open: boolean,
@@ -221,7 +221,7 @@ const StakeMarketTab:React.FC<Props> = (props: Props) =>{
                 title={"APR"}
                 value={stakingApr(selectedMarket, gaugeV4)}
             />
-            <BorrowLimitSection generalData={generalData} newBorrowLimit={newBorrowLimit3}/>
+            <BorrowLimitSection newBorrowLimit={newBorrowLimit3}/>
             <div className="native-asset-amount">
                 <span className="dialog-section-content-value">{selectedMarket ? convertLpAmountToUnderlying(stakeInput, selectedMarket) : null} {selectedMarket?.underlying.symbol}</span>
                 <div className="amount-select">

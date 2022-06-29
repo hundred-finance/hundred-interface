@@ -6,18 +6,18 @@ import { BigNumber } from '../../../../bigNumber';
 import { useHundredDataContext } from '../../../../Types/hundredDataContext';
 import { useWeb3React } from '@web3-react/core';
 import { useUiContext } from '../../../../Types/uiContext';
-import DirectStakeMarketTab from '../directStakeMarketTab';
-import StakeMarketTab from '../stakeMarketTab';
+import DirectStakeMarketTab from './directStakeMarketTab';
+import StakeMarketTab from './stakeMarketTab';
 import { GaugeV4 } from '../../../../Classes/gaugeV4Class';
 import { ethers } from 'ethers';
 import { TOKEN_ABI, BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2, HUNDRED_ABI } from '../../../../abi';
 import { ExecuteWithExtraGasLimit } from '../../../../Classes/TransactionHelper';
 import { MasterChefVersion } from '../../../../networks';
-import BackstopMarketTab from '../backstopMarketTab';
-import DirectBackstopMarketTab from '../directBackstopMarketTab';
+import BackstopMarketTab from './backstopMarketTab';
+import DirectBackstopMarketTab from './directBackstopMarketTab';
 import { useGlobalContext } from '../../../../Types/globalContext';
 import { Contract, Provider} from 'ethcall';
-import { checkUserBalanceIsUpdated } from '../checkUserBalanceHelper';
+import useFetchData from '../../../../Hundred/Data/hundredData';
 
 interface Props {
     tabChange: number;
@@ -39,6 +39,7 @@ const StakeItem: React.FC<Props> = (props: Props) => {
     } = useHundredDataContext();
     const { network, address } = useGlobalContext();
     const { setSpinnerVisible, toastErrorMessage, toastSuccessMessage} = useUiContext();
+    const { checkUserBalanceIsUpdated } = useFetchData()
     const [stakeDisabled, setStakeDisabled] = useState<boolean>(false);
     const [unstakeDisabled, setUnstakeDisabled] = useState<boolean>(false);
     const [claimDisabled, setClaimDisabled] = useState<boolean>(false);
@@ -77,7 +78,7 @@ const StakeItem: React.FC<Props> = (props: Props) => {
                     }
                     await gaugeV4?.approveCall(market);
                     toastSuccessMessage("Transaction complete, updating contracts")
-                    const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4, null, 0, "approveStake")
+                    const checkReceipt = await checkUserBalanceIsUpdated(0, "approveStake")
                     console.log('checkReceipt: ', checkReceipt);                    
                     setSpinnerVisible(false);
                 } catch (err) {
@@ -113,7 +114,7 @@ const StakeItem: React.FC<Props> = (props: Props) => {
                 }
                 await gaugeV4?.stakeCall(amount, market);
                 toastSuccessMessage("Transaction complete, updating contracts")
-                const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4, null, gaugeV4?.userStakedTokenBalance, "stake")
+                const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4?.userStakedTokenBalance, "stake")
                 console.log('checkReceipt: ', checkReceipt);
                 setSpinnerVisible(false);
             } catch (err) {
@@ -149,7 +150,7 @@ const StakeItem: React.FC<Props> = (props: Props) => {
                     }
                     await gaugeV4?.approveUnstakeCall();
                     toastSuccessMessage("Transaction complete, updating contracts")
-                    const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4, null, 0, "approveUnstake")
+                    const checkReceipt = await checkUserBalanceIsUpdated(0, "approveUnstake")
                     console.log('checkReceipt: ', checkReceipt);                    
                     setSpinnerVisible(false);
                 } catch (err) {
@@ -185,7 +186,7 @@ const StakeItem: React.FC<Props> = (props: Props) => {
                 }
                 await gaugeV4?.unstakeCall(amount, market, nativeTokenMarket?.pTokenAddress);
                 toastSuccessMessage("Transaction complete, updating contracts")
-                const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4, null, gaugeV4?.userStakedTokenBalance, "unstake")
+                const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4?.userStakedTokenBalance, "unstake")
                 console.log('checkReceipt: ', checkReceipt);                
                 setSpinnerVisible(false);
             } catch (err) {
@@ -228,7 +229,7 @@ const StakeItem: React.FC<Props> = (props: Props) => {
                 //STEP 3: execute txn, check contract is updated
                 await gaugeV4?.mintCall();
                 toastSuccessMessage("Transaction complete, updating contracts")
-                const checkReceipt = await checkUserBalanceIsUpdated(gaugeV4, null, currHndBalance, "claimHnd")
+                const checkReceipt = await checkUserBalanceIsUpdated(currHndBalance, "claimHnd")
                 console.log('checkReceipt: ', checkReceipt);                
                 setSpinnerVisible(false);
             } catch (err) {

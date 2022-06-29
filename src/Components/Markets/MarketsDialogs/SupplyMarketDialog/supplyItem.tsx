@@ -5,7 +5,7 @@ import MarketDialogButton from '../marketDialogButton';
 import DialogMarketInfoSection from '../marketInfoSection';
 import '../supplyMarketDialog.css';
 import MarketDialogItem from '../marketDialogItem';
-import SupplyRateSection from '../supplyRatesSection';
+import SupplyRateSection from './supplyRatesSection';
 import { Spinner } from '../../../../assets/huIcons/huIcons';
 import { CTokenInfo, SpinnersEnum } from '../../../../Classes/cTokenClass';
 import { BigNumber } from '../../../../bigNumber';
@@ -15,9 +15,9 @@ import { useUiContext } from '../../../../Types/uiContext';
 import { ethers } from 'ethers';
 import { ExecutePayableWithExtraGasLimit, ExecuteWithExtraGasLimit } from '../../../../Classes/TransactionHelper';
 import { CETHER_ABI, CTOKEN_ABI, TOKEN_ABI } from '../../../../abi';
-import BorrowLimitSection from '../borrowLimitSection';
+import BorrowLimitSection from './borrowLimitSection';
 import { Contract, Provider } from 'ethcall'
-import { checkUserBalanceIsUpdated } from '../checkUserBalanceHelper';
+import useFetchData from '../../../../Hundred/Data/hundredData';
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256);
 interface Props {
@@ -41,8 +41,8 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
     const [supplyDisabled, setSupplyDisabled] = useState<boolean>(false);
     const [supplyValidation, setSupplyValidation] = useState<string>('');
     const [newBorrowLimit1, setNewBorrowLimit1] = useState<BigNumber>(BigNumber.from(0));
-
     const selectedMarketRef = useRef<CTokenInfo>();
+    const { checkUserBalanceIsUpdated } = useFetchData()
 
     useEffect(() => {
         selectedMarket ? (selectedMarketRef.current = { ...selectedMarket }) : undefined;
@@ -104,8 +104,8 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
             if (market && library) {
                 try {
                     setSpinnerVisible(true);
-                    toggleSpinners(symbol, SpinnersEnum.supply);
                     setSupplyDisabled(true);
+                    toggleSpinners(symbol, SpinnersEnum.supply);
                     if (selectedMarketSpinners) {
                         const selected = { ...selectedMarketSpinners };
                         selected.supplySpinner = true;
@@ -134,7 +134,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                     console.log(receipt);
                     //STEP 4: check updated balance
                     toastSuccessMessage("Transaction complete, updating contracts")
-                    const checkReceipt = await checkUserBalanceIsUpdated(null, tokenContractWeb3, currBalance, "supply")
+                    const checkReceipt = await checkUserBalanceIsUpdated(currBalance, "supply", tokenContractWeb3)
                     console.log('checkReceipt: ', checkReceipt);
                 } catch (err) {
                     const error = err as any;
@@ -179,7 +179,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                         );
                         console.log(receipt);
                         toastSuccessMessage("Transaction complete, updating contracts")
-                        const checkReceipt = await checkUserBalanceIsUpdated(null, tokenContractWeb3, 0, "approveSupply")
+                        const checkReceipt = await checkUserBalanceIsUpdated(0, "approveSupply", tokenContractWeb3)
                         console.log('checkReceipt: ', checkReceipt); 
                     }
                 } catch (err) {
@@ -214,18 +214,20 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
     if (selectedMarketSpinners?.supplySpinner) {
         approveButtonIsDisabled = !selectedMarket || (selectedMarket && selectedMarketSpinners?.supplySpinner);
     }
+    let isSupplyDisabled = selectedMarket ? { ...selectedMarket }.mintPaused : false
+    isSupplyDisabled = isSupplyDisabled || supplyDisabled
     return (
         <TabContentItem open={props.open} tabId={1} tabChange={props.tabChange}>
             <TextBox
                 placeholder={`0 ${selectedMarket ? { ...selectedMarket }?.underlying.symbol : ''}`}
-                disabled={supplyDisabled || (selectedMarket ? { ...selectedMarket }.mintPaused : false)}
+                disabled={isSupplyDisabled}
                 value={supplyInput}
                 setInput={setSupplyInput}
                 validation={supplyValidation}
                 button={'Max'}
-                onClick={() => getMaxAmount()} // fix
+                onClick={() => getMaxAmount()}
             />
-            {gaugesV4Data ? ( //fix : must find specific match
+            {gaugesV4Data ? (
                 <div style={{ textAlign: 'left' }}>
                     If you want to Stake, please go directly to that tab
                     <br />
@@ -239,8 +241,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                 }`}
             />
             <SupplyRateSection />
-            <BorrowLimitSection generalData={generalData} newBorrowLimit={newBorrowLimit1} />
-            {/* //what's the difference between 1 and 2? */}
+            <BorrowLimitSection newBorrowLimit={newBorrowLimit1} />
             <DialogMarketInfoSection />
             {selectedMarket && selectedMarket.mintPaused ? (
                 <MarketDialogButton disabled={true} onClick={() => null}>

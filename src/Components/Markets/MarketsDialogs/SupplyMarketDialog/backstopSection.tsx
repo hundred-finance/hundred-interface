@@ -1,7 +1,7 @@
-import { BigNumber } from "../../../bigNumber"
+import { BigNumber } from "../../../../bigNumber"
 import React from "react"
-import "./dialogSection.css"
-import { useHundredDataContext } from "../../../Types/hundredDataContext"
+import "../dialogSection.css"
+import { useHundredDataContext } from "../../../../Types/hundredDataContext"
 
 const BackstopSection:React.FC = () => {
     const { selectedMarket } = useHundredDataContext();

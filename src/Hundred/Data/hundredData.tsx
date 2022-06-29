@@ -9,9 +9,9 @@ import { fetchData } from "./fetchData"
 import { CTokenInfo, CTokenSpinner } from "../../Classes/cTokenClass"
 import { BigNumber } from "../../bigNumber"
 import { GeneralDetailsData, getGeneralDetails } from "../../Classes/generalDetailsClass"
-import { Contract } from "ethers"
-import { COMPTROLLER_ABI } from "../../abi"
-
+import { COMPTROLLER_ABI, CTOKEN_ABI, GAUGE_V4_ABI, HUNDRED_ABI } from "../../abi"
+import { Contract, Provider } from "ethcall"
+import { ethers } from "ethers"
 export enum UpdateTypeEnum{
     EnableMarket
 }
@@ -39,6 +39,11 @@ const useFetchData = () => {
     const {network, hndPrice, setHndEarned, setHndBalance, setHundredBalance, setVehndBalance, setHndRewards, setGaugeAddresses} = useGlobalContext()
     const {setSpinnerVisible, toastErrorMessage} = useUiContext()
     const {library, chainId, account} = useWeb3React()
+    const gaugeV4 = gaugesV4Data
+    ? [...gaugesV4Data].find((x) => {
+            return x?.generalData.lpTokenUnderlying === selectedMarket?.underlying.address;
+        })
+    : null;
 
     useEffect(() => {
         return () => clearTimeout(Number(timeoutId.current));
@@ -162,7 +167,7 @@ const useFetchData = () => {
     }
 
     useEffect(() => {
-        console.log("FEtch")
+        console.log("Fetch")
         clearTimeout(Number(timeoutId.current));
         timeoutId.current = undefined
         firstLoad.current = true
@@ -240,7 +245,7 @@ const useFetchData = () => {
             try{
                 await delay(5)
                 const net = {...network}
-                const ethcallComptroller = new Contract(net.unitrollerAddress, COMPTROLLER_ABI, library)
+                const ethcallComptroller = new ethers.Contract(net.unitrollerAddress, COMPTROLLER_ABI, library)
                 const enteredMarkets = await ethcallComptroller.getAssetsIn(account)
                 const isEnterMarket = enteredMarkets.includes(market.pTokenAddress)
                 if (isEnterMarket === shouldReturn && marketsData){
@@ -272,10 +277,82 @@ const useFetchData = () => {
             }
         }
      }
+     //check that user balance is updated on smart contracts before updating data
+    const checkUserBalanceIsUpdated = async (
+        currBalanceInput: any,
+        action: string,
+        tokenContract?: Contract | null | undefined
+        ): Promise<any> => { 
+        //STEP 1: ethcall setup
+        const ethcallProvider = new Provider();
+        await ethcallProvider.init(library); //library = provider
+        let newBalance: BigNumber;
+        const currBalance = BigNumber.from(currBalanceInput);
+        const call: any = [];
+        //STEP 2: fetch user data
+        console.log("selectedMarket", selectedMarket);
+        if (network && selectedMarket) {
+            if (tokenContract) {
+                if (action === "supply" || action === 'withdraw') {
+                    call.push(tokenContract.getAccountSnapshot(account)); //returns array of 4 BigNumbers
+                } else if (action === 'approveSupply') {
+                    call.push(tokenContract.allowance(account, selectedMarket.pTokenAddress));
+                }            
+            } else if (gaugeV4) {
+                const gaugeHelper = gaugeV4?.generalData.gaugeHelper;
+                const lpTokenUnderlying = gaugeV4?.generalData.lpTokenUnderlying;
+                const lpToken = gaugeV4?.generalData.lpToken;
+                const gaugeAddress = gaugeV4?.generalData.address;
+                if (action === 'stake' || action === 'unstake') {
+                    call.push(new Contract(gaugeV4.generalData.address, GAUGE_V4_ABI).balanceOf(account));
+                } else if (action === 'claimHnd') {
+                    call.push(new Contract(network.hundredAddress, HUNDRED_ABI).balanceOf(account));
+                } else if (action === 'approveStake') {
+                    if (gaugeHelper && lpTokenUnderlying !== '0x0') {
+                        const cTokenContract = new Contract(lpTokenUnderlying, CTOKEN_ABI);
+                        call.push(cTokenContract.allowance(account, gaugeHelper));
+                    } else {
+                        const cTokenContract = new Contract(lpToken, CTOKEN_ABI);
+                        call.push(cTokenContract.allowance(account, gaugeAddress));
+                    }
+                } else if (action === 'approveUnstake') {
+                    if (gaugeHelper) {
+                        const gaugeContract = new Contract(gaugeAddress, CTOKEN_ABI);
+                        call.push(gaugeContract.allowance(account, gaugeHelper));
+                    } else {
+                        const cTokenContract = new Contract(lpToken, CTOKEN_ABI);
+                        call.push(cTokenContract.allowance(account, gaugeAddress));
+                    }
+                }
+                //missing case for borrow and repay
+            }
+            const newBalanceResult: BigNumber[] = await ethcallProvider.all(call);
+            if (action === 'supply' || action === 'withdraw') {
+                //Results from the web3@0.20 getAccountSnapshot call must be individually converted into a number or string.
+                const getAccountSnapshotString = newBalanceResult[0].toString();
+                const getAccountSnapshotArray = getAccountSnapshotString.split(',');
+                newBalance = BigNumber.from(getAccountSnapshotArray[1]); //cTokenBalance
+                console.log('newBalance: ', newBalance);
+            } else {
+                newBalance = BigNumber.from(newBalanceResult[0]); //allowance or balance
+            }
+            //STEP 3: check userBalance has been updated, if not, check again recursively
+            if (!newBalance.eq(currBalance)) {
+                console.log('newBalance.eq(currBalance): ', !newBalance.eq(currBalance));
+                return true;}
+            const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+            await delay(2000); //wait 2 seconds, run again
+            if (gaugeV4) {
+                return await checkUserBalanceIsUpdated(currBalanceInput, action);
+            } else {
+                return await checkUserBalanceIsUpdated(currBalanceInput, action, tokenContract);
+            }
+        }
+    }
 
      return{comptrollerData, setComptrollerData, marketsData, setMarketsData, marketsSpinners,
         setMarketsSpinners, gaugesV4Data, setGaugesV4Data, generalData, setGeneralData,
-       selectedMarket, setSelectedMarket, selectedMarketSpinners, setSelectedMarketSpinners, updateMarket}
+       selectedMarket, setSelectedMarket, selectedMarketSpinners, setSelectedMarketSpinners, updateMarket, checkUserBalanceIsUpdated}
  }
 
  export default useFetchData

@@ -14,10 +14,10 @@ import { useUiContext } from '../../../../Types/uiContext';
 import { ethers } from 'ethers';
 import { ExecuteWithExtraGasLimit } from '../../../../Classes/TransactionHelper';
 import { CETHER_ABI, CTOKEN_ABI } from '../../../../abi';
-import BorrowLimitSection from '../borrowLimitSection';
-import SupplyRateSection from '../supplyRatesSection';
-import { checkUserBalanceIsUpdated } from '../checkUserBalanceHelper';
+import BorrowLimitSection from './borrowLimitSection';
+import SupplyRateSection from './supplyRatesSection';
 import { Contract, Provider} from 'ethcall';
+import useFetchData from '../../../../Hundred/Data/hundredData';
 
 interface Props {
     tabChange: number;
@@ -41,7 +41,7 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
     const [withdrawValidation, setWithdrawValidation] = useState<string>('');
     const [newBorrowLimit2, setNewBorrowLimit2] = useState<BigNumber>(BigNumber.from(0));
     const [withdrawMax, setWithdrawMax] = useState<boolean>(false);
-
+    const {checkUserBalanceIsUpdated} = useFetchData();
     const selectedMarketRef = useRef<CTokenInfo>();
     const gaugeV4 = gaugesV4Data
         ? [...gaugesV4Data].find((x) => {
@@ -159,7 +159,7 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
                 }
                 //STEP 4: check updated balance
                 toastSuccessMessage("Transaction complete, updating contracts")
-                const checkReceipt = await checkUserBalanceIsUpdated(null, tokenContractWeb3, currBalance, "withdraw")
+                const checkReceipt = await checkUserBalanceIsUpdated(currBalance, "withdraw", tokenContractWeb3)
                 console.log('checkReceipt: ', checkReceipt)
             } catch (err) {
                 const error = err as any;
@@ -255,7 +255,7 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
                 value={`${selectedMarket?.supplyBalanceInTokenUnit?.toFixed(4)} ${selectedMarket?.underlying.symbol}`}
             />
             <SupplyRateSection />
-            <BorrowLimitSection generalData={generalData} newBorrowLimit={newBorrowLimit2} />
+            <BorrowLimitSection newBorrowLimit={newBorrowLimit2} />
             <DialogMarketInfoSection collateralFactorText={'Loan-to-Value'} />
             <MarketDialogButton
                 disabled={

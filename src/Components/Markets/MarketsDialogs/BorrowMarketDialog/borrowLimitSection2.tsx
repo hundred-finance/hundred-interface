@@ -1,9 +1,9 @@
-import { BigNumber } from "../../../bigNumber"
+import { BigNumber } from "../../../../bigNumber"
 import React, { useEffect, useState } from "react"
-import { HuArrow } from "../../../assets/huIcons/huIcons"
-import "./dialogSection.css"
+import { HuArrow } from "../../../../assets/huIcons/huIcons"
+import "../dialogSection.css"
 import ReactToolTip from "react-tooltip"
-import { useHundredDataContext } from "../../../Types/hundredDataContext"
+import { useHundredDataContext } from "../../../../Types/hundredDataContext"
 
 interface Props{
     borrowAmount: string,

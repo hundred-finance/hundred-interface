@@ -1,9 +1,9 @@
 import React from "react"
-import { HuLogo } from "../../../assets/huIcons/huIcons"
-import {stakingApr, formatApr} from "../aprHelpers";
-import "./dialogSection.css"
-import { useHundredDataContext } from "../../../Types/hundredDataContext";
-import { useUiContext } from "../../../Types/uiContext";
+import { HuLogo } from "../../../../assets/huIcons/huIcons"
+import {stakingApr, formatApr} from "../../aprHelpers";
+import "../dialogSection.css"
+import { useHundredDataContext } from "../../../../Types/hundredDataContext";
+import { useUiContext } from "../../../../Types/uiContext";
 
 const SupplyRateSection:React.FC = () => {
     const { darkMode } = useUiContext();

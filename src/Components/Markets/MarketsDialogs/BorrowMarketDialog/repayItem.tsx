@@ -5,8 +5,8 @@ import MarketDialogButton from "../marketDialogButton";
 import DialogMarketInfoSection from "../marketInfoSection";
 import "../supplyMarketDialog.css"
 import MarketDialogItem from "../marketDialogItem";
-import BorrowRateSection from "../borrowRateSection";
-import BorrowLimitSection2 from "../borrowLimitSection2";
+import BorrowRateSection from "./borrowRateSection";
+import BorrowLimitSection2 from "./borrowLimitSection2";
 import { Spinner } from "../../../../assets/huIcons/huIcons";
 import { CTokenInfo, SpinnersEnum } from "../../../../Classes/cTokenClass";
 import { BigNumber } from "../../../../bigNumber";

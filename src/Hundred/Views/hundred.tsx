@@ -1,11 +1,8 @@
 import { useWeb3React } from '@web3-react/core'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { toast, ToastContainer } from 'react-toastify'
-import { Comptroller } from '../../Classes/comptrollerClass'
-import { CTokenInfo, CTokenSpinner, SpinnersEnum } from '../../Classes/cTokenClass'
-import { GaugeV4 } from '../../Classes/gaugeV4Class'
-import { GeneralDetailsData } from '../../Classes/generalDetailsClass'
+import { SpinnersEnum } from '../../Classes/cTokenClass'
 import Content from '../../Components/Content/content'
 import Footer from '../../Components/Footer/footer'
 import Menu from '../../Components/Menu/menu'
@@ -96,7 +93,35 @@ const Hundred: React.FC = () => {
             break
           case SpinnersEnum.borrow : 
             marketSpinners.borrowSpinner = !marketSpinners.borrowSpinner
-        }
+            break
+          case SpinnersEnum.repay : 
+            marketSpinners.repaySpinner = !marketSpinners.repaySpinner
+            break
+          case SpinnersEnum.supply :
+            marketSpinners.supplySpinner = !marketSpinners.supplySpinner
+            break
+          case SpinnersEnum.withdraw :
+            marketSpinners.withdrawSpinner = !marketSpinners.withdrawSpinner
+            break
+          case SpinnersEnum.stake :
+            marketSpinners.stakeSpinner = !marketSpinners.stakeSpinner
+            break
+          case SpinnersEnum.unstake :
+            marketSpinners.unstakeSpinner = !marketSpinners.unstakeSpinner
+            break
+          case SpinnersEnum.mint : 
+            marketSpinners.mintSpinner = !marketSpinners.mintSpinner
+            break
+          case SpinnersEnum.backstopDeposit :
+            marketSpinners.backstopDepositSpinner = !marketSpinners.backstopDepositSpinner
+            break       
+          case SpinnersEnum.backstopWithdraw : 
+            marketSpinners.backstopWithdrawSpinner = !marketSpinners.backstopWithdrawSpinner
+            break
+          case SpinnersEnum.backstopClaim :
+            marketSpinners.backstopClaimSpinner = !marketSpinners.backstopClaimSpinner
+            break              
+          }
         marketSpinners.spinner = marketSpinners.enableMainSpinner()
         setMarketsSpinners(spinners)
       }

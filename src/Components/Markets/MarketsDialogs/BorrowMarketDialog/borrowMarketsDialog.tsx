@@ -2,7 +2,7 @@ import React, {useRef, useEffect, useState} from "react"
 import { Tab, TabContent, TabHeader, TabHeaderItem } from "../../../TabControl/tabControl";
 import "../supplyMarketDialog.css"
 import { CTokenInfo } from "../../../../Classes/cTokenClass";
-import { BigNumber } from "../../../../bigNumber";
+import {BigNumber} from "../../../../bigNumber";
 import closeIcon from "../../../../assets/icons/closeIcon.png"
 import ReactToolTip from 'react-tooltip'
 import BorrowItem from "./borrowItem";

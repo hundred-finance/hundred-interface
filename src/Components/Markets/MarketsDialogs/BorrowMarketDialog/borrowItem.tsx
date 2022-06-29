@@ -5,8 +5,8 @@ import MarketDialogButton from "../marketDialogButton";
 import DialogMarketInfoSection from "../marketInfoSection";
 import "../supplyMarketDialog.css"
 import MarketDialogItem from "../marketDialogItem";
-import BorrowRateSection from "../borrowRateSection";
-import BorrowLimitSection2 from "../borrowLimitSection2";
+import BorrowRateSection from "./borrowRateSection";
+import BorrowLimitSection2 from "./borrowLimitSection2";
 import { Spinner } from "../../../../assets/huIcons/huIcons";
 import { CTokenInfo, SpinnersEnum } from "../../../../Classes/cTokenClass";
 import { BigNumber } from "../../../../bigNumber";
@@ -16,9 +16,6 @@ import { useUiContext } from "../../../../Types/uiContext";
 import { ethers } from "ethers";
 import { ExecuteWithExtraGasLimit } from "../../../../Classes/TransactionHelper";
 import { CETHER_ABI, CTOKEN_ABI } from "../../../../abi";
-
-
-
 
 interface Props{
     tabChange: number

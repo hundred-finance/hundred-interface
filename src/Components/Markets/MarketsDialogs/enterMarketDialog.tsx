@@ -9,7 +9,6 @@ import { useWeb3React } from "@web3-react/core";
 import { ExecuteWithExtraGasLimit } from "../../../Classes/TransactionHelper";
 import ReactDOM from "react-dom"
 import { UpdateTypeEnum } from "../../../Hundred/Data/hundredData";
-import { useGlobalContext } from "../../../Types/globalContext";
 // import { Contract } from "ethers";
 // import { COMPTROLLER_ABI } from "../../../abi";
 
@@ -22,11 +21,10 @@ interface Props{
 
 const EnterMarketDialog : React.FC<Props> = (props : Props) => {
   const dialogContainer = document.getElementById("modal") as Element
-  const {library, account} = useWeb3React()
+  const {library} = useWeb3React()
   const {setSpinnerVisible} = useUiContext()
-  const {marketsData, generalData, comptrollerData, toggleSpinners,  updateMarket} = useHundredDataContext()  
+  const {marketsData, comptrollerData, toggleSpinners,  updateMarket} = useHundredDataContext()  
   const ref = useRef<HTMLDivElement | null>(null);
-  const {network} = useGlobalContext()
 
     useEffect(() => {
         if(props.open){
@@ -130,7 +128,7 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
                     ? "This asset is required to support your borrowed assets. Either repay borrowed assets, or supply another asset as collateral."
                     : "Each asset used as collateral increases your borrowing limit. Be careful, this can subject the asset to being seized in liquidation."}
             </div>
-            <DialogBorrowLimitSection generalData={generalData}/>
+            <DialogBorrowLimitSection/>
             <div className="footer-section">
                 {props.market.isEnterMarket ? (
                  <button disabled={+props.market.borrowBalance.toString() > 0 || +props.market.supplyBalance.toString() > 0 ? true : false} className="dialog-button" onClick={() => {

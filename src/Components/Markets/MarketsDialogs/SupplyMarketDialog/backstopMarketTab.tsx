@@ -1,13 +1,13 @@
-import { BigNumber } from "../../../bigNumber";
+import { BigNumber } from "../../../../bigNumber";
 import React, {useEffect, useState} from "react"
-import TextBox from "../../Textbox/textBox";
-import MarketDialogButton from "./marketDialogButton";
-import "./supplyMarketDialog.css"
-import MarketDialogItem from "./marketDialogItem";
-import {Spinner} from "../../../assets/huIcons/huIcons";
-import { CTokenInfo } from "../../../Classes/cTokenClass";
+import TextBox from "../../../Textbox/textBox";
+import MarketDialogButton from "../marketDialogButton";
+import "../supplyMarketDialog.css"
+import MarketDialogItem from "../marketDialogItem";
+import {Spinner} from "../../../../assets/huIcons/huIcons";
+import { CTokenInfo } from "../../../../Classes/cTokenClass";
 import BackstopSection from "./backstopSection";
-import { useHundredDataContext } from "../../../Types/hundredDataContext";
+import { useHundredDataContext } from "../../../../Types/hundredDataContext";
 
 interface Props{
     getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,

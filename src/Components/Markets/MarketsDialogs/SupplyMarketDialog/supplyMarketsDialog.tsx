@@ -31,10 +31,8 @@ const SupplyMarketDialog: React.FC<Props> = (props: Props) => {
     const backstopGaugeV4 = gaugeV4?.generalData.backstopGauge;
     let isStake, isBackstop, isAllTabs, isBackstopTab;
     if (selectedMarket) {
-        console.log('selectedMarket: ', selectedMarket);
         isStake = gaugeV4 && generalData ? true : false;
         isBackstop = selectedMarket.backstop ? true : false;
-        console.log('selectedMarket?.backstop : ', selectedMarket?.backstop);
         isAllTabs = (isBackstop || backstopGaugeV4) && gaugeV4 ? true : null;
         isBackstopTab = isBackstop || backstopGaugeV4;
     }

@@ -1,13 +1,13 @@
-import { BigNumber } from "../../../bigNumber";
+import { BigNumber } from "../../../../bigNumber";
 import React, {useEffect, useState} from "react"
-import TextBox from "../../Textbox/textBox";
-import MarketDialogButton from "./marketDialogButton";
-import "./supplyMarketDialog.css"
-import MarketDialogItem from "./marketDialogItem";
-import {Spinner} from "../../../assets/huIcons/huIcons";
-import {GaugeV4} from "../../../Classes/gaugeV4Class";
-import {stakingApr} from "../aprHelpers";
-import { useHundredDataContext } from "../../../Types/hundredDataContext";
+import TextBox from "../../../Textbox/textBox";
+import MarketDialogButton from "../marketDialogButton";
+import "../supplyMarketDialog.css"
+import MarketDialogItem from "../marketDialogItem";
+import {Spinner} from "../../../../assets/huIcons/huIcons";
+import {GaugeV4} from "../../../../Classes/gaugeV4Class";
+import {stakingApr} from "../../aprHelpers";
+import { useHundredDataContext } from "../../../../Types/hundredDataContext";
 
 interface Props{
     open: boolean,
