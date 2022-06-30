@@ -18,6 +18,7 @@ import BorrowLimitSection from './borrowLimitSection';
 import SupplyRateSection from './supplyRatesSection';
 import { Contract, Provider} from 'ethcall';
 import useFetchData from '../../../../Hundred/Data/hundredData';
+import { GaugeV4 } from '../../../../Classes/gaugeV4Class';
 
 interface Props {
     tabChange: number;
@@ -43,11 +44,14 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
     const [withdrawMax, setWithdrawMax] = useState<boolean>(false);
     const {checkUserBalanceIsUpdated} = useFetchData();
     const selectedMarketRef = useRef<CTokenInfo>();
-    const gaugeV4 = gaugesV4Data
-        ? [...gaugesV4Data].find((x) => {
-              return x?.generalData.lpTokenUnderlying === selectedMarket?.underlying.address;
-          })
-        : null;
+    let gaugeV4 : GaugeV4 | null | undefined; 
+    if (selectedMarket){
+        gaugeV4 = gaugesV4Data
+            ? [...gaugesV4Data].find((x) => {
+                    return x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address;
+                })
+            : null;
+    }
     const backstopGaugeV4 = gaugeV4?.generalData.backstopGauge;
     useEffect(() => {
         selectedMarket ? (selectedMarketRef.current = { ...selectedMarket }) : undefined;

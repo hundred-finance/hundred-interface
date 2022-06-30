@@ -11,6 +11,7 @@ import StakeItem from './stakeItem';
 import SupplyItem from './supplyItem';
 import WithdrawItem from './withdrawItem';
 import ReactDOM from 'react-dom';
+import { GaugeV4 } from '../../../../Classes/gaugeV4Class';
 
 interface Props {
     open: boolean;
@@ -23,11 +24,14 @@ const SupplyMarketDialog: React.FC<Props> = (props: Props) => {
     const { generalData, selectedMarket, gaugesV4Data } = useHundredDataContext();
     const dialogContainer = document.getElementById('modal') as Element;
     const ref = useRef<HTMLDivElement | null>(null);
-    const gaugeV4 = gaugesV4Data
-        ? [...gaugesV4Data].find((x) => {
-              return x?.generalData.lpTokenUnderlying === selectedMarket?.underlying.address;
-          })
-        : null;
+    let gaugeV4 : GaugeV4 | null | undefined; 
+    if (selectedMarket){
+        gaugeV4 = gaugesV4Data
+            ? [...gaugesV4Data].find((x) => {
+                    return x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address;
+                })
+            : null;
+    }
     const backstopGaugeV4 = gaugeV4?.generalData.backstopGauge;
     let isStake, isBackstop, isAllTabs, isBackstopTab;
     if (selectedMarket) {

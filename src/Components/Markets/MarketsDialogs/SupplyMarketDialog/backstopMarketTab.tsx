@@ -8,6 +8,7 @@ import {Spinner} from "../../../../assets/huIcons/huIcons";
 import { CTokenInfo } from "../../../../Classes/cTokenClass";
 import BackstopSection from "./backstopSection";
 import { useHundredDataContext } from "../../../../Types/hundredDataContext";
+import { getBackstopMarketTabVariables } from "./backstopHelper";
 
 interface Props{
     getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
@@ -27,7 +28,6 @@ const BackstopMarketTab:React.FC<Props> = (props: Props) =>{
     const [backstopWithdrawValidation, setBackstopWithdrawValidation] = useState<string>("")
     const { selectedMarket, selectedMarketSpinners } = useHundredDataContext();
     const [depositValidation, setDepositValidation] = useState<string>('');
-
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     useEffect(() => {
         const handleDepositAmountChange = () => {
@@ -41,8 +41,10 @@ const BackstopMarketTab:React.FC<Props> = (props: Props) =>{
                 return;
             } else if (+depositInput <= 0) {
                 setDepositValidation('Amount must be > 0');
-            } else if (selectedMarket && +depositInput > +selectedMarket?.underlying.walletBalance) {
-                setDepositValidation('Amount must be <= balance');
+            } else if (selectedMarket) {
+                const market = {...selectedMarket}
+                if (+depositInput > +market?.underlying.walletBalance)
+                setDepositValidation('Amount must be <= balance');            
             } else {
                 setDepositValidation('');
             }
@@ -66,26 +68,28 @@ const BackstopMarketTab:React.FC<Props> = (props: Props) =>{
             }else if (+backstopWithdrawInput <= 0) {
                 setBackstopWithdrawValidation("Amount must be > 0");
                 setBackstopWithdraw("Withdraw")
-            } else if (selectedMarket && selectedMarket.backstop && +backstopWithdrawInput > +selectedMarket?.backstop?.userBalance) {
-                setBackstopWithdraw("Withdraw")
-                setBackstopWithdrawValidation("Amount must be <= balance");
-            }else{
-                if(selectedMarket?.backstop){
-                    const widthdrawUsd = BigNumber.parseValue((+backstopWithdrawInput * selectedMarket.backstop.sharePrice.toNumeral()).noExponents())
-                    if(widthdrawUsd.toNumeral() > 0){
-                        if(+widthdrawUsd.toRound(2, true) > 0)
-                            setBackstopWithdraw(`Withdraw ($${widthdrawUsd.toRound(2,true,true)})`)
-                        else if(+widthdrawUsd.toRound(3, true) > 0)
-                            setBackstopWithdraw(`Withdraw ($${widthdrawUsd.toRound(3,true,true)})`)
-                        else if(+widthdrawUsd.toRound(4, true) > 0)
-                            setBackstopWithdraw(`Withdraw ($${widthdrawUsd.toRound(4,true,true)})`)
-                        else
-                            setBackstopWithdraw(`Withdraw (>$${widthdrawUsd.toRound(2,true,true)})`)
+            } else if (selectedMarket){ 
+                const market = {...selectedMarket}
+                if (market.backstop && +backstopWithdrawInput > +market?.backstop?.userBalance) {
+                    setBackstopWithdraw("Withdraw")
+                    setBackstopWithdrawValidation("Amount must be <= balance");
+                } else {
+                    if(market.backstop){
+                        const widthdrawUsd = BigNumber.parseValue((+backstopWithdrawInput * market.backstop.sharePrice.toNumeral()).noExponents())
+                        if(widthdrawUsd.toNumeral() > 0){
+                            if(+widthdrawUsd.toRound(2, true) > 0)
+                                setBackstopWithdraw(`Withdraw ($${widthdrawUsd.toRound(2,true,true)})`)
+                            else if(+widthdrawUsd.toRound(3, true) > 0)
+                                setBackstopWithdraw(`Withdraw ($${widthdrawUsd.toRound(3,true,true)})`)
+                            else if(+widthdrawUsd.toRound(4, true) > 0)
+                                setBackstopWithdraw(`Withdraw ($${widthdrawUsd.toRound(4,true,true)})`)
+                            else
+                                setBackstopWithdraw(`Withdraw (>$${widthdrawUsd.toRound(2,true,true)})`)
+                        }
+                        else setBackstopWithdraw("Withdraw")
                     }
-                    else setBackstopWithdraw("Withdraw")
+                    setBackstopWithdrawValidation("");
                 }
-                
-                setBackstopWithdrawValidation("");
             }
         }
         
@@ -115,58 +119,51 @@ const BackstopMarketTab:React.FC<Props> = (props: Props) =>{
         selectedMarket && selectedMarket.backstop ? setBackstopWithdrawInput(selectedMarket.backstop.userBalance.toString()) : setBackstopWithdrawInput("0")
     }
 
-    let isDepositDisabled: boolean | undefined = depositInput === '' || depositValidation != '';
-    isDepositDisabled = isDepositDisabled || selectedMarketSpinners?.backstopDepositSpinner;
-    isDepositDisabled = isDepositDisabled ?? false;
-
-    let isApproveDisabled = !selectedMarket || (selectedMarket && selectedMarketSpinners?.backstopDepositSpinner);
-    isApproveDisabled = isApproveDisabled ?? false;
-
+    const bs = getBackstopMarketTabVariables(depositInput, depositValidation, backstopWithdrawInput, backstopWithdrawValidation, selectedMarket, selectedMarketSpinners)
+    
     return (
-        <>
-            <MarketDialogItem title={"Wallet Ballance"} value={`${selectedMarket?.underlying.walletBalance?.toRound(4, true)} ${selectedMarket?.underlying.symbol}`} className="dialog-section-no-bottom-gap"/>
+        <>  
+            <MarketDialogItem title={"Wallet Ballance"} value={`${bs.underlyingBalance} ${bs.underlyingSymbol}`} className="dialog-section-no-bottom-gap"/>
             <BackstopSection/>
-            <TextBox placeholder={`0 ${selectedMarket?.underlying.symbol}`} disabled={props.backstopDepositDisabled} value={depositInput} setInput={setDepositInput} validation={depositValidation} button={"Max"}
+            <TextBox placeholder={`0 ${bs.underlyingSymbol}`} disabled={props.backstopDepositDisabled} value={depositInput} setInput={setDepositInput} validation={depositValidation} button={"Max"}
                      onClick={()=>getMaxAmount()} validationCollapse={true}/>
-            {selectedMarket?.backstop && selectedMarket?.backstop.allowance?.gt(BigNumber.from(0)) && selectedMarket?.backstop.allowance?.gte(depositInput.trim() === "" || isNaN(+depositInput) ?
-                BigNumber.from("0") :
-                BigNumber.parseValue(depositInput))
+            { bs.isBackstop
                 ? (
-                    <MarketDialogButton disabled={isDepositDisabled}
-                                        onClick={() => {   selectedMarket ? props.handleBackstopDeposit(selectedMarket?.underlying.symbol, depositInput) : null}}>
+                    <MarketDialogButton disabled={bs.isDepositDisabled}
+                                        onClick={() => {selectedMarket ? props.handleBackstopDeposit(bs.underlyingSymbol, depositInput) : null}}>
                         {selectedMarketSpinners?.backstopDepositSpinner ? (<Spinner size={"20px"}/>) : "Deposit"}
                     </MarketDialogButton>
                 ) : (
-                    <MarketDialogButton disabled={isApproveDisabled}
-                                        onClick={() => {selectedMarket ? props.handleApproveBackstop(selectedMarket?.underlying.symbol) : null}}>
-                        {selectedMarketSpinners?.backstopDepositSpinner ? (<Spinner size={"20px"}/>) : `Approve ${selectedMarket?.underlying.symbol}`}
+                    <MarketDialogButton disabled={bs.isApproveDisabled}
+                                        onClick={() => {selectedMarket ? props.handleApproveBackstop(bs.underlyingSymbol) : null}}>
+                        {selectedMarketSpinners?.backstopDepositSpinner ? (<Spinner size={"20px"}/>) : `Approve ${bs.underlyingSymbol}`}
                     </MarketDialogButton>)}
-            <TextBox placeholder={`0 ${selectedMarket?.backstop?.symbol}`} disabled={props.backstopWithdrawDisabled} value={backstopWithdrawInput} setInput={setBackstopWithdrawInput} validation={backstopWithdrawValidation} button={"Max"}
+            <TextBox placeholder={`0 ${bs.backstopSymbol}`} disabled={props.backstopWithdrawDisabled} value={backstopWithdrawInput} setInput={setBackstopWithdrawInput} validation={backstopWithdrawValidation} button={"Max"}
                      onClick={() => getMaxBackstopWithdraw()} validationCollapse={true}/>
             <MarketDialogButton
                 className="backstop-dialog-button"
-                disabled={backstopWithdrawInput === "" || backstopWithdrawValidation !== "" || isNaN(+backstopWithdrawInput) || selectedMarketSpinners?.backstopWithdrawSpinner || !selectedMarket?.backstop || BigNumber.parseValue(backstopWithdrawInput).gt(selectedMarket.backstop?.userBalance)}
+                disabled={bs.isBackstopWithdrawDisabled}
                 onClick={() => {    selectedMarket ?
                     props.handleBackstopWithdraw(
-                        selectedMarket?.underlying.symbol,
+                        bs.underlyingSymbol,
                         backstopWithdrawInput
                     ) : null
                 }}
             >
-                {selectedMarket && selectedMarketSpinners?.backstopWithdrawSpinner ? (<Spinner size={"20px"}/>) : backstopWithdraw}
+                {selectedMarket && {...selectedMarketSpinners}?.backstopWithdrawSpinner ? (<Spinner size={"20px"}/>) : backstopWithdraw}
             </MarketDialogButton>
             {
-                selectedMarket?.backstop && +selectedMarket?.backstop.pendingHundred.toString() > 0 ?
+                bs.isPendingHundred ?
                     <MarketDialogButton
                         className="backstop-dialog-button"
                         disabled={!!selectedMarketSpinners?.backstopClaimSpinner}
                         onClick={() => {    selectedMarket ?
                             props.handleBackstopClaim(
-                                selectedMarket?.underlying.symbol,
+                                bs.underlyingSymbol,
                             ) : null
                         }}
                     >
-                        {selectedMarket && selectedMarketSpinners?.backstopClaimSpinner ? (<Spinner size={"20px"}/>) : `Claim ${selectedMarket.backstop?.pendingHundred.toRound(4, true, true)} HND`}
+                        {selectedMarket && selectedMarketSpinners?.backstopClaimSpinner ? (<Spinner size={"20px"}/>) : `Claim ${bs.claimAmount} HND`}
                     </MarketDialogButton>
                     :<></>
             }

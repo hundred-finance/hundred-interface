@@ -4,15 +4,19 @@ import {stakingApr, formatApr} from "../../aprHelpers";
 import "../dialogSection.css"
 import { useHundredDataContext } from "../../../../Types/hundredDataContext";
 import { useUiContext } from "../../../../Types/uiContext";
+import { GaugeV4 } from "../../../../Classes/gaugeV4Class";
 
 const SupplyRateSection:React.FC = () => {
     const { darkMode } = useUiContext();
     const { selectedMarket, gaugesV4Data } = useHundredDataContext();
-    const gaugeV4 = gaugesV4Data
-        ? [...gaugesV4Data].find((x) => {
-              return x?.generalData.lpTokenUnderlying === selectedMarket?.underlying.address;
-          })
-        : null;
+    let gaugeV4 : GaugeV4 | null | undefined; 
+    if (selectedMarket){
+        gaugeV4 = gaugesV4Data
+            ? [...gaugesV4Data].find((x) => {
+                    return x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address;
+                })
+            : null;
+    }
     return (
         <div className="dialog-section">
             <div className="dialog-section-title">

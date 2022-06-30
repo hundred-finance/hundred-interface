@@ -39,11 +39,14 @@ const useFetchData = () => {
     const {network, hndPrice, setHndEarned, setHndBalance, setHundredBalance, setVehndBalance, setHndRewards, setGaugeAddresses} = useGlobalContext()
     const {setSpinnerVisible, toastErrorMessage} = useUiContext()
     const {library, chainId, account} = useWeb3React()
-    const gaugeV4 = gaugesV4Data
-    ? [...gaugesV4Data].find((x) => {
-            return x?.generalData.lpTokenUnderlying === selectedMarket?.underlying.address;
-        })
-    : null;
+    let gaugeV4 : GaugeV4 | null | undefined; 
+    if (selectedMarket){
+        gaugeV4 = gaugesV4Data
+            ? [...gaugesV4Data].find((x) => {
+                    return x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address;
+                })
+            : null;
+    }
 
     useEffect(() => {
         return () => clearTimeout(Number(timeoutId.current));
@@ -290,13 +293,13 @@ const useFetchData = () => {
         const currBalance = BigNumber.from(currBalanceInput);
         const call: any = [];
         //STEP 2: fetch user data
-        console.log("selectedMarket", selectedMarket);
-        if (network && selectedMarket) {
+        const selected = {...selectedMarket}
+        if (network && selected) {
             if (tokenContract) {
                 if (action === "supply" || action === 'withdraw') {
                     call.push(tokenContract.getAccountSnapshot(account)); //returns array of 4 BigNumbers
                 } else if (action === 'approveSupply') {
-                    call.push(tokenContract.allowance(account, selectedMarket.pTokenAddress));
+                    call.push(tokenContract.allowance(account, selected.pTokenAddress));
                 }            
             } else if (gaugeV4) {
                 const gaugeHelper = gaugeV4?.generalData.gaugeHelper;
@@ -332,14 +335,11 @@ const useFetchData = () => {
                 const getAccountSnapshotString = newBalanceResult[0].toString();
                 const getAccountSnapshotArray = getAccountSnapshotString.split(',');
                 newBalance = BigNumber.from(getAccountSnapshotArray[1]); //cTokenBalance
-                console.log('newBalance: ', newBalance);
             } else {
                 newBalance = BigNumber.from(newBalanceResult[0]); //allowance or balance
             }
             //STEP 3: check userBalance has been updated, if not, check again recursively
-            if (!newBalance.eq(currBalance)) {
-                console.log('newBalance.eq(currBalance): ', !newBalance.eq(currBalance));
-                return true;}
+            if (!newBalance.eq(currBalance)) return true;
             const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
             await delay(2000); //wait 2 seconds, run again
             if (gaugeV4) {

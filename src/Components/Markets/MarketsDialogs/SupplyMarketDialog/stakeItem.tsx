@@ -53,11 +53,14 @@ const StakeItem: React.FC<Props> = (props: Props) => {
         selectedMarket ? (selectedMarketRef.current = { ...selectedMarket }) : undefined;
     }, [selectedMarket]);
 
-    const gaugeV4 = gaugesV4Data
-        ? [...gaugesV4Data].find((x) => {
-              return x?.generalData.lpTokenUnderlying === selectedMarket?.underlying.address;
-          })
-        : null;
+    let gaugeV4 : GaugeV4 | null | undefined; 
+    if (selectedMarket){
+        gaugeV4 = gaugesV4Data
+            ? [...gaugesV4Data].find((x) => {
+                    return x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address;
+                })
+            : null;
+    }
     const backstopGaugeV4 = gaugeV4?.generalData.backstopGauge;
     const isStake = props.isStake && selectedMarket;
     const isBackstop = !isStake && selectedMarket && selectedMarket.backstop;

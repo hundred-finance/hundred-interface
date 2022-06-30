@@ -30,12 +30,14 @@ const DirectStakeMarketTab: React.FC<Props> = (props: Props) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [unstakeValidation, setUnstakeValidation] = useState<string>('');
     let underlyingAmount, isStake, isUnstake, userStakedUnderlyingTokenBalance;
-    const gaugeV4 = gaugesV4Data
-        ? [...gaugesV4Data].find((x) => {
-              return x?.generalData.lpTokenUnderlying === selectedMarket?.underlying.address;
-          })
-        : null;
-
+    let gaugeV4 : GaugeV4 | null | undefined; 
+    if (selectedMarket){
+        gaugeV4 = gaugesV4Data
+            ? [...gaugesV4Data].find((x) => {
+                    return x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address;
+                })
+            : null;
+    }
     useEffect(()=>{
         const handleStakeAmountChange = () => {
 
