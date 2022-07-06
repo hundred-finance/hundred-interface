@@ -6,16 +6,18 @@ import { useHundredDataContext } from "../../Types/hundredDataContext"
 import { useUiContext } from "../../Types/uiContext"
 import {GaugeV4, getBackstopGaugesData, getGaugesData} from "../../Classes/gaugeV4Class";
 import { fetchData } from "./fetchData"
-import { CTokenInfo, CTokenSpinner } from "../../Classes/cTokenClass"
+import { CTokenInfo, CTokenSpinner, SpinnersEnum } from "../../Classes/cTokenClass"
 import { BigNumber } from "../../bigNumber"
 import { GeneralDetailsData, getGeneralDetails } from "../../Classes/generalDetailsClass"
-import { COMPTROLLER_ABI, CTOKEN_ABI, GAUGE_V4_ABI, HUNDRED_ABI } from "../../abi"
+import { CETHER_ABI, COMPTROLLER_ABI, CTOKEN_ABI, GAUGE_V4_ABI, HUNDRED_ABI, TOKEN_ABI } from "../../abi"
 import { Contract, Provider } from "ethcall"
 import { ethers } from "ethers"
-export enum UpdateTypeEnum{
-    EnableMarket
-}
 
+export enum UpdateTypeEnum{
+    EnableMarket,
+    ApproveMarket,
+    Supply
+}
 
 const useFetchData = () => {
     const timeoutId = useRef<string | number | NodeJS.Timeout | undefined>()
@@ -39,14 +41,6 @@ const useFetchData = () => {
     const {network, hndPrice, setHndEarned, setHndBalance, setHundredBalance, setVehndBalance, setHndRewards, setGaugeAddresses} = useGlobalContext()
     const {setSpinnerVisible, toastErrorMessage} = useUiContext()
     const {library, chainId, account} = useWeb3React()
-    let gaugeV4 : GaugeV4 | null | undefined; 
-    if (selectedMarket){
-        gaugeV4 = gaugesV4Data
-            ? [...gaugesV4Data].find((x) => {
-                    return x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address;
-                })
-            : null;
-    }
 
     useEffect(() => {
         return () => clearTimeout(Number(timeoutId.current));
@@ -56,12 +50,29 @@ const useFetchData = () => {
         
         if(network){
             const net = {...network}
-            console.log("get comptroller data")
             const comptroller = await getComptrollerData(library, net)
-            console.log(comptroller)
             setComptrollerData(comptroller)
         }
     }
+
+    const getMaxAmount = async (market: CTokenInfo, func?: string) : Promise<BigNumber> => {
+        const m = {...market}
+          if (m.isNativeToken && library) {
+            const gasRemainder = BigNumber.parseValue("0.1")
+            
+            if(func === "repay" && library){
+              const balance = m.underlying.walletBalance.subSafe(gasRemainder);
+              return balance.gt(BigNumber.from("0")) ? balance : BigNumber.from("0") 
+            }
+            else if(func === "supply" && library){
+              const balance = m.underlying.walletBalance.gt(BigNumber.from("0")) ? m.underlying.walletBalance.subSafe(gasRemainder) : m.underlying.walletBalance
+            
+              return balance.gt(BigNumber.from("0")) ? balance : BigNumber.from("0") 
+            }
+          }
+          
+        return m.underlying.walletBalance
+      }
 
     const updateMarkets = (markets: CTokenInfo[], hndBalance: BigNumber, hundredBalace: BigNumber, compaccrued: BigNumber, vehndBalance: BigNumber, hndRewards: BigNumber, gaugeAddresses: string[]): void =>{
         if(markets){
@@ -86,7 +97,6 @@ const useFetchData = () => {
 
     const getData = async () => {
         if(network && account && comptrollerData){
-            console.log("Get Data", networkId.current, "Errors", errorsCount.current)
             const comptroller = {...comptrollerData}
             const net = {...network}
             const gauges = await getGaugesData(library, account, net, () => null)
@@ -109,7 +119,6 @@ const useFetchData = () => {
                     return new CTokenSpinner(m.underlying.symbol)
                   })
                 setMarketsSpinners(spinners)
-                console.log("first load")
                 firstLoad.current = false
                 setSpinnerVisible(false)
                 const oldGauges = await getGaugesData(library, account, net, () => setSpinnerVisible(false), true)
@@ -144,7 +153,6 @@ const useFetchData = () => {
         try{
             update.current = true
             clearTimeout(Number(timeoutId.current));
-            console.log("UpdateData")
             await getData()
             timeoutId.current = setTimeout(updateData, 10000)
             errorsCount.current = 0
@@ -170,7 +178,6 @@ const useFetchData = () => {
     }
 
     useEffect(() => {
-        console.log("Fetch")
         clearTimeout(Number(timeoutId.current));
         timeoutId.current = undefined
         firstLoad.current = true
@@ -201,15 +208,69 @@ const useFetchData = () => {
 
     useEffect(() => {
         if(marketsData.length > 0 && gaugesV4Data.length > 0 && compAccrued.current !== undefined){
-            console.log("Update General Data")
             const markets = [...marketsData]
             const gauges = [...gaugesV4Data]
             const data = getGeneralDetails(markets, gauges, compAccrued.current)
             setGeneralData(data)
             setHndEarned(data.earned)
-
+            if(selectedMarket){
+                const selected = {...selectedMarket}
+                const market = markets.find(x=> x.underlying.symbol === selected.underlying.symbol)
+                console.log("Update selected", selected.underlying.symbol, market?.underlying.symbol)
+                if(market){
+                    setSelectedMarket(market)
+                }
+            }
         }
     }, [marketsData, gaugesV4Data, compAccrued.current])
+
+    const toggleSpinners = (symbol: string, spinner: SpinnersEnum) => {
+        if(marketsSpinners){
+          const spinners = [...marketsSpinners]
+          const marketSpinners = spinners.find(s => s.symbol === symbol)
+          if(marketSpinners){
+            switch (spinner){
+              case SpinnersEnum.enterMarket :
+                marketSpinners.enterMarketSpinner = !marketSpinners.enterMarketSpinner
+                break
+              case SpinnersEnum.borrow : 
+                marketSpinners.borrowSpinner = !marketSpinners.borrowSpinner
+                break
+              case SpinnersEnum.repay : 
+                marketSpinners.repaySpinner = !marketSpinners.repaySpinner
+                break
+              case SpinnersEnum.supply :
+                marketSpinners.supplySpinner = !marketSpinners.supplySpinner
+                break
+              case SpinnersEnum.withdraw :
+                marketSpinners.withdrawSpinner = !marketSpinners.withdrawSpinner
+                break
+              case SpinnersEnum.stake :
+                marketSpinners.stakeSpinner = !marketSpinners.stakeSpinner
+                break
+              case SpinnersEnum.unstake :
+                marketSpinners.unstakeSpinner = !marketSpinners.unstakeSpinner
+                break
+              case SpinnersEnum.mint : 
+                marketSpinners.mintSpinner = !marketSpinners.mintSpinner
+                break
+              case SpinnersEnum.backstopDeposit :
+                marketSpinners.backstopDepositSpinner = !marketSpinners.backstopDepositSpinner
+                break       
+              case SpinnersEnum.backstopWithdraw : 
+                marketSpinners.backstopWithdrawSpinner = !marketSpinners.backstopWithdrawSpinner
+                break
+              case SpinnersEnum.backstopClaim :
+                marketSpinners.backstopClaimSpinner = !marketSpinners.backstopClaimSpinner
+                break              
+              }
+            marketSpinners.spinner = marketSpinners.enableMainSpinner()
+            setMarketsSpinners(spinners)
+            if(selectedMarket && {...selectedMarketSpinners}.symbol === marketSpinners.symbol)
+              setSelectedMarketSpinners(marketSpinners)
+          }
+        }
+      }
 
     const stopUpdate = async () :Promise<void> => {
         let count = 0
@@ -232,19 +293,136 @@ const useFetchData = () => {
         console.log("Begin Update Market - Try to stop Update")
         stopUpdate()
         console.log("Update Market")
+        const net = {...network}
+        if(net && net.chainId){
             switch (updateType){
                 case UpdateTypeEnum.EnableMarket:
-                    const net = {...network}
-                    if(net && net.chainId)
-                        await handleEnableMarket(market, shouldReturn, net.chainId)
-                    break;
+                    await handleEnableMarket(market, shouldReturn, net.chainId)
+                    break
+                case UpdateTypeEnum.ApproveMarket:
+                    await handleMarketApprove(market, net.chainId)
+                    break
+                case UpdateTypeEnum.Supply:
+                    await handleSupply(market, net.chainId)
+                    break
             }
-            startUpdate()
+        }
+        startUpdate()
+    }
+
+    const handleMarketApprove = async (market: CTokenInfo, chain: number, count = 0) => {
+        if(network && networkId.current === chain && account && library){
+            try{
+                await delay(5)
+                const tokenContract = new ethers.Contract(market.underlying.address, TOKEN_ABI, library)
+                const allowance = await tokenContract.allowance(account, market.pTokenAddress)
+                const value = BigNumber.from(allowance, market.underlying.decimals)
+                if(+value.toString() > +market.underlying.allowance.toString()){
+                    console.log("Should Return", value.toString())
+                    const markets = [...marketsData]
+                    const m = markets.find(x => x.underlying.symbol === market.underlying.symbol)
+                    if(m !== undefined && networkId.current === chain){
+                        m.underlying.allowance = value
+                        setMarketsData(markets)
+                        if(selectedMarket && {...selectedMarket}.underlying.symbol === m.underlying.symbol){
+                            setSelectedMarket(m)
+                        }
+                        return value.toString()
+                    }
+                }
+                else {
+                    if (count < 20){
+                        console.log("Not should return - Retry")
+                        await delay(5)
+                        await handleMarketApprove(market, chain, count++)
+                    }
+                }
+            }
+            catch(err){
+                console.log("Error - retry update market")
+                console.error(err)
+                await delay(5)
+                await handleMarketApprove(market, chain, count)
+            }
+        }
+    }
+
+    const handleSupply = async (market: CTokenInfo, chain: number, count = 0) => {
+        if(network && networkId.current === chain && account && library){
+            try{
+                await delay(5)
+                const token = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI;
+                const ctoken = new ethers.Contract(market.pTokenAddress, token, library);
+                    
+                const accountSnapshot = await ctoken.getAccountSnapshot(account)
+                const accountSnapshot1 = BigNumber.from(accountSnapshot[1].toString(), 18)
+                const accountSnapshot3 = BigNumber.from(accountSnapshot[3].toString(), market.underlying.decimals)
+                const supplyBalanceInTokenUnit = accountSnapshot1.mul(accountSnapshot3)
+
+                if(+supplyBalanceInTokenUnit.toString() > +market.supplyBalanceInTokenUnit.toString()){
+                    console.log("Should Return", supplyBalanceInTokenUnit.toString())
+                    const markets = [...marketsData]
+                    const m = markets.find(x => x.underlying.symbol === market.underlying.symbol)
+
+                    if(m !== undefined && networkId.current === chain && comptrollerData){
+                        const comptroller = {...comptrollerData}
+                        let underlyingPrice = market.underlying.price
+                        let walletBalance = market.underlying.walletBalance
+                        if(market.isNativeToken){
+                            const [price] = await comptroller.ethcallProvider.all([comptroller.oracle.getUnderlyingPrice(market.pTokenAddress)])
+                            const wallet = await library.getBalance(account)
+                            underlyingPrice = BigNumber.from(price, 36-market.underlying.decimals)
+                            walletBalance = BigNumber.from(wallet, market.underlying.decimals)
+                        }
+                        else{
+                            const tokenContract = new Contract(market.underlying.address, TOKEN_ABI)
+                            const [price, wallet] = await comptroller.ethcallProvider.all(
+                                [comptroller.oracle.getUnderlyingPrice(market.pTokenAddress),
+                                 tokenContract.balanceOf(account)])
+
+                            underlyingPrice = BigNumber.from(price, 36-market.underlying.decimals)
+                            walletBalance = BigNumber.from(wallet, market.underlying.decimals)
+                        }
+
+                        if(+walletBalance.toString() < +market.underlying.walletBalance){
+                            const supplyBalance = BigNumber.parseValue((+supplyBalanceInTokenUnit.toString() * +underlyingPrice.toString()).noExponents())
+                            m.underlying.price = underlyingPrice
+                            m.underlying.walletBalance = walletBalance
+                            m.supplyBalance = supplyBalance
+                            m.supplyBalanceInTokenUnit = supplyBalanceInTokenUnit
+
+                            setMarketsData(markets)
+                            
+                            return supplyBalance.toString()
+                        }
+                        else{
+                            if (count < 20){
+                                console.log("Not should return - Wallet Balance")
+                                await delay(5)
+                                await handleSupply(market, chain, count++)
+                            }        
+                        }
+                    }
+                }
+                else {
+                    if (count < 20){
+                        console.log("Not should return - Retry")
+                        await delay(5)
+                        await handleSupply(market, chain, count++)
+                    }
+                }
+            }
+            catch(err){
+                console.log("Error - retry update market")
+                console.error(err)
+                await delay(5)
+                await handleSupply(market, chain, count)
+            }
+        }
     }
 
     const handleEnableMarket = async (market: CTokenInfo, shouldReturn: boolean, chain: number, count = 0) => {
         if(network && networkId.current === chain && account && library){
-            console.log(networkId.current, chain)
             try{
                 await delay(5)
                 const net = {...network}
@@ -254,10 +432,8 @@ const useFetchData = () => {
                 if (isEnterMarket === shouldReturn && marketsData){
                         console.log("Should return", isEnterMarket)
                         const markets = [...marketsData]
-                        console.log(markets)
                         const m = markets.find(x => x.underlying.symbol === market.underlying.symbol)
                         if(m !== undefined && networkId.current === chain){
-                            console.log(m)
                             m.isEnterMarket = isEnterMarket
                             setMarketsData(markets)
                         }
@@ -295,6 +471,11 @@ const useFetchData = () => {
         //STEP 2: fetch user data
         const selected = {...selectedMarket}
         if (network && selected) {
+    
+        const gaugeV4 = gaugesV4Data
+            ? [...gaugesV4Data].find((x) => x?.generalData.lpTokenUnderlying === selected.underlying?.address)
+            : null
+    
             if (tokenContract) {
                 if (action === "supply" || action === 'withdraw') {
                     call.push(tokenContract.getAccountSnapshot(account)); //returns array of 4 BigNumbers
@@ -352,7 +533,8 @@ const useFetchData = () => {
 
      return{comptrollerData, setComptrollerData, marketsData, setMarketsData, marketsSpinners,
         setMarketsSpinners, gaugesV4Data, setGaugesV4Data, generalData, setGeneralData,
-       selectedMarket, setSelectedMarket, selectedMarketSpinners, setSelectedMarketSpinners, updateMarket, checkUserBalanceIsUpdated}
+       selectedMarket, setSelectedMarket, selectedMarketSpinners, setSelectedMarketSpinners, toggleSpinners, updateMarket, 
+       getMaxAmount, checkUserBalanceIsUpdated}
  }
 
  export default useFetchData

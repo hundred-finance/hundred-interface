@@ -520,7 +520,7 @@ export const fetchData = async(
       accrued = (+newSupplyIndex - +token.compSupplierIndex) * +token.cTokenBalanceOfUser / 1e36 
     }
     
-    let backstop = null
+    let backstop = undefined
 
     if(token.backstop){
       if(network.backstopMasterChef?.version === MasterChefVersion.v1){

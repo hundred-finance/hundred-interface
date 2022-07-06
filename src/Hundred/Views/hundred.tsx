@@ -37,7 +37,8 @@ const Hundred: React.FC = () => {
 
   const {comptrollerData, setComptrollerData, marketsData, setMarketsData, marketsSpinners,
     setMarketsSpinners, gaugesV4Data, setGaugesV4Data, generalData, setGeneralData,
-   selectedMarket, setSelectedMarket, selectedMarketSpinners, setSelectedMarketSpinners, updateMarket} = useFetchData()
+   selectedMarket, setSelectedMarket, selectedMarketSpinners, setSelectedMarketSpinners, 
+   toggleSpinners, updateMarket, getMaxAmount} = useFetchData()
 
 
   const setGMessage = (message: string) => {
@@ -82,53 +83,6 @@ const Hundred: React.FC = () => {
     
   }, [network])
 
-  const toggleSpinners = (symbol: string, spinner: SpinnersEnum) => {
-    if(marketsSpinners){
-      const spinners = [...marketsSpinners]
-      const marketSpinners = spinners.find(s => s.symbol === symbol)
-      if(marketSpinners){
-        switch (spinner){
-          case SpinnersEnum.enterMarket :
-            marketSpinners.enterMarketSpinner = !marketSpinners.enterMarketSpinner
-            break
-          case SpinnersEnum.borrow : 
-            marketSpinners.borrowSpinner = !marketSpinners.borrowSpinner
-            break
-          case SpinnersEnum.repay : 
-            marketSpinners.repaySpinner = !marketSpinners.repaySpinner
-            break
-          case SpinnersEnum.supply :
-            marketSpinners.supplySpinner = !marketSpinners.supplySpinner
-            break
-          case SpinnersEnum.withdraw :
-            marketSpinners.withdrawSpinner = !marketSpinners.withdrawSpinner
-            break
-          case SpinnersEnum.stake :
-            marketSpinners.stakeSpinner = !marketSpinners.stakeSpinner
-            break
-          case SpinnersEnum.unstake :
-            marketSpinners.unstakeSpinner = !marketSpinners.unstakeSpinner
-            break
-          case SpinnersEnum.mint : 
-            marketSpinners.mintSpinner = !marketSpinners.mintSpinner
-            break
-          case SpinnersEnum.backstopDeposit :
-            marketSpinners.backstopDepositSpinner = !marketSpinners.backstopDepositSpinner
-            break       
-          case SpinnersEnum.backstopWithdraw : 
-            marketSpinners.backstopWithdrawSpinner = !marketSpinners.backstopWithdrawSpinner
-            break
-          case SpinnersEnum.backstopClaim :
-            marketSpinners.backstopClaimSpinner = !marketSpinners.backstopClaimSpinner
-            break              
-          }
-        marketSpinners.spinner = marketSpinners.enableMainSpinner()
-        setMarketsSpinners(spinners)
-      }
-    }
-  }
-
-
   const myErrorHandler = (error: Error, info: {componentStack: string}) => {
     console.log(error)
     console.log(info)
@@ -159,7 +113,7 @@ const Hundred: React.FC = () => {
                                             generalData, setGeneralData,
                                             selectedMarket, setSelectedMarket,
                                             selectedMarketSpinners, setSelectedMarketSpinners,
-                                            toggleSpinners, setGMessage, updateMarket})}>
+                                            toggleSpinners, setGMessage, updateMarket, getMaxAmount})}>
     <>
         <Wrapper>
             {!isTablet && !isMobile ? 

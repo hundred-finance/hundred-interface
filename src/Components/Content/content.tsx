@@ -8,7 +8,7 @@ import { getGeneralDetails } from "../../Classes/generalDetailsClass"
 import Markets from "../Markets/markets"
 import EnterMarketDialog from "../Markets/MarketsDialogs/enterMarketDialog"
 import BorrowMarketDialog from "../Markets/MarketsDialogs/BorrowMarketDialog/borrowMarketsDialog"
-import SupplyMarketDialog from "../Markets/MarketsDialogs/SupplyMarketDialog/supplyMarketsDialog"
+import SupplyMarketDialog from "../Markets/MarketsDialogs/SupplyMarketDialogNew/supplyMarketDialog"
 import { fetchData} from "./fetchData"
 import {GaugeV4, getBackstopGaugesData, getGaugesData} from "../../Classes/gaugeV4Class";
 import HundredMessage from "../MessageDialog/messageDialog"
@@ -342,7 +342,7 @@ const Content: React.FC = () => {
   }
     return (
         <div className="content">
-            <GeneralDetails generalData={generalData}/>
+            <GeneralDetails/>
             <Markets
                 enterMarketDialog={enterMarketDialog}
                 supplyMarketDialog={supplyMarketDialog}
@@ -353,7 +353,6 @@ const Content: React.FC = () => {
             <SupplyMarketDialog
                 open={openSupplyMarketDialog}
                 closeSupplyMarketDialog={closeSupplyMarketDialog}
-                getMaxAmount={getMaxAmount}
             />
             <BorrowMarketDialog open={openBorrowMarketDialog}
               closeBorrowMarketDialog={closeBorrowMarketDialog} getMaxAmount={getMaxAmount} getMaxRepayAmount={getMaxRepayAmount}/>

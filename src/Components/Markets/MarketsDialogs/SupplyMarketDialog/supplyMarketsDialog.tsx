@@ -1,6 +1,6 @@
 import { BigNumber } from '../../../../bigNumber';
 import React, { useEffect, useRef, useState } from 'react';
-import { Tab, TabContent, TabHeader, TabHeaderItem } from '../../../TabControl/tabControl';
+import { Tab, TabContent, TabContentItem, TabHeader, TabHeaderItem } from '../../../TabControl/tabControl';
 import '../supplyMarketDialog.css';
 import { CTokenInfo } from '../../../../Classes/cTokenClass';
 import ReactToolTip from 'react-tooltip';
@@ -20,26 +20,17 @@ interface Props {
 }
 const SupplyMarketDialog: React.FC<Props> = (props: Props) => {
     const [tabChange, setTabChange] = useState<number>(1);
+    const [tabHeaders, setTabHeaders] = useState<any[]>([])
+    const [tabContents, setTabContents] = useState<any>([])
     const { spinnerVisible } = useUiContext();
     const { generalData, selectedMarket, gaugesV4Data } = useHundredDataContext();
     const dialogContainer = document.getElementById('modal') as Element;
     const ref = useRef<HTMLDivElement | null>(null);
-    let gaugeV4 : GaugeV4 | null | undefined; 
-    if (selectedMarket){
-        gaugeV4 = gaugesV4Data
-            ? [...gaugesV4Data].find((x) => {
-                    return x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address;
-                })
-            : null;
-    }
-    const backstopGaugeV4 = gaugeV4?.generalData.backstopGauge;
+    
+    
+    
     let isStake, isBackstop, isAllTabs, isBackstopTab;
-    if (selectedMarket) {
-        isStake = gaugeV4 && generalData ? true : false;
-        isBackstop = selectedMarket.backstop ? true : false;
-        isAllTabs = (isBackstop || backstopGaugeV4) && gaugeV4 ? true : null;
-        isBackstopTab = isBackstop || backstopGaugeV4;
-    }
+    
 
     // console.log('isStake: ', isStake);
     // console.log('isBackstop: ', isBackstop);
@@ -48,52 +39,100 @@ const SupplyMarketDialog: React.FC<Props> = (props: Props) => {
 
     // const isSupplyandWithdraw =
     const CloseDialog = (): void => {
-        setTabChange(1);
+        //setTabChange(1);
         props.closeSupplyMarketDialog();
     };
 
-    // Alert if clicked on outside of element
     useEffect(() => {
-        const CloseDialog = (): void => {
-            if (spinnerVisible) return;
-
-            setTabChange(1);
-            props.closeSupplyMarketDialog();
-        };
-
-        if (props.open) {
-            document.getElementsByTagName('body')[0].style.overflow = 'hidden';
-        } else {
-            document.getElementsByTagName('body')[0].style.overflow = 'auto';
-            CloseDialog();
-        }
-
-        function handleClickOutside(event: any): void {
-            if (ref && ref.current && !ref.current.contains(event.target)) {
-                CloseDialog();
+        if(selectedMarket && props.open){
+            const market = {...selectedMarket}
+            const headers = []
+            const contents = []
+            const gaugeV4 = [...gaugesV4Data].find((x) => x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address)
+            headers.push({title: "Supply"})
+            contents.push(
+                <TabContentItem key={headers.length - 1} open={props.open} tabId={headers.length} tabChange={tabChange}>
+                    <SupplyItem tabChange={tabChange} open={props.open} getMaxAmount={props.getMaxAmount} />
+                </TabContentItem>
+            )
+            if(gaugeV4){
+                headers.push({title: "Stake"})
+                contents.push(
+                    <TabContentItem key={headers.length - 1} open={props.open} tabId={headers.length} tabChange={tabChange}>
+                        <StakeItem
+                            isStake={true}
+                            tabChange={tabChange}
+                            open={props.open}
+                            getMaxAmount={props.getMaxAmount}
+                        />
+                    </TabContentItem>)
             }
+            
+            const backstopGaugeV4= gaugesV4Data?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === market.pTokenAddress.toLowerCase())
+            if(market.backstop || backstopGaugeV4){
+                headers.push({title: "Backstop"})
+                contents.push(
+                    <TabContentItem key={headers.length - 1} open={props.open} tabId={headers.length} tabChange={tabChange}>
+                        <StakeItem
+                            isStake={true}
+                            tabChange={tabChange}
+                            open={props.open}
+                            getMaxAmount={props.getMaxAmount}
+                        />
+                    </TabContentItem>)
+            }
+            
+            headers.push({title: "Withdraw"})
+            contents.push(
+                <TabContentItem key={headers.length - 1} open={props.open} tabId={headers.length} tabChange={tabChange}>
+                    <WithdrawItem tabChange={tabChange} open={props.open} getMaxAmount={props.getMaxAmount} />
+                </TabContentItem>)
+
+            setTabHeaders(headers)
+            setTabContents(contents)
+            console.log(headers)
         }
+    }, [props.open])
 
-        // Bind the event listener
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            // Unbind the event listener on clean up
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [ref, props.open]);
+    // Alert if clicked on outside of element
+    // useEffect(() => {
+    //     const CloseDialog = (): void => {
+    //         if (spinnerVisible) return;
 
-    const dialog = selectedMarket ? (
+    //         setTabChange(1);
+    //         props.closeSupplyMarketDialog();
+    //     };
+
+    //     if (props.open) {
+    //         document.getElementsByTagName('body')[0].style.overflow = 'hidden';
+    //     } else {
+    //         document.getElementsByTagName('body')[0].style.overflow = 'auto';
+    //         CloseDialog();
+    //     }
+
+    //     // function handleClickOutside(event: any): void {
+    //     //     if (ref && ref.current && !ref.current.contains(event.target)) {
+    //     //         CloseDialog();
+    //     //     }
+    //     // }
+
+    //     // // Bind the event listener
+    //     // document.addEventListener('mousedown', handleClickOutside);
+    //     // return () => {
+    //     //     // Unbind the event listener on clean up
+    //     //     document.removeEventListener('mousedown', handleClickOutside);
+    //     // };
+    // }, [ref, props.open]);
+
+    const dialog = selectedMarket && [...tabHeaders].length > 0 && [...tabContents].length > 0? (
         <div className={`dialog ${props.open ? 'open-dialog' : ''}`}>
-            <div className="dialog-background" />
+            <div className="dialog-background" onClick={() => CloseDialog()}/>
             <ReactToolTip id="borrow-dialog-tooltip" effect="solid" />
-            <div
-                ref={ref}
-                className={`supply-box ${
+            <div className={`supply-box ${
                     selectedMarket?.backstop && +selectedMarket.backstop.pendingHundred.toString() > 0
                         ? 'supply-box-expand'
                         : ''
-                }`}
-            >
+                }`}>
                 <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={() => CloseDialog()} />
                 <div className="dialog-title">
                     {{ ...selectedMarket }?.underlying.symbol && (
@@ -107,84 +146,15 @@ const SupplyMarketDialog: React.FC<Props> = (props: Props) => {
                     {`${{ ...selectedMarket }?.underlying.symbol}`}
                 </div>
                 <Tab>
-                    {isAllTabs ? (
-                        <TabHeader tabChange={tabChange}>
-                            <TabHeaderItem tabId={1} title="Supply" tabChange={tabChange} setTabChange={setTabChange} />
-                            <TabHeaderItem tabId={2} title="Stake" tabChange={tabChange} setTabChange={setTabChange} />
-                            <TabHeaderItem
-                                tabId={3}
-                                title="Backstop"
-                                tabChange={tabChange}
-                                setTabChange={setTabChange}
-                            />
-                            <TabHeaderItem
-                                tabId={4}
-                                title="Withdraw"
-                                tabChange={tabChange}
-                                setTabChange={setTabChange}
-                            />
-                        </TabHeader>
-                    ) : isBackstopTab ? (
-                        <TabHeader tabChange={tabChange}>
-                            <TabHeaderItem tabId={1} title="Supply" tabChange={tabChange} setTabChange={setTabChange} />
-                            <TabHeaderItem
-                                tabId={2}
-                                title="Backstop"
-                                tabChange={tabChange}
-                                setTabChange={setTabChange}
-                            />
-                            <TabHeaderItem
-                                tabId={3}
-                                title="Withdraw"
-                                tabChange={tabChange}
-                                setTabChange={setTabChange}
-                            />
-                        </TabHeader>
-                    ) : gaugeV4 ? (
-                        <TabHeader tabChange={tabChange}>
-                            <TabHeaderItem tabId={1} title="Supply" tabChange={tabChange} setTabChange={setTabChange} />
-                            <TabHeaderItem tabId={2} title="Stake" tabChange={tabChange} setTabChange={setTabChange} />
-                            <TabHeaderItem
-                                tabId={3}
-                                title="Withdraw"
-                                tabChange={tabChange}
-                                setTabChange={setTabChange}
-                            />
-                        </TabHeader>
-                    ) : (
-                        <TabHeader tabChange={tabChange}>
-                            <TabHeaderItem tabId={1} title="Supply" tabChange={tabChange} setTabChange={setTabChange} />
-                            <TabHeaderItem
-                                tabId={2}
-                                title="Withdraw"
-                                tabChange={tabChange}
-                                setTabChange={setTabChange}
-                            />
-                        </TabHeader>
-                    )}
+                    <TabHeader tabChange={tabChange}>
+                        {[...tabHeaders].map((h, index) => {
+                            return <TabHeaderItem key={index} tabId={index + 1} title={h.title} tabChange={tabChange} setTabChange={setTabChange}/>
+                        })}
+                    </TabHeader>
                     <TabContent>
-                        <SupplyItem tabChange={tabChange} open={props.open} getMaxAmount={props.getMaxAmount} />
-                        {isStake ? (
-                            <StakeItem
-                                isStake={isStake}
-                                tabChange={tabChange}
-                                open={props.open}
-                                getMaxAmount={props.getMaxAmount}
-                            />
-                        ) : (
-                            ''
-                        )}
-                        {isBackstop && isStake ? (
-                            <StakeItem
-                                isStake={isStake}
-                                tabChange={tabChange}
-                                open={props.open}
-                                getMaxAmount={props.getMaxAmount}
-                            />
-                        ) : (
-                            ''
-                        )}
-                        <WithdrawItem tabChange={tabChange} open={props.open} getMaxAmount={props.getMaxAmount} />
+                        {[...tabContents].map((c) => {
+                            return c
+                        })}
                     </TabContent>
                 </Tab>
             </div>

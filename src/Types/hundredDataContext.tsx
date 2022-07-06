@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+import { BigNumber } from "../bigNumber";
 import { Comptroller } from "../Classes/comptrollerClass";
 import { CTokenInfo, CTokenSpinner, SpinnersEnum } from "../Classes/cTokenClass";
 import { GaugeV4 } from "../Classes/gaugeV4Class";
@@ -21,7 +22,8 @@ export type HundredDataContext = {
     setSelectedMarketSpinners: (s: CTokenSpinner | undefined) => void,
     toggleSpinners: (c: string, s: SpinnersEnum) => void,
     setGMessage: (message: string) => void
-    updateMarket: any
+    updateMarket: any,
+    getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>
 }
 
 export const MyHundredDataContext = createContext<HundredDataContext>({
@@ -41,7 +43,8 @@ export const MyHundredDataContext = createContext<HundredDataContext>({
     setSelectedMarketSpinners: () => undefined,
     toggleSpinners: () => undefined,
     setGMessage: () => undefined,
-    updateMarket: undefined
+    updateMarket: undefined,
+    getMaxAmount: async () => BigNumber.from("0")
 })
 
 export const useHundredDataContext = () : HundredDataContext => useContext(MyHundredDataContext)

@@ -98,6 +98,8 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                 : BigNumber.from(0),
         );
     }, [generalData]);
+
+    
     const handleSupply = async (symbol: string, amount: string): Promise<void> => {
         if (marketsData) {
             const market = [...marketsData].find((x) => x?.underlying.symbol === symbol);
