@@ -215,26 +215,23 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
 
     const getSafeMaxWithdraw = () : void=> {
         setWithdrawMax(true)
-        const withdraw = BigNumber.from('0'); 
         if (props.market && props.generalData && +props.market.supplyBalanceInTokenUnit.toString() > 0)
         {
-        const borrow = BigNumber.parseValueSafe(props.generalData.totalBorrowBalance.toString(),props.market.underlying.decimals) ;
-        const supply = props.generalData.totalSupplyBalance;
-        const cFactor = BigNumber.parseValueSafe(props.market.collateralFactor.toString(),props.market.underlying.decimals).mulSafe(BigNumber.parseValueSafe('0.5001', props.market.underlying.decimals));
-        const percent = +cFactor.toString() === 0 ? 0 : +borrow.toString() / +cFactor.toString()
-        const percentBN = BigNumber.parseValueSafe(percent.toString(), props.market.underlying.decimals);
+            const hTokenBalance = BigNumber.parseValueSafe(props.market?.supplyBalanceInTokenUnit.toString(), props.market?.underlying.decimals);
+            const borrow = BigNumber.parseValueSafe(props.generalData.totalBorrowBalance.toString(),props.market.underlying.decimals) ;
+            const supply = props.generalData.totalSupplyBalance;
+            const cFactor = BigNumber.parseValueSafe(props.market.collateralFactor.toString(),props.market.underlying.decimals).mulSafe(BigNumber.parseValueSafe('0.5001', props.market.underlying.decimals));
+            const percent = +cFactor.toString() === 0 ? 0 : +borrow.toString() / +cFactor.toString()
+            const percentBN = BigNumber.parseValueSafe(percent.toString(), props.market.underlying.decimals);
+
             if (+props.generalData?.totalBorrowLimitUsedPercent.toRound(2) >= 50.01){
-                setWithdrawInput(withdraw.toString())
+                setWithdrawInput(hTokenBalance.toString())
+            } else {
+                const safeWithdrawBalance = convertUSDToUnderlyingToken(supply.subSafe(percentBN).toString(), props.market );
+                setWithdrawInput(BigNumber.minimum(safeWithdrawBalance, hTokenBalance).toString());
             }
-            else {
-                const result = convertUSDToUnderlyingToken(supply.subSafe(percentBN).toString(), props.market );
-                setWithdrawInput (BigNumber.minimum(result, props.market.supplyBalanceInTokenUnit).toString());
-
-            }
-
         } else{ 
-        setWithdrawInput(withdraw.toString());
-
+            setWithdrawInput("0");
         }
     }
 

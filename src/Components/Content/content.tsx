@@ -540,7 +540,6 @@ const Content: React.FC<Props> = (props : Props) => {
               selectedMarketRef.current.withdrawSpinner = true
 
             market.withdrawSpinner = true
-            console.log(max)
             if (max){
               const accountSnapshot = await ctoken.getAccountSnapshot(userAddress.current)
               const withdraw = ethers.BigNumber.from(accountSnapshot[1].toString())
