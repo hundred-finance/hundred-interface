@@ -57,7 +57,7 @@ const HundredMenu: React.FC = () => {
             setSpinnerVisible(true)
             const signer = library.getSigner()
             const comptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI, signer)
-            const receipt = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [address], () => setSpinnerVisible(false))
+            const receipt = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [address], 0, () => setSpinnerVisible(false))
             
             console.log(receipt)
             setUpdateEarned(true)
@@ -87,7 +87,7 @@ const HundredMenu: React.FC = () => {
             network.minterAddress ? mintAddress = network.minterAddress : null; 
     
             const minter = new Contract(mintAddress, MINTER_ABI, signer)
-            const receipt = await ExecuteWithExtraGasLimit(minter, "mint_many", [gaugeAddresses], () => setSpinnerVisible(false))
+            const receipt = await ExecuteWithExtraGasLimit(minter, "mint_many", [gaugeAddresses], 0, () => setSpinnerVisible(false))
             console.log(receipt)
             setUpdateEarned(true)
           }
@@ -116,7 +116,7 @@ const HundredMenu: React.FC = () => {
              const votingContract = new Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
              const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI, library)
              const rewards = await balanceContract.balanceOf(address)
-             const receipt = await ExecuteWithExtraGasLimit(votingContract, "increase_amount", [rewards], () => setSpinnerVisible(false))
+             const receipt = await ExecuteWithExtraGasLimit(votingContract, "increase_amount", [rewards], 0, () => setSpinnerVisible(false))
              
              console.log(receipt)
              setUpdateEarned(true)

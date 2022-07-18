@@ -31,14 +31,10 @@
 }
 
 .dialog-section .logo-holder{
-    display: block;
     width: 25px;
     height: 25px;
     border-radius: 100%;
     background-color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .dialog-section-title{

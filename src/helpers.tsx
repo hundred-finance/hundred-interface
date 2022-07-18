@@ -124,3 +124,9 @@ export const toHex = (num: number) : string => {
   const val = Number(num);
   return "0x" + val.toString(16);
 };
+
+export const delay = (n: number) => {
+  return new Promise(function(resolve){
+      setTimeout(resolve,n*1000);
+  });
+}

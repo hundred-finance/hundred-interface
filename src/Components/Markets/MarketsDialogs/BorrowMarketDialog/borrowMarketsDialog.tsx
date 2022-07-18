@@ -24,7 +24,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
     const dialogContainer = document.getElementById("modal") as Element
     const ref = useRef<HTMLDivElement | null>(null)
     const [tabChange, setTabChange] = useState<number>(1)
-    const {spinnerVisible} = useUiContext()
+    const {spinnerVisible, darkMode} = useUiContext()
     const {selectedMarket} = useHundredDataContext()
     
     const CloseDialog = () : void =>{
@@ -68,7 +68,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
     }, [ref, props.open]);
 
    const dialog = selectedMarket ? 
-            <div className={`dialog ${props.open ? "open-dialog" : ""}`}>
+            <div className={`dialog ${props.open ? "open-dialog" : ""} ${darkMode ? "dark-theme" : ""}`}>
                 <div className="dialog-background"/>
                 <ReactToolTip id="borrow-dialog-tooltip" effect="solid"/>
                 <div ref={ref} className="supply-box">
@@ -77,7 +77,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                         {{...selectedMarket}?.underlying.symbol && (
                         <img
                             className="rounded-circle"
-                            style={{ width: "30px", margin: "0px 10px 0px 0px" }}
+                            style={{ width: "30px", height: "30px", margin: "0px 10px 0px 0px" }}
                             src={{...selectedMarket}?.underlying.logo}
                             alt=""/>)}
                         {`${{...selectedMarket}?.underlying.symbol}`}

@@ -68,12 +68,6 @@ type Token ={
     backstop?: BackstopType | BackstopTypeV2
 }
 
-type CheckValidData ={
-    name: string,
-    oldData: string,
-    newData: string
-  }
-
 export type MarketDataType = {
     hndPrice: number,
     hndBalance: BigNumber,
@@ -581,60 +575,4 @@ export const fetchData = async(
       token.borrowPaused,
       backstop
     )
-  }
-
-  export const compareData = (oldMarkets: (CTokenInfo | null)[], newMarkets: CTokenInfo[]) : void =>{
-
-    const compare: CheckValidData[] = []
-    const m = oldMarkets.find(n => n?.underlying.symbol === "USDC")
-    const nm = newMarkets.find(n => n.underlying.symbol === "USDC")
-
-    
-    
-    let c: CheckValidData = {name: "Address", oldData: m ? m.pTokenAddress : "", newData: nm ? nm.pTokenAddress : ""}
-    compare.push(c)
-    c = {name: "UnderlyingAddress", oldData: m && m.underlying.address? m.underlying.address : "", newData: nm && nm.underlying.address? nm.underlying.address : "",}
-    compare.push(c)
-    c = {name: "Symbol", oldData: m && m.underlying.symbol? m.underlying.symbol : "", newData: nm && nm.underlying.symbol? nm.underlying.symbol : "",}
-    compare.push(c)
-    c = {name: "Logo", oldData: m && m.underlying.logo? m.underlying.logo : "", newData: nm && nm.underlying.logo? nm.underlying.logo : "",}
-    compare.push(c)
-    c = {name: "SupplyApy", oldData: m && m.supplyApy ? m.supplyApy.toString() : "", newData: nm && nm.supplyApy ? nm.supplyApy.toString() : "",}
-    compare.push(c)
-    c = {name: "BorrowApy", oldData: m && m.borrowApy ? m.borrowApy.toString() : "", newData: nm && nm.borrowApy ? nm.borrowApy.toString() : "",}
-    compare.push(c)
-    c = {name: "UnderlyingAllowance", oldData: m && m.underlying.allowance ? m.underlying.allowance.toString() : "", newData: nm && nm.underlying.allowance ? nm.underlying.allowance.toString() : "",}
-    compare.push(c)
-    c = {name: "WalletBalance", oldData: m && m.underlying.walletBalance ? m.underlying.walletBalance.toString() : "", newData: nm && nm.underlying.walletBalance ? nm.underlying.walletBalance.toString() : "",}
-    compare.push(c)
-    c = {name: "SupplyBalanceInTokenUnit", oldData: m && m.supplyBalanceInTokenUnit ? m.supplyBalanceInTokenUnit.toString() : "", newData: nm && nm.supplyBalanceInTokenUnit ? nm.supplyBalanceInTokenUnit.toString() : "",}
-    compare.push(c)
-    c = {name: "SupplyBalance", oldData: m && m.supplyBalance ? m.supplyBalance.toString() : "", newData: nm && nm.supplyBalance ? nm.supplyBalance.toString() : "",}
-    compare.push(c)
-    c = {name: "MarketTotalSupply", oldData: m && m.marketTotalSupply ? m.marketTotalSupply.toString() : "", newData: nm && nm.marketTotalSupply ? nm.marketTotalSupply.toString() : "",}
-    compare.push(c)
-    c = {name: "BorrowBalanceInTokenUnit", oldData: m && m.borrowBalanceInTokenUnit ? m.borrowBalanceInTokenUnit.toString() : "", newData: nm && nm.borrowBalanceInTokenUnit ? nm.borrowBalanceInTokenUnit.toString() : "",}
-    compare.push(c)
-    c = {name: "BorrowBalance", oldData: m && m.borrowBalance ? m.borrowBalance.toString() : "", newData: nm && nm.borrowBalance ? nm.borrowBalance.toString() : "",}
-    compare.push(c)
-    c = {name: "MarketTotalBorrowInTokenUnit", oldData: m && m.marketTotalBorrowInTokenUnit ? m.marketTotalBorrowInTokenUnit.toString() : "", newData: nm && nm.marketTotalBorrowInTokenUnit ? nm.marketTotalBorrowInTokenUnit.toString() : "",}
-    compare.push(c)
-    c = {name: "MarketTotalBorrow", oldData: m && m.marketTotalBorrow ? m.marketTotalBorrow.toString() : "", newData: nm && nm.marketTotalBorrow ? nm.marketTotalBorrow.toString() : "",}
-    compare.push(c)
-    c = {name: "IsEnterMarket", oldData: m && m.isEnterMarket ? m.isEnterMarket.toString() : "", newData: nm && nm.isEnterMarket ? nm.isEnterMarket.toString() : "",}
-    compare.push(c)
-    c = {name: "UnderlyingAmount", oldData: m && m.cash ? m.cash.toString() : "", newData: nm && nm.cash ? nm.cash.toString() : "",}
-    compare.push(c)
-    c = {name: "UnderlyingPrice", oldData: m && m.underlying.price ? m.underlying.price.toString() : "", newData: nm && nm.underlying.price ? nm.underlying.price.toString() : "",}
-    compare.push(c)
-    c = {name: "Liquidity", oldData: m && m.liquidity ? m.liquidity.toString() : "", newData: nm && nm.liquidity ? nm.liquidity.toString() : "",}
-    compare.push(c)
-    c = {name: "CollateralFactor", oldData: m && m.collateralFactor ? m.collateralFactor.toString() : "", newData: nm && nm.collateralFactor ? nm.collateralFactor.toString() : "",}
-    compare.push(c)
-    c = {name: "HndSpeed", oldData: m && m.hndSpeed ? m.hndSpeed.toString() : "", newData: nm && nm.hndSpeed ? nm.hndSpeed.toString() : "",}
-    compare.push(c)
-    c = {name: "Decimals", oldData: m && m.underlying.decimals ? m.underlying.decimals.toString() : "", newData: nm && nm.underlying.decimals ? nm.underlying.decimals.toString() : "",}
-    compare.push(c)
-    c = {name: "IsNativeToken", oldData: m && m.isNativeToken ? m.isNativeToken.toString() : "", newData: nm && nm.isNativeToken ? nm.isNativeToken.toString() : "",}
-    compare.push(c)
   }

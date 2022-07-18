@@ -2,7 +2,6 @@ import { useWeb3React } from '@web3-react/core'
 import React, { useEffect, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { toast, ToastContainer } from 'react-toastify'
-import { SpinnersEnum } from '../../Classes/cTokenClass'
 import Content from '../../Components/Content/content'
 import Footer from '../../Components/Footer/footer'
 import Menu from '../../Components/Menu/menu'
@@ -38,7 +37,7 @@ const Hundred: React.FC = () => {
   const {comptrollerData, setComptrollerData, marketsData, setMarketsData, marketsSpinners,
     setMarketsSpinners, gaugesV4Data, setGaugesV4Data, generalData, setGeneralData,
    selectedMarket, setSelectedMarket, selectedMarketSpinners, setSelectedMarketSpinners, 
-   toggleSpinners, updateMarket, getMaxAmount} = useFetchData()
+   toggleSpinners, updateMarket, getMaxAmount, getMaxRepayAmount, convertUSDToUnderlyingToken} = useFetchData()
 
 
   const setGMessage = (message: string) => {
@@ -113,7 +112,8 @@ const Hundred: React.FC = () => {
                                             generalData, setGeneralData,
                                             selectedMarket, setSelectedMarket,
                                             selectedMarketSpinners, setSelectedMarketSpinners,
-                                            toggleSpinners, setGMessage, updateMarket, getMaxAmount})}>
+                                            toggleSpinners, setGMessage, updateMarket, 
+                                            getMaxAmount, getMaxRepayAmount, convertUSDToUnderlyingToken})}>
     <>
         <Wrapper>
             {!isTablet && !isMobile ? 

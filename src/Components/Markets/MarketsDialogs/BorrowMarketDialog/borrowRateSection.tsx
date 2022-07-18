@@ -1,6 +1,7 @@
 import React from "react"
 import { HuLogo } from "../../../../assets/huIcons/huIcons"
 import { BigNumber } from "../../../../bigNumber"
+import Logos from "../../../../logos"
 import { useHundredDataContext } from "../../../../Types/hundredDataContext"
 import { useUiContext } from "../../../../Types/uiContext"
 import "../dialogSection.css"
@@ -18,7 +19,7 @@ const BorrowRateSection: React.FC = () => {
             <div className="dialog-section-content">
                 <div className="logo-holder">
                     <img className="rounded-circle"
-                        style={{ width: "20px", height: "20px", margin: "0px 0px 0px 0px" }}
+                        style={{ width: "25px", height: "25px", margin: "0px 0px 0px 0px" }}
                         src={selectedMarket ? {...selectedMarket}?.underlying.logo : undefined}
                     alt=""/>
                 </div>
@@ -29,7 +30,10 @@ const BorrowRateSection: React.FC = () => {
             </div>
             <div className="dialog-section-content">
                 <div className="logo-holder">
-                    <HuLogo darkMode={darkMode} size={"20px"}/>
+                        <img className="rounded-circle"
+                            style={{ width: "25px", height: "25px", margin: "0px 0px 0px 0px" }}
+                            src={Logos["HND"]}
+                        alt=""/>
                     </div>
                 <div className="fill">HND APY</div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>

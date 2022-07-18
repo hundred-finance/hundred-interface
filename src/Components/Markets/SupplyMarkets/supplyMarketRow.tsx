@@ -33,7 +33,7 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
               <span>{props?.market?.underlying.symbol}</span>
           </div>
         </td>
-        <td className={`apy ${props.market ? (+props.market?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`}>
+        <td className={`apy ${props.market ? (+props.market?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`} >
             <div className="supply-apy">
               <StarBpro active={props.market && +props.market?.hndAPR.toString() > 0 ? true : false} backstop={hasBackstop()}/>
                 <GeneralDetailsItemContentItem className="general-details-item-content-item-pointer" onClick={() => props.market && !props?.marketSpinners?.spinner ? props.supplyMarketDialog(props?.market) : null}

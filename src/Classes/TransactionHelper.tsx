@@ -4,8 +4,8 @@ export const ExecuteWithExtraGasLimit = async (
     contract: ethers.Contract,
     functionName: string,
     args: Array<any>,
-    spinner?: () => void,
-    gasIncreasePercentage = 0
+    gasIncreasePercentage = 0,
+    spinner?: () => void
 ) : Promise<any> => {
     const txGas = await contract.estimateGas[functionName](...args)
     if(spinner){
@@ -22,8 +22,8 @@ export const ExecutePayableWithExtraGasLimit = async (
     value: ethers.BigNumber,
     functionName: string,
     args: Array<any>,
-    spinner?: ()=>void,
-    gasIncreasePercentage = 0
+    gasIncreasePercentage = 0,
+    spinner?: ()=>void
 ) : Promise<any> => {
     const txGas = await contract.estimateGas[functionName](...args, { value: value })
     if(spinner){

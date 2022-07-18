@@ -1,41 +1,40 @@
 import { BigNumber } from "../../../../bigNumber";
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import TextBox from "../../../Textbox/textBox";
 import MarketDialogButton from "../marketDialogButton";
 import "../supplyMarketDialog.css"
 import MarketDialogItem from "../marketDialogItem";
 import {Spinner} from "../../../../assets/huIcons/huIcons";
+import { CTokenInfo } from "../../../../Classes/cTokenClass";
+import { GeneralDetailsData } from "../../../../Classes/generalDetailsClass";
 import {GaugeV4} from "../../../../Classes/gaugeV4Class";
 import {stakingApr} from "../../aprHelpers";
 import { useHundredDataContext } from "../../../../Types/hundredDataContext";
-import { getDirectBackstopMarketTabVariables } from "./backstopHelper";
 
 interface Props{
-    open: boolean,
-    stakeDisabled: boolean,
-    unstakeDisabled: boolean,
-    backstopClaimDisabled: boolean,
-    handleStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined, amount: string) => Promise<void>
-    handleUnstake: (symbol: string | undefined, guage: GaugeV4 | null | undefined, amount: string) => Promise<void>
-    handleMint: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
-    handleApproveStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
-    handleApproveUnStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
+    gaugeV4: GaugeV4
 }
 const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
-    const {gaugesV4Data, selectedMarket, selectedMarketSpinners} = useHundredDataContext()
+    const { selectedMarket, selectedMarketSpinners, generalData} = useHundredDataContext()
+
+    const mounted = useRef<boolean>(false)
+
+    const [actionsDisabled, setActionsDisabled] = useState<boolean>(false)
+    
     const [stakeInput, setStakeInput] = useState<string>("")
     const [stakeValidation, setStakeValidation] = useState<string>("")
+    
     const [unstakeInput, setUnstakeInput] = useState<string>("")
     const [unstakeValidation, setUnstakeValidation] = useState<string>("")
-    let isStake, isUnstake;
-    let gaugeV4 : GaugeV4 | null | undefined; 
-    if (selectedMarket){
-        gaugeV4 = gaugesV4Data
-            ? [...gaugesV4Data].find((x) => {
-                    return x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address;
-                })
-            : null;
-    }
+
+    useEffect(() => {
+        mounted.current = true
+
+        return () => {
+            mounted.current = false
+        }
+    }, [])
+
     useEffect(()=>{
         const handleStakeAmountChange = () => {
 
@@ -47,12 +46,12 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
             if(isNaN(+stakeInput) || isNaN(parseFloat(stakeInput))){
                 setStakeValidation("Amount must be a number");
                 return;
-            } else if (selectedMarket && {...selectedMarket}.underlying.walletBalance && +{...selectedMarket}.underlying.walletBalance.toString() <= 0) {
+            } else if (+stakeInput <= 0 && {props.market}.underlying.walletBalance && +props.market.underlying.walletBalance.toString() <= 0) {
                 setStakeValidation("No balance to stake");
             } else if (+stakeInput <= 0) {
                 setStakeValidation("Amount must be > 0");
                 return
-            } else if (selectedMarket && +stakeInput > +{...selectedMarket}?.underlying.walletBalance) {
+            } else if (+stakeInput > +props.market.underlying.walletBalance) {
                 setStakeValidation("Amount must be <= balance");
                 return
             } else{
@@ -76,7 +75,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 return;
             } else if (+unstakeInput <= 0) {
                 setUnstakeValidation("Amount must be > 0");
-            } else if (gaugeV4 && +unstakeInput > +gaugeV4?.userStakeBalance) {
+            } else if (props.gaugeV4 && +unstakeInput > +props.gaugeV4?.userStakeBalance) {
                 setUnstakeValidation("Amount must be <= staked balance");
             } else{
                 setUnstakeValidation("");
@@ -110,8 +109,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
     }
 
     const getMaxStake = () : void=> {
-        if (selectedMarket)
-        setStakeInput(formatBalance({...selectedMarket}?.underlying.walletBalance).toString)
+        setStakeInput(formatBalance(props.market.underlying.walletBalance).toString)
     }
 
     // const getSafeMaxStake = () : void=> {
@@ -120,13 +118,12 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
     // }
 
     const getMaxUnstake = () : void=> {
-        setUnstakeInput(formatBalance(gaugeV4?.userStakeBalance).toString)
+        setUnstakeInput(formatBalance(props.gaugeV4?.userStakeBalance).toString)
     }
 
     const setUnstakeRatio = (ratio: number) => {
-        if(gaugeV4)
         setUnstakeInput(
-            BigNumber.from(gaugeV4?.userStakedTokenBalance.toString(), +gaugeV4?.gaugeTokenDecimals.toString())
+            BigNumber.from(props.gaugeV4?.userStakedTokenBalance.toString(), +props.gaugeV4?.gaugeTokenDecimals.toString())
                 .mul(BigNumber.from(100 * ratio))
                 .div(BigNumber.from(100))
                 .toString()
@@ -134,17 +131,42 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
     }
 
     const setStakeRatio = (ratio: number) => {
-        if(selectedMarket)
         setStakeInput(
-            {...selectedMarket}.underlying.walletBalance
+            props.market.underlying.walletBalance
                 .mul(BigNumber.from(ratio * 100))
                 .div(BigNumber.from(100))
                 .toString()
         )
     }
 
+    useEffect(() => {
+        if(props.market){
+            if(!props.market.stakeSpinner){
+                if(props.completed) setStakeInput("")
+                setStakeDisabled(false)
+            }
+            else{
+                setStakeDisabled(true)
+            }
+
+        }
+    }, [props.market?.stakeSpinner,  props.completed])
+
+    useEffect(() => {
+        if(props.market){
+            if(!props.market.unstakeSpinner){
+                if(props.completed) setUnstakeInput("")
+                setUnstakeDisabled(false)
+            }
+            else{
+                setUnstakeDisabled(true)
+            }
+
+        }
+    }, [props.market?.unstakeSpinner])
+
     function getStakedBalance() {
-        const stakedBalance = BigNumber.from(gaugeV4?.userStakedTokenBalance, gaugeV4?.lpTokenDecimals)
+        const stakedBalance = BigNumber.from(props.gaugeV4.userStakedTokenBalance, props.gaugeV4.lpTokenDecimals)
         return convertStakedBalance(stakedBalance);
     }
 
@@ -152,39 +174,39 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
         if (amount.length === 0) {
             return "0.0"
         }
-        const stakedBalance = BigNumber.from(amount.replace('.',""), gaugeV4?.lpTokenDecimals)
+        const stakedBalance = BigNumber.from(amount.replace('.',""), props.gaugeV4.lpTokenDecimals)
         return (+convertStakedBalance(stakedBalance)).toFixed(4)
     }
 
     function convertStakedBalance(stakedBalance: BigNumber) {
-        if (!gaugeV4) {
+        if (!props.gaugeV4) {
             return BigNumber.from(0)
         }
 
-        if (!gaugeV4.userStakedTokenBalance) {
+        if (!props.gaugeV4.userStakedTokenBalance) {
             return BigNumber.from(0)
         }
 
-        if (!gaugeV4.generalData.backstopTotalBalance) {
+        if (!props.gaugeV4.generalData.backstopTotalBalance) {
             return BigNumber.from(0)
         }
 
-        if (!gaugeV4.generalData.backstopTotalSupply) {
+        if (!props.gaugeV4.generalData.backstopTotalSupply) {
             return BigNumber.from(0)
         }
 
-        if (!selectedMarket?.exchangeRate) {
+        if (!props.market.exchangeRate) {
             return BigNumber.from(0)
         }
 
-        if (!selectedMarket?.underlying.decimals) {
+        if (!props.market.underlying.decimals) {
             return BigNumber.from(0)
         }
 
-        const totalBalance = BigNumber.from(gaugeV4.generalData.backstopTotalBalance, 8)
-        const totalSupply = BigNumber.from(gaugeV4.generalData.backstopTotalSupply, 18)
+        const totalBalance = BigNumber.from(props.gaugeV4.generalData.backstopTotalBalance, 8)
+        const totalSupply = BigNumber.from(props.gaugeV4.generalData.backstopTotalSupply, 18)
 
-        const ratio = (10 ** ({...selectedMarket}.underlying.decimals - 8)).noExponents()
+        const ratio = (10 ** (props.market.underlying.decimals - 8)).noExponents()
         const ratioDecimals = ratio.split(".").length > 1 ? ratio.split(".")[1].length : 0
 
         if (+ratio === 0) {
@@ -197,33 +219,25 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
 
         return stakedBalance
             .mul(totalBalance)
-            .mul({...selectedMarket}.exchangeRate)
+            .mul(props.market.exchangeRate)
             .div(BigNumber.from(ratio.replace(".", ""), ratioDecimals))
             .div(totalSupply);
-    }    
-    const bs = getDirectBackstopMarketTabVariables(
-        gaugeV4 as GaugeV4,
-        stakeInput,
-        stakeValidation,
-        props.stakeDisabled,
-        unstakeInput,
-        props.backstopClaimDisabled,
-        selectedMarket,
-    )
+    }
+
 
     return (
         <>
             <MarketDialogItem
                 title={"You Staked"}
-                value={`${formatBalance(getStakedBalance()).toFixed(4)} ${bs.underlyingSymbol}`}
+                value={`${formatBalance(getStakedBalance()).toFixed(4)} ${props.market?.underlying.symbol}`}
             />
             <MarketDialogItem
                 title={"Claimable"}
-                value={`${formatBalance(gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
+                value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
             />
             <MarketDialogItem
                 title={"APR"}
-                value={stakingApr(selectedMarket, gaugeV4)}
+                value={stakingApr(props.market, props.gaugeV4)}
             />
             <div className="native-asset-amount">
                 <span className="dialog-section-content-value"/>
@@ -236,34 +250,35 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
             </div>
             <div className="input-button-group">
                 <TextBox
-                    placeholder={`${bs.underlyingSymbol}`}
-                    disabled={props.stakeDisabled}
+                    placeholder={`${props.market?.underlying.symbol}`}
+                    disabled={stakeDisabled}
                     value={stakeInput}
                     setInput={setStakeInput}
                     validation={stakeValidation}
                     button={"Max"}
                     onClick={() => getMaxStake()}/>
-                {isStake
+                {props.market && +props.market.underlying.gaugeHelperAllowance.toString() > 0 &&
+                +props.market.underlying.gaugeHelperAllowance.toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
                     ?
                     <MarketDialogButton
-                        disabled={bs.isStakeDisabled}
-                        onClick={() => props.handleStake(bs.underlyingSymbol, gaugeV4, stakeInput)}
+                        disabled={stakeInput === "" || stakeValidation !== ""}
+                        onClick={() => props.handleStake(props.market?.underlying.symbol, props?.gaugeV4, stakeInput)}
                     >
-                        {selectedMarket && { ...selectedMarketSpinners }?.stakeSpinner ? (
+                        {props.market && props.market.stakeSpinner ? (
                             <Spinner size={"20px"}/>) : "Stake"}
                     </MarketDialogButton>
                     :
                     <MarketDialogButton
-                        disabled={bs.isStakeDisabled}
-                        onClick={() => props.handleApproveStake(bs.underlyingSymbol, gaugeV4)}
+                        disabled={stakeInput === "" || stakeValidation !== ""}
+                        onClick={() => props.handleApproveStake(props.market?.underlying.symbol, props?.gaugeV4)}
                     >
-                        {selectedMarket && { ...selectedMarketSpinners }?.stakeSpinner ? (
+                        {props.market && props.market.stakeSpinner ? (
                             <Spinner size={"20px"}/>) : "Approve"}
                     </MarketDialogButton>
                 }
             </div>
             <div className="native-asset-amount">
-                {convertGaugeLpAmountToUnderlying(unstakeInput)} {bs.underlyingSymbol}
+                <span>{convertGaugeLpAmountToUnderlying(unstakeInput)} {props.market?.underlying.symbol}</span>
                 <div className="amount-select">
                     <div onClick={() => setUnstakeRatio(0.25) }>25%</div>
                     <div onClick={() => setUnstakeRatio(0.50) }>50%</div>
@@ -273,41 +288,43 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
             </div>
             <div className="input-button-group">
                 <TextBox
-                    placeholder={`bh${bs.underlyingSymbol}-gauge`}
-                    disabled={props.unstakeDisabled}
+                    placeholder={`bh${props.market?.underlying.symbol}-gauge`}
+                    disabled={unstakeDisabled}
                     value={unstakeInput}
                     setInput={setUnstakeInput}
                     validation={unstakeValidation}
                     button={"Max"}
                     onClick={() => getMaxUnstake()}
                 />
-                {isUnstake ? (
+                {props.gaugeV4 && +props.gaugeV4.userGaugeHelperAllowance.toString() > 0 &&
+                +props.gaugeV4.userGaugeHelperAllowance.toString().toString() >= (unstakeInput.trim() === "" || isNaN(+unstakeInput) || isNaN(parseFloat(unstakeInput)) ? 0 : +unstakeInput)
+                    ?
                     <MarketDialogButton
-                        disabled={bs.isUnstakeDisabled}
-                        onClick={() => props.handleUnstake(bs.underlyingSymbol, gaugeV4, unstakeInput)}
+                        disabled={unstakeInput === "" || unstakeValidation !== ""}
+                        onClick={() => props.handleUnstake(props.market?.underlying.symbol, props?.gaugeV4, unstakeInput)}
                     >
-                        {selectedMarket && { ...selectedMarketSpinners }?.unstakeSpinner ? (
+                        {props.market && props.market.unstakeSpinner ? (
                             <Spinner size={"20px"}/>) : "Unstake"}
                     </MarketDialogButton>
-                 ) : (
+                    :
                     <MarketDialogButton
-                        disabled={bs.isUnstakeDisabled}
-                        onClick={() => props.handleApproveUnStake(bs.underlyingSymbol, gaugeV4)}
+                        disabled={unstakeInput === "" || unstakeValidation !== ""}
+                        onClick={() => props.handleApproveUnStake(props.market?.underlying.symbol, props?.gaugeV4)}
                     >
-                        {selectedMarket && { ...selectedMarketSpinners }?.unstakeSpinner ? (
+                        {props.market && props.market.unstakeSpinner ? (
                             <Spinner size={"20px"}/>) : "Approve"}
                     </MarketDialogButton>
-                 )
                 }
             </div>
             <MarketDialogButton
-                disabled={bs.isBackstopClaimDisabled}
-                onClick={() => props.handleMint(bs.underlyingSymbol, gaugeV4)}
+                disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0))}
+                onClick={() => props.handleMint(props.market?.underlying.symbol, props?.gaugeV4)}
             >
-                {selectedMarket && { ...selectedMarketSpinners }?.mintSpinner ? <Spinner size={'20px'} /> : 'Claim HND'}
+                {props.market && props.market.mintSpinner ? (
+                    <Spinner size={"20px"}/>) : "Claim HND"}
             </MarketDialogButton>
         </>
-    );
+    )
 }
 
 export default DirectBackstopStakeMarketTab

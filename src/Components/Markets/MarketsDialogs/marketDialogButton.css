@@ -48,3 +48,10 @@
     -webkit-box-shadow: none; 
     box-shadow: none;
 }
+
+.logo-container{
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    border-radius: 100%;
+}

@@ -53,7 +53,7 @@ const App: React.FC = () => {
   const [switchModal, setSwitchModal] = useState(false)
   const [scale, setScale] = useState(false)
 
-  useWindowSize()
+  const width = useWindowSize()
   
   useEffect(() => {
     setShow(true)
@@ -65,6 +65,26 @@ const App: React.FC = () => {
     else
       setDarkMode(false)
   }, [])
+
+  useEffect(() => {
+    if(show){
+      if (width < (!hasClaimed ? 750 : 925)){
+        setIsMobile(true)
+        setIsTablet(false)
+        if(width < 331)
+            setScale(true)
+        }
+      else if (window.innerWidth < (!hasClaimed ? 1064 : 1192)){
+        setScale(false)
+        setIsTablet(true)
+        setIsMobile(false)
+      }
+      else {
+          setScale(false)
+          setIsTablet(false)
+      }
+    }
+  }, [width, show])
 
   useEffect(() => {
     if(darkMode){

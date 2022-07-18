@@ -104,7 +104,7 @@ const RepayItem: React.FC<Props> = (props : Props) =>{
                     contract,
                     "approve",
                     [market.pTokenAddress, MaxUint256._value]
-                , () => setSpinnerVisible(false))
+                , 0, () => setSpinnerVisible(false))
                 console.log(receipt)
               }
             }
@@ -152,13 +152,13 @@ const RepayItem: React.FC<Props> = (props : Props) =>{
                 const maxiContract = new ethers.Contract(network.maximillion, MAXIMILLION_ABI, signer);
                 const receipt = await ExecutePayableWithExtraGasLimit(maxiContract, value._value, "repayBehalfExplicit", [
                   account, market.pTokenAddress
-                ], () => setSpinnerVisible(false))
+                ], 0, () => setSpinnerVisible(false))
                 // setSpinnerVisible(false);
                 console.log(receipt);
               } 
               else {        
                 const ctoken = new ethers.Contract(market.pTokenAddress, CTOKEN_ABI, signer)
-                const receipt = await ExecuteWithExtraGasLimit(ctoken, "repayBorrow", [repayAmount], () => setSpinnerVisible(false))
+                const receipt = await ExecuteWithExtraGasLimit(ctoken, "repayBorrow", [repayAmount], 0, () => setSpinnerVisible(false))
                 
                 console.log(receipt)
               }

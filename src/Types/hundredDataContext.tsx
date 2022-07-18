@@ -24,6 +24,8 @@ export type HundredDataContext = {
     setGMessage: (message: string) => void
     updateMarket: any,
     getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>
+    getMaxRepayAmount: (market: CTokenInfo) => Promise<BigNumber>
+    convertUSDToUnderlyingToken: (USD: string, market: CTokenInfo) => BigNumber
 }
 
 export const MyHundredDataContext = createContext<HundredDataContext>({
@@ -44,7 +46,9 @@ export const MyHundredDataContext = createContext<HundredDataContext>({
     toggleSpinners: () => undefined,
     setGMessage: () => undefined,
     updateMarket: undefined,
-    getMaxAmount: async () => BigNumber.from("0")
+    getMaxAmount: async () => BigNumber.from("0"),
+    getMaxRepayAmount: async () => BigNumber.from("0"),
+    convertUSDToUnderlyingToken: () => BigNumber.from("0"),
 })
 
 export const useHundredDataContext = () : HundredDataContext => useContext(MyHundredDataContext)

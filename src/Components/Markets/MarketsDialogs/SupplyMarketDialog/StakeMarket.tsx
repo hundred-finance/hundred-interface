@@ -1,6 +1,7 @@
 import { BigNumber } from "../../../../bigNumber";
 import React, {useEffect, useRef, useState} from "react"
 import TextBox from "../../../Textbox/textBox";
+import BorrowLimitSection from "./borrowLimitSection";
 import MarketDialogButton from "../marketDialogButton";
 import "../supplyMarketDialog.css"
 import MarketDialogItem from "../marketDialogItem";
@@ -14,55 +15,71 @@ import { useWeb3React } from "@web3-react/core";
 import { UpdateTypeEnum } from "../../../../Hundred/Data/hundredData";
 
 interface Props{
-    gaugeV4: GaugeV4
+    gaugeV4: GaugeV4,
 }
 
-const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
-    const { selectedMarket, selectedMarketSpinners, toggleSpinners, updateMarket, marketsData} = useHundredDataContext()
-    const {setSpinnerVisible, toastSuccessMessage, toastErrorMessage} = useUiContext()
-    const {library, account} = useWeb3React()
+const StakeMarketTab:React.FC<Props> = (props: Props) =>{
+    const {generalData, selectedMarket, selectedMarketSpinners, marketsData, toggleSpinners, updateMarket} = useHundredDataContext()
+    const {setSpinnerVisible, toastErrorMessage, toastSuccessMessage} = useUiContext()
+    const { library, account } = useWeb3React()
 
+    const mounted = useRef<boolean>(false)
+    const [newBorrowLimit, setNewBorrowLimit] = useState<BigNumber>(BigNumber.from(0))
     const [actionsDisabled, setActionsDisabled] = useState<boolean>(false)
-    
     const [stakeInput, setStakeInput] = useState<string>("")
     const [stakeValidation, setStakeValidation] = useState<string>("")
     const [unstakeInput, setUnstakeInput] = useState<string>("")
     const [unstakeValidation, setUnstakeValidation] = useState<string>("")
 
-    const mounted = useRef<boolean>(false)
 
     useEffect(() => {
         mounted.current = true
-        return () => {
-            mounted.current = false
-        }
-    }, [])
+
+        return () => {mounted.current = false}
+
+    }, []);
 
     useEffect(()=>{
         const handleStakeAmountChange = () => {
 
             if(stakeInput.trim() === ""){
                 setStakeValidation("")
+                setNewBorrowLimit(BigNumber.from("0"))
                 return;
             }
 
             if(isNaN(+stakeInput) || isNaN(parseFloat(stakeInput))){
                 setStakeValidation("Amount must be a number");
+                setNewBorrowLimit(BigNumber.from("0"))
                 return;
-            } else if (+stakeInput <= 0 && selectedMarket && +{...selectedMarket}.underlying.walletBalance.toString() <= 0) {
+            } else if (+stakeInput <= 0 && props.gaugeV4?.userLpBalance && +props.gaugeV4?.userLpBalance.toString() <= 0) {
                 setStakeValidation("No balance to stake");
+                setNewBorrowLimit(BigNumber.from("0"))
             } else if (+stakeInput <= 0) {
                 setStakeValidation("Amount must be > 0");
+                setNewBorrowLimit(BigNumber.from("0"))
                 return
-            } else if (selectedMarket && +stakeInput > +{...selectedMarket}.underlying.walletBalance) {
+            } else if (props.gaugeV4 && +stakeInput > +props.gaugeV4?.userLpBalance) {
                 setStakeValidation("Amount must be <= balance");
+                setNewBorrowLimit(BigNumber.from("0"))
                 return
             } else{
                 setStakeValidation("");
             }
+            
+            if(selectedMarket && generalData){
+                const totalBorrow = +{...generalData}.totalBorrowLimit.toString()
+                const stake = {...selectedMarket}.isEnterMarket && stakeInput.trim() !== "" ? +convertLpAmountToUnderlying(stakeInput, {...selectedMarket}) : 0
+                const price = +{...selectedMarket}.underlying.price.toString()
+                const collateral = +{...selectedMarket}.collateralFactor.toString()
+                const newTotalSupply = stake * price * collateral
+                const borrow = totalBorrow - newTotalSupply
+                setNewBorrowLimit(BigNumber.parseValue(borrow.noExponents()))
+            }
         }
 
         handleStakeAmountChange()
+        // eslint-disable-next-line
     }, [stakeInput])
 
     useEffect(()=>{
@@ -85,7 +102,8 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
         }
 
         handleUnstakeAmountChange()
-    }, [unstakeInput, props.gaugeV4])
+        // eslint-disable-next-line
+    }, [unstakeInput])
 
     const formatBalance = (value: BigNumber | undefined) => {
         if (value) {
@@ -96,7 +114,34 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
     }
 
     const getMaxStake = () : void=> {
-        setStakeInput(formatBalance(selectedMarket ? {...selectedMarket}.underlying.walletBalance : BigNumber.from("0")).toString)
+        setStakeInput(formatBalance(props.gaugeV4?.userLpBalance).toString)
+    }
+
+    const getSafeMaxStake = () : void=> {
+        const stake = BigNumber.from('0');
+             
+        if (selectedMarket && generalData && props.gaugeV4?.userLpBalance && +{...selectedMarket}.supplyBalanceInTokenUnit.toString() > 0)
+        { 
+            const general = {...generalData}
+            const market = {...selectedMarket}
+            const borrow = BigNumber.parseValueSafe(general.totalBorrowBalance.toString(), market.underlying.decimals) ;
+            const supply = general.totalSupplyBalance;
+            const cFactor = BigNumber.parseValueSafe(market.collateralFactor.toString(),market.underlying.decimals).mulSafe(BigNumber.parseValueSafe('0.5001', market.underlying.decimals));
+            const percent = +cFactor.toString() === 0 ? 0 : +borrow.toString() / +cFactor.toString()
+            const percentBN = BigNumber.parseValueSafe(percent.toString(), market.underlying.decimals);
+        
+            if (+generalData.totalBorrowLimitUsedPercent.toRound(2) >= 50.01) {
+                setStakeInput(stake.toString());
+            } 
+            else{
+                const result = convertUSDTohToken((supply.subSafe(percentBN)).toString(), market); 
+            setStakeInput(BigNumber.minimum(result, props.gaugeV4?.userLpBalance).toString());
+            }
+        }
+                
+        else {
+            setStakeInput(stake.toString());
+        }
     }
 
     const getMaxUnstake = () : void=> {
@@ -115,13 +160,24 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
     }
 
     const setStakeRatio = (ratio: number) => {
-        if(selectedMarket)
-            setStakeInput(
-                {...selectedMarket}.underlying.walletBalance
-                    .mul(BigNumber.from(ratio * 100))
-                    .div(BigNumber.from(100))
-                    .toString()
+        setStakeInput(
+            BigNumber.from(
+                Math.floor(
+                    formatBalance(props.gaugeV4?.userLpBalance).toNumber() * ratio
+                ),
+                props.gaugeV4?.userLpBalance._decimals
+            ).toString()
         )
+    }
+
+    function isBorrowLimitUsed() {
+        return newBorrowLimit && generalData ?
+            (+newBorrowLimit.toString() > 0 || +newBorrowLimit.toString() < 0) && (+newBorrowLimit.toString() > 0 
+            ? +{...generalData}.totalBorrowBalance.toString() / +newBorrowLimit.toString() > 0.9 
+            : +{...generalData}.totalBorrowBalance.toString() / +newBorrowLimit.toString() * -1 > 0.9) && (+newBorrowLimit.toString() > 0 
+            ? +{...generalData}.totalBorrowBalance.toString() / +newBorrowLimit.toString() * 100 
+            : +{...generalData}.totalBorrowBalance.toString() / +newBorrowLimit.toString() * -1 * 100) > +{...generalData}.totalBorrowLimitUsedPercent
+            : false
     }
 
     const handleApproveStake = async (symbol: string) => {
@@ -195,73 +251,36 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
         }
     }
   
-      const handleApproveUnStake = async (symbol: string) => {
-          if(selectedMarket && marketsData){
-              
-              const market = {...marketsData}.find(x => x?.underlying.symbol === symbol)
-              if(market && library){
-                  try{
-                    setSpinnerVisible(true)
-                    setActionsDisabled(true)
-                    toggleSpinners(symbol, SpinnersEnum.unstake)
-  
-                    const tx = await props.gaugeV4.approveUnstakeCall()
-  
+    const handleUnstake = async (symbol: string, amount: string) => {
+        if(selectedMarket && marketsData){
+          const markets = [...marketsData]
+            const market = markets.find(x => x?.underlying.symbol === symbol)
+            const nativeTokenMarket = markets.find(x => x.isNativeToken === true) 
+            if(market && library && account && props.gaugeV4.generalData.gaugeHelper){
+                try{
+                  setSpinnerVisible(true)
+                  setActionsDisabled(true)
+                  toggleSpinners(symbol, SpinnersEnum.unstake)
+                  const tx = await props.gaugeV4.unstakeCall(amount, market, nativeTokenMarket?.pTokenAddress)
+                    
+                  setSpinnerVisible(false)
+                  const receipt = await tx.wait()
+                  console.log(receipt)
+                  toastSuccessMessage("Transaction complete, updating contracts")
+                  await updateMarket(props.gaugeV4, UpdateTypeEnum.Unstake)
+                  if(mounted.current) setUnstakeInput("")
+                }
+                catch(error : any){
+                    console.log(error)
+                    toastErrorMessage(`${error?.message.replace('.', '')} on Approve Stake}`);
+                }
+                finally{
                     setSpinnerVisible(false)
-  
-                    const receipt = await tx.wait()
-                    console.log(receipt)
-                    toastSuccessMessage("Transaction complete, updating contracts")
-
-                    await updateMarket(props.gaugeV4, UpdateTypeEnum.ApproveUnStake)
-
-                  }
-                  catch(error : any){
-                      console.log(error)
-                      toastErrorMessage(`${error?.message.replace('.', '')} on Approve Stake}`);
-                  }
-                  finally{
-                      setSpinnerVisible(false)
-                      toggleSpinners(symbol, SpinnersEnum.unstake)
-                      if(mounted.current) setActionsDisabled(false)
-                  }
-              }
-          }
-      }
-  
-      const handleUnstake = async (symbol: string, amount: string) => {
-          if(selectedMarket && marketsData){
-            const markets = [...marketsData]
-              const market = markets.find(x => x?.underlying.symbol === symbol)
-              const nativeTokenMarket = markets.find(x => x.isNativeToken === true) 
-              if(market && library && account && props.gaugeV4.generalData.gaugeHelper){
-                  try{
-                    setSpinnerVisible(true)
-                    setActionsDisabled(true)
                     toggleSpinners(symbol, SpinnersEnum.unstake)
-
-                    const tx = await props.gaugeV4.unstakeCall(amount, market, nativeTokenMarket?.pTokenAddress)
-                      
-                    setSpinnerVisible(false)
-                    const receipt = await tx.wait()
-                    console.log(receipt)
-                    toastSuccessMessage("Transaction complete, updating contracts")
-
-                    await updateMarket(props.gaugeV4, UpdateTypeEnum.Unstake)
-                    if(mounted.current) setUnstakeInput("")
-                  }
-                  catch(error : any){
-                      console.log(error)
-                      toastErrorMessage(`${error?.message.replace('.', '')} on Approve Stake}`);
-
-                  }
-                  finally{
-                      setSpinnerVisible(false)
-                      toggleSpinners(symbol, SpinnersEnum.unstake)
-                      if(mounted.current) setActionsDisabled(false)
-                  }
-              }
-          }
+                    if(mounted.current) setActionsDisabled(false)
+                }
+            }
+        }
       }
   
       const handleMint = async (symbol: string) => {
@@ -300,11 +319,11 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
       }
 
     return (
-        selectedMarket && selectedMarketSpinners ?
+        selectedMarket && selectedMarketSpinners && generalData?
         <>
             <MarketDialogItem
                 title={"You Staked"}
-                value={`${formatBalance(BigNumber.from(props.gaugeV4?.userStakedTokenBalance, {...selectedMarket}.underlying.decimals).mul({...selectedMarket}.exchangeRate)).toRound(4)} ${{...selectedMarket}.underlying.symbol}`}
+                value={`${formatBalance(BigNumber.from(props.gaugeV4?.userStakedTokenBalance, {...selectedMarket}.underlying.decimals).mul({...selectedMarket}.exchangeRate)).toFixed(4)} ${{...selectedMarket}.underlying.symbol}`}
             />
             <MarketDialogItem
                 title={"Claimable"}
@@ -314,8 +333,9 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 title={"APR"}
                 value={stakingApr({...selectedMarket}, props.gaugeV4)}
             />
+            <BorrowLimitSection newBorrowLimit={newBorrowLimit}/>
             <div className="native-asset-amount">
-                <span className="dialog-section-content-value"/>
+                <span className="dialog-section-content-value">{convertLpAmountToUnderlying(stakeInput, {...selectedMarket})} {{...selectedMarket}.underlying.symbol}</span>
                 <div className="amount-select">
                     <div onClick={() => setStakeRatio(0.25) }>25%</div>
                     <div onClick={() => setStakeRatio(0.50) }>50%</div>
@@ -325,18 +345,19 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             </div>
             <div className="input-button-group">
                 <TextBox
-                    placeholder={`0 ${{...selectedMarket}.underlying.symbol}`}
+                    placeholder={`0 h${{...selectedMarket}.underlying.symbol}`}
                     disabled={actionsDisabled}
                     value={stakeInput}
                     setInput={setStakeInput}
                     validation={stakeValidation}
-                    button={"Max"}
-                    onClick={() => getMaxStake()}/>
-                {+props.gaugeV4.userAllowance.toString() > 0 &&
-                +props.gaugeV4.userAllowance.toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
+                    button={+{...generalData}.totalBorrowBalance.toString() > 0  ? "Safe Max" : "Max"}
+                    buttonTooltip="50% of borrow limit"
+                    onClick={() => {+generalData.totalBorrowBalance.toString() > 0 ? getSafeMaxStake() : getMaxStake()}}/>
+                {props.gaugeV4 && +props.gaugeV4.userAllowance.toString() > 0 &&
+                +props.gaugeV4.userAllowance.toString().toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
                     ?
                     <MarketDialogButton
-                        disabled={stakeInput === "" || actionsDisabled || stakeValidation.trim() !== ""}
+                        disabled={stakeInput === "" || stakeValidation !== "" || isBorrowLimitUsed() || actionsDisabled}
                         onClick={() => handleStake({...selectedMarket}.underlying.symbol, stakeInput)}
                     >
                         {{...selectedMarketSpinners}.stakeSpinner ? (
@@ -344,7 +365,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     </MarketDialogButton>
                     :
                     <MarketDialogButton
-                        disabled={stakeInput === "" || actionsDisabled || stakeValidation.trim() !== ""}
+                        disabled={stakeInput === "" || stakeValidation !== "" || isBorrowLimitUsed() || actionsDisabled}
                         onClick={() => handleApproveStake({...selectedMarket}.underlying.symbol)}
                     >
                         {{...selectedMarketSpinners}.stakeSpinner ? (
@@ -363,7 +384,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             </div>
             <div className="input-button-group">
                 <TextBox
-                    placeholder={`0 h${{...selectedMarket}.underlying.symbol}-gauge`}
+                    placeholder={`0 h${{...selectedMarket}.underlying.symbol}-g`}
                     disabled={actionsDisabled}
                     value={unstakeInput}
                     setInput={setUnstakeInput}
@@ -371,29 +392,17 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     button={"Max"}
                     onClick={() => getMaxUnstake()}
                 />
-                {props.gaugeV4 && unstakeInput === "" || unstakeValidation !== "" || (+props.gaugeV4.userGaugeHelperAllowance.toString() > 0 &&
-                +props.gaugeV4.userGaugeHelperAllowance.toString().toString() >= (unstakeInput.trim() === "" || isNaN(+unstakeInput) || isNaN(parseFloat(unstakeInput)) ? 0 : +unstakeInput))
-                    ?
-                    <MarketDialogButton
-                        disabled={unstakeInput === "" || actionsDisabled || unstakeValidation !== ""}
-                        onClick={() => handleUnstake({...selectedMarket}.underlying.symbol, unstakeInput)}
-                    >
-                        {{...selectedMarketSpinners}.unstakeSpinner ? (
-                            <Spinner size={"20px"}/>) : "Unstake"}
-                    </MarketDialogButton>
-                    :
-                    <MarketDialogButton
-                        disabled={unstakeInput === "" || actionsDisabled || unstakeValidation !== ""}
-                        onClick={() => handleApproveUnStake({...selectedMarket}.underlying.symbol)}
-                    >
-                        {{...selectedMarketSpinners}.unstakeSpinner ? (
-                            <Spinner size={"20px"}/>) : "Approve"}
-                    </MarketDialogButton>
-                }
+                <MarketDialogButton
+                    disabled={unstakeInput === "" || unstakeValidation !== "" || actionsDisabled}
+                    onClick={() => handleUnstake({...selectedMarket}.underlying.symbol, unstakeInput)}
+                >
+                    {{...selectedMarketSpinners}.unstakeSpinner ? (
+                        <Spinner size={"20px"}/>) : "Unstake"}
+                </MarketDialogButton>
             </div>
             <MarketDialogButton
-                disabled={actionsDisabled || props.gaugeV4.userClaimableHnd === undefined || props.gaugeV4.userClaimableHnd?.eq(BigNumber.from(0)) || actionsDisabled}
-                onClick={() =>handleMint({...selectedMarket}.underlying.symbol)}
+                disabled={props?.gaugeV4?.userClaimableHnd === undefined || props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0)) || actionsDisabled}
+                onClick={() => handleMint({...selectedMarket}.underlying.symbol)}
             >
                 {{...selectedMarketSpinners}.mintSpinner ? (
                     <Spinner size={"20px"}/>) : "Claim HND"}
@@ -403,8 +412,18 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
     )
 }
 
+function convertLpAmountToUnderlying(amount: string, market: CTokenInfo) : string{
+    return (+amount * +market.exchangeRate / (10 ** (market.underlying.decimals - 8)) ).toFixed(4)
+}
+
 function convertGaugeLpAmountToUnderlying(amount: string, gaugeDecimals: number, market: CTokenInfo) : string{
     return (+amount * +market.exchangeRate / (10 ** (market.underlying.decimals - gaugeDecimals))).toFixed(4)
 }
 
-export default DirectStakeMarketTab
+function convertUSDTohToken(USD: string, market: CTokenInfo ) : BigNumber{
+    const underlyingToken = +USD / +market.underlying.price.toString();
+    const hToken = (underlyingToken / +market.exchangeRate ) * (10 ** (market.underlying.decimals - 8))
+    return BigNumber.parseValueSafe(hToken.toString(), market.underlying.decimals);  
+}
+
+export default StakeMarketTab

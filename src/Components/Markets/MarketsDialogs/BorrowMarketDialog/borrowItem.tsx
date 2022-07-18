@@ -24,6 +24,7 @@ interface Props{
     
 }
 const BorrowItem: React.FC<Props> = (props : Props) =>{
+    const mounted = useRef<boolean>(false)
     const {library} = useWeb3React()
     const {generalData, selectedMarket, selectedMarketSpinners, marketsData, toggleSpinners, setSelectedMarketSpinners} = useHundredDataContext()
     const {setSpinnerVisible} = useUiContext()
@@ -31,11 +32,13 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
     const [borrowDisabled, setBorrowDisabled] = useState<boolean>(false)
     const [borrowValidation, setBorrowValidation] = useState<string>("")
 
-    const selectedMarketRef = useRef<CTokenInfo>()
+    useEffect(() => {
+        mounted.current = true
 
-    useEffect (() => {
-        selectedMarket ? selectedMarketRef.current = {...selectedMarket} : undefined
-    }, [selectedMarket])
+        return () => {
+            mounted.current = false
+        }
+    }, [])
 
     useEffect(()=>{
         const handleBorrowAmountChange = () => {
@@ -103,16 +106,10 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
                 
                 const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
               
-                if (selectedMarketSpinners){
-                    const selected = {...selectedMarketSpinners}
-                    selected.borrowSpinner = true
-                    setSelectedMarketSpinners(selected)
-                }
-
                 const signer = library.getSigner()
                 const token = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI
                 const ctoken = new ethers.Contract(market.pTokenAddress, token, signer)
-                const receipt = await ExecuteWithExtraGasLimit(ctoken, "borrow", [value._value], () => setSpinnerVisible(false))
+                const receipt = await ExecuteWithExtraGasLimit(ctoken, "borrow", [value._value], 0, () => setSpinnerVisible(false))
               
                 console.log(receipt)
             }
@@ -135,27 +132,29 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
       }
 
     return (
+        selectedMarket && selectedMarketSpinners && generalData && mounted ? 
         <TabContentItem open={props.open} tabId={1} tabChange={props.tabChange}>
-            <TextBox placeholder={`0 ${selectedMarket ? {...selectedMarket}?.underlying.symbol : ""}`} disabled={borrowDisabled || (selectedMarket ? {...selectedMarket}.borrowPaused : false)} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"Safe Max"}
-            buttonTooltip="50% of borrow limit" buttonDisabled={generalData && +{...generalData}?.totalBorrowLimitUsedPercent.toRound(2) >= 50.01 ? true : false} onClick={ () => handleMaxBorrow()}/>
-            <MarketDialogItem title={"You Borrowed"} value={`${selectedMarket ? {...selectedMarket}?.borrowBalanceInTokenUnit?.toRound(4, true) : "0"} ${selectedMarket ? {...selectedMarket}?.underlying.symbol : ""}`}/>
+            <TextBox placeholder={`0 ${{...selectedMarket}?.underlying.symbol}`} disabled={borrowDisabled || ({...selectedMarket}.borrowPaused)} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"Safe Max"}
+            buttonTooltip="50% of borrow limit" buttonDisabled={+{...generalData}?.totalBorrowLimitUsedPercent.toRound(2) >= 50.01 ? true : false} onClick={ () => handleMaxBorrow()}/>
+            <MarketDialogItem title={"You Borrowed"} value={`${{...selectedMarket}?.borrowBalanceInTokenUnit?.toRound(4, true)} ${{...selectedMarket}?.underlying.symbol}`}/>
             <BorrowRateSection/>
             <BorrowLimitSection2 borrowAmount={borrowInput} repayAmount={"0"}/>
             <DialogMarketInfoSection/>
-            {selectedMarket && {...selectedMarket}.borrowPaused ? 
+            {{...selectedMarket}.borrowPaused ? 
                 <MarketDialogButton disabled={true} onClick={() => null}>
                     Borrow is Paused
                 </MarketDialogButton>
                 :<MarketDialogButton disabled={(!borrowInput || borrowValidation || selectedMarketSpinners?.borrowSpinner) ? true : false}
-                    onClick={() => {  selectedMarket ? handleBorrow(
+                    onClick={() => {handleBorrow(
                                             {...selectedMarket}?.underlying.symbol,
                                             borrowInput
-                                        ) : null
+                                        )
                                     }}>
-                    {selectedMarketSpinners && {...selectedMarketSpinners}?.borrowSpinner ? (<Spinner size={"20px"}/>) :"Borrow"}
+                    {{...selectedMarketSpinners}?.borrowSpinner ? (<Spinner size={"20px"}/>) :"Borrow"}
                 </MarketDialogButton>
             }
         </TabContentItem>
+        : null
     )
 }
 

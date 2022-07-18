@@ -23,6 +23,7 @@
 
 .open-dialog{
     display: block;
+    color: var(--secondaryText);
 }
 
 .supply-box{

@@ -37,22 +37,22 @@ export class GaugeV4{
     generalData : GaugeV4GeneralData
     userStakeBalance: BigNumber
     gaugeTokenDecimals: number
-    userStakedTokenBalance: BigNumber
+    userStakedTokenBalance: ethers.BigNumber
     userLpBalance: BigNumber
     lpTokenDecimals: number
     userClaimableHnd: BigNumber
     userWorkingStakeBalance: BigNumber
     userAllowance: BigNumber
     userGaugeHelperAllowance: BigNumber
-    stakeCall: (amount: string, market: CTokenInfo) => Promise<void>
-    unstakeCall: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => Promise<void>
-    mintCall: () => Promise<void>
-    approveCall: (market: CTokenInfo) => Promise<void>
-    approveUnstakeCall: () => Promise<void>
+    stakeCall: (amount: string, market: CTokenInfo) => Promise<any>
+    unstakeCall: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => Promise<any>
+    mintCall: () => Promise<any>
+    approveCall: (market: CTokenInfo) => Promise<any>
+    approveUnstakeCall: () => Promise<any>
 
     constructor(
         generalData: GaugeV4GeneralData,
-        userStakeBalance: BigNumber,
+        userStakeBalance: ethers.BigNumber,
         gaugeTokenDecimals: number,
         userLpBalance: BigNumber,
         lpTokenDecimals: number,
@@ -85,7 +85,7 @@ export class GaugeV4{
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getGaugesData = async (provider: any, userAddress: string, network: Network, spinner: () => void, oldData?: boolean): Promise<Array<GaugeV4>> => {
+export const getGaugesData = async (provider: any, userAddress: string, network: Network, oldData?: boolean): Promise<Array<GaugeV4>> => {
     const ethcallProvider = new Provider()
     await ethcallProvider.init(provider)
 
@@ -214,15 +214,15 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                         infoChunks[index][7],
                         (amount: string, market: CTokenInfo) => {
                             if (g.gaugeHelper) {
-                                return(stake(provider, userAddress, g, market, amount, spinner))
+                                return(stake(provider, userAddress, g, market, amount))
                             } else {
-                                return(stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString(), spinner))
+                                return(stake(provider, userAddress, g, market, BigNumber.parseValueSafe(amount, infoChunks[index][3])._value.toString()))
                             }
                         },
-                        (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => {return unstake(provider, userAddress, g, market, nativeTokenMarket, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString(), spinner)},
-                        () => {return mint(provider, g.address, spinner)},
-                    (market: CTokenInfo) => {return approve(provider, g, market, spinner)},
-                    () => {return approveUnstake(provider, g, spinner)},
+                        (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => {return unstake(provider, userAddress, g, market, nativeTokenMarket, BigNumber.parseValueSafe(amount, infoChunks[index][1])._value.toString())},
+                        () => {return mint(provider, g.address)},
+                    (market: CTokenInfo) => {return approve(provider, g, market)},
+                    () => {return approveUnstake(provider, g)},
                     )
                 }
             )
@@ -233,7 +233,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
   }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getBackstopGaugesData = async (provider: any, userAddress: string, network: Network, spinner: () => void): Promise<Array<GaugeV4>> => {
+export const getBackstopGaugesData = async (provider: any, userAddress: string, network: Network): Promise<Array<GaugeV4>> => {
 
     const ethcallProvider = new Provider()
     await ethcallProvider.init(provider)
@@ -347,15 +347,15 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string, 
                         infoChunks[index][7],
                         (amount: string, market: CTokenInfo) => {
                             if (g.gaugeHelper) {
-                                return(stake(provider, userAddress, g, market, amount, spinner))
+                                return(stake(provider, userAddress, g, market, amount))
                             } else {
-                                return(stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString(), spinner))
+                                return(stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString()))
                             }
                         },
-                         (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => {return unstake(provider, userAddress, g, market, nativeTokenMarket, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString(), spinner)},
-                        () => {return mint(provider, g.address, spinner)},
-                        (market: CTokenInfo) => {return approve(provider, g, market, spinner)},
-                        () => {return approveUnstake(provider, g, spinner)},
+                         (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => {return unstake(provider, userAddress, g, market, nativeTokenMarket, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString())},
+                        () => {return mint(provider, g.address)},
+                        (market: CTokenInfo) => {return approve(provider, g, market)},
+                        () => {return approveUnstake(provider, g)},
                     )
                 }
             )
@@ -373,50 +373,49 @@ const stake = async (
     gauge: GaugeV4GeneralData,
     market: CTokenInfo,
     amount: string,
-    spinner: () => void
 ) => {
     const signer = provider.getSigner()
     if (!gauge.gaugeHelper) {
         const gaugeContract = new ethers.Contract(gauge.address, GAUGE_V4_ABI, signer)
-        await ExecuteWithExtraGasLimit(gaugeContract, "deposit", [amount], spinner)
+        return await ExecuteWithExtraGasLimit(gaugeContract, "deposit", [amount], 0)
     } else if (!market.isNativeToken && !gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-        await ExecuteWithExtraGasLimit(gaugeHelper, "depositUnderlyingToGauge", [
+        return await ExecuteWithExtraGasLimit(gaugeHelper, "depositUnderlyingToGauge", [
             market.underlying.address,
             gauge.lpToken,
             gauge.address,
-            ethers.utils.parseUnits(amount, market.underlying.decimals),
+            BigNumber.parseValueSafe(amount, market.underlying.decimals)._value,
             userAddress
-        ], spinner, 20)
+        ], 20)
     } else if (!market.isNativeToken && gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-        await ExecuteWithExtraGasLimit(gaugeHelper, "depositUnderlyingToBammGauge", [
+        return await ExecuteWithExtraGasLimit(gaugeHelper, "depositUnderlyingToBammGauge", [
             market.underlying.address,
             gauge.lpTokenUnderlying,
             gauge.lpToken,
             gauge.address,
-            ethers.utils.parseUnits(amount, market.underlying.decimals),
+            BigNumber.parseValueSafe(amount, market.underlying.decimals)._value,
             userAddress,
-        ], spinner, 20)
+        ], 20)
     } else if (!gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-        await ExecutePayableWithExtraGasLimit(
+        return await ExecutePayableWithExtraGasLimit(
             gaugeHelper,
-            ethers.utils.parseUnits(amount, market.underlying.decimals),
+            BigNumber.parseValueSafe(amount, market.underlying.decimals)._value,
             "depositEtherToGauge",
             [
             gauge.lpToken,
             gauge.address,
             userAddress
-        ], () => { return } , 20)
+        ], 20)
     }
 }
 
-const unstake = async (provider: any, userAddress: string, gauge: GaugeV4GeneralData, market: CTokenInfo, nativeTokenMarket: string|undefined, amount: string, spinner: () => void) => {
+const unstake = async (provider: any, userAddress: string, gauge: GaugeV4GeneralData, market: CTokenInfo, nativeTokenMarket: string|undefined, amount: string) => {
     const signer = provider.getSigner()
     if (!gauge.gaugeHelper) {
         const gaugeContract = new ethers.Contract(gauge.address, GAUGE_V4_ABI, signer)
-        await ExecuteWithExtraGasLimit(gaugeContract, "withdraw", [amount], spinner)
+        return await ExecuteWithExtraGasLimit(gaugeContract, "withdraw", [amount], 0)
     } else if (!gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
         await ExecuteWithExtraGasLimit(gaugeHelper, "withdrawFromGaugeToUnderlying", [
@@ -426,10 +425,10 @@ const unstake = async (provider: any, userAddress: string, gauge: GaugeV4General
             amount,
             userAddress,
             market.isNativeToken
-        ], spinner, 20)
+        ], 20)
     } else {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-        await ExecuteWithExtraGasLimit(gaugeHelper, "withdrawFromBammGaugeToUnderlying", [
+        return await ExecuteWithExtraGasLimit(gaugeHelper, "withdrawFromBammGaugeToUnderlying", [
                 gauge.minter,
                 gauge.address,
                 gauge.lpToken,
@@ -437,37 +436,37 @@ const unstake = async (provider: any, userAddress: string, gauge: GaugeV4General
                 amount,
                 userAddress,
                 nativeTokenMarket,
-            ], spinner, 20
+            ], 20
         )
     }
 }
 
-const mint = async (provider: any, address: string, spinner: () => void) => {
+const mint = async (provider: any, address: string) => {
     const signer = provider.getSigner()
     const gauge = new ethers.Contract(address, GAUGE_V4_ABI, signer)
 
     const minterAddress = await gauge.minter()
     const minter = new ethers.Contract(minterAddress, MINTER_ABI, signer)
 
-    await ExecuteWithExtraGasLimit(minter, "mint", [address], spinner)
+    return await ExecuteWithExtraGasLimit(minter, "mint", [address], 0)
 }
 
-const approve = async (provider: any, gauge: GaugeV4GeneralData, market: CTokenInfo, spinner: () => void) => {
+const approve = async (provider: any, gauge: GaugeV4GeneralData, market: CTokenInfo) => {
     const signer = provider.getSigner()
     if (!gauge.gaugeHelper) {
         const contract = new ethers.Contract(gauge.lpToken, TOKEN_ABI, signer);
-        await ExecuteWithExtraGasLimit(contract, "approve", [gauge.address, MaxUint256._value], spinner)
+        return await ExecuteWithExtraGasLimit(contract, "approve", [gauge.address, MaxUint256._value], 0)
     } else if (!market.isNativeToken) {
         const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
-        await ExecuteWithExtraGasLimit(contract, "approve", [gauge.gaugeHelper, MaxUint256._value], spinner)
+        return await ExecuteWithExtraGasLimit(contract, "approve", [gauge.gaugeHelper, MaxUint256._value], 0)
     }
 }
 
-const approveUnstake = async (provider: any, gauge: GaugeV4GeneralData, spinner: () => void) => {
+const approveUnstake = async (provider: any, gauge: GaugeV4GeneralData) => {
     const signer = provider.getSigner()
     if (gauge.gaugeHelper) {
         const contract = new ethers.Contract(gauge.address, TOKEN_ABI, signer);
-        await ExecuteWithExtraGasLimit(contract, "approve", [gauge.gaugeHelper, MaxUint256._value], spinner)
+        return await ExecuteWithExtraGasLimit(contract, "approve", [gauge.gaugeHelper, MaxUint256._value], 0)
     }
 }
 
