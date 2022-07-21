@@ -66,7 +66,16 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
               <SwitchButton disabled={props.marketSpinners ? props.marketSpinners.spinner : false} checked={props?.market?.isEnterMarket} onClick={()=>{props.market ? props.enterMarketDialog(props.market) : null}}/>
               : <SwitchButton disabled={true} switchToolTip={props.market ? +props.market.collateralFactor.toString() > 0 ? null : "Assets that earn HND can't be used as collateral": null }/>
             }
-            {(props?.marketSpinners?.spinner || props?.marketSpinners?.supplySpinner || props?.marketSpinners?.withdrawSpinner || props?.marketSpinners?.backstopDepositSpinner || props?.marketSpinners?.backstopWithdrawSpinner)? (<Spinner size={"20px"}/>) : null}
+            {(props?.marketSpinners?.spinner && 
+              (props?.marketSpinners?.supplySpinner 
+              || props?.marketSpinners?.withdrawSpinner 
+              || props?.marketSpinners?.backstopDepositSpinner 
+              || props?.marketSpinners?.backstopWithdrawSpinner
+              || props?.marketSpinners.backstopClaimSpinner
+              || props?.marketSpinners.stakeSpinner
+              || props?.marketSpinners.unstakeSpinner
+              || props?.marketSpinners.mintSpinner
+              || props?.marketSpinners.enterMarketSpinner))? (<Spinner size={"20px"}/>) : null}
           </div>
         </td>
       </tr>

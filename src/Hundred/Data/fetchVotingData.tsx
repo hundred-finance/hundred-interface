@@ -11,15 +11,13 @@ export type votingDataType = {
 export const fetchVotingData = async(
 { userAddress, comptrollerData, network, }: 
 {userAddress: string; comptrollerData: Comptroller; network: Network;}) : Promise<votingDataType> => {
-const votingCalls = []
-    if (network.votingAddress) 
-{   
-   const votingContract = new Contract(network.votingAddress, VOTING_ESCROW_ABI); 
-    votingCalls.push(votingContract.balanceOf(userAddress))
-    
-}
-  const votingResult = await comptrollerData.ethcallProvider.all(votingCalls)
+    const votingCalls = []
+    if (network.votingAddress) {   
+        const votingContract = new Contract(network.votingAddress, VOTING_ESCROW_ABI); 
+        votingCalls.push(votingContract.balanceOf(userAddress))
+    }
+    const votingResult = await comptrollerData.ethcallProvider.all(votingCalls)
   
-  const vehndBalance = votingResult[0] ? BigNumber.from(votingResult[0], 18) : BigNumber.from("0")
-return {vehndBalance:vehndBalance}
+    const vehndBalance = votingResult[0] ? BigNumber.from(votingResult[0], 18) : BigNumber.from("0")
+    return {vehndBalance:vehndBalance}
 }

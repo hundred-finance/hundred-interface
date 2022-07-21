@@ -3,12 +3,12 @@ import { TabContentItem} from "../../../TabControl/tabControl";
 import TextBox from "../../../Textbox/textBox";
 import MarketDialogButton from "../marketDialogButton";
 import DialogMarketInfoSection from "../marketInfoSection";
-import "../supplyMarketDialog.css"
+import "../marketDialog.css"
 import MarketDialogItem from "../marketDialogItem";
 import BorrowRateSection from "./borrowRateSection";
 import BorrowLimitSection2 from "./borrowLimitSection2";
 import { Spinner } from "../../../../assets/huIcons/huIcons";
-import { CTokenInfo, SpinnersEnum } from "../../../../Classes/cTokenClass";
+import { SpinnersEnum } from "../../../../Classes/cTokenClass";
 import { BigNumber } from "../../../../bigNumber";
 import { useHundredDataContext } from "../../../../Types/hundredDataContext";
 import { useWeb3React } from "@web3-react/core";
@@ -16,18 +16,19 @@ import { useUiContext } from "../../../../Types/uiContext";
 import { ethers } from "ethers";
 import { ExecuteWithExtraGasLimit } from "../../../../Classes/TransactionHelper";
 import { CETHER_ABI, CTOKEN_ABI } from "../../../../abi";
+import { UpdateTypeEnum } from "../../../../Hundred/Data/hundredData";
 
 interface Props{
     tabChange: number
     open: boolean,
-    getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
     
 }
 const BorrowItem: React.FC<Props> = (props : Props) =>{
     const mounted = useRef<boolean>(false)
     const {library} = useWeb3React()
-    const {generalData, selectedMarket, selectedMarketSpinners, marketsData, toggleSpinners, setSelectedMarketSpinners} = useHundredDataContext()
-    const {setSpinnerVisible} = useUiContext()
+    const {generalData, selectedMarket, selectedMarketSpinners, marketsData, 
+        toggleSpinners, updateMarket} = useHundredDataContext()
+    const {setSpinnerVisible, toastErrorMessage, toastSuccessMessage} = useUiContext()
     const [borrowInput, setBorrowInput] = useState<string>("")
     const [borrowDisabled, setBorrowDisabled] = useState<boolean>(false)
     const [borrowValidation, setBorrowValidation] = useState<string>("")
@@ -39,6 +40,17 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
             mounted.current = false
         }
     }, [])
+
+    useEffect(() => {
+        if(selectedMarketSpinners){
+            const spinner = {...selectedMarketSpinners}.spinner
+            if(mounted.current){
+                if(spinner) setBorrowDisabled(true)
+                else setBorrowDisabled(false)
+            }
+        }
+
+    }, [selectedMarketSpinners?.spinner])
 
     useEffect(()=>{
         const handleBorrowAmountChange = () => {
@@ -101,7 +113,6 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
           if(market && library){
             try{
                 setSpinnerVisible(true)
-                setBorrowDisabled(true)
                 toggleSpinners(symbol, SpinnersEnum.borrow)
                 
                 const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
@@ -109,23 +120,22 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
                 const signer = library.getSigner()
                 const token = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI
                 const ctoken = new ethers.Contract(market.pTokenAddress, token, signer)
-                const receipt = await ExecuteWithExtraGasLimit(ctoken, "borrow", [value._value], 0, () => setSpinnerVisible(false))
+                const tx = await ExecuteWithExtraGasLimit(ctoken, "borrow", [value._value], 0)
               
+                setSpinnerVisible(false)
+                const receipt = await tx.wait()
                 console.log(receipt)
+                toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                await updateMarket(market, UpdateTypeEnum.Borrow)
+                if(mounted.current) setBorrowInput("")
             }
-            catch(err){
-              console.log(err)
+            catch(error: any){
+              console.log(error)
+              toastErrorMessage(`${error?.message.replace(".", "")} on Approve`)
             }
             finally{
               setSpinnerVisible(false)
-              setBorrowDisabled(false)
-
               toggleSpinners(symbol, SpinnersEnum.borrow)
-              if (selectedMarketSpinners){
-                const selected = {...selectedMarketSpinners}
-                selected.borrowSpinner = false
-                setSelectedMarketSpinners(selected)
-            }
             }
           }
         }

@@ -2,7 +2,7 @@ import { BigNumber } from "../../../../bigNumber";
 import React, {useEffect, useRef, useState} from "react"
 import TextBox from "../../../Textbox/textBox";
 import MarketDialogButton from "../marketDialogButton";
-import "../supplyMarketDialog.css"
+import "../marketDialog.css"
 import MarketDialogItem from "../marketDialogItem";
 import {Spinner} from "../../../../assets/huIcons/huIcons";
 import { CTokenInfo, SpinnersEnum } from "../../../../Classes/cTokenClass";
@@ -37,6 +37,17 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             mounted.current = false
         }
     }, [])
+
+    useEffect(() => {
+        if(selectedMarketSpinners){
+            const spinner = {...selectedMarketSpinners}.spinner
+            if(mounted.current){
+                if(spinner) setActionsDisabled(true)
+                else setActionsDisabled(false)
+            }
+        }
+
+    }, [selectedMarketSpinners?.spinner])
 
     useEffect(()=>{
         const handleStakeAmountChange = () => {
@@ -131,7 +142,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 try{
                     if (!market.isNativeToken) {
                         setSpinnerVisible(true)
-                        setActionsDisabled(true)
                         toggleSpinners(market.underlying.symbol, SpinnersEnum.stake)
                         
                         const tx = await props.gaugeV4.approveCall(market)
@@ -150,11 +160,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 }
                 finally{
                     setSpinnerVisible(false)
-                    if(mounted.current)
-                    {
-                        console.log("handle stake Disable")
-                        setActionsDisabled(false)
-                    }
                     toggleSpinners(market.underlying.symbol, SpinnersEnum.stake)
                 }
             }
@@ -167,7 +172,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             if(props.gaugeV4.generalData.gaugeHelper && library && symbol && market && account){
                 try{
                     setSpinnerVisible(true)
-                    setActionsDisabled(true)
                     toggleSpinners(symbol, SpinnersEnum.stake)
 
                     const tx = await props.gaugeV4.stakeCall(amount, market)
@@ -188,8 +192,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 finally{
                     setSpinnerVisible(false)
                     toggleSpinners(symbol, SpinnersEnum.stake)
-                    if(mounted)
-                        setActionsDisabled(false)
                 }
             }
         }
@@ -202,7 +204,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
               if(market && library){
                   try{
                     setSpinnerVisible(true)
-                    setActionsDisabled(true)
                     toggleSpinners(symbol, SpinnersEnum.unstake)
   
                     const tx = await props.gaugeV4.approveUnstakeCall()
@@ -223,7 +224,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                   finally{
                       setSpinnerVisible(false)
                       toggleSpinners(symbol, SpinnersEnum.unstake)
-                      if(mounted.current) setActionsDisabled(false)
                   }
               }
           }
@@ -237,7 +237,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
               if(market && library && account && props.gaugeV4.generalData.gaugeHelper){
                   try{
                     setSpinnerVisible(true)
-                    setActionsDisabled(true)
                     toggleSpinners(symbol, SpinnersEnum.unstake)
 
                     const tx = await props.gaugeV4.unstakeCall(amount, market, nativeTokenMarket?.pTokenAddress)
@@ -258,7 +257,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                   finally{
                       setSpinnerVisible(false)
                       toggleSpinners(symbol, SpinnersEnum.unstake)
-                      if(mounted.current) setActionsDisabled(false)
                   }
               }
           }
@@ -271,7 +269,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                   try{
                         setSpinnerVisible(true)
                         toggleSpinners(symbol, SpinnersEnum.mint)
-                        setActionsDisabled(true)
 
                         const tx = await props.gaugeV4.mintCall()
                       
@@ -291,9 +288,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                   finally{
                       setSpinnerVisible(false)
                       toggleSpinners(symbol, SpinnersEnum.mint)
-                      if(mounted.current){
-                        setActionsDisabled(false)
-                      }
                   }
               }
           }
@@ -308,7 +302,11 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             />
             <MarketDialogItem
                 title={"Claimable"}
-                value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
+                value={`${+formatBalance(props.gaugeV4?.userClaimableHnd).toString() > 0 
+                        ? +formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4) === 0
+                        ? ">0.0001"
+                        : formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)
+                        : "0.0000"} HND`}
             />
             <MarketDialogItem
                 title={"APR"}

@@ -40,6 +40,17 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
         }
     }, [])
 
+    useEffect(() => {
+        if(selectedMarketSpinners){
+            const spinner = {...selectedMarketSpinners}.spinner
+            if(mounted.current){
+                if(spinner) setWithdrawDisabled(true)
+                else setWithdrawDisabled(false)
+            }
+        }
+
+    }, [selectedMarketSpinners?.spinner])
+
     useEffect(()=>{
         if(selectedMarket && generalData){
             const selected = {...selectedMarket}
@@ -123,7 +134,6 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
           if(market && library){
             try{
                 setSpinnerVisible(true)
-                setWithdrawDisabled(true)
                 toggleSpinners(symbol, SpinnersEnum.withdraw);
 
                 const signer = library.getSigner()
@@ -161,9 +171,6 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
             finally{
                 setSpinnerVisible(false)
                 toggleSpinners(symbol, SpinnersEnum.withdraw);
-                if(mounted)
-                    setWithdrawDisabled(false);
-                else console.log("Unmounted supply tab")
             }
           }
         }
@@ -193,7 +200,7 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
             {{...selectedMarketSpinners}.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
         </MarketDialogButton>
     </>
-    : null)
+    : <div>null</div>)
 }
 
 export default WithdrawItem

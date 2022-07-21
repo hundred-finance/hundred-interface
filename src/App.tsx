@@ -5,7 +5,6 @@ import { Network } from './networks'
 import Spinner from './Components/Spinner/spinner';
 import ReactToolTip from 'react-tooltip'
 import 'react-toastify/dist/ReactToastify.css'
-import { BigNumber } from './bigNumber';
 import { AirdropType } from './Components/AirdropButton/airdropButton';
 import Buffer from "buffer"
 import { MyUiContext } from './Types/uiContext';
@@ -26,17 +25,16 @@ global.Buffer = window.Buffer || Buffer.Buffer
 
 const App: React.FC = () => {
   const [address, setAddress] = useState<string>("")
-  const [hundredBalance, setHundredBalance] = useState<BigNumber | null>(null)
-  const [hndBalance, setHndBalance] = useState<BigNumber | null>(null)
-  const [hndEarned, setHndEarned] = useState<BigNumber |null>(null)
-  const [vehndBalance, setVehndBalance] = useState<BigNumber | null>(null)
-  const [hndRewards, setHndRewards] = useState<BigNumber | null>(null)
-  const [gaugeAddresses, setGaugeAddresses] = useState<string[] | null>(null)
+  
+  
   const [network, setNetwork] = useState<Network | null>(null)
   const [hndPrice, setHndPrice] = useState<number>(0)
   const [hasClaimed, setHasClaimed] = useState<boolean>(false)
   const [airdrops, setAirdrops] = useState<AirdropType[]>([])
+  
   const [updateEarned, setUpdateEarned] = useState<boolean>(false)
+  const [claimHnd, setClaimHnd] = useState<boolean>(false)
+  const [claimLockHnd, setClaimLockHnd] = useState<boolean>(false)
 
   const [sideMenu, setSideMenu] = useState<boolean>(false)
   const [darkMode, setDarkMode] = useState<boolean>(false)
@@ -130,13 +128,7 @@ const App: React.FC = () => {
                                        hndPrice, setHndPrice,
                                        hasClaimed, setHasClaimed,
                                        airdrops, setAirdrops,
-                                       hndBalance, setHndBalance,
-                                       hndEarned, setHndEarned,
-                                       hundredBalance, setHundredBalance,
-                                       vehndBalance, setVehndBalance,
-                                       hndRewards, setHndRewards,
-                                       updateEarned, setUpdateEarned,
-                                       gaugeAddresses, setGaugeAddresses})}>
+                                       updateEarned, setUpdateEarned})}>
         <MyUiContext.Provider value={({sideMenu, setSideMenu,
                                     darkMode, setDarkMode,
                                     spinnerVisible, setSpinnerVisible,
@@ -151,7 +143,9 @@ const App: React.FC = () => {
                                     airdropSpinner, setAirdropSpinner,
                                     toastSuccessMessage: toastSuccess, toastErrorMessage: toastError,
                                     switchModal, setSwitchModal,
-                                    scale, setScale})}>
+                                    scale, setScale,
+                                    claimHnd, setClaimHnd,
+                                    claimLockHnd, setClaimLockHnd})}>
           <div id="app" className={`App scroller ${darkMode ? "dark-theme" : ""}`}>
             <Hundred/>
             <ReactToolTip id="tooltip" effect="solid"/>

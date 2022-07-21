@@ -418,7 +418,7 @@ const unstake = async (provider: any, userAddress: string, gauge: GaugeV4General
         return await ExecuteWithExtraGasLimit(gaugeContract, "withdraw", [amount], 0)
     } else if (!gauge.backstopGauge) {
         const gaugeHelper = new ethers.Contract(gauge.gaugeHelper, GAUGE_HELPER_ABI, signer)
-        await ExecuteWithExtraGasLimit(gaugeHelper, "withdrawFromGaugeToUnderlying", [
+        return await ExecuteWithExtraGasLimit(gaugeHelper, "withdrawFromGaugeToUnderlying", [
             gauge.minter,
             gauge.address,
             gauge.lpToken,

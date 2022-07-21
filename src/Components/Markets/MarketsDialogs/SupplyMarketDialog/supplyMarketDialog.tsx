@@ -9,6 +9,8 @@ import SupplyItem from "./supplyItem"
 import WithdrawItem from "./withdrawItem"
 import DirectStakeMarketTab from "./directStakeMarketTab"
 import StakeMarketTab from "./StakeMarket"
+import DirectBackstopStakeMarketTab from "./directBackstopMarketTab"
+import BackstopMarketTab from "./backstopMarketTab"
 
 interface Props{
     open: boolean,
@@ -33,23 +35,19 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     }
 
     useEffect(() => {
-        console.log("Supply dialog mounted")
         mountedSupply.current = true
         setTabChange(1)
         return () => {
-            console.log("Supply dialog unmounted")
             mountedSupply.current = false
         }
     }, [])
 
     useEffect(() => {
         if(props.open){
-            console.log("Supply dialog mounted")
             mountedSupply.current = true
             setTabChange(1)
         }
         else{
-            console.log("Supply dialog unmounted")
             mountedSupply.current = false
         }
     }, [props.open])
@@ -60,7 +58,6 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             const headers = []
             const contents = []
             const gaugeV4 = [...gaugesV4Data].find((x) => x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address)
-            console.log(gaugeV4)
             headers.push({title: "Supply"})
             contents.push(
                     <SupplyItem gaugeV4={gaugeV4} />
@@ -72,11 +69,16 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                 : contents.push(<StakeMarketTab gaugeV4={gaugeV4}/>)
             }
             
-            const backstopGaugeV4= gaugesV4Data?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === market.pTokenAddress.toLowerCase())
+            const backstopGaugeV4= [...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === market.pTokenAddress.toLowerCase())
             if(market.backstop || backstopGaugeV4){
-                headers.push({title: "Backstop"})
-                if (backstopGaugeV4)
-                    contents.push(<DirectStakeMarketTab gaugeV4={backstopGaugeV4}/>)
+                if (backstopGaugeV4){
+                    headers.push({title: "Backstop"})
+                    contents.push(<DirectBackstopStakeMarketTab gaugeV4={backstopGaugeV4}/>)
+                }   
+                else if(market.backstop){
+                    headers.push({title: "Backstop"})
+                    contents.push(<BackstopMarketTab/>)
+                }
             }
             
             headers.push({title: "Withdraw"})

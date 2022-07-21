@@ -25,7 +25,7 @@ interface Props {
 
 const SupplyItem: React.FC<Props> = (props: Props) => {
     const mounted = useRef<boolean>(false)
-    const {selectedMarket, selectedMarketSpinners, setSelectedMarketSpinners, 
+    const {selectedMarket, selectedMarketSpinners, 
         generalData, marketsData, toggleSpinners, comptrollerData, getMaxAmount, updateMarket} = useHundredDataContext()
     const {setSpinnerVisible, toastSuccessMessage, toastErrorMessage} = useUiContext()
     const {library} = useWeb3React()
@@ -46,6 +46,17 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
             mounted.current = false
         }
     }, [])
+
+    useEffect(() => {
+        if(selectedMarketSpinners){
+            const spinner = {...selectedMarketSpinners}.spinner
+            if(mounted.current){
+                if(spinner) setSupplyDisabled(true)
+                else setSupplyDisabled(false)
+            }
+        }
+
+    }, [selectedMarketSpinners?.spinner])
 
     useEffect(() => {
         const handleSupplyAmountChange = () => {
@@ -105,13 +116,8 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
             if (market && library) {
                 try {
                     setSpinnerVisible(true);
-                    setSupplyDisabled(true);
                     toggleSpinners(symbol, SpinnersEnum.supply);
-                    if (selectedMarketSpinners) {
-                        const selected = { ...selectedMarketSpinners };
-                        selected.supplySpinner = true;
-                        setSelectedMarketSpinners(selected);
-                    }
+                    
                     //STEP 1: ethcall setup
                     const value = BigNumber.parseValueSafe(amount, market.underlying.decimals);
                     const signer = library.getSigner();
@@ -130,7 +136,6 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                     await updateMarket(market, UpdateTypeEnum.Supply)
                     if(mounted.current)
                         setSupplyInput("")
-                    else console.log("Unmounted supply tab")
                 } catch (err) {
                     const error = err as any;
                     toastErrorMessage(`${error?.message.replace('.', '')} on Supply\n${error?.data?.message}`);
@@ -138,9 +143,6 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                 } finally {
                     setSpinnerVisible(false);
                     toggleSpinners(symbol, SpinnersEnum.supply);
-                    if(mounted.current)
-                        setSupplyDisabled(false);
-                    else console.log("Unmounted supply tab")
                 }
             }
         }
@@ -153,12 +155,6 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                 try {
                     setSpinnerVisible(true);
                     toggleSpinners(symbol, SpinnersEnum.supply);
-                    setSupplyDisabled(true);
-                    if (selectedMarketSpinners) {
-                        const selected = { ...selectedMarketSpinners };
-                        selected.supplySpinner = true;
-                        setSelectedMarketSpinners(selected);
-                    }
                     
                     if (market.underlying.address) {
                         const signer = library.getSigner();
@@ -172,8 +168,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
 
                         console.log(receipt);
                         toastSuccessMessage("Transaction complete, updating contracts")
-                        const checkReceipt = await updateMarket(market, UpdateTypeEnum.ApproveMarket)
-                        console.log('checkReceipt: ', checkReceipt); 
+                        await updateMarket(market, UpdateTypeEnum.ApproveMarket)
                     }
                 } catch (err) {
                     const error = err as any;
@@ -182,7 +177,6 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                 } finally {
                     setSpinnerVisible(false);
                     toggleSpinners(symbol, SpinnersEnum.supply);
-                    setSupplyDisabled(false);
                 }
             }
         }

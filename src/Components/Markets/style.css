@@ -129,6 +129,7 @@
 .disable-row {
     opacity: 0.5;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 .disable-row td {

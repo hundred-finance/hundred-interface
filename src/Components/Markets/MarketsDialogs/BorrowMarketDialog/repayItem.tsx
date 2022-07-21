@@ -1,14 +1,14 @@
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import { TabContentItem} from "../../../TabControl/tabControl";
 import TextBox from "../../../Textbox/textBox";
 import MarketDialogButton from "../marketDialogButton";
 import DialogMarketInfoSection from "../marketInfoSection";
-import "../supplyMarketDialog.css"
+import "../marketDialog.css"
 import MarketDialogItem from "../marketDialogItem";
 import BorrowRateSection from "./borrowRateSection";
 import BorrowLimitSection2 from "./borrowLimitSection2";
 import { Spinner } from "../../../../assets/huIcons/huIcons";
-import { CTokenInfo, SpinnersEnum } from "../../../../Classes/cTokenClass";
+import { SpinnersEnum } from "../../../../Classes/cTokenClass";
 import { BigNumber } from "../../../../bigNumber";
 import { useHundredDataContext } from "../../../../Types/hundredDataContext";
 import { useUiContext } from "../../../../Types/uiContext";
@@ -17,18 +17,20 @@ import { useGlobalContext } from "../../../../Types/globalContext";
 import { ethers } from "ethers";
 import { CTOKEN_ABI, MAXIMILLION_ABI, TOKEN_ABI } from "../../../../abi";
 import { ExecutePayableWithExtraGasLimit, ExecuteWithExtraGasLimit } from "../../../../Classes/TransactionHelper";
+import { UpdateTypeEnum } from "../../../../Hundred/Data/hundredData";
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256)
 
 interface Props{
     tabChange: number,
     open: boolean,
-    getMaxAmount: (market: CTokenInfo, func?: string) => Promise<BigNumber>,
-    getMaxRepayAmount: (market: CTokenInfo) => Promise<BigNumber>,
 }
 const RepayItem: React.FC<Props> = (props : Props) =>{
-    const {selectedMarket, selectedMarketSpinners, marketsData, toggleSpinners, setSelectedMarketSpinners} = useHundredDataContext()
-    const {setSpinnerVisible, toastErrorMessage} = useUiContext()
+    const mounted = useRef<boolean>(false)
+
+    const {selectedMarket, selectedMarketSpinners, marketsData, 
+      toggleSpinners, getMaxAmount, getMaxRepayAmount, updateMarket} = useHundredDataContext()
+    const {setSpinnerVisible, toastErrorMessage, toastSuccessMessage} = useUiContext()
     const {network} = useGlobalContext()
     const {library, account} = useWeb3React()
 
@@ -37,6 +39,25 @@ const RepayItem: React.FC<Props> = (props : Props) =>{
 
     const [repayValidation, setRepayValidation] = useState<string>("")
     const [isFullRepay, setIsFullRepay] = useState<boolean>(false);
+
+    useEffect(() => {
+      mounted.current = true
+
+      return (() => {
+        mounted.current = false
+      })
+    }, [])
+
+    useEffect(() => {
+      if(selectedMarketSpinners){
+          const spinner = {...selectedMarketSpinners}.spinner
+          if(mounted.current){
+              if(spinner) setRepayDisabled(true)
+              else setRepayDisabled(false)
+          }
+      }
+
+  }, [selectedMarketSpinners?.spinner])
 
     useEffect(()=>{
         const handleRepayAmountChange = () => {
@@ -67,10 +88,10 @@ const RepayItem: React.FC<Props> = (props : Props) =>{
     
 
     const handleMaxRepay = async () => {
-        const maxAffordable = selectedMarket ? await props.getMaxAmount(
+        const maxAffordable = selectedMarket ? await getMaxAmount(
             selectedMarket, "repay") : BigNumber.from("0")
 
-        const fullRepayAmount = selectedMarket ? await props.getMaxRepayAmount(
+        const fullRepayAmount = selectedMarket ? await getMaxRepayAmount(
             selectedMarket) : BigNumber.from("0")
             
         const isFull = maxAffordable.gteSafe(fullRepayAmount)
@@ -90,39 +111,30 @@ const RepayItem: React.FC<Props> = (props : Props) =>{
             try{
               setSpinnerVisible(true)
               toggleSpinners(symbol, SpinnersEnum.repay)
-                setRepayDisabled(true)
-              if(selectedMarketSpinners) {
-                const selected = {...selectedMarketSpinners}
-                selected.repaySpinner = true
-                setSelectedMarketSpinners(selected)
-              }
 
-              const signer = library.getSigner()
               if(market.underlying.address){
+                const signer = library.getSigner()
                 const contract = new ethers.Contract(market.underlying.address, TOKEN_ABI, signer);
-                const receipt = await ExecuteWithExtraGasLimit(
+                const tx = await ExecuteWithExtraGasLimit(
                     contract,
                     "approve",
-                    [market.pTokenAddress, MaxUint256._value]
-                , 0, () => setSpinnerVisible(false))
+                    [market.pTokenAddress, MaxUint256._value], 0)
+                setSpinnerVisible(false)
+
+                const receipt = await tx.wait()
                 console.log(receipt)
+                toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                await updateMarket(market, UpdateTypeEnum.ApproveMarket)
               }
             }
             catch(err){
               const error = err as any
-              toastErrorMessage(`${error?.message.replace(".", "")} on Approve\n${error?.data?.message}`)
+              toastErrorMessage(`${error?.message.replace(".", "")} on Approve`)
               console.log(err)
             }
             finally{
               setSpinnerVisible(false)
               toggleSpinners(symbol, SpinnersEnum.repay)
-              setRepayDisabled(false)
-              if(selectedMarketSpinners) {
-                const selected = {...selectedMarketSpinners}
-                selected.repaySpinner = false
-                setSelectedMarketSpinners(selected)
-              }
-              //borrowDialog ? await handleUpdate(market, "repay", false) : await handleUpdate(market, "supply", false)
             }
           }
         }
@@ -134,81 +146,71 @@ const RepayItem: React.FC<Props> = (props : Props) =>{
           
           if(market && library && network){
             try{
+                const net = {...network}
                 setSpinnerVisible(true)
                 toggleSpinners(symbol, SpinnersEnum.repay)
-                if(selectedMarketSpinners) {
-                    const selected = {...selectedMarketSpinners}
-                    selected.repaySpinner = true
-                    setSelectedMarketSpinners(selected)
-                  }
 
-              const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
-              const repayAmount = (market.isNativeToken) ? ({value: value._value}) : 
+                const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
+                const repayAmount = (market.isNativeToken) ? ({value: value._value}) : 
                        (fullRepay ? ethers.constants.MaxUint256 : value._value)
               
-              const signer = library.getSigner()
+                const signer = library.getSigner()
+                const contract = market.isNativeToken && net.maximillion
+                                  ? new ethers.Contract(net.maximillion, MAXIMILLION_ABI, signer)
+                                  : new ethers.Contract(market.pTokenAddress, CTOKEN_ABI, signer)
+
+                const tx = market.isNativeToken && net.maximillion
+                          ? await ExecutePayableWithExtraGasLimit(contract, value._value, "repayBehalfExplicit", [
+                            account, market.pTokenAddress], 0)
+                          : await ExecuteWithExtraGasLimit(contract, "repayBorrow", [repayAmount], 0)
     
-              if (market.isNativeToken && network.maximillion) {
-                const maxiContract = new ethers.Contract(network.maximillion, MAXIMILLION_ABI, signer);
-                const receipt = await ExecutePayableWithExtraGasLimit(maxiContract, value._value, "repayBehalfExplicit", [
-                  account, market.pTokenAddress
-                ], 0, () => setSpinnerVisible(false))
-                // setSpinnerVisible(false);
-                console.log(receipt);
-              } 
-              else {        
-                const ctoken = new ethers.Contract(market.pTokenAddress, CTOKEN_ABI, signer)
-                const receipt = await ExecuteWithExtraGasLimit(ctoken, "repayBorrow", [repayAmount], 0, () => setSpinnerVisible(false))
-                
+                setSpinnerVisible(false)
+
+                const receipt = await tx.wait()
                 console.log(receipt)
+                toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                await updateMarket(market, UpdateTypeEnum.Repay)
+                if(mounted.current)
+                    setRepayInput("")
               }
-            }
-            catch(err){
-              console.log(err)
-            }
+              catch(error: any){
+                console.log(error)
+                toastErrorMessage(`${error?.message.replace(".", "")} on Repay`)
+              }
             finally{
               setSpinnerVisible(false)
               toggleSpinners(symbol, SpinnersEnum.repay)
-              if(selectedMarketSpinners) {
-                const selected = {...selectedMarketSpinners}
-                selected.repaySpinner = true
-                setSelectedMarketSpinners(selected)
-              }
-              
-            //   if(market){
-            //       setUpdate(true)
-            //       await handleUpdate(market, "repay", false)
-            //     }
             }
           }
         }
       }
 
-    return (
+    return ( selectedMarket && selectedMarketSpinners && mounted.current ?
         <TabContentItem open={props.open} tabId={2} tabChange={props.tabChange}>
-            <TextBox placeholder={`0 ${selectedMarket ? {...selectedMarket}?.underlying.symbol : ""}`} disabled={repayDisabled} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"Max"}
+            <TextBox placeholder={`0 ${{...selectedMarket}?.underlying.symbol}`} disabled={repayDisabled} value={repayInput} setInput={setRepayInput} validation={repayValidation} button={"Max"}
              onClick={ ()=> handleMaxRepay()} onChange={()=>setIsFullRepay(false)}/>
-             <MarketDialogItem title={"Wallet Ballance"} value={`${selectedMarket ? {...selectedMarket}?.underlying.walletBalance?.toRound(4, true) : "0"} ${selectedMarket ? {...selectedMarket}?.underlying.symbol : ""}`}/>
+             <MarketDialogItem title={"Wallet Ballance"} value={`${{...selectedMarket}?.underlying.walletBalance?.toRound(4, true)} ${{...selectedMarket}.underlying.symbol}`}/>
             <BorrowRateSection/>
             <BorrowLimitSection2 borrowAmount={"0"} repayAmount={repayInput}/>
             <DialogMarketInfoSection/>
-                {selectedMarket && {...selectedMarket}?.underlying.allowance?.gt(BigNumber.from("0")) &&
+                {{...selectedMarket}.underlying.allowance?.gt(BigNumber.from("0")) &&
                 +{...selectedMarket}.underlying.allowance.toString() >= (repayInput.trim() === "" || isNaN(+repayInput) || isNaN(parseFloat(repayInput)) ? 0 : +repayInput)
                 ? 
                  (
-                    <MarketDialogButton disabled={(!repayInput || repayValidation || selectedMarketSpinners?.repaySpinner) ? true : false}
-                        onClick={() => {selectedMarket ? handleRepay(
+                    <MarketDialogButton disabled={(!repayInput || repayValidation || {...selectedMarketSpinners}.repaySpinner) ? true : false}
+                        onClick={() => {handleRepay(
                                     {...selectedMarket}?.underlying.symbol,
                                     repayInput,
-                                    isFullRepay) : null}}>
-                        {selectedMarketSpinners?.repaySpinner? (<Spinner size={"20px"}/>) : "Repay"}
+                                    isFullRepay)}}>
+                        {{...selectedMarketSpinners}.repaySpinner ? (<Spinner size={"20px"}/>) : "Repay"}
                     </MarketDialogButton>
                 ) : (
-                    <MarketDialogButton disabled={(selectedMarket && selectedMarketSpinners?.repaySpinner) ? true : false} onClick={() => {selectedMarket ? handleEnable(
-                                                            {...selectedMarket}?.underlying.symbol) : null}}>
-                        {selectedMarketSpinners?.repaySpinner ? (<Spinner size={"20px"}/>) : `Approve ${selectedMarket ? {...selectedMarket}?.underlying.symbol : ""}`}
+                    <MarketDialogButton disabled={{...selectedMarketSpinners}.repaySpinner ? true : false} 
+                      onClick={() => handleEnable({...selectedMarket}.underlying.symbol)}>
+                        {{...selectedMarketSpinners}.repaySpinner ? (<Spinner size={"20px"}/>) : `Approve ${{...selectedMarket}.underlying.symbol}`}
                     </MarketDialogButton>)}
         </TabContentItem>
+        : null
     )
 }
 

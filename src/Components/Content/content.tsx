@@ -75,8 +75,8 @@ const Content: React.FC = () => {
                 open={openSupplyMarketDialog}
                 closeSupplyMarketDialog={closeSupplyMarketDialog}
             />
-            {/* <BorrowMarketDialog open={openBorrowMarketDialog}
-              closeBorrowMarketDialog={closeBorrowMarketDialog}/> */}
+            <BorrowMarketDialog open={openBorrowMarketDialog}
+              closeBorrowMarketDialog={closeBorrowMarketDialog}/>
         </div>
     )
 }

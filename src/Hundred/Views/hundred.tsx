@@ -34,10 +34,24 @@ const Hundred: React.FC = () => {
 
   useHndPrice()
 
-  const {comptrollerData, setComptrollerData, marketsData, setMarketsData, marketsSpinners,
-    setMarketsSpinners, gaugesV4Data, setGaugesV4Data, generalData, setGeneralData,
-   selectedMarket, setSelectedMarket, selectedMarketSpinners, setSelectedMarketSpinners, 
-   toggleSpinners, updateMarket, getMaxAmount, getMaxRepayAmount, convertUSDToUnderlyingToken} = useFetchData()
+  const {comptrollerData, setComptrollerData, 
+         marketsData, setMarketsData, 
+         marketsSpinners, setMarketsSpinners, 
+         gaugesV4Data, setGaugesV4Data, 
+         generalData, setGeneralData, 
+         hndBalance, setHndBalance,
+         hndEarned, setHndEarned, 
+         hndRewards, setHndRewards, 
+         vehndBalance, setVehndBalance, 
+         gaugeAddresses, setGaugeAddresses,
+         hundredBalance, setHundredBalance,
+         selectedMarket, setSelectedMarket, 
+         selectedMarketSpinners, setSelectedMarketSpinners, 
+         toggleSpinners, 
+         updateMarket, 
+         getMaxAmount, 
+         getMaxRepayAmount, 
+         convertUSDToUnderlyingToken} = useFetchData()
 
 
   const setGMessage = (message: string) => {
@@ -110,6 +124,12 @@ const Hundred: React.FC = () => {
                                             marketsSpinners, setMarketsSpinners,
                                             gaugesV4Data, setGaugesV4Data,
                                             generalData, setGeneralData,
+                                            hndBalance, setHndBalance,
+                                            hndEarned, setHndEarned,
+                                            hundredBalance, setHundredBalance,
+                                            vehndBalance, setVehndBalance,
+                                            hndRewards, setHndRewards,
+                                            gaugeAddresses, setGaugeAddresses,
                                             selectedMarket, setSelectedMarket,
                                             selectedMarketSpinners, setSelectedMarketSpinners,
                                             toggleSpinners, setGMessage, updateMarket, 

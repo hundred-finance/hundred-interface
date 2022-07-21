@@ -32,6 +32,10 @@ export type UiContext = {
     setSwitchModal: (m: boolean) => void,
     scale: boolean, 
     setScale: (h: boolean) => void
+    claimHnd: boolean,
+    setClaimHnd: (c: boolean) => void,
+    claimLockHnd: boolean,
+    setClaimLockHnd: (c: boolean) => void
 }
 
 export const MyUiContext = createContext<UiContext>({
@@ -64,7 +68,11 @@ export const MyUiContext = createContext<UiContext>({
     switchModal: false,
     setSwitchModal: () => undefined,
     scale: false,
-    setScale: () => undefined
+    setScale: () => undefined,
+    claimHnd: false,
+    setClaimHnd: () => undefined,
+    claimLockHnd: false,
+    setClaimLockHnd: () => undefined
 })
 
 export const useUiContext = () : UiContext => useContext(MyUiContext)

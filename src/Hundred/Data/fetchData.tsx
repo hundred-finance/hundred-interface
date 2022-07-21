@@ -269,7 +269,6 @@ export const fetchData = async(
         )
         return tokenInfo
     }))
-
     return {
         hndPrice: hndPrice,
         markets: tokensInfo,

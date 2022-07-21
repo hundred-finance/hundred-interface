@@ -1,14 +1,11 @@
 import React from "react"
-import { HuLogo } from "../../../../assets/huIcons/huIcons"
 import { BigNumber } from "../../../../bigNumber"
 import Logos from "../../../../logos"
 import { useHundredDataContext } from "../../../../Types/hundredDataContext"
-import { useUiContext } from "../../../../Types/uiContext"
 import "../dialogSection.css"
 
 
 const BorrowRateSection: React.FC = () => {
-    const {darkMode} = useUiContext()
     const {selectedMarket} = useHundredDataContext()
 
     return (

@@ -13,7 +13,7 @@ interface Props{
 
 const BorrowMarketRow: React.FC<Props> = (props : Props) => {
     return (
-        <tr onClick={() =>props.market ?  props.borrowMarketDialog(props.market) : null}>
+        <tr className={props.marketSpinners?.spinner ? "disable-row" : ""} onClick={() =>props.market ?  props.borrowMarketDialog(props.market) : null}>
         <td>
           <div className="asset"> 
                 <div className="asset-logo">
@@ -41,7 +41,7 @@ const BorrowMarketRow: React.FC<Props> = (props : Props) => {
         <td>
           <div className="spinner-container">
             {`${props.market ? props.market.liquidity.convertToLargeNumberRepresentation(3, '$') : "$0"}`}
-            {props.marketSpinners && (props.marketSpinners?.borrowSpinner || props.marketSpinners?.repaySpinner) ? <Spinner size={"20px"}/> : null}
+            {props.marketSpinners?.spinner && (props.marketSpinners?.borrowSpinner || props.marketSpinners?.repaySpinner) ? <Spinner size={"20px"}/> : null}
           </div>
         </td>
       </tr>
