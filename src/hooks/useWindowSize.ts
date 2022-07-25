@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const getWidth = () => window.innerWidth 
   || document.documentElement.clientWidth 
   || document.body.clientWidth;
 
 const useWindowSize = () => {
+  const timeoutId = useRef<string | number | NodeJS.Timeout | undefined>()
   const [width, setWidth] = useState(getWidth())
 
   useEffect(() => {
     // timeoutId for debounce mechanism
-    let timeoutId: string | number | NodeJS.Timeout | undefined = undefined;
     const resizeListener = () => {
       // prevent execution of previous setTimeout
-      clearTimeout(timeoutId);
+      clearTimeout(Number(timeoutId.current))
       // change width from the state object after 20 milliseconds
-      timeoutId = setTimeout(() => setWidth(getWidth()), 20);
+      timeoutId.current = setTimeout(() => setWidth(getWidth()), 20);
     };
     // set resize listener
     window.onresize =  resizeListener;

@@ -205,7 +205,7 @@ const useFetchData = () => {
     const updateData = async () => {
         try{
             update.current = true
-            clearTimeout(Number(timeoutId.current));
+            clearTimeout(Number(timeoutId.current))
             await getData()
             timeoutId.current = setTimeout(updateData, 10000)
             errorsCount.current = 0
