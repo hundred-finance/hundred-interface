@@ -46,7 +46,9 @@ const GeneralDetails: React.FC<Props> = ({generalData} : Props) => {
                     <GeneralDetailsItemContent>
                         <GeneralDetailsItemContentItem label="Supply"
                             value={`${generalData && +generalData.totalSupplyBalance.toString() > 0 ? 
-                            BigNumber.parseValue((+generalData?.yearSupplyInterest.toString() / +generalData.totalSupplyBalance.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/>
+                            +BigNumber.parseValue((+generalData?.yearSupplyInterest.toString() / +generalData.totalSupplyBalance.toString() * 100).noExponents()).toRound(3, true) >= 0.01 
+                            ? BigNumber.parseValue((+generalData?.yearSupplyInterest.toString() / +generalData.totalSupplyBalance.toString() * 100).noExponents()).toRound(3, true)
+                            : "<0.01": 0}%`}/>
                         <GeneralDetailsItemContentItem label="Staking"
                                                        value={`${generalData && +generalData.totalStakeBalance.toString() > 0 ?
                                                            BigNumber.parseValue((+generalData?.yearStakeInterest.toString() / +generalData.totalStakeBalance.toString() * 100).noExponents()).toRound(3, true) : 0}%`}/>
