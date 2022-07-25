@@ -76,6 +76,8 @@ import GNOlogo from "./assets/images/GNO-logo.png"
 import GNOSISlogo from "./assets/images/GNOSIS-logo.png"
 import XDailogo from "./assets/images/XDAI-logo.svg"
 import vGNOlogo from "./assets/images/vGNO-logo.png"
+import agEURlogo from "./assets/images/agEUR-logo.svg"
+import OPlogo from "./assets/images/OP-logo.png"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
@@ -174,7 +176,9 @@ const Logos: { [key: string]: string } = {
     "GNO"       : GNOlogo,
     "GNOSIS"    : GNOSISlogo,
     "ioDAI"     : DAIlogo,
-    "vGNO"      : vGNOlogo
+    "vGNO"      : vGNOlogo,
+    "agEUR"     : agEURlogo,
+    "OP"        : OPlogo
 }
 
 export default Logos
