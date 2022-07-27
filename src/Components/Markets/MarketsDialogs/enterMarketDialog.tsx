@@ -25,7 +25,6 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
 
     useEffect(() => {
         mounted.current = true
-        console.log(mounted.current)
         return (() => {
           mounted.current = false
         })
