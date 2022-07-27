@@ -89,6 +89,11 @@
     width: 150px;
 }
 
+.amount-select-disabled{
+    opacity: .7;
+    pointer-events: none;
+}
+
 .amount-select div {
     margin-bottom: unset !important;
     text-decoration: underline;

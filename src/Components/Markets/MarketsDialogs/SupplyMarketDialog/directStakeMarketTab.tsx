@@ -316,7 +316,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             />
             <div className="native-asset-amount">
                 <span className="dialog-section-content-value"/>
-                <div className="amount-select">
+                <div className={`amount-select ${actionsDisabled ? "amount-select-disabled" : ""}`}>
                     <div onClick={() => setStakeRatio(0.25) }>25%</div>
                     <div onClick={() => setStakeRatio(0.50) }>50%</div>
                     <div onClick={() => setStakeRatio(0.75) }>75%</div>
@@ -354,7 +354,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             </div>
             <div className="native-asset-amount">
                 <span>{convertGaugeLpAmountToUnderlying(unstakeInput, props?.gaugeV4.gaugeTokenDecimals, {...selectedMarket})} {{...selectedMarket}.underlying.symbol}</span>
-                <div className="amount-select">
+                <div className={`amount-select ${actionsDisabled ? "amount-select-disabled" : ""}`}>
                     <div onClick={() => setUnstakeRatio(0.25) }>25%</div>
                     <div onClick={() => setUnstakeRatio(0.50) }>50%</div>
                     <div onClick={() => setUnstakeRatio(0.75) }>75%</div>

@@ -339,7 +339,7 @@ const StakeMarketTab:React.FC<Props> = (props: Props) =>{
             <BorrowLimitSection newBorrowLimit={newBorrowLimit}/>
             <div className="native-asset-amount">
                 <span className="dialog-section-content-value">{convertLpAmountToUnderlying(stakeInput, {...selectedMarket})} {{...selectedMarket}.underlying.symbol}</span>
-                <div className="amount-select">
+                <div className={`amount-select ${actionsDisabled ? "amount-select-disabled": ""}`}>
                     <div onClick={() => setStakeRatio(0.25) }>25%</div>
                     <div onClick={() => setStakeRatio(0.50) }>50%</div>
                     <div onClick={() => setStakeRatio(0.75) }>75%</div>
@@ -376,7 +376,7 @@ const StakeMarketTab:React.FC<Props> = (props: Props) =>{
                     </MarketDialogButton>
                 }
             </div>
-            <div className="native-asset-amount">
+            <div className={`amount-select ${actionsDisabled ? "amount-select-disabled" : ""}`}>
                 <span>{convertGaugeLpAmountToUnderlying(unstakeInput, props?.gaugeV4.gaugeTokenDecimals, {...selectedMarket})} {{...selectedMarket}.underlying.symbol}</span>
                 <div className="amount-select">
                     <div onClick={() => setUnstakeRatio(0.25) }>25%</div>
