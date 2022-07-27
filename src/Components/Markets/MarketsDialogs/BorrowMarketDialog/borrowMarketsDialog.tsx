@@ -12,9 +12,7 @@ import ReactDOM from "react-dom"
 
 
 interface Props{
-    closeBorrowMarketDialog : () => void,
-    open: boolean,
-    
+    closeBorrowMarketDialog : () => void,    
 }
 const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
     const mounted = useRef<boolean>(false)
@@ -38,19 +36,8 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
         }) 
     }, [])
 
-    useEffect(() => {
-        if(props.open){
-            mounted.current = true
-            setTabChange(1)
-        }
-        else{
-            mounted.current = false
-        }
-        
-    }, [props.open]);
-
    const dialog = selectedMarket ? 
-            <div className={`dialog ${props.open ? "open-dialog" : ""} ${darkMode ? "dark-theme" : ""}`}>
+            <div className={`dialog ${"open-dialog"} ${darkMode ? "dark-theme" : ""}`}>
                 <div className="dialog-background" onClick={() => CloseDialog()}/>
                 <ReactToolTip id="borrow-dialog-tooltip" effect="solid"/>
                 <div className="supply-box">
@@ -70,8 +57,8 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
                             <TabHeaderItem tabId={2} title="Repay" tabChange = {tabChange} setTabChange = {setTabChange}/>
                         </TabHeader>
                         <TabContent>
-                            <BorrowItem tabChange={tabChange} open={props.open}/>
-                            <RepayItem tabChange={tabChange} open={props.open}/>
+                            <BorrowItem tabChange={tabChange} open={true}/>
+                            <RepayItem tabChange={tabChange} open={true}/>
                         </TabContent>
                     </Tab>
                 </div>
@@ -79,7 +66,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
             : null
     
     return (
-        props.open && selectedMarket? ReactDOM.createPortal(dialog, dialogContainer) : null
+        ReactDOM.createPortal(dialog, dialogContainer)
     )
 }
 

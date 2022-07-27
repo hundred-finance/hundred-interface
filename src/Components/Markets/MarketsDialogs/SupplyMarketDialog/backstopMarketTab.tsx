@@ -162,8 +162,10 @@ const BackstopMarketTab:React.FC = () =>{
 
                 const receipt = await tx.wait()
                 console.log(receipt)
-                toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-                await updateMarket(market, UpdateTypeEnum.ApproveBackstop)
+                if(receipt.status === 1){
+                    toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                    await updateMarket(market, UpdateTypeEnum.ApproveBackstop)
+                }
               }
             }
             catch(error: any){
@@ -201,9 +203,11 @@ const BackstopMarketTab:React.FC = () =>{
 
                     const receipt = await tx.wait()
                     console.log(receipt)
-                    toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-                    await updateMarket(market, UpdateTypeEnum.BackstopDeposit)
-                    if(mounted.current) setDepositInput("")
+                    if(receipt.status === 1){
+                        toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                        await updateMarket(market, UpdateTypeEnum.BackstopDeposit)
+                        if(mounted.current) setDepositInput("")
+                    }
                 }
                 catch(error : any){
                     console.log(error)
@@ -239,13 +243,15 @@ const BackstopMarketTab:React.FC = () =>{
 
                     const receipt = await tx.wait()
                     console.log(receipt)
-                    toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-                    await updateMarket(market, UpdateTypeEnum.BackstopWithdraw)
-                    if(mounted.current) setBackstopWithdrawInput("")
+                    if(receipt.status === 1){
+                        toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                        await updateMarket(market, UpdateTypeEnum.BackstopWithdraw)
+                        if(mounted.current) setBackstopWithdrawInput("")
+                    }
                 }
                 catch(error: any){
                     console.log(error)
-                    toastErrorMessage(`${error?.message.replace(".", "")} on Backstop Deposit`)
+                    toastErrorMessage(`${error?.message.replace(".", "")} on Backstop Withdraw`)
                 }
                 finally{
                     setSpinnerVisible(false)
@@ -274,8 +280,10 @@ const BackstopMarketTab:React.FC = () =>{
                     setSpinnerVisible(false)
                     const receipt = await tx.wait()
                     console.log(receipt)
-                    toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-                    await updateMarket(market, UpdateTypeEnum.BackstopClaim)
+                    if(receipt.status === 1){
+                        toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                        await updateMarket(market, UpdateTypeEnum.BackstopClaim)
+                    }
                 }
                 catch(error: any){
                     console.log(error)

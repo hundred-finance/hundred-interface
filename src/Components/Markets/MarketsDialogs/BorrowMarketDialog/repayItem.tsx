@@ -123,8 +123,10 @@ const RepayItem: React.FC<Props> = (props : Props) =>{
 
                 const receipt = await tx.wait()
                 console.log(receipt)
-                toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-                await updateMarket(market, UpdateTypeEnum.ApproveMarket)
+                if (receipt.status === 1){
+                  toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                  await updateMarket(market, UpdateTypeEnum.ApproveMarket)
+                }
               }
             }
             catch(err){
@@ -168,10 +170,12 @@ const RepayItem: React.FC<Props> = (props : Props) =>{
 
                 const receipt = await tx.wait()
                 console.log(receipt)
-                toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-                await updateMarket(market, UpdateTypeEnum.Repay)
-                if(mounted.current)
+                if (receipt.status === 1){
+                  toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                  await updateMarket(market, UpdateTypeEnum.Repay)
+                  if(mounted.current)
                     setRepayInput("")
+                }
               }
               catch(error: any){
                 console.log(error)

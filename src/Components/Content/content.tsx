@@ -10,7 +10,7 @@ import { useHundredDataContext } from "../../Types/hundredDataContext"
 
 const Content: React.FC = () => {
     const {spinnerVisible} = useUiContext()
-    const { selectedMarket, setSelectedMarket, marketsSpinners, setSelectedMarketSpinners} = useHundredDataContext()
+    const { setSelectedMarket, marketsSpinners, setSelectedMarketSpinners} = useHundredDataContext()
 
     const [openEnterMarket, setOpenEnterMarket] = useState(false)
     const [openSupplyMarketDialog, setOpenSupplyDialog] = useState(false)
@@ -18,6 +18,8 @@ const Content: React.FC = () => {
 
     const enterMarketDialog = (market: CTokenInfo) : void => {
       setSelectedMarket(market)
+      const selectedSpinner = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
+      setSelectedMarketSpinners(selectedSpinner)
       setOpenEnterMarket(true)
     }
 
@@ -66,17 +68,14 @@ const Content: React.FC = () => {
                 supplyMarketDialog={supplyMarketDialog}
                 borrowMarketDialog={borrowMarketDialog}
             />
-            <EnterMarketDialog 
-                open={openEnterMarket} 
-                market={selectedMarket} 
-                closeMarketDialog = {closeMarketDialog} 
-            />
-            <SupplyMarketDialog
-                open={openSupplyMarketDialog}
-                closeSupplyMarketDialog={closeSupplyMarketDialog}
-            />
-            <BorrowMarketDialog open={openBorrowMarketDialog}
-              closeBorrowMarketDialog={closeBorrowMarketDialog}/>
+            {openEnterMarket ? <EnterMarketDialog 
+                closeMarketDialog = {closeMarketDialog}/> 
+            : null}
+            {openSupplyMarketDialog ? <SupplyMarketDialog closeSupplyMarketDialog={closeSupplyMarketDialog}/> 
+            : null}
+            {openBorrowMarketDialog ?
+              <BorrowMarketDialog closeBorrowMarketDialog={closeBorrowMarketDialog}/>
+            : null}
         </div>
     )
 }

@@ -313,16 +313,28 @@ const useFetchData = () => {
     }
 
     const getMaxRepayAmount = async (market: CTokenInfo) : Promise<BigNumber> => {
-        if(market.isNativeToken) 
-            await updateData()
-        const tempMarket = [...marketsData].find(x=> x.underlying.symbol === market.underlying.symbol)
-        const m = tempMarket ? tempMarket : market
-        const borrowAPYPerDay = m.borrowApy.div(BigNumber.from('365'));
-        const maxRepayFactor = BigNumber.from("1").addSafe(borrowAPYPerDay)// e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
+        if(marketsData){
+            const markets = [...marketsData]
+            const m = markets.find(x=> x.underlying.symbol === market.underlying.symbol)
+            if(m){
+                let borrowBalanceInTokenUnit = m.borrowBalanceInTokenUnit
+                if(m.isNativeToken){
+                    const token = market.isNativeToken ? CETHER_ABI : CTOKEN_ABI;
+                    const ctoken = new ethers.Contract(market.pTokenAddress, token, library);
+                    
+                    const accountSnapshot = await ctoken.getAccountSnapshot(account)
+                    borrowBalanceInTokenUnit = BigNumber.from(accountSnapshot[2].toString(), m.underlying.decimals)
+            
+                }
+                const borrowAPYPerDay = m.borrowApy.div(BigNumber.from('365'));
+                const maxRepayFactor = BigNumber.from("1").addSafe(borrowAPYPerDay)// e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
         
-        const amount = BigNumber.parseValueSafe(m.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), m.underlying.decimals)
+                const amount = BigNumber.parseValueSafe(borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), m.underlying.decimals)
         
-        return amount // The same as ETH for now. The transaction will use -1 anyway.
+                return amount // The same as ETH for now. The transaction will use -1 anyway.
+            }
+        }
+        return BigNumber.from("0")
       }
 
     function convertUSDToUnderlyingToken(USD: string, market: CTokenInfo ) : BigNumber{ //USD -> underlying token

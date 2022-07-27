@@ -155,18 +155,15 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
                 setSpinnerVisible(false);
                 const receipt =  await tx.wait()
                 console.log(receipt);
-                    
-                toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-                await updateMarket(market, UpdateTypeEnum.Withdraw)
-                if(mounted)
-                    setWithdrawInput("")
-                else console.log("Unmounted supply tab")
-
+                if(receipt.status === 1){
+                    toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                    await updateMarket(market, UpdateTypeEnum.Withdraw)
+                    if(mounted) setWithdrawInput("")
+                }
             }
-            catch(err){
-                const error = err as any;
+            catch(error: any){
+                console.log(error)
                 toastErrorMessage(`${error?.message.replace('.', '')} on Supply\n${error?.data?.message}`);
-                console.log(err)
             }
             finally{
                 setSpinnerVisible(false)

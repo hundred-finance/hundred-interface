@@ -149,9 +149,10 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                         setSpinnerVisible(false)
                         const receipt = await tx.wait()
                         console.log(receipt)
-                        toastSuccessMessage("Transaction complete, updating contracts")
-
-                        await updateMarket(market, UpdateTypeEnum.ApproveStake)
+                        if(receipt.status === 1){
+                            toastSuccessMessage("Transaction complete, updating contracts")
+                            await updateMarket(market, UpdateTypeEnum.ApproveStake)
+                        }
                     }
                 }
                 catch(error: any){
@@ -179,15 +180,15 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     setSpinnerVisible(false)
                     const receipt = await tx.wait()
                     console.log(receipt)
-                    toastSuccessMessage("Transaction complete, updating contracts")
-
-                    await updateMarket(props.gaugeV4, UpdateTypeEnum.Stake)
-                    if(mounted) setStakeInput("")
-                    
+                    if(receipt.status === 1){
+                        toastSuccessMessage("Transaction complete, updating contracts")
+                        await updateMarket(props.gaugeV4, UpdateTypeEnum.Stake)
+                        if(mounted) setStakeInput("")
+                    }
                 }
                 catch(error: any){
                     console.log(error)
-                    toastErrorMessage(`${error?.message.replace('.', '')} on Approve Stake}`);
+                    toastErrorMessage(`${error?.message.replace('.', '')} on Stake}`);
                 }
                 finally{
                     setSpinnerVisible(false)
@@ -212,14 +213,14 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
   
                     const receipt = await tx.wait()
                     console.log(receipt)
-                    toastSuccessMessage("Transaction complete, updating contracts")
-
-                    await updateMarket(props.gaugeV4, UpdateTypeEnum.ApproveUnStake)
-
+                    if(receipt.status === 1){
+                        toastSuccessMessage("Transaction complete, updating contracts")
+                        await updateMarket(props.gaugeV4, UpdateTypeEnum.ApproveUnStake)
+                    }
                   }
                   catch(error : any){
                       console.log(error)
-                      toastErrorMessage(`${error?.message.replace('.', '')} on Approve Stake}`);
+                      toastErrorMessage(`${error?.message.replace('.', '')} on Approve Unstake}`);
                   }
                   finally{
                       setSpinnerVisible(false)
@@ -244,14 +245,15 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     setSpinnerVisible(false)
                     const receipt = await tx.wait()
                     console.log(receipt)
-                    toastSuccessMessage("Transaction complete, updating contracts")
-
-                    await updateMarket(props.gaugeV4, UpdateTypeEnum.Unstake)
-                    if(mounted.current) setUnstakeInput("")
+                    if(receipt.status === 1){
+                        toastSuccessMessage("Transaction complete, updating contracts")
+                        await updateMarket(props.gaugeV4, UpdateTypeEnum.Unstake)
+                        if(mounted.current) setUnstakeInput("")
+                    }
                   }
                   catch(error : any){
                       console.log(error)
-                      toastErrorMessage(`${error?.message.replace('.', '')} on Approve Stake}`);
+                      toastErrorMessage(`${error?.message.replace('.', '')} on Untake}`);
 
                   }
                   finally{
@@ -276,10 +278,10 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
 
                         const receipt = await tx.wait()
                         console.log(receipt)
-                        toastSuccessMessage("Transaction complete, updating contracts")
-
-                        await updateMarket(props.gaugeV4, UpdateTypeEnum.Mint)
-                      
+                        if(receipt.status === 1){
+                            toastSuccessMessage("Transaction complete, updating contracts")
+                            await updateMarket(props.gaugeV4, UpdateTypeEnum.Mint)
+                        }
                   }
                   catch(error: any){
                       console.log(error)

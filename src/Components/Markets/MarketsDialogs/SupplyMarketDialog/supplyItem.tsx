@@ -131,15 +131,14 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                     setSpinnerVisible(false);
                     const receipt =  await tx.wait()
                     console.log(receipt);
-                    //STEP 4: check updated balance
-                    toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-                    await updateMarket(market, UpdateTypeEnum.Supply)
-                    if(mounted.current)
-                        setSupplyInput("")
-                } catch (err) {
-                    const error = err as any;
-                    toastErrorMessage(`${error?.message.replace('.', '')} on Supply\n${error?.data?.message}`);
-                    console.log(err);
+                    if(receipt.status === 1){
+                        toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                        await updateMarket(market, UpdateTypeEnum.Supply)
+                        if(mounted.current) setSupplyInput("")
+                    }
+                } catch (error: any) {
+                    console.log(error)
+                    toastErrorMessage(`${error?.message.replace('.', '')} on Supply`)
                 } finally {
                     setSpinnerVisible(false);
                     toggleSpinners(symbol, SpinnersEnum.supply);
@@ -167,12 +166,14 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                         const receipt = await tx.wait()
 
                         console.log(receipt);
-                        toastSuccessMessage("Transaction complete, updating contracts")
-                        await updateMarket(market, UpdateTypeEnum.ApproveMarket)
+                        if(receipt.status === 1){
+                            toastSuccessMessage("Transaction complete, updating contracts")
+                            await updateMarket(market, UpdateTypeEnum.ApproveMarket)
+                        }
                     }
                 } catch (err) {
                     const error = err as any;
-                    toastErrorMessage(`${error?.message.replace('.', '')} on Approve Supply\n${error?.data?.message}`);
+                    toastErrorMessage(`${error?.message.replace('.', '')} on Approve Supply`);
                     console.log(err);
                 } finally {
                     setSpinnerVisible(false);

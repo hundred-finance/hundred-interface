@@ -13,7 +13,6 @@ import DirectBackstopStakeMarketTab from "./directBackstopMarketTab"
 import BackstopMarketTab from "./backstopMarketTab"
 
 interface Props{
-    open: boolean,
     closeSupplyMarketDialog: () => void,
 }
 
@@ -43,21 +42,11 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     }, [])
 
     useEffect(() => {
-        if(props.open){
-            mountedSupply.current = true
-            setTabChange(1)
-        }
-        else{
-            mountedSupply.current = false
-        }
-    }, [props.open])
-
-    useEffect(() => {
-        if(selectedMarket && props.open && mountedSupply.current){
+        if(selectedMarket && mountedSupply.current){
             const market = {...selectedMarket}
             const headers = []
             const contents = []
-            const gaugeV4 = [...gaugesV4Data].find((x) => x?.generalData.lpTokenUnderlying === {...selectedMarket}.underlying.address)
+            const gaugeV4 = [...gaugesV4Data].find((x) => x?.generalData.lpTokenUnderlying === market.underlying.address)
             headers.push({title: "Supply"})
             contents.push(
                     <SupplyItem gaugeV4={gaugeV4} />
@@ -88,26 +77,26 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
             setTabHeaders(headers)
             setTabContents(contents)
         }
-    }, [props.open, selectedMarket, gaugesV4Data])
+    }, [selectedMarket, gaugesV4Data])
     
 
-   const dialog = props.open && mountedSupply.current && selectedMarket && tabHeaders.length > 0?
-        <div className={`dialog ${props.open ? "open-dialog" : ""} ${darkMode ? "dark-theme" : ""}`}>
+   const dialog = mountedSupply.current && selectedMarket && tabHeaders.length > 0?
+        <div className={`dialog ${"open-dialog"} ${darkMode ? "dark-theme" : ""}`}>
             <ReactToolTip id="borrow-dialog-tooltip" effect="solid"/>
             <div className="dialog-background" onClick = {() => CloseDialog()}></div>
-            <div className={`supply-box ${selectedMarket.backstop && +selectedMarket?.backstop?.pendingHundred.toString() > 0 ? "supply-box-expand" : "" }`}>
+            <div className={`supply-box ${selectedMarket.backstop && +{...selectedMarket.backstop}.pendingHundred.toString() > 0 ? "supply-box-expand" : "" }`}>
                 <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>CloseDialog()} />  
                     <div className="dialog-title">
-                        {{...selectedMarket}?.underlying.symbol && (
+                        {{...selectedMarket}.underlying.symbol && (
                             <div className="logo-container">
                                 <img
                                     className="rounded-circle"
                                     style={{ width: "30px", height: "30px"}}
-                                    src={{...selectedMarket}?.underlying.logo}
+                                    src={{...selectedMarket}.underlying.logo}
                                     alt=""/>
                             </div>
                         )}
-                        {`${{...selectedMarket}?.underlying.symbol}`}
+                        {`${{...selectedMarket}.underlying.symbol}`}
                     </div>
                     <Tab>
                     <TabHeader tabChange={tabChange}>
@@ -117,7 +106,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                     </TabHeader>
                     <TabContent>
                         {[...tabContents].map((c, index) => {
-                            return (<TabContentItem key={index} tabId={index + 1} tabChange={tabChange} open={props.open}>
+                            return (<TabContentItem key={index} tabId={index + 1} tabChange={tabChange} open={true}>
                                         {c}
                                     </TabContentItem>)
                         })}
@@ -128,7 +117,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         : null
 
     return (
-        props.open && mountedSupply.current && selectedMarket? ReactDOM.createPortal(dialog, dialogContainer) : null
+        ReactDOM.createPortal(dialog, dialogContainer)
     )
     
 }

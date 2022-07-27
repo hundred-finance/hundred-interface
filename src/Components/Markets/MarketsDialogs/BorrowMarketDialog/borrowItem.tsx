@@ -125,9 +125,11 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
                 setSpinnerVisible(false)
                 const receipt = await tx.wait()
                 console.log(receipt)
-                toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-                await updateMarket(market, UpdateTypeEnum.Borrow)
-                if(mounted.current) setBorrowInput("")
+                if(receipt.status === 1){
+                    toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                    await updateMarket(market, UpdateTypeEnum.Borrow)
+                    if(mounted.current) setBorrowInput("")
+                }
             }
             catch(error: any){
               console.log(error)
