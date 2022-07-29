@@ -182,7 +182,8 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
         <SupplyRateSection gaugeV4={props.gaugeV4}/>
         <BorrowLimitSection newBorrowLimit={newBorrowLimit}/>
         <DialogMarketInfoSection collateralFactorText={"Loan-to-Value"}/>
-        <MarketDialogButton disabled={withdrawInput==="" || {...selectedMarketSpinners}.withdrawSpinner || isNaN(+withdrawInput) || withdrawValidation!=="" || 
+        <MarketDialogButton disabled={withdrawInput==="" 
+        || {...selectedMarketSpinners}.withdrawSpinner || isNaN(+withdrawInput) || withdrawValidation!=="" || 
             (newBorrowLimit && generalData &&
             +newBorrowLimit.toString() > 0 &&
             +{...generalData}?.totalBorrowBalance.toString() / +newBorrowLimit.toString() > 0.9 &&

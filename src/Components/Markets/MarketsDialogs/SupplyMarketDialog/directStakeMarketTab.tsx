@@ -213,7 +213,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
               const market = [...marketsData].find(x => x?.underlying.symbol === symbol)
               if(market && library){
                   try{
-                    setSpinnerVisible(true)
+                    //setSpinnerVisible(true)
                     toggleSpinners(symbol, SpinnersEnum.unstake)
   
                     const tx = await props.gaugeV4.approveUnstakeCall()

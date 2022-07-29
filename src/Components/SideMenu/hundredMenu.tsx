@@ -60,20 +60,26 @@ const HundredMenu: React.FC = () => {
 
             const signer = library.getSigner()
             const comptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI, signer)
-            const receipt = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [account], 0, () => setSpinnerVisible(false))
+            const tx = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [account], 0)
+
+            setSpinnerVisible(false)
+            const receipt = await tx.wait()
             
             console.log(receipt)
             if(receipt.status === 1){
               toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+              await updateMarket(null, UpdateTypeEnum.ClaimHndLegacy)
             }
-            //await getHndBalances(provider)
+            else if(receipt.message){
+              toastErrorMessage(`${receipt.message}`);  
+            }
           }
           catch(error: any){
             console.log(error)
-            toastErrorMessage(`${error?.message.replace(".", "")} on Hundred Collect`)
+            toastErrorMessage(`${error?.message.replace(".", "")} on Hundred Claim Legacy`)
           }
           finally{
-            setClaimHnd(false)
+            setClaimLegacyHnd(false)
             setSpinnerVisible(false)
           }
         }
@@ -100,6 +106,9 @@ const HundredMenu: React.FC = () => {
             if(receipt.status === 1){
               toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
               await updateMarket(null, UpdateTypeEnum.ClaimHnd)
+            }
+            else if(receipt.message){
+              toastErrorMessage(`${receipt.message}`);  
             }
           }
           catch(error: any){
@@ -145,6 +154,9 @@ const HundredMenu: React.FC = () => {
                 if(receipt.status === 1){
                   toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
                   await updateMarket(null, UpdateTypeEnum.ClaimLockHnd)
+                }
+                else if(receipt.message){
+                  toastErrorMessage(`${receipt.message}`);  
                 }
               }
             }

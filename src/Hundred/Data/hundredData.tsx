@@ -14,8 +14,10 @@ import { Contract, Provider } from "ethcall"
 import { ethers } from "ethers"
 import { delay } from "../../helpers"
 import { MasterChefVersion } from "../../networks"
+import _ from "lodash";
 
 export enum UpdateTypeEnum{
+    ClaimHndLegacy,
     ClaimHnd,
     ClaimLockHnd,
     EnableMarket,
@@ -361,6 +363,9 @@ const useFetchData = () => {
                 if (count === 0) await delay(5)
                 let res = false
                 switch (updateType){
+                    case UpdateTypeEnum.ClaimHndLegacy:
+                        res = await handleUpdateClaimHndLegacy(net.chainId)
+                        break
                     case UpdateTypeEnum.ClaimHnd:
                         res = await handleUpdateClaimHnd(net.chainId)
                         break
@@ -429,6 +434,53 @@ const useFetchData = () => {
             }
             
         }
+    }
+
+    const handleUpdateClaimHndLegacy = async (chain: number) => {
+        if(network && networkId.current === chain && account && library && marketsData && comptrollerData){
+            const comptroller = {...comptrollerData}
+            const markets = [...marketsData]
+            const gauges = [...gaugesV4Data]
+            const net = {...network}
+            
+            const ethcallComptroller = new Contract(net.unitrollerAddress, COMPTROLLER_ABI)
+            const calls = [ethcallComptroller.compAccrued(account)]
+
+            markets.forEach(m => {
+                const contract = new Contract(m.pTokenAddress, CTOKEN_ABI) 
+                calls.push(contract.totalSupply(),
+                contract.balanceOf(account),
+                comptroller.ethcallComptroller.compSpeeds(m.pTokenAddress), 
+                comptroller.ethcallComptroller.compSupplyState(m.pTokenAddress), 
+                comptroller.ethcallComptroller.compSupplierIndex(m.pTokenAddress, account),)
+            })
+
+            const res = await comptroller.ethcallProvider.all(calls)
+
+            const compAccr = BigNumber.from(res[0], 18)
+            res.splice(0,1)
+
+            const resChunks = _.chunk(res, 5);
+            const blockProvider : ethers.providers.Web3Provider = net.blockRpc ? new ethers.providers.JsonRpcProvider(net.blockRpc) : library
+            const blockNum = await blockProvider.getBlockNumber()
+
+            resChunks.forEach((x: any, index: number) => {
+                const [totalSupply, cTokenBalanceOfUser, compSpeeds, compSupplyState, compSupplierIndex] = x
+                if(+totalSupply > 0){
+                    const newSupplyIndex = +compSupplyState.index + (blockNum - compSupplyState.block) * +compSpeeds * 1e36 / +totalSupply;           
+                    markets[index].accrued = (+newSupplyIndex - +compSupplierIndex) * + cTokenBalanceOfUser / 1e36 
+                }
+            });
+            
+            const data = getGeneralDetails(markets, gauges, compAccr)
+            console.log(`should return ${data.earned.toString()} (new earned) < ${hndEarned.toString()}`)
+            if(+data.earned.toString() < +hndEarned.toString()){
+                setHndEarned(data.earned)
+                setMarketsData(markets)
+                return true
+            }
+        }
+        return false
     }
 
     const handleUpdateClaimHnd = async (chain: number) => {
