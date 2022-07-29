@@ -33,6 +33,7 @@ const App: React.FC = () => {
   const [airdrops, setAirdrops] = useState<AirdropType[]>([])
   
   const [updateEarned, setUpdateEarned] = useState<boolean>(false)
+  const [claimLegacyHnd, setClaimLegacyHnd] = useState<boolean>(false)
   const [claimHnd, setClaimHnd] = useState<boolean>(false)
   const [claimLockHnd, setClaimLockHnd] = useState<boolean>(false)
 
@@ -144,6 +145,7 @@ const App: React.FC = () => {
                                     toastSuccessMessage: toastSuccess, toastErrorMessage: toastError,
                                     switchModal, setSwitchModal,
                                     scale, setScale,
+                                    claimLegacyHnd, setClaimLegacyHnd,
                                     claimHnd, setClaimHnd,
                                     claimLockHnd, setClaimLockHnd})}>
           <div id="app" className={`App scroller ${darkMode ? "dark-theme" : ""}`}>

@@ -20,12 +20,14 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
   const dialogContainer = document.getElementById("modal") as Element
   const {library} = useWeb3React()
   const {setSpinnerVisible, toastErrorMessage, toastSuccessMessage} = useUiContext()
-  const {marketsData, comptrollerData, selectedMarket, toggleSpinners,  updateMarket} = useHundredDataContext()  
+  const {marketsData, comptrollerData, selectedMarket, setSelectedMarket, setSelectedMarketSpinners,toggleSpinners,  updateMarket} = useHundredDataContext()  
   const mounted = useRef<boolean>(false)
 
     useEffect(() => {
         mounted.current = true
         return (() => {
+          setSelectedMarketSpinners(undefined)
+          setSelectedMarket(undefined)
           mounted.current = false
         })
     }, []);

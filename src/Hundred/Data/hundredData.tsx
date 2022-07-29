@@ -100,6 +100,7 @@ const useFetchData = () => {
             setHndEarned(data.earned)
             if(selectedMarket){
                 const selected = {...selectedMarket}
+                console.log(selected)
                 const market = markets.find(x=> x.underlying.symbol === selected.underlying.symbol)
                 if(market){
                     setSelectedMarket(market)

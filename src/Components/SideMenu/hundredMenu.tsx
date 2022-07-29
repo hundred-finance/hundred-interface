@@ -18,7 +18,7 @@ const HundredMenu: React.FC = () => {
     const { library, account } = useWeb3React()
     const {hndBalance, hndEarned, hundredBalance, hndRewards, vehndBalance, gaugeAddresses, updateMarket} = useHundredDataContext()
 
-    const { setSpinnerVisible, claimHnd, setClaimHnd, claimLockHnd, setClaimLockHnd, toastErrorMessage, toastSuccessMessage} = useUiContext()
+    const { setSpinnerVisible, claimLegacyHnd, setClaimLegacyHnd, claimHnd, setClaimHnd, claimLockHnd, setClaimLockHnd, toastErrorMessage, toastSuccessMessage} = useUiContext()
     const {network, hndPrice} = useGlobalContext()
 
     const networkRef = useRef<Network | null>(null)
@@ -55,17 +55,22 @@ const HundredMenu: React.FC = () => {
     const handleCollect = async (): Promise<void> => {
         if(library && network && account){
           try{
-            setClaimHnd(true)
+            setClaimLegacyHnd(true)
             setSpinnerVisible(true)
+
             const signer = library.getSigner()
             const comptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI, signer)
             const receipt = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [account], 0, () => setSpinnerVisible(false))
             
             console.log(receipt)
+            if(receipt.status === 1){
+              toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+            }
             //await getHndBalances(provider)
           }
-          catch(err){
-            console.log(err)
+          catch(error: any){
+            console.log(error)
+            toastErrorMessage(`${error?.message.replace(".", "")} on Hundred Collect`)
           }
           finally{
             setClaimHnd(false)
@@ -74,11 +79,11 @@ const HundredMenu: React.FC = () => {
         }
       }
 
-      const handleClaimHnd = async (spinner = true): Promise<void> => {
+      const handleClaimHnd = async (): Promise<void> => {
         if(library && network){
           try{
-            if(spinner) setClaimHnd(true)
-            //setSpinnerVisible(true)
+            setClaimHnd(true)
+            setSpinnerVisible(true)
     
             const signer = library.getSigner()
             let mintAddress = ''
@@ -92,15 +97,17 @@ const HundredMenu: React.FC = () => {
             
             const receipt = await tx.wait()
             console.log(receipt)
-            toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-            await updateMarket(null, UpdateTypeEnum.ClaimHnd)
+            if(receipt.status === 1){
+              toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+              await updateMarket(null, UpdateTypeEnum.ClaimHnd)
+            }
           }
           catch(error: any){
             console.log(error)
             toastErrorMessage(`${error?.message.replace(".", "")} on Hundred Claim`)
           }
           finally{
-            if(spinner) setClaimHnd(false)
+            setClaimHnd(false)
             setSpinnerVisible(false)
           }
         }}
@@ -123,19 +130,23 @@ const HundredMenu: React.FC = () => {
             
               setSpinnerVisible(false)
             
-              await tx.wait()
-            
-              setSpinnerVisible(true)
-              const votingContract = new Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
-              const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI, library)
-              const rewards = await balanceContract.balanceOf(account)
-              const tx2 = await ExecuteWithExtraGasLimit(votingContract, "increase_amount", [rewards], 0)
-              setSpinnerVisible(false)
+              const receipt1 = await tx.wait()
+              if(receipt1.status === 1){
+                setSpinnerVisible(true)
+                const votingContract = new Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
+                const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI, library)
+                const rewards = await balanceContract.balanceOf(account)
+                const tx2 = await ExecuteWithExtraGasLimit(votingContract, "increase_amount", [rewards], 0)
+                
+                setSpinnerVisible(false)
 
-              const receipt = await tx2.wait()
-              console.log(receipt)
-              toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-              await updateMarket(null, UpdateTypeEnum.ClaimLockHnd)
+                const receipt = await tx2.wait()
+                console.log(receipt)
+                if(receipt.status === 1){
+                  toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+                  await updateMarket(null, UpdateTypeEnum.ClaimLockHnd)
+                }
+              }
             }
           }
           catch(error: any){
@@ -160,17 +171,17 @@ const HundredMenu: React.FC = () => {
             </div>
             <div className="hundred-menu-item">
                 <hr/>
-                <div className="hundred-menu-item-label"><label>HND Balance </label><span>{hndBalance ? (hndBalance.gt(BigNumber.from(0)) ? hndBalance.toRound(8, true, true) : "0.00") : "--"}</span></div>
-                <div className="hundred-menu-item-label"><label>veHND Balance </label><span>{vehndBalance ? (vehndBalance.gt(BigNumber.from(0)) ? vehndBalance.toRound(8, true, true) : "0.00") : "--"}</span></div>
-                <div className="hundred-menu-item-label"><label>HND Earned </label><span>{hndRewards ? (hndRewards.gt(BigNumber.from(0)) ? +hndRewards.toRound(8, true, true) === 0 ? ">0.00" : hndRewards.toRound(2, true, true) : "0.00") : "--"}</span></div>
+                <div className="hundred-menu-item-label"><label>HND Balance </label><span>{hndBalance ? (hndBalance.gt(BigNumber.from(0)) ? hndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
+                <div className="hundred-menu-item-label"><label>veHND Balance </label><span>{vehndBalance ? (vehndBalance.gt(BigNumber.from(0)) ? vehndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
+                <div className="hundred-menu-item-label"><label>HND Earned </label><span>{hndRewards ? (hndRewards.gt(BigNumber.from(0)) ? +hndRewards.toRound(2, true, true) === 0 ? ">0.00" : hndRewards.toRound(2, true, true) : "0.00") : "--"}</span></div>
                
-                <div className= {`${!claimHnd && !claimLockHnd && hndRewards && +hndRewards?.toString() > 0 ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimHnd()}>{claimHnd ? (<Spinner size={"25px"}/>) : "Claim HND"}</div>
-                <div className= {`${!claimHnd && !claimLockHnd && hndRewards && +hndRewards?.toString() > 0 ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimLockHnd()}>{claimLockHnd ? (<Spinner size={"25px"}/>) : "Claim and Lock HND"}</div>
+                <div className= {`${!claimHnd && !claimLockHnd && !claimLegacyHnd && hndRewards && +hndRewards?.toString() > 0 ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimHnd()}>{claimHnd ? (<Spinner size={"25px"}/>) : "Claim HND"}</div>
+                <div className= {`${!claimHnd && !claimLockHnd && !claimLegacyHnd && hndRewards && +hndRewards?.toString() > 0 ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimLockHnd()}>{claimLockHnd ? (<Spinner size={"25px"}/>) : "Claim and Lock HND"}</div>
 
                 {hndEarned && +hndEarned.toString() > 0 ? 
-                    <><div className="hundred-menu-item-label"><label>HND Earned (Legacy)</label><span>{hndEarned ? hndEarned?.gt(BigNumber.from(0)) ? hndEarned?.toRound(2, true, true) : "0.00" : "--"}</span></div>
-                    <div className={`${claimHnd ? "hundred-menu-item-button-disabled" : "hundred-menu-item-button"}`} onClick={() => !claimHnd ? handleCollect() : null}>
-                        {claimHnd ? (<Spinner size={"25px"}/>) : "Claim Legacy HND"}</div></> : null
+                    <><div style={{paddingTop: "15px"}} className="hundred-menu-item-label"><label>HND Earned<br/>(Legacy)</label><span>{hndEarned ? hndEarned?.gt(BigNumber.from(0)) ? hndEarned?.toRound(2, true, true) : "0.00" : "--"}</span></div>
+                    <div className={`${claimHnd || claimLockHnd || claimLegacyHnd ? "hundred-menu-item-button-disabled" : "hundred-menu-item-button"}`} onClick={() => !claimLegacyHnd ? handleCollect() : null}>
+                        {claimLegacyHnd ? (<Spinner size={"25px"}/>) : "Claim Legacy HND"}</div></> : null
                 }
             </div>
         </div>

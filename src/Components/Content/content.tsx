@@ -10,32 +10,32 @@ import { useHundredDataContext } from "../../Types/hundredDataContext"
 
 const Content: React.FC = () => {
     const {spinnerVisible} = useUiContext()
-    const { setSelectedMarket, marketsSpinners, setSelectedMarketSpinners} = useHundredDataContext()
+    const { setSelectedMarket, marketsData, marketsSpinners, setSelectedMarketSpinners} = useHundredDataContext()
 
     const [openEnterMarket, setOpenEnterMarket] = useState(false)
     const [openSupplyMarketDialog, setOpenSupplyDialog] = useState(false)
     const [openBorrowMarketDialog, setOpenBorrowMarketDialog] = useState(false)
 
     const enterMarketDialog = (market: CTokenInfo) : void => {
-      setSelectedMarket(market)
+      const selected = [...marketsData].find(x => x.underlying.symbol === market.underlying.symbol)
       const selectedSpinner = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
+      
+      setSelectedMarket(selected)
       setSelectedMarketSpinners(selectedSpinner)
       setOpenEnterMarket(true)
     }
 
     const closeMarketDialog = () : void => {
       if(!spinnerVisible){
-        console.log("Close")
         setOpenEnterMarket(false)
-        setSelectedMarket(undefined)
-        setSelectedMarketSpinners(undefined)
       }
     }
     
     const supplyMarketDialog = (market: CTokenInfo) => {
-
-      setSelectedMarket(market)
+      const selected = [...marketsData].find(x => x.underlying.symbol === market.underlying.symbol)
       const selectedSpinner = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
+      
+      setSelectedMarket(selected)
       setSelectedMarketSpinners(selectedSpinner)
       setOpenSupplyDialog(true)
     }
@@ -43,13 +43,14 @@ const Content: React.FC = () => {
     const closeSupplyMarketDialog = () =>{
       if(!spinnerVisible){
         setOpenSupplyDialog(false)
-        setSelectedMarket(undefined)
       }
     }
 
     const borrowMarketDialog = (market: CTokenInfo) : void => {
-      setSelectedMarket(market)
+      const selected = [...marketsData].find(x => x.underlying.symbol === market.underlying.symbol)
       const selectedSpinner = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
+      
+      setSelectedMarket(selected)
       setSelectedMarketSpinners(selectedSpinner)
       setOpenBorrowMarketDialog(true)
     }
@@ -57,7 +58,6 @@ const Content: React.FC = () => {
     const closeBorrowMarketDialog = () => {
       if(!spinnerVisible){
         setOpenBorrowMarketDialog(false)
-        setSelectedMarket(undefined)
       }
   }
     return (

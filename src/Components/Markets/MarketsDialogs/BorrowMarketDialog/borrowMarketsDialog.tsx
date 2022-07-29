@@ -19,7 +19,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
     const dialogContainer = document.getElementById("modal") as Element
     const [tabChange, setTabChange] = useState<number>(1)
     const {spinnerVisible, darkMode} = useUiContext()
-    const {selectedMarket} = useHundredDataContext()
+    const {selectedMarket, setSelectedMarket, setSelectedMarketSpinners} = useHundredDataContext()
     
     const CloseDialog = () : void =>{
         if(spinnerVisible)
@@ -32,6 +32,8 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
         mounted.current = true
 
         return (() => {
+            setSelectedMarket(undefined)
+            setSelectedMarketSpinners(undefined)
             mounted.current = false
         }) 
     }, [])

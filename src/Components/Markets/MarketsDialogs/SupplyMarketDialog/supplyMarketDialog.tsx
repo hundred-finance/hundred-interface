@@ -17,7 +17,7 @@ interface Props{
 }
 
 const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
-    const {selectedMarket, gaugesV4Data} = useHundredDataContext()
+    const {selectedMarket, setSelectedMarket, setSelectedMarketSpinners, gaugesV4Data} = useHundredDataContext()
     const {spinnerVisible, darkMode} = useUiContext()
     const [tabChange, setTabChange] = useState<number>(1)
     const [tabHeaders, setTabHeaders] = useState<any[]>([])
@@ -37,6 +37,8 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         mountedSupply.current = true
         setTabChange(1)
         return () => {
+            setSelectedMarket(undefined)
+            setSelectedMarketSpinners(undefined)
             mountedSupply.current = false
         }
     }, [])

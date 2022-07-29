@@ -33,6 +33,9 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
 
     useEffect(() => {
         mounted.current = true
+        console.log("gauge address:", props.gaugeV4.generalData.address)
+        console.log("gaugeHelper: ", props.gaugeV4.generalData.gaugeHelper)
+
         return () => {
             mounted.current = false
         }
@@ -153,6 +156,9 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                             toastSuccessMessage("Transaction complete, updating contracts")
                             await updateMarket(market, UpdateTypeEnum.ApproveStake)
                         }
+                        else if(receipt.message){
+                            toastErrorMessage(`${receipt.message}`);  
+                        }
                     }
                 }
                 catch(error: any){
@@ -185,6 +191,9 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                         await updateMarket(props.gaugeV4, UpdateTypeEnum.Stake)
                         if(mounted) setStakeInput("")
                     }
+                    else if(receipt.message){
+                        toastErrorMessage(`${receipt.message}`);  
+                    }
                 }
                 catch(error: any){
                     console.log(error)
@@ -201,7 +210,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
       const handleApproveUnStake = async (symbol: string) => {
           if(selectedMarket && marketsData){
               
-              const market = {...marketsData}.find(x => x?.underlying.symbol === symbol)
+              const market = [...marketsData].find(x => x?.underlying.symbol === symbol)
               if(market && library){
                   try{
                     setSpinnerVisible(true)
@@ -216,6 +225,9 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     if(receipt.status === 1){
                         toastSuccessMessage("Transaction complete, updating contracts")
                         await updateMarket(props.gaugeV4, UpdateTypeEnum.ApproveUnStake)
+                    }
+                    else if(receipt.message){
+                        toastErrorMessage(`${receipt.message}`);  
                     }
                   }
                   catch(error : any){
@@ -250,6 +262,9 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                         await updateMarket(props.gaugeV4, UpdateTypeEnum.Unstake)
                         if(mounted.current) setUnstakeInput("")
                     }
+                    else if(receipt.message){
+                        toastErrorMessage(`${receipt.message}`);  
+                    }
                   }
                   catch(error : any){
                       console.log(error)
@@ -281,6 +296,9 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                         if(receipt.status === 1){
                             toastSuccessMessage("Transaction complete, updating contracts")
                             await updateMarket(props.gaugeV4, UpdateTypeEnum.Mint)
+                        }
+                        else if(receipt.message){
+                            toastErrorMessage(`${receipt.message}`);  
                         }
                   }
                   catch(error: any){

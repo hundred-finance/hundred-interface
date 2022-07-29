@@ -78,7 +78,8 @@ type NetworkData = {
     [key:number]: Network
 }
 
-const NETWORKS: NetworkData = !process.env.REACT_APP_TEST_NETWORK ? {
+const NETWORKS: NetworkData = !process.env?.REACT_APP_TEST_NETWORK 
+                              || process.env?.REACT_APP_TEST_NETWORK === "false" ? {
     1: {
         chainId: 1,
         network: "Ethereum",
