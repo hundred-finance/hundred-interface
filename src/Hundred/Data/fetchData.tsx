@@ -286,66 +286,97 @@ export const fetchData = async(
  const getTokenData = async(tokenData: any[], native: boolean, network: Network, provider: ethers.providers.Web3Provider, 
                             userAddress: string, underlyingAddress: string, enteredMarkets: string[], tokenAddress: string, backstop: BackstopPool | null): Promise<Token> =>{
     const isMaker = underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? true : false
+
+    const [accountSnapshot,
+          exchangeRate,
+          totalSupply,
+    totalBorrows,
+    supplyRatePerBlock,
+    borrowRatePerBlock,
+    cash,
+    cTokenBalanceOfUser,
+    [
+      isListed,
+      collateralFactorMantissa,
+      isComped
+    ],
+    compSpeeds,
+    [
+      index,
+      block
+    ],
+    compSupplierIndex,
+    price,
+    mintPaused,
+    borrowPaused,
+    ...rest] = tokenData
+
+    const [symbol, name, decimals, underlyingTotalSupply, allowance, walletBalance, gaugeHelperAllowance, ...backstopData] = rest
+
     
     const token: Token = {
-        accountSnapshot: tokenData[0],
-        exchangeRate: tokenData[1],
-        totalSupply: tokenData[2],
-        totalBorrows: tokenData[3],
-        supplyRatePerBlock: tokenData[4],
-        borrowRatePerBlock: tokenData[5],
-        cash: tokenData[6],
-        cTokenBalanceOfUser: tokenData[7],
+        accountSnapshot,
+        exchangeRate,
+        totalSupply,
+        totalBorrows,
+        supplyRatePerBlock,
+        borrowRatePerBlock,
+        cash,
+        cTokenBalanceOfUser,
         markets: {
-          isListed: tokenData[8][0],
-          collateralFactorMantissa: tokenData[8][1],
-          isComped: tokenData[8][2]
+          isListed,
+          collateralFactorMantissa,
+          isComped
         },
-        compSpeeds: tokenData[9],
+        compSpeeds,
         compSupplyState: {
-          index: tokenData[10][0],
-          block: tokenData[10][1]
+          index,
+          block
         },
-        compSupplierIndex: tokenData[11],
-        mintPaused: tokenData[13],
-        borrowPaused: tokenData[14],
+        compSupplierIndex,
+        mintPaused,
+        borrowPaused,
         underlying: {
-            price: tokenData[12],
-            symbol: native ? network.networkParams.nativeCurrency.symbol : isMaker ? ethers.utils.parseBytes32String(tokenData[15]) : tokenData[15],
-            name: native ? network.networkParams.nativeCurrency.name : isMaker ? ethers.utils.parseBytes32String(tokenData[16]) : tokenData[16],
-            decimals: native ? 18 : isMaker ? tokenData[17]/1 : tokenData[17],
-            totalSupply: native ? 0 : tokenData[18],
-            allowance: native ? ethers.constants.MaxUint256 : tokenData[19],
-            gaugeHelperAllowance: native ? ethers.constants.MaxUint256 : tokenData[21],
-            walletBalance: native ? await provider.getBalance(userAddress) : tokenData[20],
+            price,
+            symbol: native ? network.networkParams.nativeCurrency.symbol : isMaker ? ethers.utils.parseBytes32String(symbol) : symbol,
+            name: native ? network.networkParams.nativeCurrency.name : isMaker ? ethers.utils.parseBytes32String(name) : name,
+            decimals: native ? 18 : isMaker ? decimals/1 : decimals,
+            totalSupply: native ? 0 : underlyingTotalSupply,
+            allowance: native ? ethers.constants.MaxUint256 : allowance,
+            gaugeHelperAllowance: native ? ethers.constants.MaxUint256 : gaugeHelperAllowance,
+            walletBalance: native ? await provider.getBalance(userAddress) : walletBalance,
             address: underlyingAddress,
-            logo: native ? Logos[network.networkParams.nativeCurrency.symbol] : isMaker ? Logos["MKR"] : Logos[tokenData[15]]
+            logo: native ? Logos[network.networkParams.nativeCurrency.symbol] : isMaker ? Logos["MKR"] : Logos[symbol]
         },
         isNative: native,
         enteredMarkets: enteredMarkets,
         tokenAddress: tokenAddress
     }
+
     if(backstop){
+      const [[accHundredPerShare, lastRewardTime, allocPoint],
+              [userBalance], pendingHundred, hundredPerSecond, totalAllocPoint, allowance, totalSupply, decimals, symbol, underlyingBalance, masterchefBalance, ...versions] = backstopData
       const poolInfo : BackstopPoolInfo = {
-        accHundredPerShare: tokenData[22][0],
-        lastRewardTime: tokenData[22][1],
-        allocPoint: tokenData[22][2]
+        accHundredPerShare,
+        lastRewardTime,
+        allocPoint
       }
       if(network.backstopMasterChef?.version === MasterChefVersion.v1){
+        const [fetchPrice] = versions
         token.backstop = {
           pool : backstop,
           poolInfo :  poolInfo,
-          userBalance : tokenData[23][0],
-          pendingHundred: tokenData[24],
-          hundredPerSecond: tokenData[25],
-          totalAllocPoint: tokenData[26],
-          allowance: tokenData[27],
-          totalSupply : tokenData[28],
-          decimals: tokenData[29],
-          symbol: tokenData[30],
-          underlyingBalance : tokenData[31],
-          masterchefBalance : tokenData[32],
-          fetchPrice: tokenData[33],
+          userBalance,
+          pendingHundred,
+          hundredPerSecond,
+          totalAllocPoint,
+          allowance,
+          totalSupply,
+          decimals,
+          symbol,
+          underlyingBalance,
+          masterchefBalance,
+          fetchPrice,
           ethBalance: await provider.getBalance(backstop.lpTokens),
         }
       }
@@ -353,16 +384,16 @@ export const fetchData = async(
         token.backstop = {
           pool : backstop,
           poolInfo :  poolInfo,
-          userBalance : tokenData[23][0],
-          pendingHundred: tokenData[24],
-          hundredPerSecond: tokenData[25],
-          totalAllocPoint: tokenData[26],
-          allowance: tokenData[27],
-          totalSupply : tokenData[28],
-          decimals: tokenData[29],
-          symbol: tokenData[30],
-          underlyingBalance : tokenData[31],
-          masterchefBalance : tokenData[32],
+          userBalance,
+          pendingHundred,
+          hundredPerSecond,
+          totalAllocPoint,
+          allowance,
+          totalSupply,
+          decimals,
+          symbol,
+          underlyingBalance,
+          masterchefBalance,
           collaterals:[]
         }
         if(backstop.collaterals){
@@ -399,9 +430,9 @@ export const fetchData = async(
       const borrowBalance = borrowBalanceInTokenUnit.mul(underlying.price)
 
       const exchangeRateStored = BigNumber.from(token.exchangeRate, 18)
-
+        
       const marketTotalSupply = BigNumber.parseValue((+BigNumber.from(token.totalSupply, decimals).toString() * +exchangeRateStored.toString() * +underlying.price.toString()).noExponents())//cTokenTotalSupply.mul(exchangeRateStored).mul(underlyingPrice)
-
+      
       const cTokenTotalBorrows = BigNumber.from(token.totalBorrows, decimals)
       const marketTotalBorrowInTokenUnit = BigNumber.from(cTokenTotalBorrows._value, decimals)
       const marketTotalBorrow = cTokenTotalBorrows?.mul(underlying.price)

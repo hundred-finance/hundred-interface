@@ -94,7 +94,7 @@ const useFetchData = () => {
     }, [comptrollerData])
 
     useEffect(() => {
-        if(marketsData.length > 0 && gaugesV4Data.length > 0 && compAccrued.current !== undefined){
+        if(compAccrued.current !== undefined && (marketsData.length > 0 || gaugesV4Data.length > 0) ){
             const markets = [...marketsData]
             const gauges = [...gaugesV4Data]
             const data = getGeneralDetails(markets, gauges, compAccrued.current)
@@ -214,6 +214,7 @@ const useFetchData = () => {
             errorsCount.current = 0
         }
         catch(error: any){
+            console.log(error)
             if(!firstLoad.current)
                 timeoutId.current = setTimeout(updateData, (errorsCount.current < 2 ? errorsCount.current + 1 : errorsCount.current) * 10000 + 10000)
             else{
