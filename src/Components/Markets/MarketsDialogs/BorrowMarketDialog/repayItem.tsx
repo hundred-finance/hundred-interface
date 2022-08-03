@@ -84,7 +84,7 @@ const RepayItem: React.FC<Props> = (props : Props) =>{
         };
         handleRepayAmountChange()
           // eslint-disable-next-line
-    }, [repayInput])
+    }, [repayInput, selectedMarket])
     
 
     const handleMaxRepay = async () => {

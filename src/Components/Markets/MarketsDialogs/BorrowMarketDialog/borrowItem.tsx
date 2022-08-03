@@ -81,7 +81,7 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
         
           handleBorrowAmountChange()
           // eslint-disable-next-line
-    }, [borrowInput])
+    }, [borrowInput, selectedMarket])
 
     const handleMaxBorrow = async () => {
         if(generalData && selectedMarket){
