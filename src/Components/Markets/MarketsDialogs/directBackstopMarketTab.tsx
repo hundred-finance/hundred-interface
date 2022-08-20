@@ -26,7 +26,7 @@ interface Props{
     handleApproveStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
     handleApproveUnStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
 }
-const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
+const DirectBackstopMarketTab:React.FC<Props> = (props: Props) =>{
     const [stakeInput, setStakeInput] = useState<string>("")
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [stakeDisabled, setStakeDisabled] = useState<boolean>(false)
@@ -258,11 +258,11 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     validation={stakeValidation}
                     button={"Max"}
                     onClick={() => getMaxStake()}/>
-                {props.gaugeV4 && +props.gaugeV4.userAllowance.toString() > 0 &&
-                +props.gaugeV4.userAllowance.toString().toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
+                {props.market && +props.market.underlying.gaugeHelperAllowance.toString() > 0 &&
+                +props.market.underlying.gaugeHelperAllowance.toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
                     ?
                     <MarketDialogButton
-                        disabled={stakeInput === "" || stakeValidation !== ""}
+                        disabled={stakeInput === "" || stakeValidation !== "" || stakeDisabled == true}
                         onClick={() => props.handleStake(props.market?.underlying.symbol, props?.gaugeV4, stakeInput)}
                     >
                         {props.market && props.market.stakeSpinner ? (
@@ -270,7 +270,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     </MarketDialogButton>
                     :
                     <MarketDialogButton
-                        disabled={stakeInput === "" || stakeValidation !== ""}
+                        disabled={stakeInput === "" || stakeValidation !== "" || stakeDisabled == true}
                         onClick={() => props.handleApproveStake(props.market?.underlying.symbol, props?.gaugeV4)}
                     >
                         {props.market && props.market.stakeSpinner ? (
@@ -301,7 +301,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 +props.gaugeV4.userGaugeHelperAllowance.toString().toString() >= (unstakeInput.trim() === "" || isNaN(+unstakeInput) || isNaN(parseFloat(unstakeInput)) ? 0 : +unstakeInput)
                     ?
                     <MarketDialogButton
-                        disabled={unstakeInput === "" || unstakeValidation !== ""}
+                        disabled={unstakeInput === "" || unstakeValidation !== "" || unstakeDisabled == true}
                         onClick={() => props.handleUnstake(props.market?.underlying.symbol, props?.gaugeV4, unstakeInput)}
                     >
                         {props.market && props.market.unstakeSpinner ? (
@@ -309,7 +309,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     </MarketDialogButton>
                     :
                     <MarketDialogButton
-                        disabled={unstakeInput === "" || unstakeValidation !== ""}
+                        disabled={unstakeInput === "" || unstakeValidation !== "" || unstakeDisabled == true}
                         onClick={() => props.handleApproveUnStake(props.market?.underlying.symbol, props?.gaugeV4)}
                     >
                         {props.market && props.market.unstakeSpinner ? (
@@ -328,4 +328,4 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
     )
 }
 
-export default DirectBackstopStakeMarketTab
+export default DirectBackstopMarketTab
