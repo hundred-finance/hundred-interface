@@ -35,6 +35,7 @@ interface Props{
     handleStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined, amount: string) => Promise<void>
     handleUnstake: (symbol: string | undefined, guage: GaugeV4 | null | undefined, amount: string) => Promise<void>
     handleMint: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
+    handleClaimRewards: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
 
     handleApproveBackstop: (symbol: string) => Promise<void>
     handleBackstopDeposit: (symbol: string, amount: string) => Promise<void>
@@ -361,7 +362,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                             handleUnstake={props.handleUnstake}
                                             handleMint={props.handleMint}
                                             handleApproveStake={props.handleApproveStake}
-                                            handleApproveUnStake={props.handleApproveUnStake}/>
+                                            handleApproveUnStake={props.handleApproveUnStake}
+                                            handleClaimRewards={props.handleClaimRewards}
+                                        />
                                         :
                                         <StakeMarketTab
                                             market={props.market}
@@ -374,7 +377,9 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                                             handleStake={props.handleStake}
                                             handleUnstake={props.handleUnstake}
                                             handleMint={props.handleMint}
-                                            handleApproveStake={props.handleApproveStake}/>
+                                            handleApproveStake={props.handleApproveStake}
+                                            handleClaimRewards={props.handleClaimRewards}
+                                        />
                                     }
                                 </TabContentItem>
                                 : ''

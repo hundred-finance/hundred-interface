@@ -9,7 +9,7 @@ import {Spinner} from "../../../assets/huIcons/huIcons";
 import { CTokenInfo } from "../../../Classes/cTokenClass";
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass";
 import {GaugeV4} from "../../../Classes/gaugeV4Class";
-import {stakingApr} from "../aprHelpers";
+import {rewardTokenApr, stakingApr} from "../aprHelpers";
 
 interface Props{
     market: CTokenInfo,
@@ -25,6 +25,7 @@ interface Props{
     handleUnstake: (symbol: string | undefined, guage: GaugeV4 | null | undefined, amount: string) => Promise<void>
     handleMint: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
     handleApproveStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
+    handleClaimRewards: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
 }
 const StakeMarketTab:React.FC<Props> = (props: Props) =>{
     const [newBorrowLimit3, setNewBorrowLimit3] = useState<BigNumber>(BigNumber.from(0))
@@ -232,9 +233,17 @@ const StakeMarketTab:React.FC<Props> = (props: Props) =>{
                 value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
             />
             <MarketDialogItem
-                title={"APR"}
+                title={"HND APR"}
                 value={stakingApr(props.market, props.gaugeV4)}
             />
+            {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
+                <MarketDialogItem
+                    title={`${props?.gaugeV4?.reward_token_symbol} APR`}
+                    value={rewardTokenApr(props.market, props.gaugeV4)}
+                />
+                :
+                ''
+            }
             <BorrowLimitSection generalData={props.generalData} newBorrowLimit={newBorrowLimit3}/>
             <div className="native-asset-amount">
                 <span className="dialog-section-content-value">{convertLpAmountToUnderlying(stakeInput, props.market)} {props.market?.underlying.symbol}</span>
@@ -309,6 +318,17 @@ const StakeMarketTab:React.FC<Props> = (props: Props) =>{
                 {props.market && props.market.mintSpinner ? (
                     <Spinner size={"20px"}/>) : "Claim HND"}
             </MarketDialogButton>
+            {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
+                <MarketDialogButton
+                    disabled={props?.gaugeV4?.claimable_reward === undefined || props?.gaugeV4?.claimable_reward?.toString() === '0'}
+                    onClick={() => props.handleClaimRewards(props.market?.underlying.symbol, props?.gaugeV4)}
+                >
+                    {props.market && props.market.mintSpinner ? (
+                        <Spinner
+                            size={"20px"}/>) : `Claim ${props?.gaugeV4?.reward_token_symbol}`}
+                </MarketDialogButton>
+                : ''
+            }
         </>
     )
 }

@@ -1001,6 +1001,40 @@ const Content: React.FC<Props> = (props : Props) => {
             }
         }
     }
+
+    const handleClaimRewards = async (symbol: string | undefined, gaugeV4: GaugeV4 | null | undefined) => {
+        if(marketsRef.current){
+            setSpinnerVisible(true)
+            let market = marketsRef.current.find(x => x?.underlying.symbol === symbol)
+            if(market && library){
+                try{
+                    setCompleted(false)
+
+                    if(selectedMarketRef.current)
+                        selectedMarketRef.current.mintSpinner = true
+
+                    market.mintSpinner = true
+
+                    await gaugeV4?.claimRewardsCall()
+
+                    setSpinnerVisible(false)
+
+                    setCompleted(true)
+                }
+                catch(err){
+                    console.log(err)
+                }
+                finally{
+                    setSpinnerVisible(false)
+                    market = marketsRef.current.find(x =>x?.underlying.symbol === symbol)
+                    if(market){
+                        setUpdate(true)
+                        await handleUpdate(market, "mint", false)
+                    }
+                }
+            }
+        }
+    }
     
     return (
         <div className="content">
@@ -1027,6 +1061,7 @@ const Content: React.FC<Props> = (props : Props) => {
                 handleStake={handleStake}
                 handleUnstake={handleUnstake}
                 handleMint={handleMint}
+                handleClaimRewards={handleClaimRewards}
                 getMaxAmount={getMaxAmount}
                 spinnerVisible={spinnerVisible}
                 gaugeV4={gaugesV4Data?.find(g => g?.generalData.lpToken.toLowerCase() === selectedMarketRef.current?.pTokenAddress.toLowerCase())}

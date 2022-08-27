@@ -8,7 +8,7 @@ import {Spinner} from "../../../assets/huIcons/huIcons";
 import { CTokenInfo } from "../../../Classes/cTokenClass";
 import { GeneralDetailsData } from "../../../Classes/generalDetailsClass";
 import {GaugeV4} from "../../../Classes/gaugeV4Class";
-import {stakingApr} from "../aprHelpers";
+import {rewardTokenApr, stakingApr} from "../aprHelpers";
 
 interface Props{
     market: CTokenInfo,
@@ -25,6 +25,7 @@ interface Props{
     handleMint: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
     handleApproveStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
     handleApproveUnStake: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
+    handleClaimRewards: (symbol: string | undefined, guage: GaugeV4 | null | undefined) => Promise<void>
 }
 const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
     const [stakeInput, setStakeInput] = useState<string>("")
@@ -173,10 +174,26 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 title={"Claimable"}
                 value={`${formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)} HND`}
             />
+            {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
+                <MarketDialogItem
+                    title={"Claimable reward"}
+                    value={`${formatBalance(props.gaugeV4?.claimable_reward).toFixed(4)} ${props.gaugeV4?.reward_token_symbol}`}
+                />
+                :
+                ''
+            }
             <MarketDialogItem
-                title={"APR"}
+                title={"HND APR"}
                 value={stakingApr(props.market, props.gaugeV4)}
             />
+            {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
+                <MarketDialogItem
+                    title={`${props?.gaugeV4?.reward_token_symbol} APR`}
+                    value={rewardTokenApr(props.market, props.gaugeV4)}
+                />
+                :
+                ''
+            }
             <div className="native-asset-amount">
                 <span className="dialog-section-content-value"/>
                 <div className="amount-select">
@@ -261,6 +278,17 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                 {props.market && props.market.mintSpinner ? (
                     <Spinner size={"20px"}/>) : "Claim HND"}
             </MarketDialogButton>
+            {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
+                <MarketDialogButton
+                    disabled={props?.gaugeV4?.claimable_reward === undefined || props?.gaugeV4?.claimable_reward?.toNumber() === 0}
+                    onClick={() => props.handleClaimRewards(props.market?.underlying.symbol, props?.gaugeV4)}
+                >
+                    {props.market && props.market.mintSpinner ? (
+                        <Spinner
+                            size={"20px"}/>) : `Claim ${props?.gaugeV4?.reward_token_symbol}`}
+                </MarketDialogButton>
+                : ''
+            }
         </>
     )
 }
