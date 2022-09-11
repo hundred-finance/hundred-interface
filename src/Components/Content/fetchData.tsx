@@ -161,6 +161,8 @@ export const fetchData = async(
       })
     }
 
+    const ust = '0x376020c5b0ba3fd603d7722381faa06da8078d8a';
+
     notNativeMarkets.map(async(a, index) => {
         const hTokenContract = new Contract(a, CTOKEN_ABI)
         const underlyingAddress = underlyingAddresses[index]
@@ -177,7 +179,7 @@ export const fetchData = async(
                    comptrollerData.ethcallComptroller.compSpeeds(a),
                    comptrollerData.ethcallComptroller.compSupplyState(a),
                    comptrollerData.ethcallComptroller.compSupplierIndex(a, userAddress),
-                   comptrollerData.oracle.getUnderlyingPrice(a),
+                   network.chainId === 1666600000 && ust === a.toLowerCase() ? tokenContract.balanceOf(ust) : comptrollerData.oracle.getUnderlyingPrice(a),
                    comptrollerData.ethcallComptroller.mintGuardianPaused(a),
                    comptrollerData.ethcallComptroller.borrowGuardianPaused(a),
                    tokenContract.symbol(),
