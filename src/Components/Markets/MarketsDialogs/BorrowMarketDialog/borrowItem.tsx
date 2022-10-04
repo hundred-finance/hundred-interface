@@ -127,8 +127,8 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
                 console.log(receipt)
                 if(receipt.status === 1){
                     toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-                    await updateMarket(market, UpdateTypeEnum.Borrow)
                     if(mounted.current) setBorrowInput("")
+                    await updateMarket(market, UpdateTypeEnum.Borrow)
                 }
             }
             catch(error: any){
