@@ -1,22 +1,22 @@
-import { useWeb3React } from '@web3-react/core'
+import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import React, { useEffect, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { toast, ToastContainer } from 'react-toastify'
+import Account from '../../Components/Account/account'
 import Content from '../../Components/Content/content'
 import Footer from '../../Components/Footer/footer'
+import HundredMenu from '../../Components/HundredMenu/hundredMenu'
 import Menu from '../../Components/Menu/menu'
 import TabletMenu from '../../Components/Menu/tabletMenu'
 import HundredMessage from '../../Components/MessageDialog/messageDialog'
-import AccountSettings from '../../Components/SideMenu/accountSettings'
-import AirdropMenu from '../../Components/SideMenu/airdropMenu'
-import HundredMenu from '../../Components/SideMenu/hundredMenu'
-import NetworksView from '../../Components/SideMenu/networksView'
-import SideMenu from '../../Components/SideMenu/sideMenu'
+import Modal from '../../Components/Modal/modal'
+import NetworksMenu from '../../Components/NetworksMenu/networksMenu'
+import Wallets from '../../Components/Wallets/wallets'
 import Wrapper from '../../Components/Wrapper/wrapper'
-import { GetConnector } from '../../Connectors/connectors'
-import { MetamaskConnector } from '../../Connectors/metamask-connector'
-import { xDefiConnector } from '../../Connectors/xdefi-connector'
-import { Network } from '../../networks'
+import { GetConnector, getErrorMessage } from '../../Connectors/connectors'
+import { MetamaskConnector, MetamaskNotFounfError } from '../../Connectors/metamask-connector'
+import { xDefiConnector, XDEFIWalletNotDefaultError, XDEFIWalletNotFoundError } from '../../Connectors/xdefi-connector'
+import NETWORKS, { Network } from '../../networks'
 import { useGlobalContext } from '../../Types/globalContext'
 import { MyHundredDataContext } from '../../Types/hundredDataContext'
 import { useUiContext } from '../../Types/uiContext'
@@ -24,13 +24,19 @@ import useHndPrice from '../Data/hndPrice'
 import useFetchData from '../Data/hundredData'
 
 const Hundred: React.FC = () => {
-  const { activate } = useWeb3React()
-  const {isMobile, isTablet, openAddress, openNetwork, 
-         openHundred, openAirdrop,  setSpinnerVisible, darkMode} = useUiContext()
-  const { network} = useGlobalContext()
+  const { activate, error, chainId, account } = useWeb3React()
+  const { setSpinnerVisible, darkMode, setOpenNetwork, isMobile, isTablet} = useUiContext()
+  const { network, setNetwork, setAddress} = useGlobalContext()
+
+  const [showError, setShowError] = useState(false)
   
   const [showGMessage, setShowGMessage] = useState<boolean>(false)
   const [gMessageText, setGMessageText] = useState<JSX.Element>()
+
+  const openSwitchNetwork = () => {
+    setShowError(false)
+    setOpenNetwork(true)
+}
 
   useHndPrice()
 
@@ -117,6 +123,32 @@ const Hundred: React.FC = () => {
       </ErrorBoundary>
     )
   }
+
+  useEffect(() => {
+    if(chainId){
+      const net = NETWORKS[chainId]
+      if(net) {
+        setNetwork(net)
+        return
+      }
+    }
+    const net = NETWORKS[42161]
+    setNetwork(net)
+}, [chainId])
+
+useEffect(() => {
+    if(error){
+    console.log(error)
+      setShowError(true)
+    }
+}, [error])
+
+useEffect(() => {
+    if(account) 
+        setAddress(account)
+    else if(!error) 
+        setAddress("")
+}, [account])
     
   return (
     <MyHundredDataContext.Provider value={({comptrollerData, setComptrollerData,
@@ -136,17 +168,22 @@ const Hundred: React.FC = () => {
                                             getMaxAmount, getMaxRepayAmount, convertUSDToUnderlyingToken})}>
     <>
         <Wrapper>
-            {!isTablet && !isMobile ? 
+        {!isTablet && !isMobile ? 
                 <Menu/>
                 : <TabletMenu/>
               }
+                
               <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
                 <Content/>
               </ErrorBoundary>
+              <Wallets/>
+              <Account/>
+              <NetworksMenu/>
+              <HundredMenu/>
               <ToastContainer/>
             </Wrapper>
             <Footer/>
-            <SideMenu>
+            {/* <SideMenu>
               { openAddress ? 
                   <AccountSettings/> 
                   : (openNetwork ? <NetworksView/> 
@@ -156,9 +193,26 @@ const Hundred: React.FC = () => {
                   <AirdropMenu/>
                   : null)
               }
-            </SideMenu>
+            </SideMenu> */}
             <HundredMessage isOpen={showGMessage} onRequestClose={() => setShowGMessage(false)} contentLabel="Info" className={`${darkMode ? "mymodal-dark" : ""}`}
               message={gMessageText}/>
+            {error instanceof UnsupportedChainIdError ? (
+            <Modal open={showError} close={() => setShowError(false)} title="Error">
+                <div className='modal-error'>
+                    <div className='modal-error-message'>
+                        <span>{getErrorMessage(error)}</span>
+                        <><p>Please <span className='modal-error-switch'onClick={ openSwitchNetwork }>switch</span></p></>
+                    </div>
+                </div>
+            </Modal>)
+            : error instanceof XDEFIWalletNotFoundError || error instanceof XDEFIWalletNotDefaultError || error instanceof MetamaskNotFounfError? (
+                <Modal open={showError} close={() => setShowError(false)} title="Error">
+                    <div className='modal-error'>
+                        <div className='modal-error-message'>
+                            <span>{getErrorMessage(error)}</span>
+                        </div>
+                    </div>
+                </Modal>) : null}
     </>
     </MyHundredDataContext.Provider>
   )

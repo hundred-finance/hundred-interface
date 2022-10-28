@@ -62,12 +62,12 @@ const Content: React.FC = () => {
   }
     return (
         <div className="content">
-            <GeneralDetails/>
-            <Markets
+            {/* <GeneralDetails/> */}
+            {/* <Markets
                 enterMarketDialog={enterMarketDialog}
                 supplyMarketDialog={supplyMarketDialog}
                 borrowMarketDialog={borrowMarketDialog}
-            />
+            /> */}
             {openEnterMarket ? <EnterMarketDialog 
                 closeMarketDialog = {closeMarketDialog}/> 
             : null}

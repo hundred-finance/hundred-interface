@@ -10,9 +10,9 @@ import Buffer from "buffer"
 import { MyUiContext } from './Types/uiContext';
 import { MyGlobalContext } from './Types/globalContext';
 import { XFI } from './Connectors/xdefi-connector/declarations';
-import useWindowSize from './hooks/useWindowSize';
 import Hundred from './Hundred/Views/hundred';
 import { toast } from 'react-toastify';
+import {useWindowSize} from 'usehooks-ts'
 
 declare global {
   interface Window {
@@ -29,6 +29,7 @@ const App: React.FC = () => {
   
   const [network, setNetwork] = useState<Network | null>(null)
   const [hndPrice, setHndPrice] = useState<number>(0)
+  const [terraUsd, setTerraUsd] = useState<number>(0)
   const [hasClaimed, setHasClaimed] = useState<boolean>(false)
   const [airdrops, setAirdrops] = useState<AirdropType[]>([])
   
@@ -44,6 +45,10 @@ const App: React.FC = () => {
   const [isTablet, setIsTablet] = useState<boolean>(false)
   const [show, setShow] = useState<boolean>(false)
   const [theme, setTheme] = useState<Theme>(lightTheme)
+  const [showWallets, setShowWallets] = useState<boolean>(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false)
+  const [accountOpen, setAccountOpen] = useState<boolean>(false)
+
   const [openAddress, setOpenAddress] = useState<boolean>(false)
   const [openNetwork, setOpenNetwork] = useState<boolean>(false)
   const [openHundred, setOpenHundred] = useState<boolean>(false)
@@ -52,7 +57,7 @@ const App: React.FC = () => {
   const [switchModal, setSwitchModal] = useState(false)
   const [scale, setScale] = useState(false)
 
-  const width = useWindowSize()
+  const { width } = useWindowSize()
   
   useEffect(() => {
     setShow(true)
@@ -67,19 +72,18 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if(show){
-      if (width < (!hasClaimed ? 750 : 925)){
+      if (width < (!hasClaimed ? 821 : 925)){
         setIsMobile(true)
         setIsTablet(false)
-        if(width < 331)
-            setScale(true)
-        }
-      else if (window.innerWidth < (!hasClaimed ? 1064 : 1192)){
+      }
+      else if (width < (!hasClaimed ? 1145 : 1325)){
+        console.log("Tablet")
         setScale(false)
         setIsTablet(true)
         setIsMobile(false)
       }
       else {
-          setScale(false)
+          
           setIsTablet(false)
       }
     }
@@ -105,7 +109,7 @@ const App: React.FC = () => {
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
-      icon: true
+      icon: true,
       });
   }
 
@@ -127,6 +131,7 @@ const App: React.FC = () => {
     <MyGlobalContext.Provider value={({network, setNetwork,
                                        address, setAddress,
                                        hndPrice, setHndPrice,
+                                       terraUsd, setTerraUsd,
                                        hasClaimed, setHasClaimed,
                                        airdrops, setAirdrops,
                                        updateEarned, setUpdateEarned})}>
@@ -147,8 +152,11 @@ const App: React.FC = () => {
                                     scale, setScale,
                                     claimLegacyHnd, setClaimLegacyHnd,
                                     claimHnd, setClaimHnd,
-                                    claimLockHnd, setClaimLockHnd})}>
-          <div id="app" className={`App scroller ${darkMode ? "dark-theme" : ""}`}>
+                                    claimLockHnd, setClaimLockHnd,
+                                    showWallets, setShowWallets,
+                                    mobileMenuOpen, setMobileMenuOpen,
+                                    accountOpen, setAccountOpen})}>
+          <div id="app" className={`App scroller ${darkMode ? "dark" : "light"}`}>
             <Hundred/>
             <ReactToolTip id="tooltip" effect="solid"/>
             <Spinner/>

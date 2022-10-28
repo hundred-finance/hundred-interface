@@ -1,18 +1,16 @@
 import React from "react"
+import { useUiContext } from "../../Types/uiContext"
 import './navbarButton.css'
 
-interface Props {
-    menuOpen: boolean
-    setMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
-}
+const NavBarButton: React.FC = () => {
+    const {mobileMenuOpen, setMobileMenuOpen} = useUiContext()
 
-const NavBarButton: React.FC<Props> = (props: Props) => {
     const handleClick = () : void => {
-        props.setMenuOpen(!props.menuOpen)
+        setMobileMenuOpen(!mobileMenuOpen)
     }
 
     return (
-        <div className={`navbar-button ${props.menuOpen ? "navbar-button-clicked" : ""}`} onClick={() => handleClick()}>
+        <div className={`navbar-button ${mobileMenuOpen ? "navbar-button-clicked" : ""}`} onClick={() => handleClick()}>
             <span className="bar bar1"></span>
             <span className="bar bar2"></span>
             <span className="bar bar3"></span>

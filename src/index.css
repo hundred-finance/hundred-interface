@@ -1,84 +1,126 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100;8..144,200;8..144,300;8..144,400;8..144,500;8..144,600;8..144,700;8..144,800&display=swap');
 
 *, *::after, *::before{
-  font-family: 'Roboto', sans-serif;
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
+  -webkit-box-sizing: border-box;
 }
 
 :root{
-  --navBackground: #111111;
-  --background: #f9fafb;
-  --logoBackground: #f9fafb;
-  --sectionBackground: #101010;
-  --secondaryBackground: #f9fafb;
-  --boxBackground: #fff;
-  --text: #FFF;
-  --secondaryText: #000;
-  --bottomShadow: 0px 1px 10px 1px rgba(17, 162, 234, 0.5);
-  --overlayBackground: rgba(0, 0, 0, 0.6);
-  --buttonColor: #10337a;
-  --buttonHover: #2853ff;
-  --buttonHover2: #f0f0f0;
-  --textShadow: 1px 1px 1px rgba(17, 162, 234, .2);
-  --spinnerColor: #f0f0f0;
-  --boxShadow: 0px 0px 15px -1px rgba(97, 97, 97, 0.5);
-  --titleShadow:0px 3px 15px -3px rgba(97, 97, 97, 0.5);
-  --containerTitleShadow:0px 5px 5px -1px rgba(0,0,0,0.41);
-  --tableHeaderShadow:0px 2px 5px -1px rgba(0,0,0,0.41);
-  --tableRowShadow:0px 0px 3px -1px rgba(0,0,0,0.41);
-  --textboxPlaceholder:rgba(51, 51, 51, .5);
-  --textPositive: #006d5e;
-  --dialogSectionBackground:#f9f9f9;
-  --borderBottom: rgba(10, 6, 6, 0.05);
-  --grayText: #727A89;
-  --showMore: #092665;
-  --navbarButtonHover: #444;
-  --borderBottom2: rgba(10, 6, 6, 0.5);
-  --buttonBorder: #101010;
-  --buttonActiveShadow: 0px 0px 10px 0px rgba(10,22,30,0.9);
-  --buttonActiveBackground: #6b6b6b;
+  --max-width: 100%;
+  font-size: 10px;
+  
 }
 
+html,
 body {
+  padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Roboto Flex', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100%;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+html{
+  scrollbar-color: #333 #bebebe;
+  scrollbar-width: thin;
 }
 
-.dark-theme{
-  --navBackground: #101010;
-  --background: #101010;
-  --logoBackground: hsla(210, 20%, 98%, 0.9);
-  --sectionBackground: #101010;
-  --secondaryBackground: #101010;
-  --boxBackground: #000;
-  --text: #EEE;
-  --secondaryText: #fff;
-  --bottomShadow: 0px 1px 10px 1px rgba(230, 230, 230, 0.5);
-  --overlayBackground: rgba(250, 250, 250, 0.2);
-  --boxShadow: 0px 0px 15px -1px rgba(230, 230, 230, 0.5);
-  --titleShadow:0px 3px 15px -3px rgba(230, 230, 230, 0.5);
-  --containerTitleShadow:0px 5px 5px -1px rgba(255,255,255,0.41);
-  --tableHeaderShadow:0px 2px 5px -1px rgba(255,255,255,0.41);
-  --tableRowShadow:0px 0px 3px -1px rgba(255,255,255,0.41);
-  --textboxPlaceholder:rgb(238, 238, 238,.5);
-  --textPositive: #00ffdd;
-  --dialogSectionBackground:#333;
-  --borderBottom: rgba(255, 255, 255, 0.12);
-  --showMore: #fff;
-  --themeSwitchBackground: #f9fafb;
-  --borderBottom2: rgba(255, 255, 255, 0.5);
-  --buttonBorder: #EEE;
-  --buttonActiveShadow: 0px 0px 10px 0px rgba(248,259,260,0.9);
+.dark{
+  --background-color: rgba(28, 32, 38, 1);
+  --navbar-background: #222932;
+  --switch-theme-border: rgba(9, 166, 227, 1);
+  --hamburger-menu: #fff;
+  --modal-layout: rgba(19, 19, 19, .85);
+  --modal-background: #222932;
+  --modal-line: linear-gradient(180deg, #047ED1 0%, #3DD8FF 48.56%, #047ED1 100%);
+  --text-color: #fff;
+  --button-border: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
+  --button-background: linear-gradient(#222932, #222932);
+  --wallet-hover: #384250;
+  --logo-background: #fff;
+  --spinner-color: #00ceff; 
+  --moon: #fff;
+  --sun: #2c4965;
+
+  --stop-color-1: #00ceff;
+  --stop-color-2: #02c0fb;
+  --stop-color-3: #069df0;
+  --stop-color-4: #069bef;
+  --stop-color-5: #09a6e3;
+  --stop-color-6: #015cb1;
+  --stop-color-7: #00ceff;
+  --stop-color-8: #02c1fb;
+  --stop-color-9: #069ef0;
+  --stop-color-10: #069bef;
+
+  --hundred-logo-text: #00ceff;
+
+  color: #fff;
+}
+
+.light{
+  --switch-theme-border: rgba(9, 166, 227, 1);
+  --moon: #bedff5;
+  --sun: #09A6E3;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+@media only screen and (min-width: 260px){
+  :root{
+    font-size: 12px;
+  }
+}
+
+@media only screen and (min-width: 385px){
+  :root{
+    font-size: 14px;
+  }
+
+  h1{
+    font-size: 2.5rem;
+  }
+
+  h2{
+    font-size: 2rem;
+  }
+
+  p{
+    font-size: 1.2rem;
+  }
+
+  .button{
+    font-size: 1.2rem;
+  }
+}
+
+.seperator{
+  height: 1px;
+  background: var(--modal-line);
+  margin: .5rem 0;
+}
+
+@media only screen and (min-width: 720px){
+  :root{
+    --max-width: 1340px;
+  }
 }

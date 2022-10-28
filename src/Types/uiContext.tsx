@@ -38,6 +38,12 @@ export type UiContext = {
     setClaimHnd: (c: boolean) => void,
     claimLockHnd: boolean,
     setClaimLockHnd: (c: boolean) => void
+    showWallets: boolean,
+    setShowWallets: (w: boolean) => void,
+    mobileMenuOpen: boolean,
+    setMobileMenuOpen: (m: boolean) => void,
+    accountOpen: boolean,
+    setAccountOpen: (a: boolean) => void
 }
 
 export const MyUiContext = createContext<UiContext>({
@@ -76,7 +82,13 @@ export const MyUiContext = createContext<UiContext>({
     claimHnd: false,
     setClaimHnd: () => undefined,
     claimLockHnd: false,
-    setClaimLockHnd: () => undefined
+    setClaimLockHnd: () => undefined,
+    showWallets: false,
+    setShowWallets: () => undefined,
+    mobileMenuOpen: false,
+    setMobileMenuOpen: () => undefined,
+    accountOpen: false,
+    setAccountOpen: () => undefined
 })
 
 export const useUiContext = () : UiContext => useContext(MyUiContext)

@@ -1,14 +1,15 @@
 import React, { ReactNode } from "react"
+import { useUiContext } from "../../Types/uiContext"
 import "./navbar.css"
 
 interface Props {
-    menuOpen: boolean,
     children?: ReactNode
 }
 
-const NavbarMobile: React.FC<Props> = ({menuOpen, children}: Props) => {
+const NavbarMobile: React.FC<Props> = ({children}: Props) => {
+    const {mobileMenuOpen} = useUiContext()
     return (
-        <div className={`navbar-mobile-content ${menuOpen ? "navbar-mobile-content-open" : ""}`}>
+        <div className={`navbar-mobile-content ${mobileMenuOpen ? "navbar-mobile-content-open" : ""}`}>
             {children}
         </div>
     )

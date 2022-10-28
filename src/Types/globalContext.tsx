@@ -9,6 +9,8 @@ export type GlobalContext = {
     setAddress: (a: string) => void
     hndPrice: number, 
     setHndPrice: (p: number) => void
+    terraUsd: number, 
+    setTerraUsd: (p: number) => void
     hasClaimed: boolean, 
     setHasClaimed: (c: boolean) => void,
     airdrops: AirdropType[], 
@@ -24,6 +26,8 @@ export const MyGlobalContext = createContext<GlobalContext>({
     setAddress: () => undefined,
     hndPrice: 0,
     setHndPrice: () => undefined,
+    terraUsd: 0, 
+    setTerraUsd: () => undefined,
     hasClaimed: false,
     setHasClaimed: () => undefined,
     airdrops: [],

@@ -13,6 +13,7 @@ import {Contract, Provider} from "ethcall";
 import { useUiContext } from "../../Types/uiContext";
 import { useGlobalContext } from "../../Types/globalContext";
 import { useWeb3React } from "@web3-react/core";
+import Button from "../Button/button";
 
 type AirdropAmount = {
     symbol: string,
@@ -223,31 +224,19 @@ const AirdropButton: React.FC = () => {
 
     const handleOpenAirdropMenu = () =>{
         setOpenAirdrop(true)
-        setSideMenu(true)
+        
     }
     
       return (
             [...airdrops].length > 0 && hasClaimed ? 
-            <div className={`airdrop-button ${!airdropSpinner ? "airdrop-button-hover" : "airdrop-button-spinner"}`} onClick={() => airdropSpinner ? null : handleOpenAirdropMenu()}>
-                <div className="airdrop-button-content">
-                    {[...totalAmount].length > 0 ? 
-                        <>
-                            <span className="airdrop-name"><StarBpro active={true} backstop={false}/></span>
-                            <span className="airdrop-amount">
-                                {[...totalAmount].map((x, index) => {
-                                    return <div key={index}>{x.value.toRound(2, true, true)} {x.symbol}</div>
-                            })}
-                            </span>
-                        </>
-                        : <span style={{flex: 1}}>Airdrop</span>
-                    }
-                    
-                </div>
-                {airdropSpinner ? 
-                    <div className="airdrop-spinner"><Spinner size={"30px"}/></div>
-                    : null
-                }
-            </div>
+            <Button onClick={() => handleOpenAirdropMenu()} loading={airdropSpinner} image={[...totalAmount].length > 0 ? <StarBpro active={true} backstop={false}/> : undefined} arrow={true}>
+                {[...totalAmount].length > 0 ?
+                    [...totalAmount].map((x, index) => {
+                        return <div key={index}>{x.value.toRound(2, true, true)} {x.symbol}</div>
+                    }) :  
+                "Airdrop"}
+            </Button>
+            
             : null
         )
 }

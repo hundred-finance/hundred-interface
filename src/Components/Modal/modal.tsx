@@ -8,24 +8,27 @@ interface Props {
     open: boolean,
     close: () => void,
     title: string,
+    titleImg?: string,
+    maxheight?: string,
     children?: any
 }
     
-const Modal: React.FC<Props> = ({open, close, title, children} : Props) => {
+const Modal: React.FC<Props> = ({open, close, title, titleImg, maxheight, children} : Props) => {
     const {darkMode} = useUiContext()
     const modalContainer = document.getElementById("modal") as Element
 
     const modal =
-        <div className={`modal ${darkMode ? "dark-theme" : ""}`}>
+        <div className={`modal ${darkMode ? "dark" : "light"}`}>
             <div className="modal-background" onClick={close}></div>
-            <div className="modal-wrapper">
+            <div className="modal-wrapper" style={{maxHeight: maxheight ? maxheight : "82%"}}>
                 <div className="modal-title">
+                    {titleImg ? <img src={titleImg} alt="" className="title-img"/> : null}
                     <span>{title}</span>
-                    <img src={closeIcon} alt="" onClick={close}/>
+                    <img src={closeIcon} alt="" onClick={close} className="modal-close"/>
                 </div>
-                <div className="modal-body">
-                    {children}
-                </div>
+                <div className="seperator"/>
+                {children}
+                
             </div>
         </div>
     
