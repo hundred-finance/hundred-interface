@@ -11,7 +11,7 @@ import { MyUiContext } from './Types/uiContext';
 import { MyGlobalContext } from './Types/globalContext';
 import { XFI } from './Connectors/xdefi-connector/declarations';
 import Hundred from './Hundred/Views/hundred';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import {useWindowSize} from 'usehooks-ts'
 
 declare global {
@@ -161,6 +161,7 @@ const App: React.FC = () => {
             <ReactToolTip id="tooltip" effect="solid"/>
             <Spinner/>
           </div>
+          <ToastContainer/>
         </MyUiContext.Provider>
     </MyGlobalContext.Provider>
     : <div className="App">

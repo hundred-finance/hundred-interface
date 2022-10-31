@@ -185,7 +185,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
     const handleApproveStake = async (symbol: string) => {
         if(selectedMarket){
             const market = [...marketsData].find(x=> x.underlying.symbol === symbol)
-            if(market && library){
+            if(market && library && props.gaugeV4.approveCall){
                 try{
                     if (!market.isNativeToken) {
                         setSpinnerVisible(true)
@@ -220,7 +220,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
     const handleStake = async (symbol: string | undefined, amount: string) => {
         if(selectedMarket && marketsData){
             const market = [...marketsData].find(x=> x.underlying.symbol === symbol)
-            if(props.gaugeV4.generalData.gaugeHelper && library && symbol && market && account){
+            if(props.gaugeV4.generalData.gaugeHelper && library && symbol && market && account && props.gaugeV4.stakeCall){
                 try{
                     setSpinnerVisible(true)
                     toggleSpinners(symbol, SpinnersEnum.backstopDeposit)
@@ -255,7 +255,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
           if(selectedMarket && marketsData){
               
               const market = [...marketsData].find(x => x?.underlying.symbol === symbol)
-              if(market && library){
+              if(market && library && props.gaugeV4.approveUnstakeCall){
                   try{
                     setSpinnerVisible(true)
                     toggleSpinners(symbol, SpinnersEnum.backstopWithdraw)
@@ -291,7 +291,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
             const markets = [...marketsData]
               const market = markets.find(x => x?.underlying.symbol === symbol)
               const nativeTokenMarket = markets.find(x => x.isNativeToken === true) 
-              if(market && library && account && props.gaugeV4.generalData.gaugeHelper){
+              if(market && library && account && props.gaugeV4.generalData.gaugeHelper && props.gaugeV4.unstakeCall){
                   try{
                     setSpinnerVisible(true)
                     toggleSpinners(symbol, SpinnersEnum.backstopWithdraw)
@@ -326,7 +326,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
       const handleMint = async (symbol: string) => {
           if(selectedMarket){
               const market = [...marketsData].find(x => x.underlying.symbol === symbol)
-              if(market && library){
+              if(market && library && props.gaugeV4.mintCall){
                   try{
                         setSpinnerVisible(true)
                         toggleSpinners(symbol, SpinnersEnum.backstopClaim)

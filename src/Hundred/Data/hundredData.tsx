@@ -5,7 +5,7 @@ import { useGlobalContext } from "../../Types/globalContext"
 import { useHundredDataContext } from "../../Types/hundredDataContext"
 import { useUiContext } from "../../Types/uiContext"
 import {GaugeV4, getBackstopGaugesData, getGaugesData} from "../../Classes/gaugeV4Class";
-import { fetchData } from "./fetchData"
+import { fetchData, fetchGeneralData } from "./fetchData"
 import { CTokenInfo, CTokenSpinner, SpinnersEnum } from "../../Classes/cTokenClass"
 import { BigNumber } from "../../bigNumber"
 import { GeneralDetailsData, getGeneralDetails } from "../../Classes/generalDetailsClass"
@@ -64,14 +64,16 @@ const useFetchData = () => {
 
     const {network, hndPrice} = useGlobalContext()
     const {setSpinnerVisible, toastErrorMessage} = useUiContext()
-    const {library, chainId, account} = useWeb3React()
+    const {library, account, chainId} = useWeb3React()
 
     useEffect(() => {
-        return () => clearTimeout(Number(timeoutId.current));
+        return () => {
+            clearTimeout(Number(timeoutId.current))
+        }
     }, [])
 
     useEffect(() => {
-        clearTimeout(Number(timeoutId.current));
+        stopUpdate()
         timeoutId.current = undefined
         firstLoad.current = true
         setComptrollerData(undefined)
@@ -80,10 +82,17 @@ const useFetchData = () => {
         setGeneralData(undefined)
         setSelectedMarket(undefined)
         setMarketsSpinners([])
-        if(library && network && {...network}.chainId === chainId && account && account != ""){
-            networkId.current = {...network}.chainId
-            setSpinnerVisible(true)
-            getComptroller()
+        if(network ){
+            if(account && library && network.chainId === chainId){
+                networkId.current = {...network}.chainId
+                setSpinnerVisible(true)
+                getComptroller()
+            }
+            else if(!chainId){
+                networkId.current = {...network}.chainId
+                setSpinnerVisible(true)
+                getComptroller()
+            }
         }
     }, [library, network, account])
 
@@ -102,7 +111,6 @@ const useFetchData = () => {
             setHndEarned(data.earned)
             if(selectedMarket){
                 const selected = {...selectedMarket}
-                console.log(selected)
                 const market = markets.find(x=> x.underlying.symbol === selected.underlying.symbol)
                 if(market){
                     setSelectedMarket(market)
@@ -125,7 +133,7 @@ const useFetchData = () => {
         
         if(network){
             const net = {...network}
-            const comptroller = await getComptrollerData(library, net)
+            const comptroller = library ? await getComptrollerData(library, net) : await getComptrollerData(new ethers.providers.JsonRpcProvider(net.networkParams.rpcUrls[0]), net) 
             setComptrollerData(comptroller)
         }
     }
@@ -152,16 +160,15 @@ const useFetchData = () => {
       }
 
     const getData = async () => {
-        if(network && account && comptrollerData){
+        if(network && comptrollerData){
             const comptroller = {...comptrollerData}
             const net = {...network}
-            const gauges = await getGaugesData(library, account, net)
-            const backstopGauges = await getBackstopGaugesData(library, account, net)
-
+            const provider = library ? library : new ethers.providers.JsonRpcProvider(net.networkParams.rpcUrls[0])
+            const gauges = await getGaugesData(provider, account, net)
+            const backstopGauges = await getBackstopGaugesData(provider, account, net)
             const gaugesData = [...gauges, ...backstopGauges]
-
-            const markets = await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: account, comptrollerData: comptroller, network: net, marketsData: marketsData, provider: library, hndPrice: hndPrice, gaugesData: gaugesData })
-          
+            const markets = account ? await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: account, comptrollerData: comptroller, network: net, marketsData: marketsData, provider: library, hndPrice: hndPrice, gaugesData: gaugesData })
+                                    : await fetchGeneralData({ allMarkets: [...comptroller.allMarkets], comptrollerData: comptroller, network: net, marketsData: marketsData, provider, hndPrice: hndPrice, gaugesData: gaugesData })
            
           
             setMarketsData(markets.markets)
@@ -210,7 +217,7 @@ const useFetchData = () => {
             update.current = true
             clearTimeout(Number(timeoutId.current))
             await getData()
-            timeoutId.current = setTimeout(updateData, 10000)
+            if(account && library) timeoutId.current = setTimeout(updateData, 10000)
             errorsCount.current = 0
         }
         catch(error: any){

@@ -70,7 +70,6 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], gauges: Ga
     const yearBorrowHndRewards = BigNumber.from("0")
     let totalLiquidity = BigNumber.from("0")
     let totalAccrued = 0
-    console.log("get general")
     marketsData.map((market) => {  
       if(market){
         const gauge = gauges.find(g => g.generalData.lpToken.toLowerCase() === market.pTokenAddress.toLowerCase())
@@ -87,7 +86,6 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], gauges: Ga
             backstopStake = +backstopGauge.generalData.totalStake * +market.exchangeRate * +market.underlying.price * +totalBalance / (+totalSupply * 1e10 * (10 ** market.underlying.decimals))
             userBackstopStake += +backstopGauge.userStakedTokenBalance * +market.exchangeRate * +market.underlying.price * +totalBalance / (+totalSupply * 1e10 * (10 ** market.underlying.decimals))
         }
-        console.log(market.underlying.symbol, market.supplyBalance.toString())
         totalSupplyBalance = BigNumber.parseValue((+totalSupplyBalance.toString() + +market.supplyBalance.toString()).noExponents())
         totalBorrowBalance = BigNumber.parseValue((+totalBorrowBalance.toString() + +market.borrowBalance.toString()).noExponents())
         totalStakedBalance = BigNumber.parseValue((+totalStakedBalance.toString() + userStake + userBackstopStake).noExponents())

@@ -37,11 +37,20 @@ html{
   --text-color: #fff;
   --button-border: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
   --button-background: linear-gradient(#222932, #222932);
+
+  --border-line: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
+  --border-background: linear-gradient(#1c2026, #1c2026);
+
+  
+  
+  
   --wallet-hover: #384250;
   --logo-background: #fff;
   --spinner-color: #00ceff; 
   --moon: #fff;
   --sun: #2c4965;
+
+  --hundred-gradient-1: linear-gradient(180deg, #00CEFF 29.09%, #069BEF 70%);
 
   --stop-color-1: #00ceff;
   --stop-color-2: #02c0fb;
@@ -63,6 +72,57 @@ html{
   --switch-theme-border: rgba(9, 166, 227, 1);
   --moon: #bedff5;
   --sun: #09A6E3;
+}
+
+.line{
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: -o-radial-gradient(0% 0%, 100% 8999999.9%, #047ED1 0%, #3DD8FF 48.56%, #047ED1 100%) /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
+  background: radial-gradient(100% 8999999.9% at 0% 0%, #047ED1 0%, #3DD8FF 48.56%, #047ED1 100%) /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
+}
+
+h1{
+  font-style: normal;
+  font-weight: 900;
+  font-size: 2rem;
+  line-height: 3.2rem;
+  letter-spacing: 0.05em;
+  background: var(--hundred-gradient-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  white-space: nowrap;
+}
+
+h2{
+  font-style: normal;
+  font-weight: 900;
+  font-size: 1.8px;
+  line-height: 41px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: 0.05em;
+  background: var(--hundred-gradient-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  white-space: nowrap;
+}
+
+h3{
+  font-style: normal;
+  font-weight: 500;
+  font-size: 1.28rem;
+  line-height: 21px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.035em;
+
+  color: var(--text-color);
 }
 
 /* width */

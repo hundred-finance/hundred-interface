@@ -44,11 +44,11 @@ export class GaugeV4{
     userWorkingStakeBalance: BigNumber
     userAllowance: BigNumber
     userGaugeHelperAllowance: BigNumber
-    stakeCall: (amount: string, market: CTokenInfo) => Promise<any>
-    unstakeCall: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => Promise<any>
-    mintCall: () => Promise<any>
-    approveCall: (market: CTokenInfo) => Promise<any>
-    approveUnstakeCall: () => Promise<any>
+    stakeCall?: (amount: string, market: CTokenInfo) => Promise<any>
+    unstakeCall?: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => Promise<any>
+    mintCall?: () => Promise<any>
+    approveCall?: (market: CTokenInfo) => Promise<any>
+    approveUnstakeCall?: () => Promise<any>
 
     constructor(
         generalData: GaugeV4GeneralData,
@@ -60,11 +60,11 @@ export class GaugeV4{
         userWorkingStakeBalance: BigNumber,
         userAllowance: BigNumber,
         userGaugeHelperAllowance: BigNumber,
-        stakeCall: (amount: string, market: CTokenInfo) => Promise<void>,
-        unstakeCall: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => Promise<void>,
-        mintCall: () => Promise<void>,
-        approveCall: (market: CTokenInfo) => Promise<void>,
-        approveUnstakeCall: () => Promise<void>,
+        stakeCall?: (amount: string, market: CTokenInfo) => Promise<void>,
+        unstakeCall?: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => Promise<void>,
+        mintCall?: () => Promise<void>,
+        approveCall?: (market: CTokenInfo) => Promise<void>,
+        approveUnstakeCall?: () => Promise<void>,
     ){
         this.generalData = generalData
         this.userStakeBalance = BigNumber.from(userStakeBalance.toString(), gaugeTokenDecimals)
@@ -85,10 +85,10 @@ export class GaugeV4{
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getGaugesData = async (provider: any, userAddress: string, network: Network, oldData?: boolean): Promise<Array<GaugeV4>> => {
+export const getGaugesData = async (provider: any, userAddress: string | null | undefined, network: Network, oldData?: boolean): Promise<Array<GaugeV4>> => {
     const ethcallProvider = new Provider()
-    await ethcallProvider.init(provider)
-
+    await ethcallProvider.init(provider as ethers.providers.Provider)
+    
     if(network.multicallAddress) {
         ethcallProvider.multicall = {
             address: network.multicallAddress,
@@ -183,7 +183,7 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
         if (generalData.length > 0) {
 
             const info = await ethcallProvider.all(
-                generalData.flatMap((g) => [
+                generalData.flatMap((g) => userAddress ? [
                     new Contract(g.address, GAUGE_V4_ABI).balanceOf(userAddress),
                     new Contract(g.address, GAUGE_V4_ABI).decimals(),
                     new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
@@ -196,13 +196,22 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                     g.gaugeHelper ?
                         new Contract(g.address, CTOKEN_ABI).allowance(userAddress, g.gaugeHelper)
                         : new Contract(g.lpToken, CTOKEN_ABI).allowance(userAddress, g.address),
+                ] : [
+                    // 0
+                    new Contract(g.address, GAUGE_V4_ABI).decimals(),
+                    // 2
+                    new Contract(g.lpToken, CTOKEN_ABI).decimals(),
+                    // 4
+                    // 5
+                    // 6
+                    // 7
                 ])
             )
 
-            const infoChunks: any = _.chunk(info, 8);
+            const infoChunks: any = userAddress ? _.chunk(info, 8) : _.chunk(info, 2);
 
             return generalData.map((g, index) => {
-                return new GaugeV4(
+                return userAddress ? new GaugeV4(
                         g,
                         infoChunks[index][0],
                         infoChunks[index][1].toNumber(),
@@ -224,6 +233,17 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
                     (market: CTokenInfo) => {return approve(provider, g, market)},
                     () => {return approveUnstake(provider, g)},
                     )
+                    : new GaugeV4(
+                        g,
+                        ethers.BigNumber.from("0"),
+                        infoChunks[index][0].toNumber(),
+                        BigNumber.from("0"),
+                        infoChunks[index][1],
+                        BigNumber.from("0"),
+                        BigNumber.from("0"),
+                        BigNumber.from("0"),
+                        BigNumber.from("0"),
+                    )
                 }
             )
         }
@@ -233,10 +253,10 @@ export const getGaugesData = async (provider: any, userAddress: string, network:
   }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getBackstopGaugesData = async (provider: any, userAddress: string, network: Network): Promise<Array<GaugeV4>> => {
+export const getBackstopGaugesData = async (provider: any, userAddress: string | null | undefined, network: Network): Promise<Array<GaugeV4>> => {
 
     const ethcallProvider = new Provider()
-    await ethcallProvider.init(provider)
+    await ethcallProvider.init(provider as ethers.providers.Provider)
 
     if(network.multicallAddress) {
         ethcallProvider.multicall = {
@@ -320,7 +340,7 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string, 
         if (generalData.length > 0) {
 
             const info = await ethcallProvider.all(
-                generalData.flatMap((g) => [
+                generalData.flatMap((g) => userAddress ? [
                     new Contract(g.address, GAUGE_V4_ABI).balanceOf(userAddress),
                     new Contract(g.address, GAUGE_V4_ABI).decimals(),
                     new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
@@ -329,13 +349,17 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string, 
                     new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
                     new Contract(g.lpBackstopTokenUnderlying ? g.lpBackstopTokenUnderlying : "", CTOKEN_ABI).allowance(userAddress, g.gaugeHelper),
                     new Contract(g.address, CTOKEN_ABI).allowance(userAddress, g.gaugeHelper),
-                ])
-            )
+                ] : 
+                [
+                    new Contract(g.address, GAUGE_V4_ABI).decimals(),
+                    new Contract(g.lpToken, CTOKEN_ABI).decimals()
+                ]
+            ))
 
-            const infoChunks: any = _.chunk(info, 8);
+            const infoChunks: any = userAddress ? _.chunk(info, 8) : _.chunk(info, 2);
 
             return generalData.map((g, index) => {
-                    return new GaugeV4(
+                    return userAddress ? new GaugeV4(
                         g,
                         infoChunks[index][0],
                         infoChunks[index][1],
@@ -356,6 +380,17 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string, 
                         () => {return mint(provider, g.address)},
                         (market: CTokenInfo) => {return approve(provider, g, market)},
                         () => {return approveUnstake(provider, g)},
+                    ) 
+                    : new GaugeV4(
+                        g,
+                        ethers.BigNumber.from("0"),
+                        infoChunks[index][0].toNumber(),
+                        BigNumber.from("0"),
+                        infoChunks[index][1],
+                        BigNumber.from("0"),
+                        BigNumber.from("0"),
+                        BigNumber.from("0"),
+                        BigNumber.from("0"),
                     )
                 }
             )

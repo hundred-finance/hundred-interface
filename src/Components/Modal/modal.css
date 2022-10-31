@@ -85,3 +85,21 @@
     flex-direction: column;
     
 }
+
+.modal .modal-wrapper .modal-title .error{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal .modal-wrapper .modal-title .error span{
+    background-color: #E93D3D;
+    font-size: 2rem;
+    line-height: 35px;
+    padding: 0 1rem;
+    margin-right: 1rem;
+    border-radius: 50%;
+    font-style: normal;
+    font-weight: 900;
+}

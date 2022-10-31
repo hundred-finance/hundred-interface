@@ -1,15 +1,16 @@
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import React, { useEffect, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-import { toast, ToastContainer } from 'react-toastify'
+import { toast } from 'react-toastify'
 import Account from '../../Components/Account/account'
+import Button from '../../Components/Button/button'
 import Content from '../../Components/Content/content'
+import Error from '../../Components/Error/error'
 import Footer from '../../Components/Footer/footer'
 import HundredMenu from '../../Components/HundredMenu/hundredMenu'
 import Menu from '../../Components/Menu/menu'
 import TabletMenu from '../../Components/Menu/tabletMenu'
 import HundredMessage from '../../Components/MessageDialog/messageDialog'
-import Modal from '../../Components/Modal/modal'
 import NetworksMenu from '../../Components/NetworksMenu/networksMenu'
 import Wallets from '../../Components/Wallets/wallets'
 import Wrapper from '../../Components/Wrapper/wrapper'
@@ -40,6 +41,10 @@ const Hundred: React.FC = () => {
 
   useHndPrice()
 
+  useEffect(() => {
+    return () => console.log("Unmounted")
+  }, [network, account])
+  
   const {comptrollerData, setComptrollerData, 
          marketsData, setMarketsData, 
          marketsSpinners, setMarketsSpinners, 
@@ -166,21 +171,20 @@ useEffect(() => {
                                             selectedMarketSpinners, setSelectedMarketSpinners,
                                             toggleSpinners, setGMessage, updateMarket, 
                                             getMaxAmount, getMaxRepayAmount, convertUSDToUnderlyingToken})}>
-    <>
-        <Wrapper>
-        {!isTablet && !isMobile ? 
+            <>
+              {!isTablet && !isMobile ? 
                 <Menu/>
                 : <TabletMenu/>
               }
+              <Wrapper>
                 
-              <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
-                <Content/>
-              </ErrorBoundary>
-              <Wallets/>
-              <Account/>
-              <NetworksMenu/>
-              <HundredMenu/>
-              <ToastContainer/>
+                <ErrorBoundary fallbackRender={errorFallback} onError={myErrorHandler}>
+                  <Content/>
+                </ErrorBoundary>
+                <Wallets/>
+                <Account/>
+                <NetworksMenu/>
+                <HundredMenu/>
             </Wrapper>
             <Footer/>
             {/* <SideMenu>
@@ -196,23 +200,11 @@ useEffect(() => {
             </SideMenu> */}
             <HundredMessage isOpen={showGMessage} onRequestClose={() => setShowGMessage(false)} contentLabel="Info" className={`${darkMode ? "mymodal-dark" : ""}`}
               message={gMessageText}/>
-            {error instanceof UnsupportedChainIdError ? (
-            <Modal open={showError} close={() => setShowError(false)} title="Error">
-                <div className='modal-error'>
-                    <div className='modal-error-message'>
-                        <span>{getErrorMessage(error)}</span>
-                        <><p>Please <span className='modal-error-switch'onClick={ openSwitchNetwork }>switch</span></p></>
-                    </div>
-                </div>
-            </Modal>)
-            : error instanceof XDEFIWalletNotFoundError || error instanceof XDEFIWalletNotDefaultError || error instanceof MetamaskNotFounfError? (
-                <Modal open={showError} close={() => setShowError(false)} title="Error">
-                    <div className='modal-error'>
-                        <div className='modal-error-message'>
-                            <span>{getErrorMessage(error)}</span>
-                        </div>
-                    </div>
-                </Modal>) : null}
+            {error instanceof UnsupportedChainIdError ? 
+              <Error open={showError} close={() => setShowError(false)} errorMessage={getErrorMessage(error)} button={<Button onClick={() => openSwitchNetwork()}><span>Please Switch</span></Button>}/>
+            : error instanceof XDEFIWalletNotFoundError || error instanceof XDEFIWalletNotDefaultError || error instanceof MetamaskNotFounfError ?
+              <Error open={showError} close={() => setShowError(false)} errorMessage={getErrorMessage(error)}/>
+            : null}
     </>
     </MyHundredDataContext.Provider>
   )

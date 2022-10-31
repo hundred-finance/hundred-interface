@@ -25,46 +25,45 @@ const Markets: React.FC<Props> = (props : Props) => {
     }
 
     return (
-        <Section className="markets-section">
+        <div className="markets-wrapper">
             <div className="markets">
-            <MarketContainer>
-                <MarketContainerTitle>
-                    Supply Market
-                </MarketContainerTitle>
-                <SupplyMarket
-                    enterMarketDialog = {props.enterMarketDialog}
-                    supplyMarketDialog={props.supplyMarketDialog}
-                    more={showMore}
-                />
-                {marketsData && [...marketsData].length > 6 ? <MarketContainerShowMore onClick={handleSupplyMore}>
-                {
-                    !showMore ? (
-                          "SHOW MORE"
-                    ) : (
-                          "SHOW LESS"
-                    )
-                  }
-                </MarketContainerShowMore> : null}
-            </MarketContainer>
-            
-            <MarketContainer>
-                <MarketContainerTitle>
-                    Borrow Market
-                </MarketContainerTitle>
-                <BorrowMarket borrowMarketDialog={props.borrowMarketDialog} more={showMore}/>
-                {marketsData && [...marketsData].length > 6 ?<MarketContainerShowMore onClick={handleBorrowMore}>
-                {
-                    !showMore ? (
-                          "SHOW MORE"
-                    ) : (
-                          "SHOW LESS"
-                    )
-                  }
-                </MarketContainerShowMore> : null}
-            </MarketContainer>
-            
+                <MarketContainer>
+                    <MarketContainerTitle>
+                        Supply Market
+                    </MarketContainerTitle>
+                    <SupplyMarket
+                        enterMarketDialog = {props.enterMarketDialog}
+                        supplyMarketDialog={props.supplyMarketDialog}
+                        more={showMore}
+                    />
+                    {marketsData && [...marketsData].length > 6 ? <MarketContainerShowMore onClick={handleSupplyMore}>
+                    {
+                        !showMore ? (
+                              "SHOW MORE"
+                        ) : (
+                              "SHOW LESS"
+                        )
+                      }
+                    </MarketContainerShowMore> : null}
+                </MarketContainer>
+                  
+                <MarketContainer>
+                    <MarketContainerTitle>
+                        Borrow Market
+                    </MarketContainerTitle>
+                    <BorrowMarket borrowMarketDialog={props.borrowMarketDialog} more={showMore}/>
+                    {marketsData && [...marketsData].length > 6 ?<MarketContainerShowMore onClick={handleBorrowMore}>
+                    {
+                        !showMore ? (
+                              "SHOW MORE"
+                        ) : (
+                              "SHOW LESS"
+                        )
+                      }
+                        </MarketContainerShowMore> : null}
+                    </MarketContainer>
+            </div>
         </div>
-        </Section>
     )
 }
 

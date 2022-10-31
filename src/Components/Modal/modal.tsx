@@ -10,10 +10,11 @@ interface Props {
     title: string,
     titleImg?: string,
     maxheight?: string,
-    children?: any
+    error?: boolean,
+    children?: any,
 }
     
-const Modal: React.FC<Props> = ({open, close, title, titleImg, maxheight, children} : Props) => {
+const Modal: React.FC<Props> = ({open, close, title, titleImg, maxheight, error, children} : Props) => {
     const {darkMode} = useUiContext()
     const modalContainer = document.getElementById("modal") as Element
 
@@ -22,8 +23,9 @@ const Modal: React.FC<Props> = ({open, close, title, titleImg, maxheight, childr
             <div className="modal-background" onClick={close}></div>
             <div className="modal-wrapper" style={{maxHeight: maxheight ? maxheight : "82%"}}>
                 <div className="modal-title">
+                    
                     {titleImg ? <img src={titleImg} alt="" className="title-img"/> : null}
-                    <span>{title}</span>
+                    {error ? <span className="error"><span>!</span>{title}</span> : null}
                     <img src={closeIcon} alt="" onClick={close} className="modal-close"/>
                 </div>
                 <div className="seperator"/>

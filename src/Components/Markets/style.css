@@ -8,6 +8,47 @@
             text-decoration: none;
         }
 
+.markets-wrapper{
+    border: 1px solid red;
+    overflow: hidden;
+    position: relative;
+}
+
+.markets-wrapper::after{
+    content: "";
+    position: absolute;
+    background-image: url(../../assets/Abstract_Lines/Abstract_Line_4.svg);
+    background-size: 1859px 117px;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    height: 117px;
+    min-width: 1859px;
+    position: absolute;
+    bottom: -40px;
+    left: -26px;
+    opacity: .4;
+}
+
+.markets-wrapper::before{
+    content: "";
+    position: absolute;
+    background-image: url(../../assets/Abstract_Lines/Abstract_Line_2.svg);
+    background-size: 564px 338px;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    height: 338px;
+    width: 564px;
+    position: absolute;
+    right: -60px;
+    top: -60px;
+    opacity: .3;
+    -webkit-transition: all .5s ease-in-out;
+    -o-transition: all .5s ease-in-out;
+    transition: all .5s ease-in-out;
+}
+
 .markets {
     margin-bottom: 1rem;
 }
