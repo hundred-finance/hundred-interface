@@ -163,6 +163,7 @@ export class BigNumber {
   
     static parseValue = (value: string, decimals?: number): BigNumber => {
       if(value==='NaN') return BigNumber.from("0")
+      if(+value=== Infinity) return new BigNumber(_constructorGuard, ethers.BigNumber.from(Number.MAX_VALUE.noExponents()), decimals)
       const temp = value.split(".")
       if(!decimals){
         temp.length === 2 ? decimals = temp[1].length : decimals = 0
