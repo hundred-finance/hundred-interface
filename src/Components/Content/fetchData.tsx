@@ -427,9 +427,9 @@ export const fetchData = async(
 
       const collateralFactor = BigNumber.from(token.markets.collateralFactorMantissa.toString(), 18)
 
-      const supplyRatePerBlock = BigNumber.from(token.supplyRatePerBlock, decimals)
+//      const supplyRatePerBlock = BigNumber.from(token.supplyRatePerBlock, decimals)
 
-      const supplyApy = BigNumber.parseValue((Math.pow((1 + +supplyRatePerBlock.toString() / mantissa), network.blocksPerYear) - 1).noExponents())
+      const supplyApy = BigNumber.parseValue((Math.pow((1 + +token.supplyRatePerBlock / mantissa), network.blocksPerYear) - 1).noExponents())
       const borrowRatePerBlock = BigNumber.from(token.borrowRatePerBlock, 18)
 
       const borrowApy = BigNumber.parseValue((Math.pow((1 + +token.borrowRatePerBlock / mantissa), network.blocksPerYear) - 1).noExponents())
