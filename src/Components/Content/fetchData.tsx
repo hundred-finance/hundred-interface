@@ -432,8 +432,8 @@ export const fetchData = async(
       const supplyApy = BigNumber.parseValue((Math.pow((1 + +supplyRatePerBlock.toString() / mantissa), network.blocksPerYear) - 1).noExponents())
       const borrowRatePerBlock = BigNumber.from(token.borrowRatePerBlock, 18)
 
-      const borrowApy = BigNumber.parseValue((Math.pow((1 + +borrowRatePerBlock.toString() / mantissa), network.blocksPerYear) - 1).noExponents())
-
+      const borrowApy = BigNumber.parseValue((Math.pow((1 + +token.borrowRatePerBlock / mantissa), network.blocksPerYear) - 1).noExponents())
+      
 
       const cash = BigNumber.from(token.cash, decimals)
 
