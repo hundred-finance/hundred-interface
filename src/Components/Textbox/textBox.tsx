@@ -71,8 +71,7 @@ const TextBox : React.FC<Props> = (props : Props) => {
 
     return(
         <div className={`textbox ${props.validation.trim() === "" && props.validationCollapse ? "validation-collapse" : ""} ${props.disabled ? "textbox-disabled" : ""}`}>
-            <div className={props.button || props.symbol ? "textbox-button" : ""}
-            style={{borderColor: focus ? '#427af1' : '#646464'}}>
+            <div className={props.button || props.symbol ? "textbox-button" : ""}>
                 <input type="text" disabled={props.disabled} required value={props.value} onChange={handleChange} onFocus={()=>onFocus()} onBlur={()=>onBlur()}/>
                 <span data-tip={props.buttonTooltip} className={`placeholder ${props.disabled ? "placeholder-disabled" : ""} ${props.value.trim() !== "" ? "placeholder-up" : ""}`}>{placeHolder}</span>
                 {props.button ?

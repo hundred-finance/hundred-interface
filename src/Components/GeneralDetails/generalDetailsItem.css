@@ -5,7 +5,7 @@
 }
 
 .general-details-item-content{
-    padding: 1rem 2rem;
+    padding: 1.2rem 2rem;
     text-align: left;
     border: 2px solid transparent;
     background: var(--border-background) padding-box,
@@ -17,13 +17,14 @@
     display: flex;
     align-items: center;
     gap: .3rem;
+    
 }
 
 .general-details-item-content-item span{
     font-style: normal;
     font-weight: 900;
     font-size: 2rem;
-    line-height: 2.9rem;
+    /* line-height: 2rem; */
     display: flex;
     align-items: center;
     text-align: center;
@@ -38,4 +39,14 @@
 
 .general-details-item-content-item .value-details{
     font-size: 1.1rem;
+}
+
+.general-details-item-content-item{
+    padding: .5rem 0 1.2rem 0;
+}
+
+.general-details-item-content-item:not(:last-child) {
+    border-bottom: 2px solid transparent;
+    background: var(--border-background) padding-box,
+    var(--general-details-seperator) border-box;
 }

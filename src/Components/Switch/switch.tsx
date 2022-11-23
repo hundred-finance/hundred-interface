@@ -1,4 +1,6 @@
 import React from "react"
+import Tippy from '@tippyjs/react';
+import 'tippy.js/dist/tippy.css'; // optional
 import "./switch.css"
 
 interface Props{
@@ -17,17 +19,11 @@ const SwitchButton: React.FC<Props> = (props : Props) => {
     
     return (
         props.switchToolTip ? 
-        <div data-tip={props.switchToolTip} className={`switch ${props.checked ? "switch-checked" : ""} ${props.disabled ? "switch-button-disable" : "switch-button-enabled"}`}  onClick={handleClick}>
-            <div className={`switch-button`}>
-
-            </div>
-        </div>
+            <Tippy content={props.switchToolTip}>
+                <div className={`switch-button ${props.checked ? "switch-button-checked" : ""} ${props.disabled ? "switch-button-disabled" : ""}`} onClick={handleClick}/>
+            </Tippy>
         :
-        <div className={`switch ${props.checked ? "switch-checked" : ""} ${props.disabled ? "switch-button-disable" : "switch-button-enabled"}`}  onClick={handleClick}>
-            <div className={`switch-button`}>
-
-            </div>
-        </div>
+            <div className={`switch-button ${props.checked ? "switch-button-checked" : ""} ${props.disabled ? "switch-button-disabled" : ""}`} onClick={handleClick}/>
     )
 }
 

@@ -16,6 +16,7 @@ import { ExecutePayableWithExtraGasLimit, ExecuteWithExtraGasLimit } from "../..
 import { ethers } from "ethers";
 import { UpdateTypeEnum } from "../../../../Hundred/Data/hundredData";
 import { CETHER_ABI, CTOKEN_ABI, TOKEN_ABI } from "../../../../abi";
+import Button from "../../../Button/button";
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256);
 
@@ -27,7 +28,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
     const mounted = useRef<boolean>(false)
     const {selectedMarket, selectedMarketSpinners, 
         generalData, marketsData, toggleSpinners, comptrollerData, getMaxAmount, updateMarket} = useHundredDataContext()
-    const {setSpinnerVisible, toastSuccessMessage, toastErrorMessage} = useUiContext()
+    const {toastSuccessMessage, toastErrorMessage} = useUiContext()
     const {library} = useWeb3React()
     const [supplyInput, setSupplyInput] = useState<string>('');
     const [supplyDisabled, setSupplyDisabled] = useState<boolean>(false);
@@ -115,7 +116,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
             const market = [...marketsData].find((x) => x?.underlying.symbol === symbol);
             if (market && library) {
                 try {
-                    setSpinnerVisible(true);
+                    // setSpinnerVisible(true);
                     toggleSpinners(symbol, SpinnersEnum.supply);
                     
                     //STEP 1: ethcall setup
@@ -128,7 +129,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                         ? await ExecutePayableWithExtraGasLimit(ctoken, value._value, 'mint', [])
                         : await ExecuteWithExtraGasLimit(ctoken, 'mint', [value._value])
                     
-                    setSpinnerVisible(false);
+                    // setSpinnerVisible(false);
                     const receipt =  await tx.wait()
                     console.log(receipt);
                     if(receipt.status === 1){
@@ -140,7 +141,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                     console.log(error)
                     toastErrorMessage(`${error?.message.replace('.', '')} on Supply`)
                 } finally {
-                    setSpinnerVisible(false);
+                    // setSpinnerVisible(false);
                     toggleSpinners(symbol, SpinnersEnum.supply);
                 }
             }
@@ -152,7 +153,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
             const market = [...marketsData].find((x) => x?.underlying.symbol === symbol);
             if (market && library && comptrollerData) {
                 try {
-                    setSpinnerVisible(true);
+                    // setSpinnerVisible(true);
                     toggleSpinners(symbol, SpinnersEnum.supply);
                     
                     if (market.underlying.address) {
@@ -161,7 +162,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                        
                         const tx = await ExecuteWithExtraGasLimit(contract, "approve", [market.pTokenAddress, MaxUint256._value])
                         
-                        setSpinnerVisible(false)
+                        // setSpinnerVisible(false)
 
                         const receipt = await tx.wait()
 
@@ -176,7 +177,7 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
                     toastErrorMessage(`${error?.message.replace('.', '')} on Approve Supply`);
                     console.log(err);
                 } finally {
-                    setSpinnerVisible(false);
+                    // setSpinnerVisible(false);
                     toggleSpinners(symbol, SpinnersEnum.supply);
                 }
             }
@@ -188,30 +189,47 @@ const SupplyItem: React.FC<Props> = (props: Props) => {
         <>
         <TextBox placeholder={`0 ${{...selectedMarket}?.underlying.symbol}`} disabled={supplyDisabled || {...selectedMarket}?.mintPaused} value={supplyInput} setInput={setSupplyInput} validation={supplyValidation} button={"Max"} onClick={()=>get_MaxAmount()}/>
                             {props.gaugeV4 ? 
-                                <div>If you want to Stake, please go directly to that tab<br/>(there is no need to Supply first). </div>
+                                <div className="supply-note">NOTE: If you want to Stake, please go directly to that tab<br/>(there is no need to Supply first).</div>
                                 : null
                             }   
                             <MarketDialogItem title={"Wallet Balance"} value={`${{...selectedMarket}?.underlying.walletBalance?.toRound(4, true)} ${{...selectedMarket}?.underlying.symbol}`}/>
+                            <div className="dialog-line"/>
                             <SupplyRateSection gaugeV4={props.gaugeV4} />
+                            <div className="dialog-line"/>
                             <BorrowLimitSection newBorrowLimit={newBorrowLimit}/>
+                            <div className="dialog-line"/>
                             <DialogMarketInfoSection collateralFactorText={"Loan-to-Value"}/>
-                           
-                            {{...selectedMarket}.mintPaused ? 
-                                <MarketDialogButton disabled={true} onClick={() => null}>
-                                    Supply is Paused
-                                </MarketDialogButton>
-                            : +{...selectedMarket}.underlying.allowance.toString() > 0 &&
-                                +{...selectedMarket}.underlying.allowance.toString() >= (supplyInput.trim() === "" || isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? 0 : +supplyInput)
-                                ? 
-                                    <MarketDialogButton disabled={supplyInput.trim()==="" || supplyValidation!="" || {...selectedMarketSpinners}.supplySpinner}
-                                        onClick={() => handleSupply({...selectedMarket}.underlying.symbol, supplyInput)}>
-                                        {{...selectedMarketSpinners}.supplySpinner ? (<Spinner size={"20px"}/>) : "Supply"}
-                                    </MarketDialogButton>
-                                : 
-                                    <MarketDialogButton disabled={!selectedMarket || {...selectedMarketSpinners}?.supplySpinner}
-                                        onClick={() => { handleApproveSupply({...selectedMarket}?.underlying.symbol) }}>
-                                        {{...selectedMarketSpinners}.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${{...selectedMarket}?.underlying.symbol}`}
-                                    </MarketDialogButton>}
+                            <div className="dialog-line"/>
+                            <div className="button-section">
+                                {{...selectedMarket}.mintPaused ? 
+                                    <Button disabled={true}>
+                                        Supply is Paused
+                                    </Button>
+                                    // <MarketDialogButton disabled={true} onClick={() => null}>
+                                    //     Supply is Paused
+                                    // </MarketDialogButton>
+                                : +{...selectedMarket}.underlying.allowance.toString() > 0 &&
+                                    +{...selectedMarket}.underlying.allowance.toString() >= (supplyInput.trim() === "" || isNaN(+supplyInput) || isNaN(parseFloat(supplyInput)) ? 0 : +supplyInput)
+                                    ? 
+                                        <Button disabled={supplyInput.trim()==="" || supplyValidation!="" || {...selectedMarketSpinners}.supplySpinner} loading={{...selectedMarketSpinners}.supplySpinner}
+                                            onClick={() => handleSupply({...selectedMarket}.underlying.symbol, supplyInput)}>
+                                            Supply
+                                        </Button>
+                                        // <MarketDialogButton disabled={supplyInput.trim()==="" || supplyValidation!="" || {...selectedMarketSpinners}.supplySpinner}
+                                        //     onClick={() => handleSupply({...selectedMarket}.underlying.symbol, supplyInput)}>
+                                        //     {{...selectedMarketSpinners}.supplySpinner ? (<Spinner size={"20px"}/>) : "Supply"}
+                                        // </MarketDialogButton>
+                                    : 
+                                        <Button disabled={!selectedMarket || {...selectedMarketSpinners}?.supplySpinner} loading={{...selectedMarketSpinners}.supplySpinner} 
+                                            onClick={() => { handleApproveSupply({...selectedMarket}?.underlying.symbol)}}>
+                                                Approve {{...selectedMarket}?.underlying.symbol}
+                                        </Button>
+                                        // <MarketDialogButton disabled={!selectedMarket || {...selectedMarketSpinners}?.supplySpinner}
+                                        //     onClick={() => { handleApproveSupply({...selectedMarket}?.underlying.symbol) }}>
+                                        //     {{...selectedMarketSpinners}.supplySpinner ? (<Spinner size={"20px"}/>) : `Approve ${{...selectedMarket}?.underlying.symbol}`}
+                                        // </MarketDialogButton>
+                                    }
+                            </div>
         </>
     : null)
 }

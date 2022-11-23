@@ -4,6 +4,9 @@ import { Spinner } from "../../../assets/huIcons/huIcons"
 import { CTokenInfo, CTokenSpinner } from "../../../Classes/cTokenClass"
 
 import "../style.css"
+import { useUiContext } from "../../../Types/uiContext"
+import { useWeb3React } from "@web3-react/core"
+import { providers } from "ethers"
 
 interface Props{
   market: CTokenInfo | undefined,
@@ -12,8 +15,23 @@ interface Props{
 }
 
 const BorrowMarketRow: React.FC<Props> = (props : Props) => {
+  const {setShowWallets} = useUiContext()
+  const { account } = useWeb3React<providers.Web3Provider>()
+  
+  const handleOpenBorrowMarketDialog = () => {
+    if(!account){
+      setShowWallets(true)
+      return
+    }
+
+    if(props.market && !props?.marketSpinners?.spinner){
+      props.borrowMarketDialog(props.market)
+    }
+    return
+  }
+
     return (
-        <tr className={props.marketSpinners?.spinner ? "disable-row" : ""} onClick={() =>props.market ?  props.borrowMarketDialog(props.market) : null}>
+        <tr className={props.marketSpinners?.spinner ? "disable-row" : ""} onClick={handleOpenBorrowMarketDialog}>
         <td>
           <div className="asset"> 
                 <div className="asset-logo">
@@ -36,7 +54,7 @@ const BorrowMarketRow: React.FC<Props> = (props : Props) => {
         </td>
         
         <td>
-            {props.market ? +props.market.underlying.walletBalance.toFixed(4).toString() : "0"}
+            {props.market ? +props.market.underlying.walletBalance.toRound(3).toString() : "0"}
         </td>
         <td>
           <div className="spinner-container">

@@ -20,13 +20,13 @@
     bottom: -9px;
     left:0;
 }
+/* style={{borderColor: focus ? '#427af1' : '#646464'}} */
 
 .validation-collapse .validation{
     display: none;
 }
 
 .textbox div{
-    border: 1px solid var(--buttonColor);
     border-radius: 5px;
     height: 45px;
     margin-bottom: 0;
@@ -35,13 +35,17 @@
     flex-direction: column;
     justify-content: center;
     position: relative;
-    background-color: var(--dialogSectionBackground);
+    border: 1.5px solid transparent;
+    background: var(--textbox-background) padding-box,
+              var(--textbox-border) border-box;
+  
+    /* background: var(--textBox-background) padding-box, var(--textBox-border) border-box;     */
 }
 
 .textbox div .placeholder{
     position: absolute;
     left: 15px;
-    color: var(--textboxPlaceholder);
+    color: var(--text-gray);
     transition: all 0.2s ease-in-out;
     pointer-events: none;
 }
@@ -57,7 +61,7 @@
     font-size: 1.2rem;
     padding:5px;
     border: none;
-    color: var(--secondaryText);
+    color: var(--text-color);
     box-sizing: border-box;
     background-color: transparent;
 }
@@ -68,7 +72,7 @@
     top:0;
     background-color: transparent;
     padding: 5px;
-    color:var(--secondaryText);
+    color:var(--text-gray);
     text-align: center;
 }
 
@@ -89,7 +93,7 @@
     position: absolute;
     top: 50%;
     left: 0;
-    background-color: var(--dialogSectionBackground);
+    background-color: #193142;
 }
 
 .textbox .textbox-button .input-button{
@@ -138,7 +142,7 @@
     position: absolute;
     top: 50%;
     left: 0;
-    background-color: var(--dialogSectionBackground);
+    
 }
 
 

@@ -2,7 +2,6 @@ import { useWeb3React } from "@web3-react/core"
 import { ethers } from "ethers"
 import React, { useEffect, useRef, useState } from "react"
 import { CETHER_ABI, CTOKEN_ABI } from "../../../../abi"
-import { Spinner } from "../../../../assets/huIcons/huIcons"
 import { BigNumber } from "../../../../bigNumber"
 import { SpinnersEnum } from "../../../../Classes/cTokenClass"
 import { GaugeV4 } from "../../../../Classes/gaugeV4Class"
@@ -10,8 +9,8 @@ import { ExecuteWithExtraGasLimit } from "../../../../Classes/TransactionHelper"
 import { UpdateTypeEnum } from "../../../../Hundred/Data/hundredData"
 import { useHundredDataContext } from "../../../../Types/hundredDataContext"
 import { useUiContext } from "../../../../Types/uiContext"
+import Button from "../../../Button/button"
 import TextBox from "../../../Textbox/textBox"
-import MarketDialogButton from "../marketDialogButton"
 import MarketDialogItem from "../marketDialogItem"
 import DialogMarketInfoSection from "../marketInfoSection"
 import BorrowLimitSection from "./borrowLimitSection"
@@ -24,7 +23,7 @@ interface Props{
 const WithdrawItem: React.FC<Props> = (props: Props) => {
     const mounted = useRef<boolean>(false)
     const {selectedMarket, selectedMarketSpinners, generalData, marketsData, toggleSpinners, convertUSDToUnderlyingToken, updateMarket} = useHundredDataContext()
-    const {setSpinnerVisible, toastSuccessMessage, toastErrorMessage} = useUiContext()
+    const {toastSuccessMessage, toastErrorMessage} = useUiContext()
     const {library, account} = useWeb3React()
     const [withdrawInput, setWithdrawInput] = useState<string>('');
     const [withdrawDisabled, setWithdrawDisabled] = useState<boolean>(false);
@@ -133,7 +132,7 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
           const market = [...marketsData].find(x=>x?.underlying.symbol === symbol)
           if(market && library){
             try{
-                setSpinnerVisible(true)
+                // setSpinnerVisible(true)
                 toggleSpinners(symbol, SpinnersEnum.withdraw);
 
                 const signer = library.getSigner()
@@ -152,7 +151,7 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
                 }
 
                 const tx = await ExecuteWithExtraGasLimit(ctoken, max ? "redeem" : "redeemUnderlying", [withdraw])
-                setSpinnerVisible(false);
+                // setSpinnerVisible(false);
                 const receipt =  await tx.wait()
                 console.log(receipt);
                 if(receipt.status === 1){
@@ -166,7 +165,7 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
                 toastErrorMessage(`${error?.message.replace('.', '')} on Supply\n${error?.data?.message}`);
             }
             finally{
-                setSpinnerVisible(false)
+                // setSpinnerVisible(false)
                 toggleSpinners(symbol, SpinnersEnum.withdraw);
             }
           }
@@ -179,24 +178,30 @@ const WithdrawItem: React.FC<Props> = (props: Props) => {
                                      button={generalData && +{...generalData}.totalBorrowBalance.toString() > 0 ? "Safe Max" : "Max"} buttonTooltip="50% of borrow limit"
                                      onClick={() => {generalData && +{...generalData}.totalBorrowBalance.toString() > 0 ? getSafeMaxWithdraw() : getMaxWithdraw()}}/>
         <MarketDialogItem title={"You Supplied"} value={`${{...selectedMarket}?.supplyBalanceInTokenUnit?.toFixed(4)} ${{...selectedMarket}?.underlying.symbol}`}/>
+        <div className="dialog-line"/>
         <SupplyRateSection gaugeV4={props.gaugeV4}/>
+        <div className="dialog-line"/>
         <BorrowLimitSection newBorrowLimit={newBorrowLimit}/>
+        <div className="dialog-line"/>
         <DialogMarketInfoSection collateralFactorText={"Loan-to-Value"}/>
-        <MarketDialogButton disabled={withdrawInput==="" 
-        || {...selectedMarketSpinners}.withdrawSpinner || isNaN(+withdrawInput) || withdrawValidation!=="" || 
-            (newBorrowLimit && generalData &&
-            +newBorrowLimit.toString() > 0 &&
-            +{...generalData}?.totalBorrowBalance.toString() / +newBorrowLimit.toString() > 0.9 &&
-            (+{...generalData}?.totalBorrowBalance.toString() / +newBorrowLimit.toString() * 100) > +{...generalData}.totalBorrowLimitUsedPercent) ? true: false}
-                            onClick={() => {
-                                handleWithdraw(
-                                    {...selectedMarket}?.underlying.symbol,
-                                    withdrawInput,
-                                    withdrawMax
-                                )
-                            }}>
-            {{...selectedMarketSpinners}.withdrawSpinner ? (<Spinner size={"20px"}/>) : "Withdraw"}
-        </MarketDialogButton>
+        <div className="dialog-line"/>
+        <div className="button-section">
+            <Button loading={{...selectedMarketSpinners}.withdrawSpinner} disabled={withdrawInput==="" 
+            || {...selectedMarketSpinners}.withdrawSpinner || isNaN(+withdrawInput) || withdrawValidation!=="" || 
+                (newBorrowLimit && generalData &&
+                +newBorrowLimit.toString() > 0 &&
+                +{...generalData}?.totalBorrowBalance.toString() / +newBorrowLimit.toString() > 0.9 &&
+                (+{...generalData}?.totalBorrowBalance.toString() / +newBorrowLimit.toString() * 100) > +{...generalData}.totalBorrowLimitUsedPercent) ? true: false}
+                                onClick={() => {
+                                    handleWithdraw(
+                                        {...selectedMarket}?.underlying.symbol,
+                                        withdrawInput,
+                                        withdrawMax
+                                    )
+                                }}>
+                Withdraw
+            </Button>
+        </div>
     </>
     : <div>null</div>)
 }

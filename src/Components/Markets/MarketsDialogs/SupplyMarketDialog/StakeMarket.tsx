@@ -320,10 +320,12 @@ const StakeMarketTab:React.FC<Props> = (props: Props) =>{
     return (
         selectedMarket && selectedMarketSpinners && generalData?
         <>
+            <div className="dialog-line"/>
             <MarketDialogItem
                 title={"You Staked"}
                 value={`${formatBalance(BigNumber.from(props.gaugeV4?.userStakedTokenBalance, {...selectedMarket}.underlying.decimals).mul({...selectedMarket}.exchangeRate)).toFixed(4)} ${{...selectedMarket}.underlying.symbol}`}
             />
+            <div className="dialog-line"/>
             <MarketDialogItem
                 title={"Claimable"}
                 value={`${+formatBalance(props.gaugeV4?.userClaimableHnd).toString() > 0 
@@ -332,10 +334,12 @@ const StakeMarketTab:React.FC<Props> = (props: Props) =>{
                     : formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)
                     : "0.0000"} HND`}
             />
+            <div className="dialog-line"/>
             <MarketDialogItem
                 title={"APR"}
                 value={stakingApr({...selectedMarket}, props.gaugeV4)}
             />
+            <div className="dialog-line"/>
             <BorrowLimitSection newBorrowLimit={newBorrowLimit}/>
             <div className="native-asset-amount">
                 <span className="dialog-section-content-value">{convertLpAmountToUnderlying(stakeInput, {...selectedMarket})} {{...selectedMarket}.underlying.symbol}</span>

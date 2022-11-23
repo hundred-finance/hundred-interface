@@ -39,7 +39,7 @@ const BorrowMarketDialog: React.FC<Props> = (props : Props) =>{
     }, [])
 
    const dialog = selectedMarket ? 
-            <div className={`dialog ${"open-dialog"} ${darkMode ? "dark-theme" : ""}`}>
+            <div className={`dialog ${"open-dialog"} ${darkMode ? "dark" : "light"}`}>
                 <div className="dialog-background" onClick={() => CloseDialog()}/>
                 <ReactToolTip id="borrow-dialog-tooltip" effect="solid"/>
                 <div className="supply-box">

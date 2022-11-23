@@ -63,7 +63,7 @@ const useFetchData = () => {
     const { setGMessage } = useHundredDataContext()
 
     const {network, hndPrice} = useGlobalContext()
-    const {setSpinnerVisible, toastErrorMessage} = useUiContext()
+    const { toastErrorMessage} = useUiContext()
     const {library, account, chainId} = useWeb3React()
 
     useEffect(() => {
@@ -85,12 +85,12 @@ const useFetchData = () => {
         if(network ){
             if(account && library && network.chainId === chainId){
                 networkId.current = {...network}.chainId
-                setSpinnerVisible(true)
+                //setSpinnerVisible(true)
                 getComptroller()
             }
             else if(!chainId){
                 networkId.current = {...network}.chainId
-                setSpinnerVisible(true)
+                //setSpinnerVisible(true)
                 getComptroller()
             }
         }
@@ -183,7 +183,7 @@ const useFetchData = () => {
                   })
                 setMarketsSpinners(spinners)
                 firstLoad.current = false
-                setSpinnerVisible(false)
+                //setSpinnerVisible(false)
                 const oldGauges = await getGaugesData(library, account, net, true)
                 if(oldGauges.length > 0){
                     const oldGaugeData: { symbol: string; stakeBalance: BigNumber }[] = []
@@ -230,7 +230,7 @@ const useFetchData = () => {
                 else if (errorsCount.current === 3)
                     timeoutId.current = setTimeout(updateData, 5000)
                 else if (errorsCount.current === 7){
-                    if(firstLoad.current) setSpinnerVisible(false)
+                    //if(firstLoad.current) setSpinnerVisible(false)
                     toastErrorMessage(`${error?.message.replace(".", "")} on Page Load\n${error?.data?.message}\nPlease refresh the page after a few minutes.`)
                 }
                 else

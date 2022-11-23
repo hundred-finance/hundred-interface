@@ -26,7 +26,7 @@ import useFetchData from '../Data/hundredData'
 
 const Hundred: React.FC = () => {
   const { activate, error, chainId, account } = useWeb3React()
-  const { setSpinnerVisible, darkMode, setOpenNetwork, isMobile, isTablet} = useUiContext()
+  const { darkMode, setOpenNetwork, isMobile, isTablet} = useUiContext()
   const { network, setNetwork, setAddress} = useGlobalContext()
 
   const [showError, setShowError] = useState(false)
@@ -98,7 +98,7 @@ const Hundred: React.FC = () => {
       else activate(con)
     }
     
-    setSpinnerVisible(false)
+    //setSpinnerVisible(false)
     
   }, [])
 

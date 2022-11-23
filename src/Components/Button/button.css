@@ -20,7 +20,7 @@
 }
 
 .button-disabled{
-    opacity: .7;
+    opacity: .5;
 }
 
 .button-disabled:hover{
@@ -118,4 +118,12 @@
 .button-xsmall .button-image img{
     width: 22px;
     height: 22px;
+}
+
+.button-rectangle{
+    height: 46px;
+    width: 120px;
+    max-width: initial;
+    min-width: initial;
+    border-radius: 5px;
 }

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react"
 import {SpinnersEnum } from "../../../Classes/cTokenClass";
 import DialogBorrowLimitSection from "../../BorrowLimit/borrowLimit";
-import "./enterMarketDialog.css"
+import "./marketDialog.css"
 import closeIcon from "../../../assets/icons/closeIcon.png"
 import { useHundredDataContext } from "../../../Types/hundredDataContext";
 import { useUiContext } from "../../../Types/uiContext";
@@ -9,6 +9,7 @@ import { useWeb3React } from "@web3-react/core";
 import { ExecuteWithExtraGasLimit } from "../../../Classes/TransactionHelper";
 import ReactDOM from "react-dom"
 import { UpdateTypeEnum } from "../../../Hundred/Data/hundredData";
+import Button from "../../Button/button";
 // import { Contract } from "ethers";
 // import { COMPTROLLER_ABI } from "../../../abi";
 
@@ -19,8 +20,8 @@ interface Props{
 const EnterMarketDialog : React.FC<Props> = (props : Props) => {
   const dialogContainer = document.getElementById("modal") as Element
   const {library} = useWeb3React()
-  const {setSpinnerVisible, toastErrorMessage, toastSuccessMessage} = useUiContext()
-  const {marketsData, comptrollerData, selectedMarket, setSelectedMarket, setSelectedMarketSpinners,toggleSpinners,  updateMarket} = useHundredDataContext()  
+  const {toastErrorMessage, toastSuccessMessage, darkMode} = useUiContext()
+  const {marketsData, comptrollerData, selectedMarket, setSelectedMarket, selectedMarketSpinners, setSelectedMarketSpinners,toggleSpinners,  updateMarket} = useHundredDataContext()  
   const mounted = useRef<boolean>(false)
 
     useEffect(() => {
@@ -40,7 +41,7 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
         if (market && library && comp.comptroller){
           try{
             console.log("enter")
-            setSpinnerVisible(true)
+            //setSpinnerVisible(true)
             toggleSpinners(symbol, SpinnersEnum.enterMarket)
             
             const addr = [market.pTokenAddress]
@@ -48,7 +49,7 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
             const signedComptroller = comp.comptroller.connect(signer)
             const tx = await ExecuteWithExtraGasLimit(signedComptroller, "enterMarkets", [addr])
             
-            setSpinnerVisible(false)
+            //setSpinnerVisible(false)
             props.closeMarketDialog()
             const receipt = await tx.wait()
             console.log(receipt)     
@@ -63,7 +64,7 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
             toastErrorMessage(`${error?.message.replace(".", "")} on Enter Market`)
           }
           finally{
-            setSpinnerVisible(false)
+            //setSpinnerVisible(false)
             toggleSpinners(symbol, SpinnersEnum.enterMarket)
           }
         }
@@ -79,13 +80,13 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
         
         if (market && library && comp.comptroller){
           try{
-            setSpinnerVisible(true)
+            //setSpinnerVisible(true)
             toggleSpinners(symbol, SpinnersEnum.enterMarket)
 
             const signer = library.getSigner()
             const signedComptroller = comp.comptroller.connect(signer)
             const tx = await ExecuteWithExtraGasLimit(signedComptroller, "exitMarket", [market.pTokenAddress])
-            setSpinnerVisible(false)
+            //setSpinnerVisible(false)
             props.closeMarketDialog()
 
             const receipt = await tx.wait()
@@ -100,7 +101,7 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
             toastErrorMessage(`${error?.message.replace(".", "")} on Exit Market`)
           }
           finally{
-            setSpinnerVisible(false)
+            //setSpinnerVisible(false)
             toggleSpinners(symbol, SpinnersEnum.enterMarket)
           }
         }
@@ -108,9 +109,9 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
     }
     
     const dialog = mounted && selectedMarket ? 
-    <div className={`dialog ${"open-dialog"}`} >
+    <div className={`dialog ${"open-dialog"} ${darkMode ? "dark" : "light"}`} >
         <div className="dialog-background" onClick={() => props.closeMarketDialog()}></div>
-        <div className="dialog-box">
+        <div className="supply-box">
             <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>props.closeMarketDialog()} />  
           <div className="dialog-title">
             {{...selectedMarket}.underlying.symbol && (
@@ -124,6 +125,7 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
                 {...selectedMarket}.isEnterMarket ? "Disable" : "Enable"
             } as Collateral`}
           </div>
+          <div className="seperator"/>
           {{...selectedMarket}.underlying.symbol && (
           <div className="dialog-content">
             <div className="dialog-message">
@@ -131,17 +133,23 @@ const EnterMarketDialog : React.FC<Props> = (props : Props) => {
                     ? "This asset is required to support your borrowed assets. Either repay borrowed assets, or supply another asset as collateral."
                     : "Each asset used as collateral increases your borrowing limit. Be careful, this can subject the asset to being seized in liquidation."}
             </div>
-            <DialogBorrowLimitSection/>
-            <div className="footer-section">
+            <div className="dialog-line"/>
+            <div className="dialog-message">
+              <DialogBorrowLimitSection/>
+            </div>
+            <div className="dialog-line"/>
+            <div className="button-section">
                 {{...selectedMarket}.isEnterMarket ? (
-                 <button disabled={+{...selectedMarket}.borrowBalance.toString() > 0 || +{...selectedMarket}.supplyBalance.toString() > 0 ? true : false} 
-                 className="dialog-button" onClick={() => { handleExitMarket({...selectedMarket}.underlying.symbol) }}>
-                {`Disable ${{...selectedMarket}.underlying.symbol} as Collateral`}
-                </button>
+                 <Button loading={{...selectedMarketSpinners}.enterMarketSpinner}
+                    disabled={+{...selectedMarket}.borrowBalance.toString() > 0 || +{...selectedMarket}.supplyBalance.toString() > 0 || {...selectedMarketSpinners}.enterMarketSpinner ? true : false} 
+                    onClick={() => { handleExitMarket({...selectedMarket}.underlying.symbol) }}>
+                    {`Disable ${{...selectedMarket}.underlying.symbol} as Collateral`}
+                </Button>
                 ) : (
-                    <button className="dialog-button"onClick={() => { handleEnterMarket({...selectedMarket}.underlying.symbol)}}>
-                {`Use ${{...selectedMarket}.underlying.symbol} as Collateral`}
-              </button>
+                    <Button loading={{...selectedMarketSpinners}.enterMarketSpinner} disabled={{...selectedMarketSpinners}.enterMarketSpinner}
+                      onClick={() => { handleEnterMarket({...selectedMarket}.underlying.symbol)}}>
+                      {`Use ${{...selectedMarket}.underlying.symbol} as Collateral`}
+                </Button>
             )}
           </div>
         </div>

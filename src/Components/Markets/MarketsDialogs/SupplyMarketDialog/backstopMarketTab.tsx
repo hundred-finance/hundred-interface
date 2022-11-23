@@ -1,10 +1,8 @@
 import { BigNumber } from "../../../../bigNumber";
 import React, {useEffect, useRef, useState} from "react"
 import TextBox from "../../../Textbox/textBox";
-import MarketDialogButton from "../marketDialogButton";
 import "../marketDialog.css"
 import MarketDialogItem from "../marketDialogItem";
-import {Spinner} from "../../../../assets/huIcons/huIcons";
 import BackstopSection from "./backstopSection";
 import { useHundredDataContext } from "../../../../Types/hundredDataContext";
 import { useUiContext } from "../../../../Types/uiContext";
@@ -16,6 +14,7 @@ import { BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2, TOKEN_ABI } from "
 import { ExecuteWithExtraGasLimit } from "../../../../Classes/TransactionHelper";
 import { UpdateTypeEnum } from "../../../../Hundred/Data/hundredData";
 import { MasterChefVersion } from "../../../../networks";
+import Button from "../../../Button/button";
 
 const MaxUint256 = BigNumber.from(ethers.constants.MaxUint256);
 
@@ -25,7 +24,7 @@ const BackstopMarketTab:React.FC = () =>{
     const {selectedMarket, selectedMarketSpinners, getMaxAmount, marketsData, toggleSpinners, updateMarket} = useHundredDataContext()
     const {library, account} = useWeb3React()
     const {network} = useGlobalContext()
-    const {setSpinnerVisible, toastErrorMessage, toastSuccessMessage} = useUiContext()
+    const {toastErrorMessage, toastSuccessMessage} = useUiContext()
 
     const [actionsDisabled, setActionsDisabled] = useState<boolean>(false)
 
@@ -33,7 +32,7 @@ const BackstopMarketTab:React.FC = () =>{
     const [depositInputValidation, setDepositInputValidation] = useState<string>("")
 
     const [backstopWithdrawInput, setBackstopWithdrawInput] = useState<string>("")
-    const [backstopWithdraw, setBackstopWithdraw] = useState<string>("Withdraw")
+    const [, setBackstopWithdraw] = useState<string>("Withdraw")
     const [backstopWithdrawValidation, setBackstopWithdrawValidation] = useState<string>("")
 
     useEffect(() => {
@@ -82,21 +81,21 @@ const BackstopMarketTab:React.FC = () =>{
         const handlebackstopWithdrawChange = () => {
             if(backstopWithdrawInput.trim() === ""){
                 setBackstopWithdrawValidation("")
-                setBackstopWithdraw("Withdraw")
+                //setBackstopWithdraw("Withdraw")
                 return;
             }
 
             if(isNaN(+backstopWithdrawInput) || isNaN(parseFloat(backstopWithdrawInput))){
                 setBackstopWithdrawValidation("Amount must be a number");
-                setBackstopWithdraw("Withdraw")
+                //setBackstopWithdraw("Withdraw")
                 return;
             }else if (+backstopWithdrawInput <= 0) {
                 setBackstopWithdrawValidation("Amount must be > 0");
-                setBackstopWithdraw("Withdraw")
+                //setBackstopWithdraw("Withdraw")
             } else if (selectedMarket && selectedMarket.backstop){ 
                 const selected = {...selectedMarket}
                 if (selected.backstop?.userBalance && +backstopWithdrawInput > +selected.backstop.userBalance.toString()){
-                    setBackstopWithdraw("Withdraw")
+                    //setBackstopWithdraw("Withdraw")
                     setBackstopWithdrawValidation("Amount must be <= balance");
                 } 
             }else{
@@ -127,6 +126,7 @@ const BackstopMarketTab:React.FC = () =>{
           // eslint-disable-next-line
     }, [backstopWithdrawInput])
 
+    
     const setMaxAmount = async () : Promise<void> => {
         const amount = selectedMarket ? await getMaxAmount({...selectedMarket}, "supply") : 0
         setDepositInput(amount.toString())
@@ -149,7 +149,7 @@ const BackstopMarketTab:React.FC = () =>{
           if(market && market.backstop && library && network && account){
             try{
                 const net = {...network}
-              setSpinnerVisible(true)
+              //setSpinnerVisible(true)
               toggleSpinners(symbol, SpinnersEnum.backstopDeposit)
               
               const signer = library.getSigner()
@@ -158,7 +158,7 @@ const BackstopMarketTab:React.FC = () =>{
                 const tx = await ExecuteWithExtraGasLimit(contract, "approve", [
                     net.backstopMasterChef.address, MaxUint256._value])
                 
-                setSpinnerVisible(false)
+                //setSpinnerVisible(false)
 
                 const receipt = await tx.wait()
                 console.log(receipt)
@@ -174,7 +174,7 @@ const BackstopMarketTab:React.FC = () =>{
     
             }
             finally{
-              setSpinnerVisible(false)
+              //setSpinnerVisible(false)
               toggleSpinners(symbol, SpinnersEnum.backstopDeposit)
             }
           }
@@ -188,7 +188,7 @@ const BackstopMarketTab:React.FC = () =>{
           
             if(market && market.backstop && library && account && net.backstopMasterChef){
                 try{
-                    setSpinnerVisible(true)
+                    //setSpinnerVisible(true)
                     toggleSpinners(symbol, SpinnersEnum.backstopDeposit)
 
                     const value = BigNumber.parseValueSafe(amount, market.underlying.decimals)
@@ -199,7 +199,7 @@ const BackstopMarketTab:React.FC = () =>{
                     const tx = await ExecuteWithExtraGasLimit(backstop, "deposit", [
                         market.backstop.pool.poolId, value._value, account])
                     
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
 
                     const receipt = await tx.wait()
                     console.log(receipt)
@@ -214,7 +214,7 @@ const BackstopMarketTab:React.FC = () =>{
                     toastErrorMessage(`${error?.message.replace(".", "")} on Backstop Deposit`)
                 }
                 finally{
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
                     toggleSpinners(symbol, SpinnersEnum.backstopDeposit)
                 }
             }
@@ -228,7 +228,7 @@ const BackstopMarketTab:React.FC = () =>{
           
             if(market && market.backstop && library && net.backstopMasterChef){
                 try{
-                    setSpinnerVisible(true)
+                    //setSpinnerVisible(true)
                     toggleSpinners(symbol, SpinnersEnum.backstopWithdraw)
 
                     const value = BigNumber.parseValueSafe(amount, market.backstop.decimals)
@@ -239,7 +239,7 @@ const BackstopMarketTab:React.FC = () =>{
                     const tx = await ExecuteWithExtraGasLimit(backstop, "withdrawAndHarvest", 
                         [market.backstop.pool.poolId, value._value, account])
               
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
 
                     const receipt = await tx.wait()
                     console.log(receipt)
@@ -254,7 +254,7 @@ const BackstopMarketTab:React.FC = () =>{
                     toastErrorMessage(`${error?.message.replace(".", "")} on Backstop Withdraw`)
                 }
                 finally{
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
                     toggleSpinners(symbol, SpinnersEnum.backstopWithdraw)
                 }
             }
@@ -268,7 +268,7 @@ const BackstopMarketTab:React.FC = () =>{
           
             if(market && market.backstop && library && account && net.backstopMasterChef){
                 try{
-                    setSpinnerVisible(true)
+                    //setSpinnerVisible(true)
                     toggleSpinners(symbol, SpinnersEnum.backstopClaim)
               
                     const signer = library.getSigner()
@@ -277,7 +277,7 @@ const BackstopMarketTab:React.FC = () =>{
                     const tx = await ExecuteWithExtraGasLimit(backstop, "harvest", [
                         market.backstop.pool.poolId, account])
                     
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
                     const receipt = await tx.wait()
                     console.log(receipt)
                     if(receipt.status === 1){
@@ -290,7 +290,7 @@ const BackstopMarketTab:React.FC = () =>{
                     toastErrorMessage(`${error?.message.replace(".", "")} on Backstop Claim`)
                 }
                 finally{
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
                     toggleSpinners(symbol, SpinnersEnum.backstopClaim)
                 }
             }
@@ -299,52 +299,63 @@ const BackstopMarketTab:React.FC = () =>{
 
     return ( selectedMarket && selectedMarket.backstop && selectedMarketSpinners ?
         <>
+            <div className="dialog-line"/>
             <MarketDialogItem title={"Wallet Ballance"} value={`${{...selectedMarket}.underlying.walletBalance?.toRound(4, true)} ${{...selectedMarket}.underlying.symbol}`} className="dialog-section-no-bottom-gap"/>
+            <div className="dialog-line"/>
             <BackstopSection/>
-            <TextBox placeholder={`0 ${{...selectedMarket}.underlying.symbol}`} disabled={actionsDisabled} value={depositInput} setInput={setDepositInput} validation={depositInputValidation} button={"Max"}
-                     onClick={()=>setMaxAmount()} validationCollapse={true}/>
-            {{...selectedMarket}.backstop && {...selectedMarket}.backstop?.allowance?.gt(BigNumber.from(0)) && {...selectedMarket}?.backstop?.allowance?.gte(depositInput.trim() === "" || isNaN(+depositInput) ?
-                BigNumber.from("0") :
-                BigNumber.parseValue(depositInput))
-                ? (
-                    <MarketDialogButton disabled={depositInput==="" || depositInputValidation!="" || {...selectedMarketSpinners}.backstopDepositSpinner || actionsDisabled}
+            <div className="dialog-line"/>
+            <div className="input-group">
+                <div className="input-button-group">
+                    <TextBox placeholder={`0 ${{...selectedMarket}.underlying.symbol}`} disabled={actionsDisabled} value={depositInput} setInput={setDepositInput} validation={depositInputValidation} button={"Max"}
+                         onClick={()=>setMaxAmount()} />
+                         {{...selectedMarket}.backstop && {...selectedMarket}.backstop?.allowance?.gt(BigNumber.from(0)) && {...selectedMarket}?.backstop?.allowance?.gte(depositInput.trim() === "" || isNaN(+depositInput) ?
+                            BigNumber.from("0") :
+                            BigNumber.parseValue(depositInput))
+                            ? (
+                                <Button loading={{...selectedMarketSpinners}.backstopDepositSpinner} rectangle={true}
+                                        disabled={depositInput==="" || depositInputValidation!="" || {...selectedMarketSpinners}.backstopDepositSpinner || actionsDisabled}
                                         onClick={() => { handleBackstopDeposit({...selectedMarket}.underlying.symbol, depositInput)}}>
-                        {{...selectedMarketSpinners}.backstopDepositSpinner ? (<Spinner size={"20px"}/>) : "Deposit"}
-                    </MarketDialogButton>
-                ) : (
-                    <MarketDialogButton disabled={{...selectedMarketSpinners}.backstopDepositSpinner || actionsDisabled}
+                                    Deposit
+                                </Button>
+                            ) : (
+                                <Button loading={{...selectedMarketSpinners}.backstopDepositSpinner} rectangle={true}
+                                        disabled={{...selectedMarketSpinners}.backstopDepositSpinner || actionsDisabled}
                                         onClick={() => { handleApproveBackstop({...selectedMarket}.underlying.symbol) }}>
-                        {{...selectedMarketSpinners}.backstopDepositSpinner ? (<Spinner size={"20px"}/>) : `Approve ${{...selectedMarket}.underlying.symbol}`}
-                    </MarketDialogButton>)}
-            <TextBox placeholder={`0 ${{...selectedMarket}.backstop?.symbol}`} disabled={actionsDisabled} value={backstopWithdrawInput} setInput={setBackstopWithdrawInput} validation={backstopWithdrawValidation} button={"Max"}
-                     onClick={() => setMaxBackstopWithdraw()} validationCollapse={true}/>
-            <MarketDialogButton
-                className="backstop-dialog-button"
-                disabled={backstopWithdrawInput === "" || backstopWithdrawValidation !== "" || isNaN(+backstopWithdrawInput) ||{...selectedMarketSpinners}.backstopWithdrawSpinner || !{...selectedMarket}.backstop 
-                || BigNumber.parseValue(backstopWithdrawInput).gt({...selectedMarket.backstop}.userBalance)}
-                onClick={() => { handleBackstopWithdraw(
-                        {...selectedMarket}.underlying.symbol,
-                        backstopWithdrawInput
-                    )
-                }}
-            >
-                { {...selectedMarketSpinners}.backstopWithdrawSpinner ? (<Spinner size={"20px"}/>) : backstopWithdraw}
-            </MarketDialogButton>
+                                    Approve ${{...selectedMarket}.underlying.symbol}
+                                </Button>)
+                        }
+                </div>
+            </div>
+            <div className="input-group">
+                <div className="input-button-group">
+                    <TextBox placeholder={`0 ${{...selectedMarket}.backstop?.symbol}`} disabled={actionsDisabled} value={backstopWithdrawInput} setInput={setBackstopWithdrawInput} validation={backstopWithdrawValidation} button={"Max"}
+                        onClick={() => setMaxBackstopWithdraw()} />
+                    <Button loading={{...selectedMarketSpinners}.backstopWithdrawSpinner} rectangle={true}
+                            disabled={backstopWithdrawInput === "" || backstopWithdrawValidation !== "" || isNaN(+backstopWithdrawInput) ||{...selectedMarketSpinners}.backstopWithdrawSpinner || !{...selectedMarket}.backstop 
+                                    || BigNumber.parseValue(backstopWithdrawInput).gt({...selectedMarket.backstop}.userBalance)}
+                            onClick={() => { handleBackstopWithdraw({...selectedMarket}.underlying.symbol,backstopWithdrawInput)}}>
+                        Withdraw
+                    </Button>
+                </div>
+            </div>
+            
             {
                 
                 +{...selectedMarket.backstop}.pendingHundred.toString() > 0 ?
-                    <MarketDialogButton
-                        className="backstop-dialog-button"
-                        disabled={{...selectedMarketSpinners}.backstopClaimSpinner || actionsDisabled}
-                        onClick={() => { handleBackstopClaim({...selectedMarket}.underlying.symbol)
-                        }}
-                    >
-                        {{...selectedMarketSpinners}.backstopClaimSpinner 
-                        ? (<Spinner size={"20px"}/>) 
-                        : `Claim ${+{...selectedMarket.backstop}.pendingHundred.toRound(8, true) === 0 
-                        ? ">0.0001" 
-                        : {...selectedMarket.backstop}.pendingHundred.toRound(8, true, true)} HND`}
-                    </MarketDialogButton>
+                    <>
+                        <div className="dialog-line"/>
+                        <div className="button-section">
+                            <Button loading={{...selectedMarketSpinners}.backstopClaimSpinner}
+                                disabled={{...selectedMarketSpinners}.backstopClaimSpinner || actionsDisabled}
+                                onClick={() => { handleBackstopClaim({...selectedMarket}.underlying.symbol)}}>
+                            {
+                                `Claim ${+{...selectedMarket.backstop}.pendingHundred.toRound(4, true) === 0 
+                                ? ">0.0001" 
+                                : {...selectedMarket.backstop}.pendingHundred.toRound(4, true, true)} HND`}
+                            </Button>
+                        </div>
+                    </>
+                    
                     :<></>
             }
         </>

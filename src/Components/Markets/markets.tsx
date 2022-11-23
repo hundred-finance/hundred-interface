@@ -14,16 +14,9 @@ interface Props{
 }
 const Markets: React.FC<Props> = (props : Props) => {
     const [showMore, setShowMore] = useState<boolean>(false)
-    const {marketsData} = useHundredDataContext()
 
-    const handleSupplyMore = () : void => {
-        setShowMore(!showMore)
-    }
-
-    const handleBorrowMore = () : void => {
-        setShowMore(!showMore)
-    }
-
+    const s = props.enterMarketDialog
+   
     return (
         <div className="markets-wrapper">
             <div className="markets">
@@ -31,37 +24,15 @@ const Markets: React.FC<Props> = (props : Props) => {
                     <MarketContainerTitle>
                         Supply Market
                     </MarketContainerTitle>
-                    <SupplyMarket
-                        enterMarketDialog = {props.enterMarketDialog}
-                        supplyMarketDialog={props.supplyMarketDialog}
-                        more={showMore}
-                    />
-                    {marketsData && [...marketsData].length > 6 ? <MarketContainerShowMore onClick={handleSupplyMore}>
-                    {
-                        !showMore ? (
-                              "SHOW MORE"
-                        ) : (
-                              "SHOW LESS"
-                        )
-                      }
-                    </MarketContainerShowMore> : null}
+                    <SupplyMarket enterMarketDialog = {props.enterMarketDialog} supplyMarketDialog={props.supplyMarketDialog}/>
                 </MarketContainer>
                   
                 <MarketContainer>
                     <MarketContainerTitle>
                         Borrow Market
                     </MarketContainerTitle>
-                    <BorrowMarket borrowMarketDialog={props.borrowMarketDialog} more={showMore}/>
-                    {marketsData && [...marketsData].length > 6 ?<MarketContainerShowMore onClick={handleBorrowMore}>
-                    {
-                        !showMore ? (
-                              "SHOW MORE"
-                        ) : (
-                              "SHOW LESS"
-                        )
-                      }
-                        </MarketContainerShowMore> : null}
-                    </MarketContainer>
+                    <BorrowMarket borrowMarketDialog={props.borrowMarketDialog}/>
+                </MarketContainer>
             </div>
         </div>
     )

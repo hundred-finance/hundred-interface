@@ -10,15 +10,16 @@ interface Props {
     loading?: boolean
     image?: any
     disabled?: boolean
+    rectangle?:boolean
     children?: ReactNode
 }
 
 
-const Button: React.FC<Props> = ({onClick, arrow, small, loading, image, disabled, children}:Props) => {
+const Button: React.FC<Props> = ({onClick, arrow, small, loading, image, disabled, rectangle, children}:Props) => {
     const {isMobile, isTablet} = useUiContext()
 
     return(
-        <div className={`button ${disabled || loading ? "button-disabled" : ""} ${small ? "button-small" : ""} ${!isMobile || !isTablet ? "button-xsmall" : ""}`} onClick={loading || disabled ? () => null : onClick}>
+        <div className={`button ${disabled || loading ? "button-disabled" : ""} ${small ? "button-small" : ""} ${!isMobile || !isTablet ? "button-xsmall" : ""} ${rectangle ? "button-rectangle" : ""}`} onClick={loading || disabled ? () => null : onClick}>
             {image ? 
                 <div className="button-image">
                     {image}

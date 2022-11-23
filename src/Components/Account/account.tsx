@@ -38,7 +38,7 @@ const Account: React.FC = () => {
                         <div className="network-logo">
                             <img src={network?.logo} alt="" />
                         </div>
-                        <span>{getShortenAddress(address)}</span>
+                        <span>{getShortenAddress(address, 4)}</span>
                     </div>
                     <Button onClick={() => handleDisconnect()}>
                         <span>Disconnect</span>

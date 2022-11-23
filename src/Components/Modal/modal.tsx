@@ -25,7 +25,7 @@ const Modal: React.FC<Props> = ({open, close, title, titleImg, maxheight, error,
                 <div className="modal-title">
                     
                     {titleImg ? <img src={titleImg} alt="" className="title-img"/> : null}
-                    {error ? <span className="error"><span>!</span>{title}</span> : null}
+                    {error ? <span className="error"><span>!</span>{title}</span> : <span>{title}</span>}
                     <img src={closeIcon} alt="" onClick={close} className="modal-close"/>
                 </div>
                 <div className="seperator"/>

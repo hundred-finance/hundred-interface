@@ -179,7 +179,7 @@ const HundredMenu: React.FC = () => {
       <Modal open={openHundred} close={() => setOpenHundred(false)} title="HND" titleImg={hundredCoin}>
         <div className="hundred-menu">
           <div className="hundred-price">
-            ${BigNumber.parseValue(hndPrice.toString()).toRound(2, true, true)}
+            ${BigNumber.parseValue(hndPrice.toString()).toRound(3, true, true)}
             {tvl ? <div className="tvl">TVL ${tvl.toRound(2, true, true)}</div> : null}
             <div className="links">
               {networkRef.current && networkRef.current.trade ? <ButtonLink label="Trade" url={networkRef.current.trade}/> : null}

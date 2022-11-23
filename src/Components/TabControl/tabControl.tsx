@@ -33,13 +33,7 @@ const TabHeader: React.FC<TabHeaderProps> = (props : TabHeaderProps) => {
     return(
         <div className="tab-header">
             {props.children}
-            <span className="indicator"
-                style={
-                    {
-                        left:left,
-                        width:width
-                    }}>
-                </span>
+            
         </div>
     )
 }

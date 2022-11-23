@@ -1,10 +1,8 @@
 import { BigNumber } from "../../../../bigNumber";
 import React, {useEffect, useRef, useState} from "react"
 import TextBox from "../../../Textbox/textBox";
-import MarketDialogButton from "../marketDialogButton";
 import "../marketDialog.css"
 import MarketDialogItem from "../marketDialogItem";
-import {Spinner} from "../../../../assets/huIcons/huIcons";
 import {GaugeV4} from "../../../../Classes/gaugeV4Class";
 import {stakingApr} from "../../aprHelpers";
 import { useHundredDataContext } from "../../../../Types/hundredDataContext";
@@ -12,6 +10,8 @@ import { useUiContext } from "../../../../Types/uiContext";
 import { useWeb3React } from "@web3-react/core";
 import { SpinnersEnum } from "../../../../Classes/cTokenClass";
 import { UpdateTypeEnum } from "../../../../Hundred/Data/hundredData";
+import Range from "../../../Range/range"
+import Button from "../../../Button/button";
 
 interface Props{
     gaugeV4: GaugeV4
@@ -19,7 +19,7 @@ interface Props{
 const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
     const { selectedMarket, selectedMarketSpinners, marketsData, toggleSpinners, updateMarket} = useHundredDataContext()
     const { library, account } = useWeb3React()
-    const { setSpinnerVisible, toastErrorMessage, toastSuccessMessage } = useUiContext()
+    const {toastErrorMessage, toastSuccessMessage } = useUiContext()
 
     const mounted = useRef<boolean>(false)
 
@@ -188,12 +188,12 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
             if(market && library && props.gaugeV4.approveCall){
                 try{
                     if (!market.isNativeToken) {
-                        setSpinnerVisible(true)
+                        //setSpinnerVisible(true)
                         toggleSpinners(market.underlying.symbol, SpinnersEnum.backstopDeposit)
                         
                         const tx = await props.gaugeV4.approveCall(market)
                         
-                        setSpinnerVisible(false)
+                        //setSpinnerVisible(false)
                         const receipt = await tx.wait()
                         console.log(receipt)
                         if(receipt.status === 1){
@@ -210,7 +210,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     toastErrorMessage(`${error?.message.replace('.', '')} on Approve Stake}`);
                 }
                 finally{
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
                     toggleSpinners(market.underlying.symbol, SpinnersEnum.backstopDeposit)
                 }
             }
@@ -222,12 +222,12 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
             const market = [...marketsData].find(x=> x.underlying.symbol === symbol)
             if(props.gaugeV4.generalData.gaugeHelper && library && symbol && market && account && props.gaugeV4.stakeCall){
                 try{
-                    setSpinnerVisible(true)
+                    //setSpinnerVisible(true)
                     toggleSpinners(symbol, SpinnersEnum.backstopDeposit)
 
                     const tx = await props.gaugeV4.stakeCall(amount, market)
                     
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
                     const receipt = await tx.wait()
                     console.log(receipt)
                     if(receipt.status === 1){
@@ -244,7 +244,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     toastErrorMessage(`${error?.message.replace('.', '')} on Stake}`);
                 }
                 finally{
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
                     toggleSpinners(symbol, SpinnersEnum.backstopDeposit)
                 }
             }
@@ -257,12 +257,12 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
               const market = [...marketsData].find(x => x?.underlying.symbol === symbol)
               if(market && library && props.gaugeV4.approveUnstakeCall){
                   try{
-                    setSpinnerVisible(true)
+                    //setSpinnerVisible(true)
                     toggleSpinners(symbol, SpinnersEnum.backstopWithdraw)
   
                     const tx = await props.gaugeV4.approveUnstakeCall()
   
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
   
                     const receipt = await tx.wait()
                     console.log(receipt)
@@ -279,7 +279,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                       toastErrorMessage(`${error?.message.replace('.', '')} on Approve Unstake}`);
                   }
                   finally{
-                      setSpinnerVisible(false)
+                      //setSpinnerVisible(false)
                       toggleSpinners(symbol, SpinnersEnum.backstopWithdraw)
                   }
               }
@@ -293,12 +293,12 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
               const nativeTokenMarket = markets.find(x => x.isNativeToken === true) 
               if(market && library && account && props.gaugeV4.generalData.gaugeHelper && props.gaugeV4.unstakeCall){
                   try{
-                    setSpinnerVisible(true)
+                    //setSpinnerVisible(true)
                     toggleSpinners(symbol, SpinnersEnum.backstopWithdraw)
 
                     const tx = await props.gaugeV4.unstakeCall(amount, market, nativeTokenMarket?.pTokenAddress)
                       
-                    setSpinnerVisible(false)
+                    //setSpinnerVisible(false)
                     const receipt = await tx.wait()
                     console.log(receipt)
                     if(receipt.status === 1){
@@ -316,7 +316,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
 
                   }
                   finally{
-                      setSpinnerVisible(false)
+                      //setSpinnerVisible(false)
                       toggleSpinners(symbol, SpinnersEnum.backstopWithdraw)
                   }
               }
@@ -328,12 +328,12 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
               const market = [...marketsData].find(x => x.underlying.symbol === symbol)
               if(market && library && props.gaugeV4.mintCall){
                   try{
-                        setSpinnerVisible(true)
+                        //setSpinnerVisible(true)
                         toggleSpinners(symbol, SpinnersEnum.backstopClaim)
 
                         const tx = await props.gaugeV4.mintCall()
                       
-                        setSpinnerVisible(false)
+                        //setSpinnerVisible(false)
 
                         const receipt = await tx.wait()
                         console.log(receipt)
@@ -350,7 +350,7 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                       toastErrorMessage(`${error?.message.replace('.', '')} on Mint}`);
                   }
                   finally{
-                      setSpinnerVisible(false)
+                      //setSpinnerVisible(false)
                       toggleSpinners(symbol, SpinnersEnum.backstopClaim)
                   }
               }
@@ -359,10 +359,12 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
 
     return ( selectedMarket && selectedMarketSpinners && mounted?
         <>
+            <div className="dialog-line"/>
             <MarketDialogItem
                 title={"You Staked"}
                 value={`${formatBalance(getStakedBalance()).toFixed(4)} ${{...selectedMarket}.underlying.symbol}`}
             />
+            <div className="dialog-line"/>
             <MarketDialogItem
                 title={"Claimable"}
                 value={`${+formatBalance(props.gaugeV4?.userClaimableHnd) > 0 ? +formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)===0
@@ -370,58 +372,47 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     : formatBalance(props.gaugeV4?.userClaimableHnd).toFixed(4)
                     : "0.000"} HND`}
             />
+            <div className="dialog-line"/>
             <MarketDialogItem
                 title={"APR"}
                 value={stakingApr({...selectedMarket}, props.gaugeV4)}
             />
-            <div className="native-asset-amount">
-                <span className="dialog-section-content-value"/>
-                <div className={`amount-select ${actionsDisabled ? "amount-select-disabled" : ""}`}>
-                    <div onClick={() => setStakeRatio(0.25) }>25%</div>
-                    <div onClick={() => setStakeRatio(0.50) }>50%</div>
-                    <div onClick={() => setStakeRatio(0.75) }>75%</div>
-                    <div onClick={() => setStakeRatio(1) }>100%</div>
-                </div>
-            </div>
-            <div className="input-button-group">
+            <div className="input-group">
+                <Range setRatio={setStakeRatio} disabled={+{...selectedMarket}.underlying.walletBalance.toString() === 0}/>
+                <div className="input-button-group">
                 <TextBox
-                    placeholder={`${{...selectedMarket}.underlying.symbol}`}
-                    disabled={actionsDisabled}
-                    value={stakeInput}
-                    setInput={setStakeInput}
-                    validation={stakeValidation}
-                    button={"Max"}
-                    onClick={() => getMaxStake()}/>
-                {+props.gaugeV4.userAllowance.toString() > 0 &&
-                +props.gaugeV4.userAllowance.toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
-                    ?
-                    <MarketDialogButton
-                        disabled={stakeInput === "" || stakeValidation !== "" || actionsDisabled}
-                        onClick={() => handleStake({...selectedMarket}.underlying.symbol, stakeInput)}
-                    >
-                        {{...selectedMarketSpinners}.backstopDepositSpinner ? (
-                            <Spinner size={"20px"}/>) : "Stake"}
-                    </MarketDialogButton>
-                    :
-                    <MarketDialogButton
-                        disabled={stakeInput === "" || stakeValidation !== "" || actionsDisabled}
-                        onClick={() => handleApproveStake({...selectedMarket}.underlying.symbol)}
-                    >
-                        {{...selectedMarketSpinners}.backstopDepositSpinner ? (
-                            <Spinner size={"20px"}/>) : "Approve"}
-                    </MarketDialogButton>
-                }
-            </div>
-            <div className="native-asset-amount">
-                <span>{convertGaugeLpAmountToUnderlying(unstakeInput)} {{...selectedMarket}.underlying.symbol}</span>
-                <div className={`amount-select ${actionsDisabled ? "amount-select-disabled" : ""}`}>
-                    <div onClick={() => setUnstakeRatio(0.25) }>25%</div>
-                    <div onClick={() => setUnstakeRatio(0.50) }>50%</div>
-                    <div onClick={() => setUnstakeRatio(0.75) }>75%</div>
-                    <div onClick={() => setUnstakeRatio(1) }>100%</div>
+                        placeholder={`${{...selectedMarket}.underlying.symbol}`}
+                        disabled={actionsDisabled}
+                        value={stakeInput}
+                        setInput={setStakeInput}
+                        validation={stakeValidation}
+                        button={"Max"}
+                        onClick={() => getMaxStake()}/>
+                    {+props.gaugeV4.userAllowance.toString() > 0 &&
+                    +props.gaugeV4.userAllowance.toString() >= (stakeInput.trim() === "" || isNaN(+stakeInput) || isNaN(parseFloat(stakeInput)) ? 0 : +stakeInput)
+                        ?
+                        <Button
+                            disabled={stakeInput === "" || stakeValidation !== "" || actionsDisabled} loading={{...selectedMarketSpinners}.backstopDepositSpinner} rectangle={true}
+                            onClick={() => handleStake({...selectedMarket}.underlying.symbol, stakeInput)}
+                        >
+                            Stake
+                        </Button>
+                        :
+                        <Button rectangle={true} loading={{...selectedMarketSpinners}.backstopDepositSpinner}
+                            disabled={stakeInput === "" || stakeValidation !== "" || actionsDisabled}
+                            onClick={() => handleApproveStake({...selectedMarket}.underlying.symbol)}
+                        >
+                            Approve
+                        </Button>
+                    }
                 </div>
             </div>
-            <div className="input-button-group">
+            <div className="input-group">
+                <div className="amount-group">
+                    <Range setRatio={setUnstakeRatio} disabled={+props.gaugeV4?.userStakeBalance.toString() === 0}/>
+                    <span>{convertGaugeLpAmountToUnderlying(unstakeInput)} {{...selectedMarket}.underlying.symbol}</span>
+                </div>
+                <div className="input-button-group">
                 <TextBox
                     placeholder={`bh${{...selectedMarket}.underlying.symbol}-gauge`}
                     disabled={actionsDisabled}
@@ -431,34 +422,35 @@ const DirectBackstopStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     button={"Max"}
                     onClick={() => getMaxUnstake()}
                 />
-                {props.gaugeV4 && +props.gaugeV4.userGaugeHelperAllowance.toString() > 0 &&
-                +props.gaugeV4.userGaugeHelperAllowance.toString().toString() >= (unstakeInput.trim() === "" || isNaN(+unstakeInput) || isNaN(parseFloat(unstakeInput)) ? 0 : +unstakeInput)
-                    ?
-                    <MarketDialogButton
-                        disabled={unstakeInput === "" || unstakeValidation !== "" || actionsDisabled}
-                        onClick={() => handleUnstake({...selectedMarket}.underlying.symbol, unstakeInput)}
-                    >
-                        {{...selectedMarketSpinners}.backstopWithdrawSpinner ? (
-                            <Spinner size={"20px"}/>) : "Unstake"}
-                    </MarketDialogButton>
-                    :
-                    <MarketDialogButton
-                        disabled={unstakeInput === "" || unstakeValidation !== "" || actionsDisabled}
-                        onClick={() => handleApproveUnStake({...selectedMarket}.underlying.symbol)}
-                    >
-                        {{...selectedMarketSpinners}.backstopWithdrawSpinner ? (
-                            <Spinner size={"20px"}/>) : "Approve"}
-                    </MarketDialogButton>
-                }
+                    {props.gaugeV4 && +props.gaugeV4.userGaugeHelperAllowance.toString() > 0 &&
+                    +props.gaugeV4.userGaugeHelperAllowance.toString().toString() >= (unstakeInput.trim() === "" || isNaN(+unstakeInput) || isNaN(parseFloat(unstakeInput)) ? 0 : +unstakeInput)
+                        ?
+                        <Button loading={{...selectedMarketSpinners}.backstopWithdrawSpinner} rectangle={true}
+                            disabled={unstakeInput === "" || unstakeValidation !== "" || actionsDisabled}
+                            onClick={() => handleUnstake({...selectedMarket}.underlying.symbol, unstakeInput)}
+                        >
+                            Unstake
+                        </Button>
+                        :
+                        <Button loading={{...selectedMarketSpinners}.backstopWithdrawSpinner} rectangle={true}
+                            disabled={unstakeInput === "" || unstakeValidation !== "" || actionsDisabled}
+                            onClick={() => handleApproveUnStake({...selectedMarket}.underlying.symbol)}
+                        >
+                            Approve
+                        </Button>
+                    }
+                </div>
             </div>
-            <MarketDialogButton
-                disabled={props?.gaugeV4?.userClaimableHnd === undefined || 
+            <div className="dialog-line"/>
+            <div className="button-section">
+                <Button loading={{...selectedMarketSpinners}.backstopClaimSpinner}
+                    disabled={props?.gaugeV4?.userClaimableHnd === undefined || 
                     props?.gaugeV4?.userClaimableHnd?.eq(BigNumber.from(0)) || actionsDisabled}
-                onClick={() => handleMint({...selectedMarket}.underlying.symbol)}
-            >
-                {{...selectedMarketSpinners}.backstopClaimSpinner ? (
-                    <Spinner size={"20px"}/>) : "Claim HND"}
-            </MarketDialogButton>
+                    onClick={() => handleMint({...selectedMarket}.underlying.symbol)}
+                >
+                    Claim HND
+                </Button>
+            </div>
         </>
         : null
     )

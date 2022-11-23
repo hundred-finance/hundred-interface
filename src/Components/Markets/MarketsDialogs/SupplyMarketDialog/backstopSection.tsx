@@ -23,6 +23,7 @@ const BackstopSection:React.FC = () => {
                     ${{...selectedMarket.backstop}.tvl.toRound(2, true)}
                 </div>
             </div>
+            <div className="dialog-line"/>
             <div className="dialog-section-content">
                 <div className="dialog-section-content-header">
                     APR
@@ -32,6 +33,7 @@ const BackstopSection:React.FC = () => {
                          : BigNumber.parseValue(({...selectedMarket.backstop}.apr.toNumeral() * 100).noExponents()).toRound(2, true, true)}%
                 </div>
             </div>
+            <div className="dialog-line"/>
             <div className="dialog-section-content">
                 <div className="dialog-section-content-header">
                     Backstop Balance

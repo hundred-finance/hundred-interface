@@ -43,10 +43,10 @@ export const decimalPlaces = (number: string, places: number) : string => {
   }
 }
 
-export const getShortenAddress = (address: string) : string => {
-  const firstCharacters = address.substring(0, 4);
+export const getShortenAddress = (address: string, substring?: number) : string => {
+  const firstCharacters = address.substring(0, substring ? substring + 2 : 4);
   const lastCharacters = address.substring(
-    address.length - 2,
+    address.length - (substring ? substring : 2),
     address.length
   );
   return `${firstCharacters}...${lastCharacters}`;

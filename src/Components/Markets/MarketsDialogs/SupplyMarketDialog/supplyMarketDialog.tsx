@@ -11,6 +11,7 @@ import DirectStakeMarketTab from "./directStakeMarketTab"
 import StakeMarketTab from "./StakeMarket"
 import DirectBackstopStakeMarketTab from "./directBackstopMarketTab"
 import BackstopMarketTab from "./backstopMarketTab"
+import "../marketDialog.css"
 
 interface Props{
     closeSupplyMarketDialog: () => void,
@@ -83,7 +84,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
     
 
    const dialog = mountedSupply.current && selectedMarket && tabHeaders.length > 0?
-        <div className={`dialog ${"open-dialog"} ${darkMode ? "dark-theme" : ""}`}>
+        <div className={`dialog ${"open-dialog"} ${darkMode ? "dark" : "light"}`}>
             <ReactToolTip id="borrow-dialog-tooltip" effect="solid"/>
             <div className="dialog-background" onClick = {() => CloseDialog()}></div>
             <div className={`supply-box ${selectedMarket.backstop && +{...selectedMarket.backstop}.pendingHundred.toString() > 0 ? "supply-box-expand" : "" }`}>
@@ -100,6 +101,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                         )}
                         {`${{...selectedMarket}.underlying.symbol}`}
                     </div>
+                    <div className="seperator"/>
                     <Tab>
                     <TabHeader tabChange={tabChange}>
                         {[...tabHeaders].map((h, index) => {

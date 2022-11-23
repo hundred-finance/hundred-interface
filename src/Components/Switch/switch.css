@@ -1,42 +1,39 @@
-.switch{
-    height: 10px;
-    width: 45px;
-    border-radius: 10px;
-    background-color: #b8b8b8;
+.switch-button{
+    height: 15px;
+    width: 48px;
+    border-radius: 15px;
+    border: 1px solid #069BEF;
     position: relative;
-    transition: all 0.5s ease-out;
+    cursor: pointer;
+    cursor: pointer;
 }
 
-.switch .switch-button{
-    
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    -webkit-box-shadow: 0px 0px 10px 1px rgba(89,89,89,0.5); 
-    box-shadow: 0px 0px 10px 1px rgba(89,89,89,0.5);
-    background-color: #fff;
+.switch-button::before{
+    content: "";
     position: absolute;
-    top:-5px;
-    transition: all 0.2s ease-out;
+    height: 23px;
+    width: 23px;
+    border-radius: 50%;
+    -webkit-box-shadow: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%); 
+    box-shadow: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
+    background: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-.switch-button-enabled .switch-button:hover{
-    -webkit-box-shadow: 0px 0px 10px 3px rgba(89,89,89,0.5); 
-    box-shadow: 0px 0px 10px 3px rgba(89,89,89,0.5);
+.switch-button-checked{
+    background: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
 }
 
-
-
-.switch-checked{
-    transition: all 0.5s ease-out;
-    background-color: var(--buttonHover);
+.switch-button-checked::before{
+    border: 1.5px solid #069BEF;
+    background: var(--background-color);
+    left: initial;
+    right: -6px;
 }
 
-.switch-checked .switch-button{
-    transition: all 0.5s ease-out;
-    right: 0;
-}
-
-.switch-button-disable{
+.switch-button-disabled{
     opacity: .6;
+    cursor: default;
 }

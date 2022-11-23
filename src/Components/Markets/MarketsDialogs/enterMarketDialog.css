@@ -27,7 +27,7 @@
     top:15%;
     left: 50%;
     transform: translateX(-50%);
-    background-color: var(--boxBackground);
+    background-color: var(--);
     display: flex;
     flex-direction: column;
     
