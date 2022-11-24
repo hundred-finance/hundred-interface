@@ -129,9 +129,9 @@ export const getComptrollerData2 = async (provider: any, userAddress: string, ne
     const [oracleAddress, allMarkets, enteredMarkets] = await ethcallProvider.all([ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets(), ethcallComptroller.getAssetsIn(userAddress)]) 
     const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
     //   const oracleAddress = await comptroller.oracle()
-       const oracle = new ethers.Contract(oracleAddress, ORACLE_ABI, provider)
+       const oracle = new ethers.Contract(oracleAddress as string, ORACLE_ABI, provider)
     //   const allMarkets =  await comptroller.getAllMarkets()
     //   const enteredMarkets = await comptroller.getAssetsIn(userAddress)
    
-    return new Comptroller2(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets, enteredMarkets, ethcallProvider)
+    return new Comptroller2(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets as string[], enteredMarkets as string[], ethcallProvider)
   }
