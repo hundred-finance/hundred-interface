@@ -67,7 +67,7 @@ const App: React.FC = () => {
     if(darkmode && darkmode === "dark")
       setDarkMode(true)
     else
-      setDarkMode(false)
+      setDarkMode(true)
   }, [])
 
   useEffect(() => {
