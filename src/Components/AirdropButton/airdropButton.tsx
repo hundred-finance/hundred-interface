@@ -8,7 +8,6 @@ import {MerkleTree} from "merkletreejs";
 import keccak256 from "keccak256";
 import "./airdropButton.css"
 import {AIRDROP_ABI, AIRDROP_V2_ABI} from "../../abi";
-import {Spinner} from "../../assets/huIcons/huIcons";
 import {Contract, Provider} from "ethcall";
 import { useUiContext } from "../../Types/uiContext";
 import { useGlobalContext } from "../../Types/globalContext";
@@ -27,7 +26,7 @@ export type AirdropType = {
 }
 
 const AirdropButton: React.FC = () => {
-    const {setOpenAirdrop, setSideMenu, airdropSpinner} = useUiContext()
+    const {setOpenAirdrop, airdropSpinner} = useUiContext()
     const { library, chainId } = useWeb3React()
     const {network, address, hasClaimed, setHasClaimed, airdrops, setAirdrops} = useGlobalContext()
 

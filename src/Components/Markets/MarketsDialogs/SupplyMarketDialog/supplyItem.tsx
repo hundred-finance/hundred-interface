@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { GaugeV4 } from "../../../../Classes/gaugeV4Class"
 import { useHundredDataContext } from "../../../../Types/hundredDataContext"
-import { Spinner } from '../../../../assets/huIcons/huIcons';
 import TextBox from "../../../Textbox/textBox"
-import MarketDialogButton from "../marketDialogButton"
 import MarketDialogItem from "../marketDialogItem"
 import DialogMarketInfoSection from "../marketInfoSection"
 import BorrowLimitSection from "./borrowLimitSection"

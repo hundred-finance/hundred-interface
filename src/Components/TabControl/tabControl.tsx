@@ -19,8 +19,8 @@ interface TabHeaderProps{
 }
 
 const TabHeader: React.FC<TabHeaderProps> = (props : TabHeaderProps) => {
-    const [left, setLeft] = useState<string>("0")
-    const [width, setWidth] = useState<string>("0")
+    const [, setLeft] = useState<string>("0")
+    const [, setWidth] = useState<string>("0")
 
 
     useEffect(()=>{

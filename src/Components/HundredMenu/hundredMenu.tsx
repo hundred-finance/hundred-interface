@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState} from "react"
 import "./hundredMenu.css"
-import { Spinner } from "../../assets/huIcons/huIcons"
 import { Network } from "../../networks"
 import { BigNumber } from "../../bigNumber"
 import { useUiContext } from "../../Types/uiContext"
@@ -8,7 +7,7 @@ import { useGlobalContext } from "../../Types/globalContext"
 import { Contract } from 'ethers'
 import { useWeb3React } from "@web3-react/core"
 import { ExecuteWithExtraGasLimit } from "../../Classes/TransactionHelper"
-import { COMPTROLLER_ABI, HUNDRED_ABI, MINTER_ABI, VOTING_ESCROW_ABI } from "../../abi"
+import {  HUNDRED_ABI, MINTER_ABI, VOTING_ESCROW_ABI } from "../../abi"
 import { useHundredDataContext } from "../../Types/hundredDataContext"
 import { UpdateTypeEnum } from "../../Hundred/Data/hundredData"
 import Modal from "../Modal/modal"
@@ -20,9 +19,9 @@ const HundredMenu: React.FC = () => {
     const mounted = useRef<boolean>(false)
     
     const { library, account } = useWeb3React()
-    const {hndBalance, hndEarned, hundredBalance, hndRewards, vehndBalance, gaugeAddresses, updateMarket} = useHundredDataContext()
+    const {hndBalance, hundredBalance, hndRewards, vehndBalance, gaugeAddresses, updateMarket} = useHundredDataContext()
 
-    const { setSpinnerVisible, claimLegacyHnd, setClaimLegacyHnd, claimHnd, setClaimHnd, claimLockHnd, setClaimLockHnd, toastErrorMessage, toastSuccessMessage, openHundred, setOpenHundred} = useUiContext()
+    const { claimLegacyHnd, claimHnd, setClaimHnd, claimLockHnd, setClaimLockHnd, toastErrorMessage, toastSuccessMessage, openHundred, setOpenHundred} = useUiContext()
     const {network, hndPrice} = useGlobalContext()
 
     const networkRef = useRef<Network | null>(null)
@@ -56,44 +55,44 @@ const HundredMenu: React.FC = () => {
         else setTvl(null)
     }, [hndPrice, hundredBalance])
 
-    const handleCollect = async (): Promise<void> => {
-        if(library && network && account){
-          try{
-            setClaimLegacyHnd(true)
-            setSpinnerVisible(true)
+    // const handleCollect = async (): Promise<void> => {
+    //     if(library && network && account){
+    //       try{
+    //         setClaimLegacyHnd(true)
+    //         setSpinnerVisible(true)
 
-            const signer = library.getSigner()
-            const comptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI, signer)
-            const tx = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [account], 0)
+    //         const signer = library.getSigner()
+    //         const comptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI, signer)
+    //         const tx = await ExecuteWithExtraGasLimit(comptroller, "claimComp", [account], 0)
 
-            setSpinnerVisible(false)
-            const receipt = await tx.wait()
+    //         setSpinnerVisible(false)
+    //         const receipt = await tx.wait()
             
-            console.log(receipt)
-            if(receipt.status === 1){
-              toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
-              await updateMarket(null, UpdateTypeEnum.ClaimHndLegacy)
-            }
-            else if(receipt.message){
-              toastErrorMessage(`${receipt.message}`);  
-            }
-          }
-          catch(error: any){
-            console.log(error)
-            toastErrorMessage(`${error?.message.replace(".", "")} on Hundred Claim Legacy`)
-          }
-          finally{
-            setClaimLegacyHnd(false)
-            setSpinnerVisible(false)
-          }
-        }
-      }
+    //         console.log(receipt)
+    //         if(receipt.status === 1){
+    //           toastSuccessMessage("Transaction completed successfully.\nUpdating contracts")
+    //           await updateMarket(null, UpdateTypeEnum.ClaimHndLegacy)
+    //         }
+    //         else if(receipt.message){
+    //           toastErrorMessage(`${receipt.message}`);  
+    //         }
+    //       }
+    //       catch(error: any){
+    //         console.log(error)
+    //         toastErrorMessage(`${error?.message.replace(".", "")} on Hundred Claim Legacy`)
+    //       }
+    //       finally{
+    //         setClaimLegacyHnd(false)
+    //         setSpinnerVisible(false)
+    //       }
+    //     }
+    //   }
 
       const handleClaimHnd = async (): Promise<void> => {
         if(library && network){
           try{
             setClaimHnd(true)
-            setSpinnerVisible(true)
+            //setSpinnerVisible(true)
     
             const signer = library.getSigner()
             let mintAddress = ''
@@ -103,7 +102,7 @@ const HundredMenu: React.FC = () => {
             const minter = new Contract(mintAddress, MINTER_ABI, signer)
             const tx = await ExecuteWithExtraGasLimit(minter, "mint_many", [gaugeAddresses], 0)
             
-            setSpinnerVisible(false)
+            //setSpinnerVisible(false)
             
             const receipt = await tx.wait()
             console.log(receipt)
@@ -121,7 +120,7 @@ const HundredMenu: React.FC = () => {
           }
           finally{
             setClaimHnd(false)
-            setSpinnerVisible(false)
+            //setSpinnerVisible(false)
           }
         }}
     
@@ -131,7 +130,7 @@ const HundredMenu: React.FC = () => {
             if (network.votingAddress) 
             {   
               setClaimLockHnd(true)
-              setSpinnerVisible(true)
+              //setSpinnerVisible(true)
             
               const signer = library.getSigner()
               let mintAddress = ''
@@ -141,17 +140,17 @@ const HundredMenu: React.FC = () => {
               const minter = new Contract(mintAddress, MINTER_ABI, signer)
               const tx = await ExecuteWithExtraGasLimit(minter, "mint_many", [gaugeAddresses], 0)
             
-              setSpinnerVisible(false)
+              //setSpinnerVisible(false)
             
               const receipt1 = await tx.wait()
               if(receipt1.status === 1){
-                setSpinnerVisible(true)
+                //setSpinnerVisible(true)
                 const votingContract = new Contract(network.votingAddress, VOTING_ESCROW_ABI, signer); 
                 const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI, library)
                 const rewards = await balanceContract.balanceOf(account)
                 const tx2 = await ExecuteWithExtraGasLimit(votingContract, "increase_amount", [rewards], 0)
                 
-                setSpinnerVisible(false)
+                //setSpinnerVisible(false)
 
                 const receipt = await tx2.wait()
                 console.log(receipt)
@@ -171,7 +170,7 @@ const HundredMenu: React.FC = () => {
           }
           finally{
             setClaimLockHnd(false)
-            setSpinnerVisible(false)
+            //setSpinnerVisible(false)
           }
         }}
 
