@@ -64,7 +64,7 @@
 
 .navbar-links .navbar-links-list .navbar-links-list-item .nav-link {
     position: relative;
-    color: var(--text-color);
+    color: var(--text-color2);
     
     letter-spacing: 1px;
     display: inline-block;

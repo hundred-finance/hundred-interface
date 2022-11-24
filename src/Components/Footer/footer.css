@@ -79,7 +79,7 @@
 }
 
 .footer_wrapper .footer_content .content a{
-    color: var(--text-color);
+    color: var(--text-color2);
     text-decoration: none;
     display: -webkit-box;
     display: -ms-flexbox;

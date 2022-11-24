@@ -47,7 +47,8 @@
     margin: auto;
     top:50%;
     transform: translateY(-50%);
-    background-color: var(--modal-background);
+    background: var(--modal-background) padding-box,
+    var(--modal-border) border-box;
     display: flex;
     flex-direction: column;
     overflow: auto;
@@ -137,6 +138,7 @@
     grid-template-columns: 69% 29%;
     align-items: center;
     grid-gap: 2%;
+    margin-top: -12px;
 }
 
 .input-button-group .textbox .validation{

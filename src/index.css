@@ -30,25 +30,36 @@ html{
   --background-color: rgba(28, 32, 38, 1);
   --navbar-background: #222932;
   --switch-theme-border: rgba(9, 166, 227, 1);
+  --switch-theme-background: transparent;
   --hamburger-menu: #fff;
+
   --modal-layout: rgba(19, 19, 19, .85);
-  --modal-background: #222932;
+  --modal-background: linear-gradient(#222932, #222932);
   --modal-line: linear-gradient(180deg, #047ED1 0%, #3DD8FF 48.56%, #047ED1 100%);
   --modal-shadow: 0px 8px 6px rgba(0, 0, 0, 0.25);
+  --modal-border: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
+
   --text-color: #fff;
+  --text-color2: #fff;
   --button-border: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
   --button-background: linear-gradient(#222932, #222932);
+  --button-hover-background: linear-gradient(#222932, #222932);
+  --button-hover-border: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
+
   --general-details-seperator: radial-gradient(100% 8999999.9% at 0% 0%, #047ED1 0%, #3DD8FF 48.56%, #047ED1 100%) /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
-  
+
   --tab-active: rgba(56, 66, 80, 1);
 
   --textbox-border: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%),  linear-gradient(0deg, #193142, #193142);
   --textbox-background: linear-gradient(#193142, #193142);
+  --textbox-color: #b5b5b5;
   
-
-  --link-color: rgba(9, 166, 227, 1);
+  --link-color: #09a6e3;
   --border-line: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
   --border-background: linear-gradient(#1c2026, #1c2026);
+  --markets-background: linear-gradient(#1c2026, #1c2026);
+  --markets-title-color: linear-gradient(#b5b5b5, #b5b5b5);
+  --markets-color: #b5b5b5;
 
   --slider-background: #193142;
   --range-background: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
@@ -63,6 +74,8 @@ html{
   --sun: #2c4965;
 
   --hundred-gradient-1: linear-gradient(180deg, #00CEFF 29.09%, #069BEF 70%);
+  --hundred-gradient-2: linear-gradient(180deg, #00CEFF 29.09%, #069BEF 70%);
+  --hundred-gradient-3: linear-gradient(180deg, #00CEFF 29.09%, #069BEF 70%);
 
   --stop-color-1: #00ceff;
   --stop-color-2: #02c0fb;
@@ -79,14 +92,83 @@ html{
 
   color: #fff;
   --text-gray: #b5b5b5;
+  --logo-background: #ececec;
 
 }
 
 .light{
-  --background-color: #FFF;
+  --background-color: #FFFFFF;
+  --navbar-background: #09A6E3;
   --switch-theme-border: rgba(9, 166, 227, 1);
+  --switch-theme-background: #fff;
+  --hamburger-menu: #fff;
+
+  --modal-layout: rgba(19, 19, 19, .85);
+  --modal-background: linear-gradient(#fff, #fff);
+  --modal-border: linear-gradient(180deg, #09A6E3 0%, #015CB1 100%);  
+  
+  --modal-line: linear-gradient(180deg, #047ED1 0%, #3DD8FF 48.56%, #047ED1 100%);
+  --modal-shadow: 0px 8px 6px rgba(0, 0, 0, 0.25);
+
+  --text-color: #222932;
+  --text-color2: #fff;
+  --button-border: linear-gradient(180deg, #fff 0%, #fff 100%);
+  --button-background: linear-gradient(#09A6E3, #09A6E3);
+  --button-hover-background: linear-gradient(#EBF8FF, #EBF8FF);
+  --button-hover-border: linear-gradient(#09A6E3, #09A6E3);
+
+  --general-details-seperator: radial-gradient(#FFFFFF 0%, #FFFFFF 100%) /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
+
+  --tab-active: rgba(56, 66, 80, .2);
+
+  --textbox-border: linear-gradient(180deg, #00CEFF 0%, #015CB1 100%);
+  --textbox-background: linear-gradient(#EBF8FF, #EBF8FF);
+  --textbox-color: #09A6E3;
+
+  --link-color: #09a6e3;
+  --border-line: linear-gradient(180deg, #00CEFF 0%, #015CB1 100%);
+  --border-background: linear-gradient(180deg, #09A6E3 75.63%, #09A6E3 170.31%);
+  --markets-background: linear-gradient(#EBF8FF, #EBF8FF);
+  --markets-title-color: linear-gradient(#09A6E3, #09A6E3);
+  --markets-color: rgba(34, 41, 50, 1);
+
+  
+  --slider-background: #EBF8FF;
+  --range-background: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
+  --range-thumb-background: linear-gradient(#EBF8FF, #EBF8FF);
+  --range-thumb-border: linear-gradient(180deg, #00CEFF 0%, #069BEF 100%);
+  --range-thumb-shadow: 0px 1px 1px rgba(0, 0, 0, 0);
+  
+  --wallet-hover: #09a6e3;
+  
+  --logo-background: #fff;
+  --spinner-color: #00ceff; 
   --moon: #bedff5;
   --sun: #09A6E3;
+
+  --hundred-gradient-1: linear-gradient(180deg, #fff 29.09%, #fff 70%);
+  --hundred-gradient-2: linear-gradient(180deg, #09A6E3 42.94%, #069BEF 57.74%);
+  --hundred-gradient-3: linear-gradient(180deg, #09A6E3 42.94%, #069CEF 57.74%);
+
+  --stop-color-1: #fff;
+  --stop-color-2: #fff;
+  --stop-color-3: #fff;
+  --stop-color-4: #fff;
+  --stop-color-5: #fff;
+  --stop-color-6: #fff;
+  --stop-color-7: #fff;
+  --stop-color-8: #fff;
+  --stop-color-9: #fff;
+  --stop-color-10:#fff;
+  --stop-color-11: #fff;
+  --stop-color-12: #fff;
+  --hundred-logo-text: #fff;
+
+  color: #fff;
+  --text-gray: #b5b5b5;
+
+  --logo-background: #fff;
+
 }
 
 .line{
@@ -103,12 +185,13 @@ h1{
   font-size: 2rem;
   line-height: 3.2rem;
   letter-spacing: 0.05em;
-  background: var(--hundred-gradient-1);
+  background: var(--hundred-gradient-3);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
   white-space: nowrap;
+  text-shadow: 0px 2px 1px rgba(0, 0, 0, 0.25);
 }
 
 h2{
@@ -126,6 +209,7 @@ h2{
   background-clip: text;
   color: transparent;
   white-space: nowrap;
+  text-shadow: 0px 2px 1px rgba(0, 0, 0, 0.25);
 }
 
 h3{
@@ -137,7 +221,7 @@ h3{
   align-items: center;
   letter-spacing: 0.035em;
 
-  color: var(--text-color);
+  color: var(--text-color2);
 }
 
 /* width */

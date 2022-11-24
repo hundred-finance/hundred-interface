@@ -11,12 +11,35 @@
     var(--button-border) border-box;
     padding: 0 1rem;
     user-select: none;
+    z-index: 2;
+    color: var(--text-color2);
+    cursor: pointer;
 }
 
 .button:hover{
     cursor: pointer;
+    background: var(--button-hover-background) padding-box,
+    var(--button-hover-border) border-box;
+    color: var(--text-color);
+    opacity: .8;
+}
+
+.button:active{
     background: var(--button-border) padding-box,
-    var(--button-border) border-box;
+    var(--button-background) border-box;
+    color: var(--text-color);
+}
+
+.button-active{
+    background: var(--button-border) padding-box,
+    var(--button-background) border-box;
+    color: var(--text-color);
+}
+
+.button-active:hover{
+    background: var(--button-border) padding-box,
+    var(--button-background) border-box;
+    color: var(--text-color);
 }
 
 .button-disabled{
@@ -27,6 +50,8 @@
     cursor: not-allowed;
     background: var(--button-background) padding-box,
         var(--button-border) border-box;
+        opacity: .5;
+    color: var(--text-color2);
 }
 
 .button span{
@@ -126,4 +151,17 @@
     max-width: initial;
     min-width: initial;
     border-radius: 5px;
+}
+
+.button-rectangle-large{
+    height: 39px;
+    width: 100%;
+    min-width: 120px;
+}
+
+.search-text-button{
+    min-width: initial;
+    border-radius: 5px 0 0 5px;
+    background: var(--button-background) padding-box,
+    var(--button-hover-border) border-box;
 }

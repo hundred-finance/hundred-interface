@@ -9,17 +9,19 @@
 .markets-wrapper::after{
     content: "";
     position: absolute;
-    background-image: url(../../assets/Abstract_Lines/Abstract_Line_4.svg);
-    background-size: 1859px 117px;
+    background-image: url(../../assets/Abstract_Lines/Abstract_Line_5.svg);
+    background-size: 755px 869px;
     background-repeat: no-repeat;
     background-position: center;
     display: inline-block;
-    height: 117px;
-    min-width: 1859px;
+    height: 869px;
+    min-width: 755px;
     position: absolute;
-    bottom: -40px;
+    bottom: -200px;
     left: -26px;
     opacity: .4;
+    overflow: hidden;
+    z-index: 0;
 }
 
 .markets-wrapper::before{
@@ -39,20 +41,83 @@
     -webkit-transition: all .5s ease-in-out;
     -o-transition: all .5s ease-in-out;
     transition: all .5s ease-in-out;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.markets-wrapper .cube7{
+    background-image: url(../../assets/Cubes/cube7.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    top: 45%;
+    left: 100px;
+    height: 0;
+    width: 100px;
+    height: 100px;
+    opacity: .8;
+    z-index: 0;
+}
+
+.markets-wrapper .cube8{
+    background-image: url(../../assets/Cubes/cube8.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    bottom: 0;
+    left: 0px;
+    height: 0;
+    width: 124px;
+    height: 194px;
+    opacity: .8;
+    z-index: 0;
+}
+
+.markets-wrapper .cube9{
+    background-image: url(../../assets/Cubes/cube9.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    top: 30%;
+    right: -10px;
+    height: 0;
+    width: 124px;
+    height: 194px;
+    opacity: .8;
+    z-index: 0;
 }
 
 .markets{
     padding: 2rem 0rem;
     max-width: 1240px;
+    width: 100%;
+    z-index: 1;
+}
+
+.markets-content{
+    display: flex;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     width: 100%;
 }
 
+.markets .assets-functions{
+    padding-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    z-index: 3;
+}
+
+.markets .assets-functions .assets-buttons{
+    display: flex;
+    gap: 1.5rem;
+}
+
 .markets .market-container{
     border: 2px solid transparent;
-    background: var(--border-background) padding-box,
+    background: var(--markets-background) padding-box,
     var(--border-line) border-box;    
     border-radius: 5px;
     padding: .5rem;
@@ -72,12 +137,13 @@
     padding: 1rem 0;
     text-align: center;
     text-transform: uppercase;
-    background: var(--hundred-gradient-1);
+    background: var(--hundred-gradient-2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     color: transparent;
     white-space: nowrap;
+    text-shadow: 0px 2px 1px rgba(0, 0, 0, 0.25);
 }
 
 .markets .market-container .market-content{
@@ -86,7 +152,7 @@
 
 .markets .market-container .market-content .market-table{
     min-width: 400px;
-    color: var(--text-gray);
+    color: var(--markets-color);
     border-collapse: collapse;
     width: 100%;
 }
@@ -97,12 +163,17 @@
 
 .market-header-title{    
     height: 2rem;
-    color: var(--text-gray);
     font-weight: 500;
     line-height: 2rem;
     text-align: center;
     position: relative;
     align-items: center;
+    background: var(--markets-title-color);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
 }
 
 .market-header-title svg{
@@ -121,13 +192,18 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background-color: var(--text-gray);
+    background-color: var(--logo-background);
 }
 
 .asset-logo .rounded-circle{
     flex: 1;
     width: 20px;
     height: 20px;
+}
+
+.logo-holder .rounded-circle{
+    flex: 1;
+    filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.25));
 }
 
 .market-table-content tr{
@@ -184,8 +260,27 @@
     
 }
 
+@media only screen and (min-width: 730px){
+    .markets .assets-functions .assets-search{
+        width: 300px;
+    }
+
+    .markets .assets-functions{
+        flex-direction: row;
+        justify-content: space-between;
+
+    }
+    .markets .assets-functions .assets-buttons{
+        width: 360px;
+    }
+}
+
 @media only screen and (min-width: 930px){
-    .markets{
+    .markets .assets-functions .assets-search{
+        width: 400px;
+    }
+
+    .markets-content{
         flex-direction: row;
         justify-content: space-between;
         width: 100%;

@@ -10,6 +10,9 @@ import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css'; // optional
 
 interface Props {
+    allAssets: boolean,
+    myAssets: boolean,
+    searchAssets: string,
     enterMarketDialog: (market: CTokenInfo) => void;
     supplyMarketDialog: (market: CTokenInfo) => void;
 }
@@ -56,9 +59,60 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                         </th>
                     </tr>
                 </thead>
+                {props.myAssets ? 
+                    <tbody className="market-table-content">
+                        {[...marketsData].length > 0 && [...marketsSpinners].length > 0 ? [...marketsData]
+                            ?.filter((item) => {
+                                const gauge = [...gaugesV4Data].find((x) => x?.generalData.lpTokenUnderlying === item.underlying.address)
+                                const backstopGauge = [...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === item?.pTokenAddress.toLowerCase())
+
+                                if(item.supplyBalance.gt(BigNumber.from("0")) || 
+                                   item.backstop?.userBalance.gt(BigNumber.from("0")) ||
+                                   gauge?.userStakeBalance.gt(BigNumber.from("0")) ||
+                                   backstopGauge?.userStakeBalance.gt(BigNumber.from("0")))
+                                    return true
+                                return false
+                            }).filter((item) => {
+                                if(props.searchAssets.trim() === "") return true
+                                if(item.underlying.name.toLowerCase().includes(props.searchAssets.toLowerCase().trim()))
+                                    return true
+                                return false
+                            })
+                            .sort(compareSymbol)
+                            .sort(compareLiquidity)
+                            .sort(compareHndAPR)
+                            .map((market, index) => {
+                                const spinners = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
+                                return (<SupplyMarketRow
+                                    key={index}
+                                    tooltip={`supply-${index}`}
+                                    market={market}
+                                    marketSpinners={spinners}
+                                    hasbackstopGauge={[...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === market?.pTokenAddress.toLowerCase()) !== undefined}
+                                    enterMarketDialog={props.enterMarketDialog}
+                                    supplyMarketDialog={props.supplyMarketDialog}
+                                />)
+                                }): null}
+                    </tbody>
+                : props.allAssets ? 
                 <tbody className="market-table-content">
                     {[...marketsData].length > 0 && [...marketsSpinners].length > 0 ? [...marketsData]
-                        ?.filter((item) => item?.supplyBalance?.gt(BigNumber.from('0')))
+                        ?.filter((item) => {
+                            const gauge = [...gaugesV4Data].find((x) => x?.generalData.lpTokenUnderlying === item.underlying.address)
+                            const backstopGauge = [...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === item?.pTokenAddress.toLowerCase())
+                            
+                            if(item.supplyBalance.gt(BigNumber.from("0")) || 
+                               item.backstop?.userBalance.gt(BigNumber.from("0")) ||
+                               gauge?.userStakeBalance.gt(BigNumber.from("0")) ||
+                               backstopGauge?.userStakeBalance.gt(BigNumber.from("0")))
+                                    return true
+                                return false
+                        }).filter((item) => {
+                            if(props.searchAssets.trim() === "") return true
+                            if(item.underlying.name.toLowerCase().includes(props.searchAssets.toLowerCase().trim()))
+                                return true
+                            return false
+                        })
                         .sort(compareSymbol)
                         .sort(compareLiquidity)
                         .sort(compareHndAPR)
@@ -75,7 +129,24 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                             />)
                             }): null}
                     
-                  {marketsData.length > 0 && marketsSpinners.length > 0 ? [...marketsData]?.filter((item) => item?.supplyBalance?.lte(BigNumber.from("0")))
+                  {marketsData.length > 0 && marketsSpinners.length > 0 ? [...marketsData]
+                    ?.filter((item) => {
+                        const gauge = [...gaugesV4Data].find((x) => x?.generalData.lpTokenUnderlying === item.underlying.address)
+                        const backstopGauge = [...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === item?.pTokenAddress.toLowerCase())
+
+                        if(item.supplyBalance.gt(BigNumber.from("0")) || 
+                           item.backstop?.userBalance.gt(BigNumber.from("0")) ||
+                           gauge?.userStakeBalance.gt(BigNumber.from("0")) || 
+                           backstopGauge?.userStakeBalance.gt(BigNumber.from("0")))
+                                    return false
+                        return true
+                    }).filter((item) => {
+                        if(props.searchAssets.trim() === "") return true
+                        if(item.underlying.name.toLowerCase().includes(props.searchAssets.toLowerCase().trim()) || 
+                           item.underlying.symbol.toLowerCase().includes(props.searchAssets.toLowerCase().trim()))
+                            return true
+                        return false
+                    })
                     .sort(compareSymbol).sort(compareLiquidity).sort(compareHndAPR)
                     .map((market, index) => {
                         const spinners = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
@@ -92,6 +163,7 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                           )
                         }) : null}
                 </tbody>
+             : null}
             </table>
         </div>
     );

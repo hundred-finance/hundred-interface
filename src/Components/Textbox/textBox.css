@@ -61,7 +61,7 @@
     font-size: 1.2rem;
     padding:5px;
     border: none;
-    color: var(--text-color);
+    color: var(--textbox-color);
     box-sizing: border-box;
     background-color: transparent;
 }
@@ -91,9 +91,9 @@
     height: 2px;
     z-index: -1;
     position: absolute;
-    top: 50%;
-    left: 0;
-    background-color: #193142;
+    top: calc(50% - .8px);
+    left: 1px;
+    background: var(--textbox-background);
 }
 
 .textbox .textbox-button .input-button{
