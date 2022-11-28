@@ -280,7 +280,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             </MarketDialogButton>
             {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
                 <MarketDialogButton
-                    disabled={props?.gaugeV4?.claimable_reward === undefined || props?.gaugeV4?.claimable_reward?.toNumber() === 0}
+                    disabled={props?.gaugeV4?.claimable_reward === undefined || props?.gaugeV4?.claimable_reward?.toString() === '0'}
                     onClick={() => props.handleClaimRewards(props.market?.underlying.symbol, props?.gaugeV4)}
                 >
                     {props.market && props.market.mintSpinner ? (

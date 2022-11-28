@@ -495,7 +495,7 @@ const claimRewards = async (provider: any, address: string) => {
     const signer = provider.getSigner()
     const gauge = new ethers.Contract(address, GAUGE_V4_ABI, signer)
 
-    const tx = await gauge.claim_rewards()
+    const tx = await gauge.functions['claim_rewards()']();
     await tx.wait()
 }
 
