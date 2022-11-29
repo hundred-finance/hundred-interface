@@ -30,6 +30,7 @@ export interface GaugeV4GeneralData {
     workingTotalStake: BigNumber
     weight: BigNumber
     veHndRewardRate: BigNumber
+    reward_token: string
     gaugeHelper: string | undefined
 }
 
@@ -43,10 +44,16 @@ export class GaugeV4{
     userClaimableHnd: BigNumber
     userWorkingStakeBalance: BigNumber
     userAllowance: BigNumber
+    reward_token: string
+    reward_token_decimals: number
+    reward_token_symbol: string
+    claimable_reward: BigNumber
+    token_yearly_rewards: BigNumber
     userGaugeHelperAllowance: BigNumber
     stakeCall?: (amount: string, market: CTokenInfo) => Promise<any>
     unstakeCall?: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => Promise<any>
     mintCall?: () => Promise<any>
+    claimRewardsCall: () => void
     approveCall?: (market: CTokenInfo) => Promise<any>
     approveUnstakeCall?: () => Promise<any>
 
@@ -59,8 +66,14 @@ export class GaugeV4{
         userClaimableHnd: BigNumber,
         userWorkingStakeBalance: BigNumber,
         userAllowance: BigNumber,
+        reward_token: string,
+        reward_token_decimals: number,
+        reward_token_symbol: string,
+        claimable_reward: BigNumber,
+        token_yearly_rewards: BigNumber,
         userGaugeHelperAllowance: BigNumber,
         stakeCall?: (amount: string, market: CTokenInfo) => Promise<void>,
+        claimRewardsCall: () => void,
         unstakeCall?: (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => Promise<void>,
         mintCall?: () => Promise<void>,
         approveCall?: (market: CTokenInfo) => Promise<void>,
@@ -75,10 +88,16 @@ export class GaugeV4{
         this.userClaimableHnd = BigNumber.from(userClaimableHnd.toString(), 18)
         this.userWorkingStakeBalance = userWorkingStakeBalance
         this.userAllowance = BigNumber.from(userAllowance.toString(), lpTokenDecimals)
+        this.reward_token = reward_token
+        this.reward_token_symbol = reward_token_symbol
+        this.reward_token_decimals = reward_token_decimals
+        this.claimable_reward = BigNumber.from(claimable_reward.toString(), reward_token_decimals)
+        this.token_yearly_rewards = BigNumber.from(token_yearly_rewards.toString(), reward_token_decimals).mul(BigNumber.from(3600 * 24 * 365))
         this.userGaugeHelperAllowance = BigNumber.from(userGaugeHelperAllowance.toString(), gaugeTokenDecimals)
         this.stakeCall = stakeCall
         this.unstakeCall = unstakeCall
         this.mintCall = mintCall
+        this.claimRewardsCall = claimRewardsCall
         this.approveCall = approveCall
         this.approveUnstakeCall = approveUnstakeCall
     }
@@ -116,11 +135,12 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                 new Contract(g, GAUGE_V4_ABI).reward_policy_maker(),
                 new Contract(g, GAUGE_V4_ABI).working_supply(),
                 new Contract(g, GAUGE_V4_ABI).is_killed(),
-                new Contract(controller, GAUGE_CONTROLLER_ABI).gauge_relative_weight(g)
+                new Contract(controller, GAUGE_CONTROLLER_ABI).gauge_relative_weight(g),
+                new Contract(g, GAUGE_V4_ABI).reward_tokens(0),
             ])
         )
 
-        lpAndMinterAddresses = _.chunk(lpAndMinterAddresses, 6)
+        lpAndMinterAddresses = _.chunk(lpAndMinterAddresses, 7)
         const activeLpAndMinterAddresses: any[][] = []
 
         for (let i = 0; i < lpAndMinterAddresses.length; i++) {
@@ -176,6 +196,7 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                 totalStake: rewards[index][1],
                 workingTotalStake: c[3],
                 veHndRewardRate: rewards[index][0],
+                reward_token: c[6],
                 gaugeHelper: network.gaugeHelper
             }
         });
@@ -196,6 +217,10 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                     g.gaugeHelper ?
                         new Contract(g.address, CTOKEN_ABI).allowance(userAddress, g.gaugeHelper)
                         : new Contract(g.lpToken, CTOKEN_ABI).allowance(userAddress, g.address),
+                    g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.reward_token, TOKEN_ABI).decimals() : new Contract(g.lpToken, TOKEN_ABI).decimals(),
+                    g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.reward_token, TOKEN_ABI).symbol() : new Contract(g.lpToken, TOKEN_ABI).symbol(),
+                    g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.address, GAUGE_V4_ABI).claimable_reward(userAddress, g.reward_token) : new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
+                    g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.address, GAUGE_V4_ABI).reward_data(g.reward_token) : new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
                 ] : [
                     // 0
                     new Contract(g.address, GAUGE_V4_ABI).decimals(),
@@ -208,7 +233,7 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                 ])
             )
 
-            const infoChunks: any = userAddress ? _.chunk(info, 8) : _.chunk(info, 2);
+            const infoChunks: any = userAddress ? _.chunk(info, 12) : _.chunk(info, 2);
 
             return generalData.map((g, index) => {
                 return userAddress ? new GaugeV4(
@@ -220,6 +245,11 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                         infoChunks[index][4],
                         infoChunks[index][5],
                         infoChunks[index][6],
+                        g.reward_token,
+                        infoChunks[index][8],
+                        infoChunks[index][9],
+                        infoChunks[index][10],
+                        infoChunks[index][11]?.rate ? infoChunks[index][11]?.rate : BigNumber.from(0),
                         infoChunks[index][7],
                         (amount: string, market: CTokenInfo) => {
                             if (g.gaugeHelper) {
@@ -228,6 +258,7 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                                 return(stake(provider, userAddress, g, market, BigNumber.parseValueSafe(amount, infoChunks[index][3])._value.toString()))
                             }
                         },
+                        () => claimRewards(provider, g.address),
                         (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => {return unstake(provider, userAddress, g, market, nativeTokenMarket, BigNumber.parseValueSafe(amount, infoChunks[index][1])._value.toString())},
                         () => {return mint(provider, g.address)},
                     (market: CTokenInfo) => {return approve(provider, g, market)},
@@ -283,11 +314,12 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string |
                 new Contract(g, GAUGE_V4_ABI).reward_policy_maker(),
                 new Contract(g, GAUGE_V4_ABI).working_supply(),
                 new Contract(g, GAUGE_V4_ABI).is_killed(),
-                new Contract(controller, GAUGE_CONTROLLER_ABI).gauge_relative_weight(g)
+                new Contract(controller, GAUGE_CONTROLLER_ABI).gauge_relative_weight(g),
+                new Contract(g, GAUGE_V4_ABI).reward_tokens(0),
             ])
         )
 
-        lpAndMinterAddresses = _.chunk(lpAndMinterAddresses, 6)
+        lpAndMinterAddresses = _.chunk(lpAndMinterAddresses, 7)
         const activeLpAndMinterAddresses: any[][] = []
 
         for (let i = 0; i < lpAndMinterAddresses.length; i++) {
@@ -333,6 +365,7 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string |
                 totalStake: rewards[index][1],
                 workingTotalStake: c[3],
                 veHndRewardRate: rewards[index][0],
+                reward_token: c[6],
                 gaugeHelper: network.gaugeHelper
             }
         });
@@ -368,6 +401,11 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string |
                         infoChunks[index][4],
                         infoChunks[index][5],
                         infoChunks[index][6],
+                        g.reward_token,
+                        18,
+                        "",
+                        BigNumber.from(0),
+                        BigNumber.from(0),
                         infoChunks[index][7],
                         (amount: string, market: CTokenInfo) => {
                             if (g.gaugeHelper) {
@@ -376,6 +414,7 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string |
                                 return(stake(provider, userAddress, g, market, ethers.utils.parseUnits(amount, infoChunks[index][3]).toString()))
                             }
                         },
+                        () => claimRewards(provider, g.address),
                          (amount: string, market: CTokenInfo, nativeTokenMarket: string|undefined) => {return unstake(provider, userAddress, g, market, nativeTokenMarket, ethers.utils.parseUnits(amount, infoChunks[index][1]).toString())},
                         () => {return mint(provider, g.address)},
                         (market: CTokenInfo) => {return approve(provider, g, market)},
@@ -484,6 +523,14 @@ const mint = async (provider: any, address: string) => {
     const minter = new ethers.Contract(minterAddress, MINTER_ABI, signer)
 
     return await ExecuteWithExtraGasLimit(minter, "mint", [address], 0)
+}
+
+const claimRewards = async (provider: any, address: string) => {
+    const signer = provider.getSigner()
+    const gauge = new ethers.Contract(address, GAUGE_V4_ABI, signer)
+
+    const tx = await gauge.functions['claim_rewards()']();
+    await tx.wait()
 }
 
 const approve = async (provider: any, gauge: GaugeV4GeneralData, market: CTokenInfo) => {

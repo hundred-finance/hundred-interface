@@ -292,7 +292,7 @@ const NETWORKS: NetworkData = !process.env?.REACT_APP_TEST_NETWORK
         chainId: 10,
         network: "Optimism",
         logo: Logos["OPT"],
-        blocksPerYear: 365 * 24 * 60 * 60 * 1.35,
+        blocksPerYear: 2336000,
         networkParams: {
             chainId: "0xa",
             chainName: "Optimism",

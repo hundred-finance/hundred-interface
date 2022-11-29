@@ -23,6 +23,14 @@ export function stakingApr(market: CTokenInfo|null|undefined, gauge: GaugeV4|nul
     return `${formatApr(market?.veHndAPR)}-${formatApr(market?.veHndMaxAPR)}%`
 }
 
+export function rewardTokenApr(market: CTokenInfo|null, gauge: GaugeV4|null|undefined): string {
+    if (!market || !gauge) {
+        return "0.00%"
+    }
+
+    return `${formatApr(market?.tokenRewardAPR)}%`
+}
+
 export function formatApr(apr: BigNumber): string {
     return BigNumber.parseValue((+apr.toString() * 100).noExponents()).toRound(2, false, true)
 }
