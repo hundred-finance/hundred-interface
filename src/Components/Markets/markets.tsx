@@ -1,76 +1,79 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { CTokenInfo } from "../../Classes/cTokenClass"
-import { GeneralDetailsData } from "../../Classes/generalDetailsClass"
-import Section from "../Section/section"
 import BorrowMarket from "./BorrowMarket/borrowMarket"
-import {MarketContainer, MarketContainerTitle, MarketContainerShowMore} from "./marketContainer"
+import {MarketContainer, MarketContainerTitle} from "./marketContainer"
 import "./style.css"
 import SupplyMarket from "./SupplyMarkets/supplyMarket"
-import {GaugeV4} from "../../Classes/gaugeV4Class";
+import Button from "../Button/button"
+import { useGlobalContext } from "../../Types/globalContext"
+import { useWeb3React } from "@web3-react/core"
+import SearchTextBox from "../SearchTexBox/searchTextBox"
 
 interface Props{
-    generalData: GeneralDetailsData | undefined,
-    marketsData: (CTokenInfo | null)[] | null | undefined,
-    gaugeV4: (GaugeV4 | null)[] | null | undefined,
     enterMarketDialog: (market: CTokenInfo) => void,
     supplyMarketDialog: (market: CTokenInfo) => void,
     borrowMarketDialog: (market: CTokenInfo) => void,
 }
 const Markets: React.FC<Props> = (props : Props) => {
-    const [showMore, setShowMore] = useState<boolean>(false)
+    const {network} = useGlobalContext()
+    const {account} = useWeb3React()
+    const [allAssets, setAllAssets] = useState(true)
+    const [myAssets, setMyAssets] = useState(false)
+    const [searchAssets, setSearchAssets] = useState("")
 
-    const handleSupplyMore = () : void => {
-        setShowMore(!showMore)
-    }
-
-    const handleBorrowMore = () : void => {
-        setShowMore(!showMore)
-    }
+    useEffect(() => {
+        setAllAssets(true)
+        setMyAssets(false)
+        setSearchAssets("")
+    }, [network, account])
 
     return (
-        <Section className="markets-section">
+        <div className="markets-wrapper">
+            <div className="cube7"></div>
+            <div className="cube8"></div>
+            <div className="cube9"></div>
             <div className="markets">
-            <MarketContainer>
-                <MarketContainerTitle>
-                    Supply Market
-                </MarketContainerTitle>
-                <SupplyMarket
-                    generalData={props.generalData}
-                    marketsData = {props.marketsData}
-                    gaugeV4={props.gaugeV4}
-                    enterMarketDialog = {props.enterMarketDialog}
-                    supplyMarketDialog={props.supplyMarketDialog}
-                    more={showMore}
-                />
-                {props.marketsData && props.marketsData.length > 6 ? <MarketContainerShowMore onClick={handleSupplyMore}>
-                {
-                    !showMore ? (
-                          "SHOW MORE"
-                    ) : (
-                          "SHOW LESS"
-                    )
-                  }
-                </MarketContainerShowMore> : null}
-            </MarketContainer>
-            
-            <MarketContainer>
-                <MarketContainerTitle>
-                    Borrow Market
-                </MarketContainerTitle>
-                <BorrowMarket generalData={props.generalData} marketsData = {props.marketsData} borrowMarketDialog={props.borrowMarketDialog} more={showMore}/>
-                {props.marketsData && props.marketsData.length > 6 ?<MarketContainerShowMore onClick={handleBorrowMore}>
-                {
-                    !showMore ? (
-                          "SHOW MORE"
-                    ) : (
-                          "SHOW LESS"
-                    )
-                  }
-                </MarketContainerShowMore> : null}
-            </MarketContainer>
-            
+                <div className="assets-functions">
+                    <div className="assets-buttons">
+                        <Button onClick={() => {
+                            setAllAssets(true)
+                            setMyAssets(false)
+                            setSearchAssets("")
+                            }} rectangle={true} large={true} active={allAssets}>
+                                ALL ASSETS
+                        </Button>
+                        <Button onClick={() => {
+                            setAllAssets(false)
+                            setMyAssets(true)
+                            setSearchAssets("")
+                            }} rectangle={true} large={true} active={myAssets}>
+                                MY ASSETS
+                        </Button>
+                    </div>
+                    <div className="assets-search">
+                            <SearchTextBox searchText={searchAssets} setSearchText={setSearchAssets}/>
+                    </div>
+                </div>
+                <div className="markets-content">
+                    <MarketContainer>
+                        <MarketContainerTitle>
+                            Supply Market
+                        </MarketContainerTitle>
+                        <SupplyMarket allAssets = {allAssets} myAssets = {myAssets} searchAssets={searchAssets}
+                                      enterMarketDialog = {props.enterMarketDialog} 
+                                      supplyMarketDialog={props.supplyMarketDialog}/>
+                    </MarketContainer>
+                  
+                    <MarketContainer>
+                        <MarketContainerTitle>
+                            Borrow Market
+                        </MarketContainerTitle>
+                        <BorrowMarket allAssets={allAssets} myAssets={myAssets} searchAssets={searchAssets}
+                            borrowMarketDialog={props.borrowMarketDialog}/>
+                    </MarketContainer>
+                </div>
+            </div>
         </div>
-        </Section>
     )
 }
 

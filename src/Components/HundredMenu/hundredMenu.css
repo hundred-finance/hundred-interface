@@ -1,0 +1,37 @@
+
+.hundred-menu .hundred-price{
+    font-size: 3rem;
+    font-weight: 500;
+    line-height: 4rem;
+    padding: 1.5rem 0;
+    text-align: center;
+    overflow: hidden;
+}
+
+.hundred-menu .hundred-price .tvl{
+    font-size: 1.25rem;
+    opacity: .5;
+}
+
+.hundred-menu .hundred-price .links{
+    display: flex;
+flex-wrap: wrap;
+gap: 1rem;
+align-items: center;
+justify-content: center;
+}
+
+.hundred-menu .hundred-menu-account{
+    display: flex;
+    flex-direction: column;
+    font-size: 1.5rem;
+    font-weight: 500;
+    justify-content: space-around;
+    gap: 1rem;
+}
+
+.hundred-menu .hundred-menu-account .hundred-menu-account-item{
+    display: flex;
+    justify-content: space-between;
+    gap: .1rem;
+}

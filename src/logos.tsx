@@ -1,5 +1,5 @@
 import ETHlogo from "./assets/images/ETH-logo.svg"
-import MATIClogo from "./assets/images/MATIC-logo.png"
+//import MATIClogo from "./assets/images/MATIC-logo.png"
 import AAVElogo from "./assets/images/AAVE-logo.svg"
 import DAIlogo from "./assets/images/DAI-logo.svg"
 import LINKlogo from "./assets/images/LINK-logo.svg"
@@ -59,7 +59,7 @@ import ZRXlogo from "./assets/images/ZRX-logo.png"
 import KNClogo from "./assets/images/KNC-logo.png"
 import MANAlogo from "./assets/images/MANA-logo.png"
 import ARBITRUMlogo from "./assets/images/ARBITRUM-logo.png"
-import HUNDREDlogo from "./assets/images/HUNDRED-logo.png"
+import HUNDREDlogo from "./assets/icons/HND 1.png"
 import ONElogo from "./assets/images/ONE-logo.svg"
 import OPTlogo from "./assets/images/OPT-logo.png"
 import IOTXlogo from "./assets/images/IOTX-logo.svg"
@@ -78,12 +78,13 @@ import XDailogo from "./assets/images/XDAI-logo.svg"
 import vGNOlogo from "./assets/images/vGNO-logo.png"
 import agEURlogo from "./assets/images/agEUR-logo.svg"
 import OPlogo from "./assets/images/OP-logo.png"
+import Polygonlogo from "./assets/images/POLYGON-logo.svg"
 
 const Logos: { [key: string]: string } = {
     "ETH"       : ETHlogo,
     "WETH"      : ETHlogo,
     "AETH"      : ETHlogo,
-    "MATIC"     : MATIClogo,
+    "MATIC"     : Polygonlogo,
     "AAVE"      : AAVElogo,
     "DAI"       : DAIlogo,
     "LINK"      : LINKlogo,

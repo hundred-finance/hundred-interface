@@ -1,40 +1,16 @@
-
-
-html{
-  font-size: 14px;
-  scrollbar-color: #333 #bebebe;
-  scrollbar-width: thin;
-}
-
 .App {
   min-height: 100vh;
   width: 100%;
   min-width: 320px;
   height: 100%;
   position: relative;
-  text-align: center;
-  background-color: var(--background);
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
 }
 
-
-/* width */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: #f1f1f1; 
-}
- 
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #888; 
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+.wrapper{
+  flex: 1;
 }
 
 .Toastify__toast-body{

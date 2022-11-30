@@ -1,18 +1,20 @@
 import React from "react"
 import { BigNumber } from "../../../bigNumber"
-import { CTokenInfo } from "../../../Classes/cTokenClass"
+import { useHundredDataContext } from "../../../Types/hundredDataContext"
 import "./dialogSection.css"
 
 interface Props{
     collateralFactorText?: string,
-    market: CTokenInfo | null
 }
 
 const DialogMarketInfoSection : React.FC<Props> = (props : Props) => {
+    const {selectedMarket} = useHundredDataContext()
+
     const getSupplyBorrowed = () : string => {
-        if (props.market){
-            const marketTotalBorrowInTokenUnit = +props.market?.marketTotalBorrowInTokenUnit.toString()
-            const underlyingAmount = +props.market?.cash.toString()
+        if (selectedMarket){
+            const market = {...selectedMarket}
+            const marketTotalBorrowInTokenUnit = +market?.marketTotalBorrowInTokenUnit.toString()
+            const underlyingAmount = +market?.cash.toString()
             let value = marketTotalBorrowInTokenUnit / (marketTotalBorrowInTokenUnit + underlyingAmount) * 100
             if (isNaN(value)) value = 0
             //else value = Math.round((value + Number.EPSILON) * Math.pow(10, 18)) / Math.pow(10, 18)
@@ -32,7 +34,7 @@ const DialogMarketInfoSection : React.FC<Props> = (props : Props) => {
                     <span>{props.collateralFactorText}</span>
                 </div>
                 <div className="dialog-section-content-value" style={{ margin: "0px 0px 0px 0px" }}>
-                    {`${props.market ? props.market?.collateralFactor?.mul(BigNumber.from(100)).toRound(2, false, true) : "0.00"}%`}
+                    {`${selectedMarket ? {...selectedMarket}?.collateralFactor?.mul(BigNumber.from(100)).toRound(2, false, true) : "0.00"}%`}
                 </div>
             </div>
             ) : null}

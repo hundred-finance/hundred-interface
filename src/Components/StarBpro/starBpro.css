@@ -11,7 +11,7 @@
     color: #fff;
 }
 .a:hover {
-    color: #00f;
+    color: var(--link-color);
 }
 .star-bpro-icons img{
     width:16px;

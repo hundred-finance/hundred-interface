@@ -1,1 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37.8 43.6"><defs><style>.cls-1{fill:#2a5ada;}</style></defs><title>Asset 1</title><g id="Layer_2" data-name="Layer 2"><g id="Layer_1-2" data-name="Layer 1"><path class="cls-1" d="M18.9,0l-4,2.3L4,8.6,0,10.9V32.7L4,35l11,6.3,4,2.3,4-2.3L33.8,35l4-2.3V10.9l-4-2.3L22.9,2.3ZM8,28.1V15.5L18.9,9.2l10.9,6.3V28.1L18.9,34.4Z"/></g></g></svg>
+<svg width="11.6mm" height="11.6mm" version="1.1" viewBox="0 0 11.6 11.6" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <style>.cls-1{fill:#2a5ada;}</style>
+ </defs>
+ <g transform="translate(-99.999 -142.73)">
+  <path class="cls-1" d="m105.8 142.76-1.0583 0.60854-2.884 1.6669-1.0583 0.60854v5.7679l1.0583 0.60854 2.9104 1.6669 1.0583 0.60854 1.0583-0.60854 2.8575-1.6669 1.0583-0.60854v-5.7679l-1.0583-0.60854-2.884-1.6669zm-2.884 7.4348v-3.3338l2.884-1.6669 2.884 1.6669v3.3338l-2.884 1.6669z" style="stroke-width:.26458"/>
+ </g>
+</svg>

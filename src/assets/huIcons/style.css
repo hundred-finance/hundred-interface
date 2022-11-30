@@ -4,7 +4,7 @@
     padding-right: 5px;
 }
      .spinner .path {
-      stroke: var(--buttonHover);
+      stroke: var(--spinner-color);
       stroke-linecap: round;
       animation: dash 1.5s ease-in-out infinite;
       stroke-width: 5;

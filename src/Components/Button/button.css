@@ -1,0 +1,167 @@
+.button{
+    height: 48px;
+    min-height: 48px;
+    min-width: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1.5px solid transparent;
+    border-radius: 50px;
+    background: var(--button-background) padding-box,
+    var(--button-border) border-box;
+    padding: 0 1rem;
+    user-select: none;
+    z-index: 2;
+    color: var(--text-color2);
+    cursor: pointer;
+}
+
+.button:hover{
+    cursor: pointer;
+    background: var(--button-hover-background) padding-box,
+    var(--button-hover-border) border-box;
+    color: var(--text-color);
+    opacity: .8;
+}
+
+.button:active{
+    background: var(--button-border) padding-box,
+    var(--button-background) border-box;
+    color: var(--text-color);
+}
+
+.button-active{
+    background: var(--button-border) padding-box,
+    var(--button-background) border-box;
+    color: var(--text-color);
+}
+
+.button-active:hover{
+    background: var(--button-border) padding-box,
+    var(--button-background) border-box;
+    color: var(--text-color);
+}
+
+.button-disabled{
+    opacity: .5;
+}
+
+.button-disabled:hover{
+    cursor: not-allowed;
+    background: var(--button-background) padding-box,
+        var(--button-border) border-box;
+        opacity: .5;
+    color: var(--text-color2);
+}
+
+.button span{
+    font-size: 1.35rem;
+    flex: 1;
+    text-align: center;
+}
+
+.button .arrow{
+    font-size: 13px;
+}
+
+.button .button-image{
+    width: 34px;
+    height: 34px;
+    background-color: var(--logo-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    /* padding: 5px; */
+    gap: 1rem;
+    overflow: hidden;
+}
+
+.button .button-image img{
+    width: 30px;
+    height: 30px;
+}
+
+.button .hundred-logo{
+    width: 30px;
+    height: 30px;
+    background-color: var(--logo-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.button-link{
+    height: 30px;
+    min-height: 30px;
+    min-width: 150px;
+    font-size: 1.1rem;
+    padding: 0;
+    justify-content: center;
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.button-small{
+    height: 43px;
+    min-height: 43px;
+    min-width: 150px;
+    
+}
+
+.button-small span{
+    font-size: 1.1rem;
+    flex: 1;
+    text-align: center;
+}
+
+.button-xsmall{
+    height: 30px;
+    min-height: 30px;
+    min-width: 150px;
+    gap: 1rem;
+}
+
+.button-xsmall span{
+    font-size: 1rem;
+}
+
+.button-xsmall .button-image{
+    width: 24px;
+    height: 24px;
+    background-color: var(--logo-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    /* padding: 5px; */
+    overflow: hidden;
+}
+
+.button-xsmall .button-image img{
+    width: 22px;
+    height: 22px;
+}
+
+.button-rectangle{
+    height: 46px;
+    width: 120px;
+    max-width: initial;
+    min-width: initial;
+    border-radius: 5px;
+}
+
+.button-rectangle-large{
+    height: 39px;
+    width: 100%;
+    min-width: 120px;
+}
+
+.search-text-button{
+    min-width: initial;
+    border-radius: 5px 0 0 5px;
+    background: var(--button-background) padding-box,
+    var(--button-hover-border) border-box;
+}

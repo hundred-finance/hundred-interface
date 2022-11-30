@@ -4,81 +4,93 @@ import {compareHndAPR, compareLiquidity, compareSymbol} from "../../../helpers"
 
 import "../style.css"
 import { CTokenInfo } from "../../../Classes/cTokenClass"
-import { GeneralDetailsData } from "../../../Classes/generalDetailsClass"
 import { BigNumber } from "../../../bigNumber"
+import { useHundredDataContext } from "../../../Types/hundredDataContext"
 
 interface Props{
-  generalData: GeneralDetailsData | undefined,
-  marketsData: (CTokenInfo | null)[] | null | undefined,
+  allAssets: boolean,
+  myAssets: boolean,
+  searchAssets: string,
   borrowMarketDialog: (market: CTokenInfo) => void,
-  more: boolean
 }
 
 const BorrowMarket: React.FC<Props> = (props : Props) => {
+  const {marketsData, marketsSpinners} = useHundredDataContext()
+  
     return (
         <div className="market-content">
             <table className = "market-table">
                 <thead className="market-table-header">
                     <tr>
-                        <th>Asset</th>
-                        <th>APY</th>
-                        <th>Borrowed</th>
-                        <th>Wallet</th>
-                        <th>Liquidity</th>
+                        <th colSpan={5}>
+                            <div className='seperator'/>
+                        </th>
+                    </tr>
+                    <tr className='market-table-header-headers'>
+                        <th className='market-header-title'>Asset</th>
+                        <th className='market-header-title'>APY</th>
+                        <th className='market-header-title'>Borrowed</th>
+                        <th className='market-header-title'>Wallet</th>
+                        <th className='market-header-title'>Liquidity</th>
+                    </tr>
+                    <tr>
+                        <th colSpan={5}>
+                            <div className='seperator'/>
+                        </th>
                     </tr>
                 </thead>
+                {props.myAssets ? 
+                  <tbody className="market-table-content">
+                  {marketsData.length > 0 && marketsSpinners.length > 0 ? [...marketsData]
+                      ?.filter((item) => item?.borrowBalance?.gt(BigNumber.from("0")))
+                      .filter((item) => {
+                        if(props.searchAssets.trim() === "") return true
+                        if(item.underlying.name.toLowerCase().includes(props.searchAssets.toLowerCase().trim()) || 
+                           item.underlying.symbol.toLowerCase().includes(props.searchAssets.toLowerCase().trim()))
+                            return true
+                        return false
+                    })
+                      .sort(compareSymbol).sort(compareLiquidity).sort(compareHndAPR)
+                      .map((market, index) => {
+                        const spinners = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
+                        return <BorrowMarketRow key={index} market={market} marketSpinners={spinners} borrowMarketDialog={props.borrowMarketDialog}/>
+                      }) : null}
+                  </tbody>
+                : props.allAssets ? 
                 <tbody className="market-table-content">
-                {props.generalData?.totalBorrowBalance?.gt(BigNumber.from("0")) && (
-                    <tr>
-                      <td
-                        style={{
-                          fontSize: "80%",
-                          fontWeight: "bold",
-                          padding: "1px 0px 1px 15px",
-                        }}
-                      >
-                        Borrowing
-                      </td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                  )}
-                  {props.marketsData?.filter((item) => item?.borrowBalance?.gt(BigNumber.from("0")))
+                  {marketsData.length > 0 && marketsSpinners.length > 0 ? [...marketsData]
+                    ?.filter((item) => item?.borrowBalance?.gt(BigNumber.from("0")))
+                    .filter((item) => {
+                      if(props.searchAssets.trim() === "") return true
+                      if(item.underlying.name.toLowerCase().includes(props.searchAssets.toLowerCase().trim()) || 
+                         item.underlying.symbol.toLowerCase().includes(props.searchAssets.toLowerCase().trim()))
+                          return true
+                      return false
+                  })
                     .sort(compareSymbol).sort(compareLiquidity).sort(compareHndAPR)
-                    .map((details, index) => (
-                      <BorrowMarketRow key={index} details={details} borrowMarketDialog={props.borrowMarketDialog}/>
-                    ))}
-                  {props.generalData?.totalBorrowBalance?.gt(BigNumber.from("0")) && (
-                    <tr>
-                      <td
-                        style={{
-                          fontSize: "80%",
-                          fontWeight: "bold",
-                          padding: "1px 0px 1px 15px",
-                        }}
-                      >
-                        Other Markets
-                      </td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                  )}
-                  {props.marketsData?.filter((item) => item?.borrowBalance?.lte(BigNumber.from("0")))
+                    .map((market, index) => {
+                      const spinners = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
+                      return <BorrowMarketRow key={index} market={market} marketSpinners={spinners} borrowMarketDialog={props.borrowMarketDialog}/>
+                    }) : null}
+                  {marketsData.length > 0 && marketsSpinners.length > 0 ? [...marketsData]
+                    ?.filter((item) => item?.borrowBalance?.lte(BigNumber.from("0")))
+                    .filter((item) => {
+                      if(props.searchAssets.trim() === "") return true
+                      if(item.underlying.name.toLowerCase().includes(props.searchAssets.toLowerCase().trim()) || 
+                         item.underlying.symbol.toLowerCase().includes(props.searchAssets.toLowerCase().trim()))
+                          return true
+                      return false
+                  })
                     .sort(compareSymbol).sort(compareLiquidity).sort(compareHndAPR)
-                    .map((details, index) => {
-                      if(props.more || (!props.more && index < 6))
+                    .map((market, index) => {
+                    
+                        const spinners = [...marketsSpinners].find(x => x.symbol === market.underlying.symbol)
                         return (
-                          <BorrowMarketRow key={index} details={details} borrowMarketDialog={props.borrowMarketDialog} />
-                        )
-                      else return null
-                  })}
-                </tbody>
+                          <BorrowMarketRow key={index} market={market} marketSpinners={spinners} borrowMarketDialog={props.borrowMarketDialog} />
+                        )                    
+                }) : null}
+              </tbody>
+                : null}
             </table> 
         </div>   
     )
