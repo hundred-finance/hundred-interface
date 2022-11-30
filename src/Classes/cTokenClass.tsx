@@ -48,6 +48,7 @@ export enum SpinnersEnum {
   stake,
   unstake,
   mint,
+  rewards,
   backstopDeposit,
   backstopWithdraw,
   backstopClaim
@@ -64,6 +65,7 @@ export class CTokenSpinner{
   stakeSpinner: boolean
   unstakeSpinner: boolean
   mintSpinner: boolean
+  rewardsSpinner: boolean
   backstopDepositSpinner: boolean
   backstopWithdrawSpinner: boolean
   backstopClaimSpinner: boolean
@@ -79,15 +81,25 @@ export class CTokenSpinner{
     this.stakeSpinner = false
     this.unstakeSpinner = false
     this.mintSpinner = false
+    this.rewardsSpinner = false
     this.backstopDepositSpinner = false
     this.backstopWithdrawSpinner = false
     this.backstopClaimSpinner = false
   }
 
   enableMainSpinner = () : boolean => {
-    return this.enterMarketSpinner || this.supplySpinner || this.withdrawSpinner ||
-           this.borrowSpinner || this.repaySpinner || this.stakeSpinner || this.unstakeSpinner ||
-           this.mintSpinner || this.backstopDepositSpinner || this.backstopWithdrawSpinner || this.backstopClaimSpinner
+    return this.enterMarketSpinner || 
+           this.supplySpinner || 
+           this.withdrawSpinner ||
+           this.borrowSpinner || 
+           this.repaySpinner || 
+           this.stakeSpinner || 
+           this.unstakeSpinner ||
+           this.mintSpinner || 
+           this.rewardsSpinner ||
+           this.backstopDepositSpinner || 
+           this.backstopWithdrawSpinner || 
+           this.backstopClaimSpinner
   }
 }
 

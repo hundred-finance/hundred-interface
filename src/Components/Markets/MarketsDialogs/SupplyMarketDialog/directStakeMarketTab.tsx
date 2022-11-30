@@ -5,7 +5,7 @@ import "../marketDialog.css"
 import MarketDialogItem from "../marketDialogItem";
 import { CTokenInfo, SpinnersEnum } from "../../../../Classes/cTokenClass";
 import {GaugeV4} from "../../../../Classes/gaugeV4Class";
-import {stakingApr} from "../../aprHelpers";
+import {stakingApr, rewardTokenApr} from "../../aprHelpers";
 import { useHundredDataContext } from "../../../../Types/hundredDataContext";
 import { useUiContext } from "../../../../Types/uiContext";
 import { useWeb3React } from "@web3-react/core";
@@ -313,6 +313,40 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
           }
       }
 
+    const handleClaimRewards = async (symbol: string) => {
+        if(selectedMarket){
+            const market = [...marketsData].find(x => x.underlying.symbol === symbol)
+            if(market && library && props.gaugeV4.claimRewardsCall){
+                try{
+                      //setSpinnerVisible(true)
+                      toggleSpinners(symbol, SpinnersEnum.rewards)
+
+                      const tx = await props.gaugeV4.claimRewardsCall()
+                    
+                      //setSpinnerVisible(false)
+
+                      const receipt = await tx.wait()
+                      console.log(receipt)
+                      if(receipt.status === 1){
+                          toastSuccessMessage("Transaction complete, updating contracts")
+                          await updateMarket(props.gaugeV4, UpdateTypeEnum.ClaimRewards)
+                      }
+                      else if(receipt.message){
+                          toastErrorMessage(`${receipt.message}`);  
+                      }
+                }
+                catch(error: any){
+                    console.log(error)
+                    toastErrorMessage(`${error?.message.replace('.', '')} on Claim Rewards}`);
+                }
+                finally{
+                    //setSpinnerVisible(false)
+                    toggleSpinners(symbol, SpinnersEnum.rewards)
+                }
+            }
+        }
+    }
+
     return (
         selectedMarket && selectedMarketSpinners ?
         <>
@@ -353,12 +387,15 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             />
             <div className="dialog-line"/>
             {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
-                <MarketDialogItem
-                    title={`${props?.gaugeV4?.reward_token_symbol} APR`}
-                    value={rewardTokenApr({...selectedMarket}, props.gaugeV4)}
-                />
+                <>
+                    <MarketDialogItem
+                        title={`${props?.gaugeV4?.reward_token_symbol} APR`}
+                        value={rewardTokenApr({...selectedMarket}, props.gaugeV4)}
+                    />
+                    <div className="dialog-line"/>
+                </>
                 :
-                ''
+                null
             }
             <div className="input-group">
                 <Range setRatio={setStakeRatio} disabled={+{...selectedMarket}.underlying.walletBalance.toString() === 0}/>
@@ -423,6 +460,18 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     Claim HND
                 </Button>
             </div>
+            {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
+                <div className="secondary-button-section">
+                    <Button
+                    disabled={props?.gaugeV4?.claimable_reward === undefined || props?.gaugeV4?.claimable_reward?.eq(BigNumber.from(0))}
+                    loading={{...selectedMarketSpinners}.rewardsSpinner}
+                    onClick={() => handleClaimRewards({...selectedMarket}.underlying.symbol)}
+                >
+                    Claim {props?.gaugeV4?.reward_token_symbol}
+                </Button>
+                </div>
+                : null
+            }
         </>
         : null
     )

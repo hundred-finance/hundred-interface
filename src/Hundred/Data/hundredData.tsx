@@ -33,6 +33,7 @@ export enum UpdateTypeEnum{
     ApproveStake,
     ApproveUnStake,
     Mint,
+    ClaimRewards,
     Stake,
     Unstake
 }
@@ -271,6 +272,9 @@ const useFetchData = () => {
               case SpinnersEnum.mint : 
                 marketSpinners.mintSpinner = !marketSpinners.mintSpinner
                 break
+               case SpinnersEnum.rewards : 
+                marketSpinners.rewardsSpinner = !marketSpinners.rewardsSpinner
+                break
               case SpinnersEnum.backstopDeposit :
                 marketSpinners.backstopDepositSpinner = !marketSpinners.backstopDepositSpinner
                 break       
@@ -418,6 +422,9 @@ const useFetchData = () => {
                         break
                     case UpdateTypeEnum.Mint:
                         res = await handleUpdateMint(market as GaugeV4, net.chainId)
+                        break
+                    case UpdateTypeEnum.ClaimRewards:
+                        res = await handleUpdateClaimRewards(market as GaugeV4, net.chainId)
                         break
                     case UpdateTypeEnum.Stake:
                         res = await handleUpdateStake(market as GaugeV4, net.chainId)
@@ -972,7 +979,7 @@ const useFetchData = () => {
         return false
     }
 
-    const handleUpdateMint =async (gaugeV4: GaugeV4, chain: number) => {
+    const handleUpdateMint = async (gaugeV4: GaugeV4, chain: number) => {
         if(network && networkId.current === chain && library && account){
                 if(gaugeV4 && comptrollerData){
                     const comptroller = {...comptrollerData}
@@ -982,13 +989,34 @@ const useFetchData = () => {
                                         ([balanceContract.balanceOf(account), contract.claimable_tokens(account)])
                     const claimable = BigNumber.from(value, 18)
                     const hundred = BigNumber.from(balance, 18)
-                    if(+claimable.toString() < +gaugeV4.userClaimableHnd && +hundred.toString() > +hndBalance.toString()){
+                    if(+claimable.toString() < +gaugeV4.userClaimableHnd.toString() && +hundred.toString() > +hndBalance.toString()){
                         console.log("Should Return", claimable.toString())
                         const gauges = [...gaugesV4Data]
                         const g = gauges.find(x => x.generalData.address.toLowerCase() === gaugeV4.generalData.address.toLowerCase())
                         if(g && networkId.current === chain){
                             setHndBalance(hundred)
                             g.userClaimableHnd = claimable
+                            setGaugesV4Data(gauges)
+                            return true
+                        }
+                    }
+                }
+            }
+            return false
+        }
+    
+    const handleUpdateClaimRewards = async (gaugeV4: GaugeV4, chain: number) => {
+        if(network && networkId.current === chain && library && account){
+                if(gaugeV4){
+                    const contract = new ethers.Contract(gaugeV4.generalData.address, GAUGE_V4_ABI, library)
+                    const value = await contract.claimable_reward(account, gaugeV4.reward_token)
+                    const claimableReward = BigNumber.from(value, 18)
+                    if(+claimableReward.toString() < +gaugeV4.claimable_reward.toString()){
+                        console.log("Should Return", claimableReward.toString())
+                        const gauges = [...gaugesV4Data]
+                        const g = gauges.find(x => x.generalData.address.toLowerCase() === gaugeV4.generalData.address.toLowerCase())
+                        if(g && networkId.current === chain){
+                            g.claimable_reward = claimableReward
                             setGaugesV4Data(gauges)
                             return true
                         }
