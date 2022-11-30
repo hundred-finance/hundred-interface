@@ -54,6 +54,7 @@
     user-select: none;
     transition: all 0.1s ease-out;
     background-color: rgba(241, 241, 241, 0.767);
+    pointer-events: none;
 }
 
 .hundred-menu hr {

@@ -1,0 +1,48 @@
+.networks-view{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: .2rem;
+    overflow: auto;
+}
+
+.networks-view .network-item{
+    font-size: 1.2rem;
+    width: 100%;
+    padding: 0 0 0 calc(100% / 5);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    height: 4rem;
+}
+
+.networks-view .network-item:hover, .networks-view .network-item:active{
+    background-color:  var(--wallet-hover);
+    cursor: pointer;
+}
+
+.networks-view .network-selected:hover, .networks-view .network-selected:active{
+    cursor: not-allowed;
+    background-color: transparent;
+}
+
+.networks-view .network-item .network-logo{
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--logo-background);
+    overflow: hidden;
+}
+
+.networks-view .network-item .network-logo img{
+    width: 25px;
+    height: 25px;
+}

@@ -24,14 +24,26 @@ export type UiContext = {
     setOpenHundred: (h: boolean) => void,
     openAirdrop: boolean,
     setOpenAirdrop: (a: boolean) => void,
-    hndSpinner: boolean, 
-    setHndSpinner: (h: boolean) => void,
     airdropSpinner: boolean,
     setAirdropSpinner: (a: boolean) => void
     toastSuccessMessage: (m: string, autoClose?: boolean, closeDelay?: number) => void,
     toastErrorMessage: (message: string, autoClose?: boolean, closeDelay?:number) => void,
     switchModal: boolean,
     setSwitchModal: (m: boolean) => void,
+    scale: boolean, 
+    setScale: (h: boolean) => void
+    claimLegacyHnd: boolean,
+    setClaimLegacyHnd: (c: boolean) => void,
+    claimHnd: boolean,
+    setClaimHnd: (c: boolean) => void,
+    claimLockHnd: boolean,
+    setClaimLockHnd: (c: boolean) => void
+    showWallets: boolean,
+    setShowWallets: (w: boolean) => void,
+    mobileMenuOpen: boolean,
+    setMobileMenuOpen: (m: boolean) => void,
+    accountOpen: boolean,
+    setAccountOpen: (a: boolean) => void
 }
 
 export const MyUiContext = createContext<UiContext>({
@@ -57,14 +69,26 @@ export const MyUiContext = createContext<UiContext>({
     setOpenHundred: () => undefined,
     openAirdrop: false,
     setOpenAirdrop: () => undefined,
-    hndSpinner: false,
-    setHndSpinner: () => undefined,
     airdropSpinner: false,
     setAirdropSpinner : () => undefined,
     toastSuccessMessage : () => undefined,
     toastErrorMessage: () => undefined,
     switchModal: false,
-    setSwitchModal: () => undefined
+    setSwitchModal: () => undefined,
+    scale: false,
+    setScale: () => undefined,
+    claimLegacyHnd: false,
+    setClaimLegacyHnd: () => undefined,
+    claimHnd: false,
+    setClaimHnd: () => undefined,
+    claimLockHnd: false,
+    setClaimLockHnd: () => undefined,
+    showWallets: false,
+    setShowWallets: () => undefined,
+    mobileMenuOpen: false,
+    setMobileMenuOpen: () => undefined,
+    accountOpen: false,
+    setAccountOpen: () => undefined
 })
 
 export const useUiContext = () : UiContext => useContext(MyUiContext)

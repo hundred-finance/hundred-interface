@@ -119,3 +119,19 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
     const oracle = new Contract(oracleAddress, ORACLE_ABI)
     return new Comptroller(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets, ethcallProvider, backstopPools)
   }
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const getComptrollerData2 = async (provider: any, userAddress: string, network: Network): Promise<Comptroller2> => {
+    const ethcallProvider = new Provider()
+    await ethcallProvider.init(provider)
+    const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
+
+    const [oracleAddress, allMarkets, enteredMarkets] = await ethcallProvider.all([ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets(), ethcallComptroller.getAssetsIn(userAddress)]) 
+    const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
+    //   const oracleAddress = await comptroller.oracle()
+       const oracle = new ethers.Contract(oracleAddress as string, ORACLE_ABI, provider)
+    //   const allMarkets =  await comptroller.getAllMarkets()
+    //   const enteredMarkets = await comptroller.getAssetsIn(userAddress)
+   
+    return new Comptroller2(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets as string[], enteredMarkets as string[], ethcallProvider)
+  }

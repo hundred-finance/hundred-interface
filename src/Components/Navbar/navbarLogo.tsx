@@ -1,19 +1,12 @@
 import React from "react"
-import {HuLogo} from "../../assets/huIcons/huIcons"
+import { HundredLogo } from "../../assets/assets"
 
-interface Props{
-    isMobile: boolean
-}
-
-const NavbarLogo: React.FC<Props> = ({isMobile} : Props) => {
+const NavbarLogo: React.FC = () => {
     return (
         <div className="navbar-logo">
-            <div className="navbar-logo-icon">
-                <HuLogo size={isMobile ? "60px" : "80px"} darkMode={true}/>
-            </div>
-             {/*<div className="navbar-logo-caption" style={{color: `${props.theme.text}`}}>
-                <span style={{fontWeight:'bolder', userSelect:'none'}}>HUN</span><span style={{fontWeight:'leighter', userSelect:'none'}}>DRED</span>
-                </div>*/}
+            <div className="navbar-logo">
+                    <HundredLogo width="162" height="29"/>
+                </div>
         </div>
     )
 }

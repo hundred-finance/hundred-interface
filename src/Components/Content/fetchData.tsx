@@ -90,7 +90,7 @@ export type MarketDataType = {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const fetchData = async(
 { allMarkets, userAddress, comptrollerData, network, marketsData, provider, hndPrice, gaugesData }: 
-{ allMarkets: string[]; userAddress: string; comptrollerData: Comptroller; network: Network; marketsData: (CTokenInfo | null)[] | null | undefined; provider: any; hndPrice: number; gaugesData: GaugeV4[] }) : Promise<MarketDataType> => {
+{ allMarkets: string[]; userAddress: string; comptrollerData: Comptroller; network: Network; marketsData: CTokenInfo[] | undefined; provider: any; hndPrice: number; gaugesData: GaugeV4[] }) : Promise<MarketDataType> => {
     const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
     const calls= [ethcallComptroller.getAssetsIn(userAddress)]
 
@@ -142,7 +142,7 @@ export const fetchData = async(
     })
 
     let underlyingAddresses:string[] = []
-    if (!marketsData || markets.length !== marketsData.length){
+    if (!marketsData || markets.length !== [...marketsData].length){
       const underlyingCalls: Call[] = []
       notNativeMarkets.map(x=>{
         const cToken = new Contract(x, CTOKEN_ABI)
@@ -153,7 +153,7 @@ export const fetchData = async(
       underlyingAddresses = result
     }
     else{
-      marketsData.filter(x=>{
+      [...marketsData].filter(x=>{
         if(x?.isNativeToken) return false
          return true
       }).map(x=> {
@@ -550,7 +550,7 @@ export const fetchData = async(
       accrued = (+newSupplyIndex - +token.compSupplierIndex) * +token.cTokenBalanceOfUser / 1e36 
     }
     
-    let backstop = null
+    let backstop = undefined
 
     if(token.backstop){
       if(network.backstopMasterChef?.version === MasterChefVersion.v1){

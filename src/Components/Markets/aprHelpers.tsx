@@ -2,7 +2,7 @@ import {CTokenInfo} from "../../Classes/cTokenClass";
 import {GaugeV4} from "../../Classes/gaugeV4Class";
 import {BigNumber} from "../../bigNumber";
 
-export function stakingApr(market: CTokenInfo|null, gauge: GaugeV4|null|undefined): string {
+export function stakingApr(market: CTokenInfo|null|undefined, gauge: GaugeV4|null|undefined): string {
 
     if (!market || !gauge) {
         return "0.00%"

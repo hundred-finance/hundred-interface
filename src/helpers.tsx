@@ -43,10 +43,10 @@ export const decimalPlaces = (number: string, places: number) : string => {
   }
 }
 
-export const getShortenAddress = (address: string) : string => {
-  const firstCharacters = address.substring(0, 6);
+export const getShortenAddress = (address: string, substring?: number) : string => {
+  const firstCharacters = address.substring(0, substring ? substring + 2 : 4);
   const lastCharacters = address.substring(
-    address.length - 4,
+    address.length - (substring ? substring : 2),
     address.length
   );
   return `${firstCharacters}...${lastCharacters}`;
@@ -124,3 +124,9 @@ export const toHex = (num: number) : string => {
   const val = Number(num);
   return "0x" + val.toString(16);
 };
+
+export const delay = (n: number) => {
+  return new Promise(function(resolve){
+      setTimeout(resolve,n*1000);
+  });
+}

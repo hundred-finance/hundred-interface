@@ -39,6 +39,70 @@ export class Underlying{
   }
 }
 
+export enum SpinnersEnum {
+  enterMarket,
+  supply,
+  withdraw,
+  borrow,
+  repay,
+  stake,
+  unstake,
+  mint,
+  rewards,
+  backstopDeposit,
+  backstopWithdraw,
+  backstopClaim
+}
+
+export class CTokenSpinner{
+  symbol: string
+  spinner: boolean
+  enterMarketSpinner: boolean
+  supplySpinner: boolean
+  withdrawSpinner: boolean
+  borrowSpinner: boolean
+  repaySpinner: boolean
+  stakeSpinner: boolean
+  unstakeSpinner: boolean
+  mintSpinner: boolean
+  rewardsSpinner: boolean
+  backstopDepositSpinner: boolean
+  backstopWithdrawSpinner: boolean
+  backstopClaimSpinner: boolean
+
+  constructor (symbol: string) {
+    this.symbol = symbol
+    this.spinner = false
+    this.enterMarketSpinner = false
+    this.supplySpinner = false
+    this.withdrawSpinner = false
+    this.borrowSpinner = false
+    this.repaySpinner = false
+    this.stakeSpinner = false
+    this.unstakeSpinner = false
+    this.mintSpinner = false
+    this.rewardsSpinner = false
+    this.backstopDepositSpinner = false
+    this.backstopWithdrawSpinner = false
+    this.backstopClaimSpinner = false
+  }
+
+  enableMainSpinner = () : boolean => {
+    return this.enterMarketSpinner || 
+           this.supplySpinner || 
+           this.withdrawSpinner ||
+           this.borrowSpinner || 
+           this.repaySpinner || 
+           this.stakeSpinner || 
+           this.unstakeSpinner ||
+           this.mintSpinner || 
+           this.rewardsSpinner ||
+           this.backstopDepositSpinner || 
+           this.backstopWithdrawSpinner || 
+           this.backstopClaimSpinner
+  }
+}
+
 export class CTokenInfo{
     pTokenAddress: string
     underlying: Underlying
@@ -57,17 +121,6 @@ export class CTokenInfo{
     liquidity: BigNumber
     collateralFactor: BigNumber
     hndSpeed: BigNumber
-    spinner: boolean
-    supplySpinner: boolean
-    withdrawSpinner: boolean
-    borrowSpinner: boolean
-    repaySpinner: boolean
-    stakeSpinner: boolean
-    unstakeSpinner: boolean
-    mintSpinner: boolean
-    backstopDepositSpinner: boolean
-    backstopWithdrawSpinner: boolean
-    backstopClaimSpinner: boolean
     isNativeToken: boolean
     mintPaused: boolean
     borrowPaused: boolean
@@ -88,7 +141,7 @@ export class CTokenInfo{
 
     accrued: number
 
-    backstop: Backstop | BackstopV2 | null
+    backstop: Backstop | BackstopV2 | undefined
    
 
     constructor(pTokenAddress: string,
@@ -123,7 +176,7 @@ export class CTokenInfo{
                 accrued: number,
                 mintPaused: boolean,
                 borrowPaused: boolean,
-                backstop: Backstop | BackstopV2 | null
+                backstop: Backstop | BackstopV2 | undefined
                 ){
         this.pTokenAddress= pTokenAddress
         this.underlying = underlying
@@ -143,17 +196,6 @@ export class CTokenInfo{
         this.collateralFactor= collateralFactor
         this.hndSpeed= hndSpeed
         this.isNativeToken = isNativeToken
-        this.spinner = false
-        this.supplySpinner = false
-        this.withdrawSpinner = false
-        this.borrowSpinner = false
-        this.repaySpinner = false
-        this.stakeSpinner = false
-        this.unstakeSpinner = false
-        this.mintSpinner = false
-        this.backstopDepositSpinner = false
-        this.backstopWithdrawSpinner = false
-        this.backstopClaimSpinner = false
 
         this.borrowHndApy = BigNumber.from("0")
         this.hndAPR = hndAPR

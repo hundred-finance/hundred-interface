@@ -9,7 +9,6 @@ import Modal from "../Modal/modal"
 import "./networksView.css"
 
 const NetworksView : React.FC = () => {
-
     const { connector, library } = useWeb3React()
     const {network, setNetwork} = useGlobalContext()
     

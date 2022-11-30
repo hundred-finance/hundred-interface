@@ -1,6 +1,4 @@
 import React from "react"
-import HundredButton from "../HundredButton/hundredButton"
-import AddressButton from "../AddressButton/addressButton"
 import Navbar from "../Navbar/navbar"
 import NavbarLeft from '../Navbar/navBarLeft'
 import NavbarLink from "../Navbar/navBarLink"
@@ -8,24 +6,19 @@ import NavBarLinks from "../Navbar/navBarLinks"
 import NavbarLogo from "../Navbar/navbarLogo"
 import NavBarRight from "../Navbar/navBarRight"
 import ThemeSwitch from "../Navbar/themeSwitch"
-import NetworkButton from "../NetworkButton/networkButton"
-import AirdropButton, { AirdropType } from "../AirdropButton/airdropButton"
+import AirdropButton from "../AirdropButton/airdropButton"
 import { useUiContext } from "../../Types/uiContext"
+import HundredButton from "./HundredButton/hundredButton"
+import NetworkButton from "./NetworkButton/networkButton"
+import AddressButton from "./AddressButton/addressButton"
 
-interface Props {
-  hasClaimed: boolean,
-  setHasClaimed: React.Dispatch<React.SetStateAction<boolean>>,
-  airdrops: AirdropType[],
-  setAirdrops: React.Dispatch<React.SetStateAction<AirdropType[]>>
-}
-
-const Menu : React.FC<Props> = (props: Props) => {
+const Menu : React.FC = () => {
   const {isTablet, isMobile, show} = useUiContext()
     return(
         (!isTablet && !isMobile && show) ? (
             <Navbar isMobile={isMobile} isTablet={isTablet}>
                 <NavbarLeft>
-                  <NavbarLogo isMobile={isMobile}/>
+                  <NavbarLogo/>
                   <NavBarLinks>
                     <NavbarLink link="https://dashboard.hundred.finance" target="_blank">Dashboard</NavbarLink>
                     <NavbarLink link="https://app.multichain.org/#/router" target="_blank">Bridge</NavbarLink>
@@ -35,8 +28,7 @@ const Menu : React.FC<Props> = (props: Props) => {
                   </NavBarLinks>
                 </NavbarLeft>
                 <NavBarRight>
-                  <AirdropButton hasClaimed={props.hasClaimed}
-                                setHasClaimed={props.setHasClaimed} airdrops={props.airdrops} setAirdrops={props.setAirdrops}/>
+                  <AirdropButton/>
                   <HundredButton/>
                   <NetworkButton/>
                   <AddressButton/>
