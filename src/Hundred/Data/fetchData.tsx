@@ -901,10 +901,10 @@ if(backstop){
         }
     }
 
-    const totalMaxSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString(), +veHndBackstopMaxAPR.toString())+ +supplyApy.toString()).noExponents())
-    const totalMinSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString(), +veHndBackstopAPR.toString())+ +supplyApy.toString()).noExponents())
+    const totalMaxSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString(), +veHndBackstopMaxAPR.toString())+ +supplyApy.toString()+ +tokenRewardAPR.toString()).noExponents())
+    const totalMinSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString(), +veHndBackstopAPR.toString())+ +supplyApy.toString()+ +tokenRewardAPR.toString()).noExponents())
     const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
-    const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +veHndBackstopAPR.toString() + +supplyApy.toString()).noExponents())
+    const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +veHndBackstopAPR.toString() + +supplyApy.toString()+ +tokenRewardAPR.toString()).noExponents())
 
     let accrued  = 0
     if(+token.totalSupply > 0){

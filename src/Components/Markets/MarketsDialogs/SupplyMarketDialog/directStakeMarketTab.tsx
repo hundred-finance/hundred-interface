@@ -331,11 +331,35 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                         : "0.0000"} HND`}
             />
             <div className="dialog-line"/>
+            {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
+                <>
+                    <MarketDialogItem
+                        title={"Claimable reward"}
+                        value={`${+formatBalance(props.gaugeV4.claimable_reward).toString() > 0
+                                ? +formatBalance(props.gaugeV4?.claimable_reward).toFixed(4) === 0
+                                ? ">0.0001"
+                                : formatBalance(props.gaugeV4?.claimable_reward).toFixed(4)
+                                : "0.0000"} 
+                        ${props.gaugeV4?.reward_token_symbol}`}
+                    />
+                    <div className="dialog-line"/>
+                </>
+                :
+                null
+            }
             <MarketDialogItem
-                title={"APR"}
+                title={"HND APR"}
                 value={stakingApr({...selectedMarket}, props.gaugeV4)}
             />
             <div className="dialog-line"/>
+            {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
+                <MarketDialogItem
+                    title={`${props?.gaugeV4?.reward_token_symbol} APR`}
+                    value={rewardTokenApr({...selectedMarket}, props.gaugeV4)}
+                />
+                :
+                ''
+            }
             <div className="input-group">
                 <Range setRatio={setStakeRatio} disabled={+{...selectedMarket}.underlying.walletBalance.toString() === 0}/>
                 <div className="input-button-group">
