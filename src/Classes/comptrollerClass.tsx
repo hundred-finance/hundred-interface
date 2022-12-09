@@ -126,7 +126,7 @@ export const getComptrollerData2 = async (provider: any, userAddress: string, ne
     await ethcallProvider.init(provider)
     const ethcallComptroller = new Contract(network.unitrollerAddress, COMPTROLLER_ABI)
 
-    const [oracleAddress, allMarkets, enteredMarkets] = await ethcallProvider.all([ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets(), ethcallComptroller.getAssetsIn(userAddress)]) 
+    const [oracleAddress, allMarkets, enteredMarkets]: any[] = await ethcallProvider.all([ethcallComptroller.oracle(), ethcallComptroller.getAllMarkets(), ethcallComptroller.getAssetsIn(userAddress)])
     const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
     //   const oracleAddress = await comptroller.oracle()
        const oracle = new ethers.Contract(oracleAddress, ORACLE_ABI, provider)
