@@ -33,8 +33,6 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
 
     useEffect(() => {
         mounted.current = true
-        console.log("gauge address:", props.gaugeV4.generalData.address)
-        console.log("gaugeHelper: ", props.gaugeV4.generalData.gaugeHelper)
 
         return () => {
             mounted.current = false
@@ -457,10 +455,10 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
             <div className="button-section">
                 <Button disabled={actionsDisabled || props.gaugeV4.userClaimableHnd === undefined || props.gaugeV4.userClaimableHnd?.eq(BigNumber.from(0)) || actionsDisabled}
                     onClick={() =>handleMint({...selectedMarket}.underlying.symbol)} loading={{...selectedMarketSpinners}.mintSpinner}>
-                    Claim HND
+                    { props?.gaugeV4?.generalData.minterIsV2 ? 'Claim All' : 'Claim HND' }
                 </Button>
             </div>
-            {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" ?
+            {props?.gaugeV4?.reward_token !== "0x0000000000000000000000000000000000000000" && !props?.gaugeV4?.generalData.minterIsV2 ?
                 <div className="secondary-button-section">
                     <Button
                     disabled={props?.gaugeV4?.claimable_reward === undefined || props?.gaugeV4?.claimable_reward?.eq(BigNumber.from(0))}

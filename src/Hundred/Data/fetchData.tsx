@@ -7,6 +7,7 @@ import {
     BPRO_ABI_V2,
     COMPTROLLER_ABI,
     CTOKEN_ABI,
+    CTOKEN_V2_ABI,
     HUNDRED_ABI,
     TOKEN_ABI
 } from "../../abi"
@@ -52,8 +53,8 @@ type Token ={
     exchangeRate: ethers.BigNumber
     totalSupply: ethers.BigNumber
     totalBorrows: ethers.BigNumber
-    supplyRatePerBlock: ethers.BigNumber
-    borrowRatePerBlock: ethers.BigNumber,
+    supplyRatePerSecond: ethers.BigNumber
+    borrowRatePerSecond: ethers.BigNumber,
     cash: ethers.BigNumber,
     cTokenBalanceOfUser: ethers.BigNumber,
     markets: Markets,
@@ -105,13 +106,13 @@ export const fetchGeneralData = async(
     const nativeToken = markets.find(a => a.toLowerCase() === network.nativeTokenMarketAddress.toLowerCase())
     
     if (nativeToken){
-      const cToken = new Contract(nativeToken, CTOKEN_ABI)
+      const cToken = network.isMinterV2 ? new Contract(nativeToken, CTOKEN_V2_ABI) : new Contract(nativeToken, CTOKEN_ABI)
       calls.push(//cToken.getAccountSnapshot(userAddress),
                  cToken.exchangeRateStored(),
                  cToken.totalSupply(), 
                  cToken.totalBorrows(), 
-                 cToken.supplyRatePerBlock(), 
-                 cToken.borrowRatePerBlock(), 
+                 network.isMinterV2 ? cToken.supplyRatePerSecond() : cToken.supplyRatePerBlock(),
+                 network.isMinterV2 ? cToken.borrowRatePerSecond() : cToken.borrowRatePerBlock(),
                  cToken.getCash(),
                  //cToken.balanceOf(userAddress),
                  comptrollerData.ethcallComptroller.markets(nativeToken), 
@@ -157,15 +158,15 @@ export const fetchGeneralData = async(
     }
 
     notNativeMarkets.map(async(a, index) => {
-        const hTokenContract = new Contract(a, CTOKEN_ABI)
+        const hTokenContract = network.isMinterV2 ? new Contract(a, CTOKEN_V2_ABI) : new Contract(a, CTOKEN_ABI)
         const underlyingAddress = underlyingAddresses[index]
         const tokenContract = new Contract(underlyingAddress, TOKEN_ABI)
         calls.push(//hTokenContract.getAccountSnapshot(userAddress),
                    hTokenContract.exchangeRateStored(),
                    hTokenContract.totalSupply(),
                    hTokenContract.totalBorrows(),
-                   hTokenContract.supplyRatePerBlock(),
-                   hTokenContract.borrowRatePerBlock(),
+                   network.isMinterV2 ? hTokenContract.supplyRatePerSecond() : hTokenContract.supplyRatePerBlock(),
+                   network.isMinterV2 ? hTokenContract.borrowRatePerSecond() : hTokenContract.borrowRatePerBlock(),
                    hTokenContract.getCash(),
                    //hTokenContract.balanceOf(userAddress),
                    comptrollerData.ethcallComptroller.markets(a),
@@ -305,13 +306,13 @@ export const fetchData = async(
     const nativeToken = markets.find(a => a.toLowerCase() === network.nativeTokenMarketAddress.toLowerCase())
     
     if (nativeToken){
-      const cToken = new Contract(nativeToken, CTOKEN_ABI)
+      const cToken = network.isMinterV2 ? new Contract(nativeToken, CTOKEN_V2_ABI) : new Contract(nativeToken, CTOKEN_ABI)
       calls.push(cToken.getAccountSnapshot(userAddress),
                  cToken.exchangeRateStored(),
                  cToken.totalSupply(), 
-                 cToken.totalBorrows(), 
-                 cToken.supplyRatePerBlock(), 
-                 cToken.borrowRatePerBlock(), 
+                 cToken.totalBorrows(),
+                 network.isMinterV2 ? cToken.supplyRatePerSecond() : cToken.supplyRatePerBlock(),
+                 network.isMinterV2 ? cToken.borrowRatePerSecond() : cToken.borrowRatePerBlock(),
                  cToken.getCash(),
                  cToken.balanceOf(userAddress),
                  comptrollerData.ethcallComptroller.markets(nativeToken), 
@@ -357,15 +358,15 @@ export const fetchData = async(
     }
 
     notNativeMarkets.map(async(a, index) => {
-        const hTokenContract = new Contract(a, CTOKEN_ABI)
+        const hTokenContract = network.isMinterV2 ? new Contract(a, CTOKEN_V2_ABI) : new Contract(a, CTOKEN_ABI)
         const underlyingAddress = underlyingAddresses[index]
         const tokenContract = new Contract(underlyingAddress, TOKEN_ABI)
         calls.push(hTokenContract.getAccountSnapshot(userAddress),
                    hTokenContract.exchangeRateStored(),
                    hTokenContract.totalSupply(),
                    hTokenContract.totalBorrows(),
-                   hTokenContract.supplyRatePerBlock(),
-                   hTokenContract.borrowRatePerBlock(),
+                   network.isMinterV2 ? hTokenContract.supplyRatePerSecond() : hTokenContract.supplyRatePerBlock(),
+                   network.isMinterV2 ? hTokenContract.borrowRatePerSecond() : hTokenContract.borrowRatePerBlock(),
                    hTokenContract.getCash(),
                    hTokenContract.balanceOf(userAddress),
                    comptrollerData.ethcallComptroller.markets(a),
@@ -494,14 +495,14 @@ export const fetchData = async(
 
  const getTokenData = async(tokenData: any[], native: boolean, network: Network, provider: ethers.providers.Web3Provider, 
                             userAddress: string, underlyingAddress: string, enteredMarkets: string[], tokenAddress: string, backstop: BackstopPool | null): Promise<Token> =>{
-    const isMaker = underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" ? true : false
+    const isMaker = underlyingAddress.toLowerCase() === "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2"
 
     const [accountSnapshot,
           exchangeRate,
           totalSupply,
           totalBorrows,
-          supplyRatePerBlock,
-          borrowRatePerBlock,
+          supplyRatePerSecond,
+          borrowRatePerSecond,
           cash,
           cTokenBalanceOfUser,
           [
@@ -520,7 +521,7 @@ export const fetchData = async(
           borrowPaused,
           ...rest] = tokenData
 
-    const [symbol, name, decimals, underlyingTotalSupply, allowance, walletBalance, gaugeHelperAllowance, ...backstopData] = rest
+     const [symbol, name, decimals, underlyingTotalSupply, allowance, walletBalance, gaugeHelperAllowance, ...backstopData] = rest
 
     
     const token: Token = {
@@ -528,8 +529,8 @@ export const fetchData = async(
         exchangeRate,
         totalSupply,
         totalBorrows,
-        supplyRatePerBlock,
-        borrowRatePerBlock,
+        supplyRatePerSecond: network.isMinterV2 ? supplyRatePerSecond : Math.floor(supplyRatePerSecond * (network.blocksPerYear || 0) / (365 * 24* 3600)),
+        borrowRatePerSecond: network.isMinterV2 ? borrowRatePerSecond : Math.floor(borrowRatePerSecond * (network.blocksPerYear || 0) / (365 * 24* 3600)),
         cash,
         cTokenBalanceOfUser,
         markets: {
@@ -630,8 +631,8 @@ const [
       exchangeRate,
       totalSupply,
       totalBorrows,
-      supplyRatePerBlock,
-      borrowRatePerBlock,
+      supplyRatePerSecond,
+      borrowRatePerSecond,
       cash,
       [
         isListed,
@@ -656,8 +657,8 @@ const token: Token = {
       exchangeRate,
       totalSupply,
       totalBorrows,
-      supplyRatePerBlock,
-      borrowRatePerBlock,
+      supplyRatePerSecond: network.isMinterV2 ? supplyRatePerSecond : Math.floor(supplyRatePerSecond * (network.blocksPerYear || 0) / (365 * 24* 3600)),
+      borrowRatePerSecond: network.isMinterV2 ? borrowRatePerSecond : Math.floor(borrowRatePerSecond * (network.blocksPerYear || 0) / (365 * 24* 3600)),
       cash,
       cTokenBalanceOfUser: ethers.BigNumber.from("0"),
       markets: {
@@ -790,12 +791,10 @@ if(backstop){
 
       const collateralFactor = BigNumber.from(token.markets.collateralFactorMantissa.toString(), 18)
 
-      //const supplyRatePerBlock = BigNumber.from(token.supplyRatePerBlock, decimals)
+      const supplyApy = BigNumber.parseValue((Math.pow((1 + +token.supplyRatePerSecond / mantissa), 365 * 24 * 3600) - 1).noExponents())
+      const borrowRatePerBlock = BigNumber.from(token.borrowRatePerSecond, 18)
 
-      const supplyApy = BigNumber.parseValue((Math.pow((1 + +token.supplyRatePerBlock / mantissa), network.blocksPerYear) - 1).noExponents())
-      const borrowRatePerBlock = BigNumber.from(token.borrowRatePerBlock, 18)
-
-      const borrowApy = BigNumber.parseValue((Math.pow((1 + +token.borrowRatePerBlock / mantissa), network.blocksPerYear) - 1).noExponents())
+      const borrowApy = BigNumber.parseValue((Math.pow((1 + +token.borrowRatePerSecond / mantissa), 365 * 24 * 3600) - 1).noExponents())
 
 
       const cash = BigNumber.from(token.cash, decimals)

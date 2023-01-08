@@ -51,8 +51,8 @@ type Token ={
     exchangeRate: ethers.BigNumber
     totalSupply: ethers.BigNumber
     totalBorrows: ethers.BigNumber
-    supplyRatePerBlock: ethers.BigNumber
-    borrowRatePerBlock: ethers.BigNumber,
+    supplyRatePerSecond: ethers.BigNumber
+    borrowRatePerSecond: ethers.BigNumber,
     cash: ethers.BigNumber,
     cTokenBalanceOfUser: ethers.BigNumber,
     markets: Markets,
@@ -309,8 +309,8 @@ export const fetchData = async(
         exchangeRate: tokenData[1],
         totalSupply: tokenData[2],
         totalBorrows: tokenData[3],
-        supplyRatePerBlock: tokenData[4],
-        borrowRatePerBlock: tokenData[5],
+        supplyRatePerSecond: network.isMinterV2 ? tokenData[4] : tokenData[4] * (network.blocksPerYear || 0) / (365 * 24* 3600),
+        borrowRatePerSecond: network.isMinterV2 ? tokenData[5] : tokenData[5] * (network.blocksPerYear || 0) / (365 * 24* 3600),
         cash: tokenData[6],
         cTokenBalanceOfUser: tokenData[7],
         markets: {
@@ -429,10 +429,10 @@ export const fetchData = async(
 
 //      const supplyRatePerBlock = BigNumber.from(token.supplyRatePerBlock, decimals)
 
-      const supplyApy = BigNumber.parseValue((Math.pow((1 + +token.supplyRatePerBlock / mantissa), network.blocksPerYear) - 1).noExponents())
-      const borrowRatePerBlock = BigNumber.from(token.borrowRatePerBlock, 18)
+      const supplyApy = BigNumber.parseValue((Math.pow((1 + +token.supplyRatePerSecond / mantissa), 365 * 24 * 3600) - 1).noExponents())
+      const borrowRatePerSecond = BigNumber.from(token.borrowRatePerSecond, 18)
 
-      const borrowApy = BigNumber.parseValue((Math.pow((1 + +token.borrowRatePerBlock / mantissa), network.blocksPerYear) - 1).noExponents())
+      const borrowApy = BigNumber.parseValue((Math.pow((1 + +token.borrowRatePerSecond / mantissa), 365 * 24 * 3600) - 1).noExponents())
       
 
       const cash = BigNumber.from(token.cash, decimals)
@@ -602,7 +602,7 @@ export const fetchData = async(
       tokenRewardAPR,
       veHndBackstopAPR,
       veHndBackstopMaxAPR,
-      borrowRatePerBlock,
+      borrowRatePerSecond,
       totalMaxSupplyApy,
       totalMinSupplyApy,
       oldTotalSupplyApy,

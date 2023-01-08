@@ -170,14 +170,12 @@ const useFetchData = () => {
             const gaugesData = [...gauges, ...backstopGauges]
             const markets = account ? await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: account, comptrollerData: comptroller, network: net, marketsData: marketsData, provider: library, hndPrice: hndPrice, gaugesData: gaugesData })
                                     : await fetchGeneralData({ allMarkets: [...comptroller.allMarkets], comptrollerData: comptroller, network: net, marketsData: marketsData, provider, hndPrice: hndPrice, gaugesData: gaugesData })
-           
-          
+
             setMarketsData(markets.markets)
             setGaugesV4Data(gaugesData)
-          
             
             updateMarkets(markets.markets, markets.hndBalance, markets.hundredBalace, markets.comAccrued, markets.vehndBalance, markets.hndRewards, markets.gaugeAddresses)
-            
+
             if(firstLoad.current){
                 const spinners = markets.markets.map(m => {
                     return new CTokenSpinner(m.underlying.symbol)

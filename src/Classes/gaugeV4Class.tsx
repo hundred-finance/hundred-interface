@@ -5,8 +5,11 @@ import {
     GAUGE_CONTROLLER_ABI,
     GAUGE_HELPER_ABI,
     GAUGE_V4_ABI,
+    GAUGE_V5_ABI,
     MINTER_ABI,
+    MINTER_V2_ABI,
     REWARD_POLICY_MAKER_ABI,
+    REWARD_POLICY_MAKER_V2_ABI,
     TOKEN_ABI
 } from '../abi'
 import { Network } from '../networks'
@@ -32,6 +35,7 @@ export interface GaugeV4GeneralData {
     veHndRewardRate: BigNumber
     reward_token: string
     gaugeHelper: string | undefined
+    minterIsV2: boolean
 }
 
 export class GaugeV4{
@@ -136,7 +140,10 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                 new Contract(g, GAUGE_V4_ABI).working_supply(),
                 new Contract(g, GAUGE_V4_ABI).is_killed(),
                 new Contract(controller, GAUGE_CONTROLLER_ABI).gauge_relative_weight(g),
-                new Contract(g, GAUGE_V4_ABI).reward_tokens(0),
+                network.isMinterV2 ?
+                    new Contract(network.minterAddress || '', MINTER_V2_ABI).tokens(1)
+                :
+                    new Contract(g, GAUGE_V4_ABI).reward_tokens(0),
             ])
         )
 
@@ -153,8 +160,13 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
         const calls : any = []
 
         activeGauges.forEach((g, index) => {
-            calls.push(new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
-                      new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g))
+            calls.push(
+                network.isMinterV2 ?
+                    new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_V2_ABI).rate_at(floor(new Date().getTime() / 1000), network.hundredAddress)
+                :
+                    new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
+                new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g)
+            )
             if(activeLpAndMinterAddresses[index][0] && activeLpAndMinterAddresses[index][0].toLowerCase() !== network.nativeTokenMarketAddress.toLowerCase())
                 calls.push(new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).underlying())
         })
@@ -168,18 +180,6 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
             }
             return rewardsData.splice(0,3)
         })
-
-        // let rewards: any = await ethcallProvider.all(
-        //     activeGauges.flatMap((g, index) => [
-        //             new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
-        //             new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).balanceOf(g),
-        //             new Contract(activeLpAndMinterAddresses[index][0], CTOKEN_ABI).underlying(),
-        //         ]
-        //     )
-        // )
-        // console.log("Gauges rewards", rewards)
-
-        // rewards = _.chunk(rewards, 3)
 
         generalData = activeLpAndMinterAddresses.map((c, index) => {
             return {
@@ -197,19 +197,22 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                 workingTotalStake: c[3],
                 veHndRewardRate: rewards[index][0],
                 reward_token: c[6],
-                gaugeHelper: network.gaugeHelper
+                gaugeHelper: network.gaugeHelper,
+                minterIsV2: network.isMinterV2 === true
             }
         });
 
         if (generalData.length > 0) {
-
             const info = await ethcallProvider.all(
                 generalData.flatMap((g) => userAddress ? [
                     new Contract(g.address, GAUGE_V4_ABI).balanceOf(userAddress),
                     new Contract(g.address, GAUGE_V4_ABI).decimals(),
                     new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
                     new Contract(g.lpToken, CTOKEN_ABI).decimals(),
-                    new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
+                    network.isMinterV2 ?
+                        new Contract(g.address, GAUGE_V5_ABI).claimable_tokens(userAddress, network.hundredAddress)
+                    :
+                        new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
                     new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
                     g.gaugeHelper && g.lpTokenUnderlying !== "0x0" ?
                         new Contract(g.lpTokenUnderlying, CTOKEN_ABI).allowance(userAddress, g.gaugeHelper)
@@ -219,8 +222,22 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                         : new Contract(g.lpToken, CTOKEN_ABI).allowance(userAddress, g.address),
                     g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.reward_token, TOKEN_ABI).decimals() : new Contract(g.lpToken, TOKEN_ABI).decimals(),
                     g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.reward_token, TOKEN_ABI).symbol() : new Contract(g.lpToken, TOKEN_ABI).symbol(),
-                    g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.address, GAUGE_V4_ABI).claimable_reward(userAddress, g.reward_token) : new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
-                    g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.address, GAUGE_V4_ABI).reward_data(g.reward_token) : new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
+                    g.reward_token !== "0x0000000000000000000000000000000000000000" ?
+                        (network.isMinterV2 ?
+                            new Contract(g.address, GAUGE_V5_ABI).claimable_tokens(userAddress, g.reward_token)
+                        :
+                            new Contract(g.address, GAUGE_V4_ABI).claimable_reward(userAddress, g.reward_token)
+                        )
+                    :
+                        new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
+                    g.reward_token !== "0x0000000000000000000000000000000000000000" ?
+                        (network.isMinterV2 ?
+                            new Contract(g.rewardPolicyMaker, REWARD_POLICY_MAKER_V2_ABI).rate_at(floor(new Date().getTime() / 1000), g.reward_token)
+                        :
+                            new Contract(g.address, GAUGE_V4_ABI).reward_data(g.reward_token)
+                        )
+                    :
+                        new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
                 ] : [
                     // 0
                     new Contract(g.address, GAUGE_V4_ABI).decimals(),
@@ -232,8 +249,6 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                     // 7
                     g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.reward_token, TOKEN_ABI).decimals() : new Contract(g.lpToken, TOKEN_ABI).decimals(),
                     g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.reward_token, TOKEN_ABI).symbol() : new Contract(g.lpToken, TOKEN_ABI).symbol(),
-                    //g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.address, GAUGE_V4_ABI).claimable_reward(userAddress, g.reward_token) : new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
-                    //g.reward_token !== "0x0000000000000000000000000000000000000000" ? new Contract(g.address, GAUGE_V4_ABI).reward_data(g.reward_token) : new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
                 ])
             )
 
@@ -253,7 +268,7 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                         infoChunks[index][8],
                         infoChunks[index][9],
                         infoChunks[index][10],
-                        infoChunks[index][11]?.rate ? infoChunks[index][11]?.rate : BigNumber.from(0),
+                        network.isMinterV2 ? infoChunks[index][11] : infoChunks[index][11]?.rate ? infoChunks[index][11]?.rate : BigNumber.from(0),
                         infoChunks[index][7],
                         (amount: string, market: CTokenInfo) => {
                             if (g.gaugeHelper) {
@@ -324,7 +339,10 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string |
                 new Contract(g, GAUGE_V4_ABI).working_supply(),
                 new Contract(g, GAUGE_V4_ABI).is_killed(),
                 new Contract(controller, GAUGE_CONTROLLER_ABI).gauge_relative_weight(g),
-                new Contract(g, GAUGE_V4_ABI).reward_tokens(0),
+                network.isMinterV2 ?
+                    new Contract(network.minterAddress || '', MINTER_V2_ABI).tokens(1)
+                    :
+                    new Contract(g, GAUGE_V4_ABI).reward_tokens(0),
             ])
         )
 
@@ -340,7 +358,10 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string |
 
         let rewards: any = await ethcallProvider.all(
             activeGauges.flatMap((g, index) => [
-                    new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
+                    network.isMinterV2 ?
+                        new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_V2_ABI).rate_at(floor(new Date().getTime() / 1000), network.hundredAddress)
+                    :
+                        new Contract(activeLpAndMinterAddresses[index][2], REWARD_POLICY_MAKER_ABI).rate_at(floor(new Date().getTime() / 1000)),
                     new Contract(activeLpAndMinterAddresses[index][0], BPRO_ABI).balanceOf(g),
                     new Contract(activeLpAndMinterAddresses[index][0], BPRO_ABI).LUSD(),
                     new Contract(activeLpAndMinterAddresses[index][0], BPRO_ABI).totalSupply(),
@@ -375,7 +396,8 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string |
                 workingTotalStake: c[3],
                 veHndRewardRate: rewards[index][0],
                 reward_token: c[6],
-                gaugeHelper: network.gaugeHelper
+                gaugeHelper: network.gaugeHelper,
+                minterIsV2: network.isMinterV2 === true
             }
         });
 
@@ -387,7 +409,7 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string |
                     new Contract(g.address, GAUGE_V4_ABI).decimals(),
                     new Contract(g.lpToken, CTOKEN_ABI).balanceOf(userAddress),
                     new Contract(g.lpToken, CTOKEN_ABI).decimals(),
-                    new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
+                    network.isMinterV2 ? new Contract(g.address, GAUGE_V5_ABI).claimable_tokens(userAddress, network.hundredAddress) : new Contract(g.address, GAUGE_V4_ABI).claimable_tokens(userAddress),
                     new Contract(g.address, GAUGE_V4_ABI).working_balances(userAddress),
                     new Contract(g.lpBackstopTokenUnderlying ? g.lpBackstopTokenUnderlying : "", CTOKEN_ABI).allowance(userAddress, g.gaugeHelper),
                     new Contract(g.address, CTOKEN_ABI).allowance(userAddress, g.gaugeHelper),
