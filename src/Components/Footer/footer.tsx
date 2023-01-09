@@ -29,7 +29,7 @@ const Footer : React.FC = () => {
                 <div className="content">
                     <h4>Governance</h4>
                     <a href="https://snapshot.org/#/hundredfinance.eth" target={"_blank"} rel={"noreferrer"}><p>Snapshot</p></a>
-                    <a href="https://forum.hundred.finance" target={"_blank"} rel={"noreferrer"}><p>Forum</p></a>
+                    {/* <a href="https://forum.hundred.finance" target={"_blank"} rel={"noreferrer"}><p>Forum</p></a> */}
                     <a href="https://migration.hundred.finance" target={"_blank"} rel={"noreferrer"}><p>Migration</p></a>
                 </div>
                 <div className="content">
