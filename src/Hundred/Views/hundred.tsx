@@ -137,8 +137,6 @@ const Hundred: React.FC = () => {
         return
       }
     }
-    const net = NETWORKS[42161]
-    setNetwork(net)
 }, [chainId])
 
 useEffect(() => {
