@@ -16,7 +16,7 @@ const HundredMenu: React.FC = () => {
     const mounted = useRef<boolean>(false)
     
     const { library, account } = useWeb3React()
-    const {hndBalance, hndEarned, hundredBalance, hndRewards, vehndBalance, gaugeAddresses, updateMarket} = useHundredDataContext()
+    const {hndBalance, hndEarned, hundredBalance, hndRewards, tokenRewards, rewardTokenSymbol, vehndBalance, gaugeAddresses, updateMarket} = useHundredDataContext()
 
     const { setSpinnerVisible, claimLegacyHnd, setClaimLegacyHnd, claimHnd, setClaimHnd, claimLockHnd, setClaimLockHnd, toastErrorMessage, toastSuccessMessage} = useUiContext()
     const {network, hndPrice} = useGlobalContext()
@@ -186,8 +186,10 @@ const HundredMenu: React.FC = () => {
                 <div className="hundred-menu-item-label"><label>HND Balance </label><span>{hndBalance ? (hndBalance.gt(BigNumber.from(0)) ? hndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
                 <div className="hundred-menu-item-label"><label>veHND Balance </label><span>{vehndBalance ? (vehndBalance.gt(BigNumber.from(0)) ? vehndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
                 <div className="hundred-menu-item-label"><label>HND Earned </label><span>{hndRewards ? (hndRewards.gt(BigNumber.from(0)) ? +hndRewards.toRound(2, true, true) === 0 ? ">0.00" : hndRewards.toRound(2, true, true) : "0.00") : "--"}</span></div>
-               
-                <div className= {`${!claimHnd && !claimLockHnd && !claimLegacyHnd && hndRewards && +hndRewards?.toString() > 0 ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimHnd()}>{claimHnd ? (<Spinner size={"25px"}/>) : "Claim HND"}</div>
+                { rewardTokenSymbol ?
+                    <div className="hundred-menu-item-label"><label>{rewardTokenSymbol} Earned </label><span>{tokenRewards ? (tokenRewards.gt(BigNumber.from(0)) ? +tokenRewards.toRound(2, true, true) === 0 ? ">0.00" : tokenRewards.toRound(2, true, true) : "0.00") : "--"}</span></div>
+                : '' }
+                <div className= {`${!claimHnd && !claimLockHnd && !claimLegacyHnd && ((hndRewards && +hndRewards?.toString() > 0) || (tokenRewards && +tokenRewards?.toString() > 0)) ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimHnd()}>{claimHnd ? (<Spinner size={"25px"}/>) : "Claim rewards"}</div>
                 <div className= {`${!claimHnd && !claimLockHnd && !claimLegacyHnd && hndRewards && +hndRewards?.toString() > 0 ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimLockHnd()}>{claimLockHnd ? (<Spinner size={"25px"}/>) : "Claim and Lock HND"}</div>
 
                 {hndEarned && +hndEarned.toString() > 0 ? 

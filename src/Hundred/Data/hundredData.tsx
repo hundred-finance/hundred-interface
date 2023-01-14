@@ -59,6 +59,8 @@ const useFetchData = () => {
     const [hundredBalance, setHundredBalance] = useState<BigNumber>(BigNumber.from("0"))
     const [vehndBalance, setVehndBalance] = useState<BigNumber>(BigNumber.from("0"))
     const [hndRewards, setHndRewards] = useState<BigNumber>(BigNumber.from("0"))
+    const [tokenRewards, setTokenRewards] = useState<BigNumber>(BigNumber.from("0"))
+    const [rewardTokenSymbol, setRewardTokenSymbol] = useState<string|undefined>(undefined)
     const [gaugeAddresses, setGaugeAddresses] = useState<string[]>()
 
     const { setGMessage } = useHundredDataContext()
@@ -139,7 +141,7 @@ const useFetchData = () => {
         }
     }
 
-    const updateMarkets = (markets: CTokenInfo[], hndBalance: BigNumber, hundredBalace: BigNumber, compaccrued: BigNumber, vehndBalance: BigNumber, hndRewards: BigNumber, gaugeAddresses: string[]): void =>{
+    const updateMarkets = (markets: CTokenInfo[], hndBalance: BigNumber, hundredBalace: BigNumber, compaccrued: BigNumber, vehndBalance: BigNumber, hndRewards: BigNumber, tokenRewards: BigNumber, rewardTokenSymbol: string | undefined, gaugeAddresses: string[]): void =>{
         if(markets){
             compAccrued.current = compaccrued
           
@@ -148,6 +150,8 @@ const useFetchData = () => {
           setHundredBalance(hundredBalace)
           setVehndBalance(vehndBalance)
           setHndRewards(hndRewards)
+          setTokenRewards(tokenRewards)
+          setRewardTokenSymbol(rewardTokenSymbol)
           setGaugeAddresses(gaugeAddresses)
           if(selectedMarket && markets){
             const selected = {...selectedMarket}
@@ -174,7 +178,17 @@ const useFetchData = () => {
             setMarketsData(markets.markets)
             setGaugesV4Data(gaugesData)
             
-            updateMarkets(markets.markets, markets.hndBalance, markets.hundredBalace, markets.comAccrued, markets.vehndBalance, markets.hndRewards, markets.gaugeAddresses)
+            updateMarkets(
+                markets.markets,
+                markets.hndBalance,
+                markets.hundredBalace,
+                markets.comAccrued,
+                markets.vehndBalance,
+                markets.hndRewards,
+                markets.tokenRewards,
+                markets.rewardTokenSymbol,
+                markets.gaugeAddresses
+            )
 
             if(firstLoad.current){
                 const spinners = markets.markets.map(m => {
@@ -1186,7 +1200,9 @@ const useFetchData = () => {
             hndBalance, setHndBalance,
             hndEarned, setHndEarned, 
             hndRewards, setHndRewards, 
-            hundredBalance, setHundredBalance, 
+            tokenRewards, setTokenRewards,
+            rewardTokenSymbol, setRewardTokenSymbol,
+            hundredBalance, setHundredBalance,
             vehndBalance, setVehndBalance,
             gaugeAddresses, setGaugeAddresses, 
             selectedMarket, setSelectedMarket, 

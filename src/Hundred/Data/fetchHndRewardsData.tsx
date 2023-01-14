@@ -4,6 +4,8 @@ import { GaugeV4 } from "../../Classes/gaugeV4Class"
 
 export type hndRewardsDataType = {
     totalHndRewards: BigNumber,
+    secondaryTokenRewards: BigNumber,
+    secondaryTokenSymbol: string | undefined,
     gaugeAddresses: string[]
 }
 
@@ -17,17 +19,21 @@ export const fetchHndRewards = async(
             .filter(g => !g.generalData.backstopGauge)
             .filter(g => g.userClaimableHnd.gt(BigNumber.from(0)))
             .slice(0, 7);
-    let result = 0
+    let totalHndRewards = 0
+    let totalSecondaryTokenRewards = 0
+    let secondaryTokenSymbol = undefined;
     for (let i = 0; i < claimableGauges.length; i++) {
-        const hndNum = +claimableGauges[i].userClaimableHnd.toString();
         gaugeAddresses[i] = (claimableGauges[i].generalData.address);
-        result += hndNum
+
+        totalHndRewards += +claimableGauges[i].userClaimableHnd.toString()
+        totalSecondaryTokenRewards += +claimableGauges[i].claimable_reward.toString()
+        secondaryTokenSymbol = claimableGauges[i].reward_token_symbol;
     }
 
-    const totalHndRewards = BigNumber.parseValue(result.noExponents())
-
     return {
-        totalHndRewards: totalHndRewards,
+        totalHndRewards: BigNumber.parseValue(totalHndRewards.noExponents()),
+        secondaryTokenRewards: BigNumber.parseValue(totalSecondaryTokenRewards.noExponents()),
+        secondaryTokenSymbol: secondaryTokenSymbol,
         gaugeAddresses: gaugeAddresses
     }
 }

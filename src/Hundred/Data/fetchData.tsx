@@ -80,6 +80,8 @@ export type MarketDataType = {
     backStopGauges: GaugeV4GeneralData[],
     vehndBalance: BigNumber,
     hndRewards: BigNumber,
+    tokenRewards: BigNumber,
+    rewardTokenSymbol: string | undefined,
     gaugeAddresses: string[],
 }
   
@@ -280,6 +282,8 @@ export const fetchGeneralData = async(
         backStopGauges: gaugesData.filter(g => g.generalData.backstopGauge).map(g => g.generalData),
         vehndBalance: vehndBalance,
         hndRewards: hndRewards,
+        tokenRewards: BigNumber.from(0),
+        rewardTokenSymbol: undefined,
         gaugeAddresses: gaugeAddresses
     }
 }
@@ -326,6 +330,8 @@ export const fetchData = async(
 
   const hndClaimData = (await fetchHndRewards({gaugesData}))
   const hndRewards = hndClaimData.totalHndRewards
+  const tokenRewards = hndClaimData.secondaryTokenRewards;
+  const rewardTokenSymbol = hndClaimData.secondaryTokenSymbol;
   const gaugeAddresses = hndClaimData.gaugeAddresses
 
   const votingData = (await fetchVotingData({userAddress, comptrollerData, network}))
@@ -489,6 +495,8 @@ export const fetchData = async(
         backStopGauges: gaugesData.filter(g => g.generalData.backstopGauge).map(g => g.generalData),
         vehndBalance: vehndBalance,
         hndRewards: hndRewards,
+        tokenRewards: tokenRewards,
+        rewardTokenSymbol: rewardTokenSymbol,
         gaugeAddresses: gaugeAddresses
     }
   }
