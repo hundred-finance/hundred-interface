@@ -46,6 +46,8 @@ const useFetchData = () => {
     const firstLoad = useRef<boolean>(true)
     const errorsCount = useRef<number>(0)
     const update = useRef<boolean>(false)
+    const selectedMarketRef = useRef<CTokenInfo>()
+    const selectedMarketSpinnersRef = useRef<CTokenSpinner>()
 
     const [comptrollerData, setComptrollerData] = useState<Comptroller>()
     const [marketsData, setMarketsData] = useState<CTokenInfo[]>([])
@@ -76,6 +78,14 @@ const useFetchData = () => {
     }, [])
 
     useEffect(() => {
+        selectedMarketRef.current = selectedMarket
+    }, [selectedMarket])
+
+    useEffect(() => {
+        selectedMarketSpinnersRef.current = selectedMarketSpinners
+    }, [selectedMarketSpinners])
+
+    useEffect(() => {
         stopUpdate()
         timeoutId.current = undefined
         firstLoad.current = true
@@ -84,6 +94,7 @@ const useFetchData = () => {
         setGaugesV4Data([])
         setGeneralData(undefined)
         setSelectedMarket(undefined)
+        setSelectedMarketSpinners(undefined)
         setMarketsSpinners([])
         if(network ){
             if(account && library && network.chainId === chainId){
@@ -112,20 +123,22 @@ const useFetchData = () => {
             const data = getGeneralDetails(markets, gauges, compAccrued.current)
             setGeneralData(data)
             setHndEarned(data.earned)
-            if(selectedMarket){
+            if(selectedMarket && selectedMarketRef.current){
                 const selected = {...selectedMarket}
-                const market = markets.find(x=> x.underlying.symbol === selected.underlying.symbol)
-                if(market){
-                    setSelectedMarket(market)
-                }
+                if (selected.underlying.symbol === selectedMarketRef.current.underlying.symbol){
+                    const market = markets.find(x=> x.underlying.symbol === selected.underlying.symbol)
+                    if(market){
+                        setSelectedMarket(market)
+                    }
+                }   
             }
         }
     }, [marketsData, gaugesV4Data, compAccrued.current])
 
     useEffect(() => {
         if(marketsSpinners){
-            if(selectedMarketSpinners){
-                const selected = {...selectedMarketSpinners}
+            if(selectedMarketSpinnersRef.current){
+                const selected = selectedMarketSpinnersRef.current
                 const market = [...marketsSpinners].find(x => x.symbol === selected.symbol)
                 if(market) setSelectedMarketSpinners(market)
             }
@@ -153,11 +166,13 @@ const useFetchData = () => {
           setTokenRewards(tokenRewards)
           setRewardTokenSymbol(rewardTokenSymbol)
           setGaugeAddresses(gaugeAddresses)
-          if(selectedMarket && markets){
+          if(selectedMarket && selectedMarketRef.current && markets){
             const selected = {...selectedMarket}
-            const market = [...markets].find(x=>x?.underlying.symbol === selected.underlying.symbol)
-            if (market){
-              setSelectedMarket(market)
+            if(selected.underlying.symbol === selectedMarketRef.current.underlying.symbol){
+                const market = [...markets].find(x=>x?.underlying.symbol === selected.underlying.symbol)
+                if (market){
+                    setSelectedMarket(market)
+                }
             }
           }
         }
@@ -1144,9 +1159,9 @@ const useFetchData = () => {
                     call.push(tokenContract.allowance(account, selected.pTokenAddress));
                 }            
             } else if (gaugeV4) {
-                const gaugeHelper = gaugeV4?.generalData.gaugeHelper;
-                const lpTokenUnderlying = gaugeV4?.generalData.lpTokenUnderlying;
-                const lpToken = gaugeV4?.generalData.lpToken;
+                const gaugeHelper = gaugeV4.generalData.gaugeHelper;
+                const lpTokenUnderlying = gaugeV4.generalData.lpTokenUnderlying;
+                const lpToken = gaugeV4.generalData.lpToken;
                 const gaugeAddress = gaugeV4?.generalData.address;
                 if (action === 'stake' || action === 'unstake') {
                     call.push(new Contract(gaugeV4.generalData.address, GAUGE_V4_ABI).balanceOf(account));
@@ -1154,7 +1169,7 @@ const useFetchData = () => {
                     call.push(new Contract(network.hundredAddress, HUNDRED_ABI).balanceOf(account));
                 } else if (action === 'approveStake') {
                     if (gaugeHelper && lpTokenUnderlying !== '0x0') {
-                        const cTokenContract = new Contract(lpTokenUnderlying, CTOKEN_ABI);
+                        const cTokenContract = new Contract(lpToken, CTOKEN_ABI);
                         call.push(cTokenContract.allowance(account, gaugeHelper));
                     } else {
                         const cTokenContract = new Contract(lpToken, CTOKEN_ABI);

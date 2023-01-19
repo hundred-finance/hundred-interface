@@ -152,7 +152,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                         console.log(receipt)
                         if(receipt.status === 1){
                             toastSuccessMessage("Transaction complete, updating contracts")
-                            await updateMarket(market, UpdateTypeEnum.ApproveStake)
+                            await updateMarket(props.gaugeV4, UpdateTypeEnum.ApproveStake)
                         }
                         else if(receipt.message){
                             toastErrorMessage(`${receipt.message}`);  
@@ -414,7 +414,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                                 Stake
                         </Button>
                         :
-                        <Button disabled={stakeInput === "" || actionsDisabled || stakeValidation.trim() !== ""} loading={{...selectedMarketSpinners}.stakeSpinner} rectangle={true}
+                        <Button disabled={false} loading={{...selectedMarketSpinners}.stakeSpinner} rectangle={true}
                             onClick={() => handleApproveStake({...selectedMarket}.underlying.symbol)}>
                             Approve
                         </Button>
