@@ -414,7 +414,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                                 Stake
                         </Button>
                         :
-                        <Button disabled={false} loading={{...selectedMarketSpinners}.stakeSpinner} rectangle={true}
+                        <Button disabled={stakeInput === "" || actionsDisabled || stakeValidation.trim() !== ""} loading={{...selectedMarketSpinners}.stakeSpinner} rectangle={true}
                             onClick={() => handleApproveStake({...selectedMarket}.underlying.symbol)}>
                             Approve
                         </Button>
