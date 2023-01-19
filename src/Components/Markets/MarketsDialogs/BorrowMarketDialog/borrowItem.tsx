@@ -69,7 +69,9 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
                 setBorrowValidation("Amount must be a number");
             }else if (+borrowInput <= 0) {
               setBorrowValidation("Amount must be > 0");
-            } else if (+pValue.toRound(2) >= 90.01) {
+            }else if (+pValue === 0){
+                setBorrowValidation("Your Borrow Limit is 0");
+            }else if (+pValue.toRound(2) >= 90.01) {
               setBorrowValidation("Amount must be <= 90% borrow limit");
             }else if (selectedMarket && +BigNumber.parseValue(borrowInput).toString() > +{...selectedMarket}.cash.toString()) {
                 setBorrowValidation("Amount must be <= liquidity");
@@ -160,7 +162,7 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
                         Borrow is Paused
                     </Button>
                     :<Button loading={{...selectedMarketSpinners}?.borrowSpinner}
-                        disabled={(!borrowInput || borrowValidation || selectedMarketSpinners?.borrowSpinner) ? true : false}
+                        disabled={(!borrowInput || borrowValidation || selectedMarketSpinners?.borrowSpinner || !selectedMarket.isEnterMarket) ? true : false}
                         onClick={() => {handleBorrow(
                                                 {...selectedMarket}?.underlying.symbol,
                                                 borrowInput
