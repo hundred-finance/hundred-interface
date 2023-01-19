@@ -446,7 +446,7 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     :
                     <Button disabled={unstakeInput === "" || actionsDisabled || unstakeValidation !== ""} loading={{...selectedMarketSpinners}.unstakeSpinner}
                         onClick={() => handleApproveUnStake({...selectedMarket}.underlying.symbol)} rectangle={true}>
-
+                        Approve
                     </Button>
                 }
             </div>
