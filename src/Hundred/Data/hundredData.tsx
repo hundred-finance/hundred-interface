@@ -68,7 +68,7 @@ const useFetchData = () => {
     const { setGMessage } = useHundredDataContext()
 
     const {network, hndPrice} = useGlobalContext()
-    const { toastErrorMessage} = useUiContext()
+    const { toastErrorMessage, setOptimismMessage} = useUiContext()
     const {library, account, chainId} = useWeb3React()
 
     useEffect(() => {
@@ -212,6 +212,11 @@ const useFetchData = () => {
                 setMarketsSpinners(spinners)
                 firstLoad.current = false
                 //setSpinnerVisible(false)
+                if(net.chainId === 10){
+                    console.log("Optimism")
+                    setOptimismMessage(true)
+                }
+
                 const oldGauges = await getGaugesData(library, account, net, true)
                 if(oldGauges.length > 0){
                     const oldGaugeData: { symbol: string; stakeBalance: BigNumber }[] = []

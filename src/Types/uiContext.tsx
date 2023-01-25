@@ -44,6 +44,8 @@ export type UiContext = {
     setMobileMenuOpen: (m: boolean) => void,
     accountOpen: boolean,
     setAccountOpen: (a: boolean) => void
+    optimismMessage: boolean,
+    setOptimismMessage: (a: boolean) => void
 }
 
 export const MyUiContext = createContext<UiContext>({
@@ -88,7 +90,9 @@ export const MyUiContext = createContext<UiContext>({
     mobileMenuOpen: false,
     setMobileMenuOpen: () => undefined,
     accountOpen: false,
-    setAccountOpen: () => undefined
+    setAccountOpen: () => undefined,
+    optimismMessage: false,
+    setOptimismMessage: () => undefined
 })
 
 export const useUiContext = () : UiContext => useContext(MyUiContext)

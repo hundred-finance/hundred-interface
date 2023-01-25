@@ -53,6 +53,7 @@ const App: React.FC = () => {
   const [openNetwork, setOpenNetwork] = useState<boolean>(false)
   const [openHundred, setOpenHundred] = useState<boolean>(false)
   const [openAirdrop, setOpenAirdrop] = useState<boolean>(false)
+  const [optimismMessage, setOptimismMessage] = useState<boolean>(false)
   const [airdropSpinner, setAirdropSpinner] = useState<boolean>(false)
   const [switchModal, setSwitchModal] = useState(false)
   const [scale, setScale] = useState(false)
@@ -155,7 +156,8 @@ const App: React.FC = () => {
                                     claimLockHnd, setClaimLockHnd,
                                     showWallets, setShowWallets,
                                     mobileMenuOpen, setMobileMenuOpen,
-                                    accountOpen, setAccountOpen})}>
+                                    accountOpen, setAccountOpen,
+                                    optimismMessage, setOptimismMessage})}>
           <div id="app" className={`App scroller ${darkMode ? "dark" : "light"}`}>
             <Hundred/>
             <ReactToolTip id="tooltip" effect="solid"/>

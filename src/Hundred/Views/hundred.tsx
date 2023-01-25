@@ -11,6 +11,7 @@ import HundredMenu from '../../Components/HundredMenu/hundredMenu'
 import Menu from '../../Components/Menu/menu'
 import TabletMenu from '../../Components/Menu/tabletMenu'
 import HundredMessage from '../../Components/MessageDialog/messageDialog'
+import OptimismMessage from '../../Components/MessageDialog/optimismDialog'
 import NetworksMenu from '../../Components/NetworksMenu/networksMenu'
 import Wallets from '../../Components/Wallets/wallets'
 import Wrapper from '../../Components/Wrapper/wrapper'
@@ -200,6 +201,7 @@ useEffect(() => {
                   : null)
               }
             </SideMenu> */}
+            <OptimismMessage/>
             <HundredMessage isOpen={showGMessage} onRequestClose={() => setShowGMessage(false)} contentLabel="Info" className={`${darkMode ? "mymodal-dark" : ""}`}
               message={gMessageText}/>
             {error instanceof UnsupportedChainIdError ? 
