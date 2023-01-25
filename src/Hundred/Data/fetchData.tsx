@@ -264,7 +264,7 @@ export const fetchGeneralData = async(
 
     const tokensInfo = await Promise.all(tokens.map(async(t)=>{
         const tokenInfo = await getCtokenInfo(
-            t, network, hndPrice, blockNum,
+            t, network, hndPrice, 0, blockNum,
             gaugesData.filter(g =>
                 g.generalData.lpToken.toLowerCase() === t.tokenAddress.toLowerCase() ||
                 g.generalData.lpTokenUnderlying.toLowerCase() === t.tokenAddress.toLowerCase()
@@ -483,7 +483,7 @@ export const fetchData = async(
             }
         }
 
-        return await getCtokenInfo(t, network, hndPrice, blockNum, gauges)
+        return await getCtokenInfo(t, network, hndPrice, rewardTokenPrice, blockNum, gauges)
     }))
     return {
         hndPrice: hndPrice,
@@ -772,7 +772,7 @@ if(backstop){
   return token
 }
 
-  const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, blockNum: number, gauges: GaugeV4[] | undefined) : Promise<CTokenInfo> => {
+  const getCtokenInfo = async (token: Token, network: Network, hndPrice: number, rewardTokenPrice: number, blockNum: number, gauges: GaugeV4[] | undefined) : Promise<CTokenInfo> => {
       const decimals = token.underlying.decimals
 
       const underlying = new Underlying(token.underlying.address, token.underlying.symbol, token.underlying.name, token.underlying.logo, token.underlying.decimals,
@@ -820,7 +820,7 @@ if(backstop){
 
       let veHndAPR = BigNumber.from(0)
       let veHndMaxAPR = BigNumber.from(0)
-      const tokenRewardAPR = BigNumber.from(0)
+      let tokenRewardAPR = BigNumber.from(0)
 
       let veHndBackstopAPR = BigNumber.from(0)
       let veHndBackstopMaxAPR = BigNumber.from(0)
@@ -888,6 +888,25 @@ if(backstop){
                   / 10000).noExponents()
           )
       }
+
+      if (gauge) {
+
+        if (+gauge.generalData.totalStake > 0) {
+            const totalDollarStake = BigNumber.parseValue((
+                +BigNumber.from(gauge.generalData.totalStake, decimals).toString() *
+                +exchangeRateStored.toString() *
+                +underlying.price.toString()
+            ).noExponents())
+
+            tokenRewardAPR = BigNumber.parseValue(
+                (+gauge.token_yearly_rewards * rewardTokenPrice / ( 1e18 * +totalDollarStake) ).noExponents()
+            )
+        } else {
+            tokenRewardAPR = BigNumber.parseValue(
+                (+gauge.token_yearly_rewards * rewardTokenPrice / ( 1e18 * 10000) ).noExponents()
+            )
+        }
+    }
 
     const totalMaxSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString(), +veHndBackstopMaxAPR.toString())+ +supplyApy.toString()+ +tokenRewardAPR.toString()).noExponents())
     const totalMinSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString(), +veHndBackstopAPR.toString())+ +supplyApy.toString()+ +tokenRewardAPR.toString()).noExponents())
