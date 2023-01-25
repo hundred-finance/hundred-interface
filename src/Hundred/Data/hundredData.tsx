@@ -48,6 +48,7 @@ const useFetchData = () => {
     const update = useRef<boolean>(false)
     const selectedMarketRef = useRef<CTokenInfo>()
     const selectedMarketSpinnersRef = useRef<CTokenSpinner>()
+    const accountRef = useRef<string | null | undefined>()
 
     const [comptrollerData, setComptrollerData] = useState<Comptroller>()
     const [marketsData, setMarketsData] = useState<CTokenInfo[]>([])
@@ -84,6 +85,10 @@ const useFetchData = () => {
     useEffect(() => {
         selectedMarketSpinnersRef.current = selectedMarketSpinners
     }, [selectedMarketSpinners])
+
+    useEffect(() => {
+        accountRef.current = account
+    }, [account])
 
     useEffect(() => {
         stopUpdate()
@@ -155,7 +160,7 @@ const useFetchData = () => {
     }
 
     const updateMarkets = (markets: CTokenInfo[], hndBalance: BigNumber, hundredBalace: BigNumber, compaccrued: BigNumber, vehndBalance: BigNumber, hndRewards: BigNumber, tokenRewards: BigNumber, rewardTokenSymbol: string | undefined, gaugeAddresses: string[]): void =>{
-        if(markets){
+        if(markets && account === accountRef.current){
             compAccrued.current = compaccrued
           
           setMarketsData(markets)
