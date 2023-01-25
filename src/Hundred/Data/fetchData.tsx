@@ -461,20 +461,10 @@ export const fetchData = async(
     const blockNum = await blockProvider.getBlockNumber()
 
     const tokensInfo = await Promise.all(tokens.map(async(t)=>{
-      let rewardTokenPrice = 0
         const gauges = gaugesData.filter(g =>
             g.generalData.lpToken.toLowerCase() === t.tokenAddress.toLowerCase() ||
             g.generalData.lpTokenUnderlying.toLowerCase() === t.tokenAddress.toLowerCase()
         )
-        for (let i = 0; i < gauges.length; i++) {
-            const gauge = gauges[i];
-            if (gauge && gauge.reward_token != '0x0000000000000000000000000000000000000000') {
-                const rewardTokenMarket = tokens.find(t => t.underlying.address.toLowerCase() === gauge.reward_token.toLowerCase())
-                if (rewardTokenMarket) {
-                    rewardTokenPrice = +rewardTokenMarket.underlying.price
-                }
-            }
-        }
 
         return await getCtokenInfo(t, network, hndPrice, blockNum, gauges)
     }))
