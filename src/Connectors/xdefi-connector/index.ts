@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { AbstractConnectorArguments, ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import warning from 'tiny-warning'
 
@@ -42,10 +41,10 @@ export class XDEFIWalletNotDefaultError extends Error {
 }
 
 export class xDefiConnector extends AbstractConnector {
-  constructor(kwargs: AbstractConnectorArguments) {
+  constructor(kwargs: any) {
     if(window.ethereum && window.ethereum.__XDEFI){
         const chains = Object.keys(window.ethereum.rpc)
-        const supportedChains = kwargs.supportedChainIds?.filter(c => chains.includes(c.toString()))
+        const supportedChains = kwargs.supportedChainIds?.filter((c: any) => chains.includes(c.toString()))
         kwargs.supportedChainIds = supportedChains
     }
     super(kwargs)
@@ -89,7 +88,7 @@ export class xDefiConnector extends AbstractConnector {
     this.emitUpdate({ chainId: networkId, provider: window.xfi?.ethereum })
   }
 
-  public async activate(): Promise<ConnectorUpdate> {
+  public async activate(): Promise<any> {
     if (!window.xfi?.ethereum) {
       throw new XDEFIWalletNotFoundError()
     }

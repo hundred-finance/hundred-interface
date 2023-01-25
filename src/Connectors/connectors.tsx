@@ -50,20 +50,20 @@ export const GetConnector = (c: any, chain?: number) => {
             supportedChainIds: supportedChains
           })
     }
-    if(c === connectrorsEnum.Unstoppable) {
-      const clientId = process.env.REACT_APP_CLIENT_ID
-      const redirectUri = process.env.REACT_APP_REDIRECT_URI
-      if(clientId && redirectUri){
-        return new UAuthConnector({
-          uauth: new UAuth({
-            clientID: clientId,
-            redirectUri: redirectUri,
-            scope: 'openid wallet'
-          }),
-          connectors: { injected: new MetamaskConnector({ supportedChainIds: supportedChains }), walletconnect: walletConnect }
-        })
-      }
-    }
+    // if(c === connectrorsEnum.Unstoppable) {
+    //   const clientId = process.env.REACT_APP_CLIENT_ID
+    //   const redirectUri = process.env.REACT_APP_REDIRECT_URI
+    //   if(clientId && redirectUri){
+    //     return new UAuthConnector({
+    //       uauth: new UAuth({
+    //         clientID: clientId,
+    //         redirectUri: redirectUri,
+    //         scope: 'openid wallet'
+    //       }),
+    //       connectors: { injected: new MetamaskConnector({ supportedChainIds: supportedChains }), walletconnect: walletConnect }
+    //     })
+    //   }
+    // }
     if (c === connectrorsEnum.xDefi)
       return new xDefiConnector({ supportedChainIds: supportedChains })
     return new MetamaskConnector({ supportedChainIds: supportedChains })

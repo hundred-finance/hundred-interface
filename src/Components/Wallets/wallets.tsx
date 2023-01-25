@@ -23,7 +23,7 @@ const Wallets: React.FC = () =>{
         console.log(con)
       //   setActivatingConnector(con)
         try{
-          activate( con )
+            activate( con )
           window.localStorage.setItem("hundred-provider", c)
         }
         catch(err){
