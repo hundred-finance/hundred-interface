@@ -19,7 +19,7 @@ const HundredMenu: React.FC = () => {
     const mounted = useRef<boolean>(false)
     
     const { library, account } = useWeb3React()
-    const {hndBalance, hundredBalance, hndRewards, vehndBalance, gaugeAddresses, updateMarket} = useHundredDataContext()
+    const {hndBalance, hundredBalance, hndRewards, tokenRewards, rewardTokenSymbol, vehndBalance, gaugeAddresses, updateMarket} = useHundredDataContext()
 
     const { claimLegacyHnd, claimHnd, setClaimHnd, claimLockHnd, setClaimLockHnd, toastErrorMessage, toastSuccessMessage, openHundred, setOpenHundred} = useUiContext()
     const {network, hndPrice} = useGlobalContext()
@@ -201,9 +201,15 @@ const HundredMenu: React.FC = () => {
                   <label>HND Earned</label>
                   {hndRewards ? (hndRewards.gt(BigNumber.from(0)) ? +hndRewards.toRound(2, true, true) === 0 ? ">0.00" : hndRewards.toRound(2, true, true) : "0.00") : "--"}
                 </div>
+                { rewardTokenSymbol ?
+                    <div className="hundred-menu-account-item">
+                      <label>{rewardTokenSymbol} Earned</label>
+                      {tokenRewards ? (tokenRewards.gt(BigNumber.from(0)) ? +tokenRewards.toRound(2, true, true) === 0 ? ">0.00" : tokenRewards.toRound(2, true, true) : "0.00") : "--"}
+                    </div>
+                : '' }
                 <div className="hundred-menu-account-item">
                   <Button onClick={() => handleClaimHnd()} small={true} disabled={!claimHnd && !claimLockHnd && !claimLegacyHnd && hndRewards && +hndRewards?.toString() > 0 ? false : true} loading={claimHnd}>
-                      Claim HND
+                      Claim rewards
                   </Button>
                   <Button onClick={() => handleClaimLockHnd()} small={true} disabled={!claimHnd && !claimLockHnd && !claimLegacyHnd && hndRewards && +hndRewards?.toString() > 0 ? false : true} loading={claimLockHnd}>
                     Claim & Lock HND
@@ -213,31 +219,6 @@ const HundredMenu: React.FC = () => {
           : null}
         </div>
       </Modal>
-        // <div className="hundred-menu">
-        //     <hr/>
-        //     <div className="hundred-menu-item">
-        //         <div className="hundred-menu-item-label"><label>HND Price </label><span>${BigNumber.parseValue(hndPrice.toString()).toRound(2, true, true)}</span></div>
-        //         {tvl ? <div className="hundred-menu-item-label"><label>{networkRef.current?.liquidity ? "Liquidity" : "TVL"}</label><span>${tvl.toRound(2, true, true)}</span></div> : null}
-        //         {networkRef.current  && networkRef.current.trade ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={networkRef.current.trade} target="_blank" rel="noreferrer">Trade</a></div> : null}
-        //         {networkRef.current  && networkRef.current.addLiquidity ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={networkRef.current.addLiquidity} target="_blank" rel="noreferrer">Add Liquidity</a></div> : null}
-        //         {networkRef.current  && networkRef.current.stakeLp ? <div className="hundred-menu-item-label"><a className="hundred-menu-link" href={networkRef.current.stakeLp} target="_blank" rel="noreferrer">Stake LP</a></div> : null}
-        //     </div>
-        //     <div className="hundred-menu-item">
-        //         <hr/>
-        //         <div className="hundred-menu-item-label"><label>HND Balance </label><span>{hndBalance ? (hndBalance.gt(BigNumber.from(0)) ? hndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
-        //         <div className="hundred-menu-item-label"><label>veHND Balance </label><span>{vehndBalance ? (vehndBalance.gt(BigNumber.from(0)) ? vehndBalance.toRound(2, true, true) : "0.00") : "--"}</span></div>
-        //         <div className="hundred-menu-item-label"><label>HND Earned </label><span>{hndRewards ? (hndRewards.gt(BigNumber.from(0)) ? +hndRewards.toRound(2, true, true) === 0 ? ">0.00" : hndRewards.toRound(2, true, true) : "0.00") : "--"}</span></div>
-               
-        //         <div className= {`${!claimHnd && !claimLockHnd && !claimLegacyHnd && hndRewards && +hndRewards?.toString() > 0 ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimHnd()}>{claimHnd ? (<Spinner size={"25px"}/>) : "Claim HND"}</div>
-        //         <div className= {`${!claimHnd && !claimLockHnd && !claimLegacyHnd && hndRewards && +hndRewards?.toString() > 0 ? "hundred-menu-item-button" : "hundred-menu-item-button-disabled"}`} onClick={() => handleClaimLockHnd()}>{claimLockHnd ? (<Spinner size={"25px"}/>) : "Claim and Lock HND"}</div>
-
-        //         {hndEarned && +hndEarned.toString() > 0 ? 
-        //             <><div style={{paddingTop: "15px"}} className="hundred-menu-item-label"><label>HND Earned<br/>(Legacy)</label><span>{hndEarned ? hndEarned?.gt(BigNumber.from(0)) ? hndEarned?.toRound(2, true, true) : "0.00" : "--"}</span></div>
-        //             <div className={`${claimHnd || claimLockHnd || claimLegacyHnd ? "hundred-menu-item-button-disabled" : "hundred-menu-item-button"}`} onClick={() => !claimLegacyHnd ? handleCollect() : null}>
-        //                 {claimLegacyHnd ? (<Spinner size={"25px"}/>) : "Claim Legacy HND"}</div></> : null
-        //         }
-        //     </div>
-        // </div>
     )
 }
 
