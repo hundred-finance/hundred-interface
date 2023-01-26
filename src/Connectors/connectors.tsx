@@ -4,8 +4,6 @@ import { UnsupportedChainIdError } from '@web3-react/core'
 import {  NoEthereumProviderError, UserRejectedRequestError as UserRejectedRequestErrorInjected } from '@web3-react/injected-connector'
 import { WalletConnectConnector, UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
-import { UAuthConnector } from '@uauth/web3-react'
-import UAuth from '@uauth/js'
 import { xDefiConnector, XDEFIWalletNotDefaultError, XDEFIWalletNotFoundError } from './xdefi-connector'
 import { MetamaskConnector, MetamaskNotFounfError } from './metamask-connector'
 
