@@ -28,7 +28,7 @@ export function rewardTokenApr(market: CTokenInfo|null, gauge: GaugeV4|null|unde
         return "0.00%"
     }
 
-    return `${formatApr(market?.tokenRewardAPR)}%`
+    return `${formatApr(market?.veRewardTokenAPR)}%`
 }
 
 export function formatApr(apr: BigNumber): string {

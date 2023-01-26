@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { AbstractConnectorArguments, ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import warning from 'tiny-warning'
 
@@ -34,7 +33,7 @@ export class MetamaskNotFounfError extends Error {
 }
 
 export class MetamaskConnector extends AbstractConnector {
-  constructor(kwargs: AbstractConnectorArguments) {
+  constructor(kwargs: any) {
     super(kwargs)
 
     this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
@@ -75,7 +74,7 @@ export class MetamaskConnector extends AbstractConnector {
     this.emitUpdate({ chainId: networkId, provider: window.ethereum })
   }
 
-  public async activate(): Promise<ConnectorUpdate> {
+  public async activate(): Promise<any> {
     if (!window.ethereum) {
       throw new NoEthereumProviderError()
     }

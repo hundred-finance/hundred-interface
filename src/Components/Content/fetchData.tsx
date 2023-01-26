@@ -450,10 +450,13 @@ export const fetchData = async(
 
       let veHndAPR = BigNumber.from(0)
       let veHndMaxAPR = BigNumber.from(0)
-      let tokenRewardAPR = BigNumber.from(0)
+      let veRewardTokenAPR = BigNumber.from(0)
+      let veRewardTokenMaxAPR = BigNumber.from(0)
 
       let veHndBackstopAPR = BigNumber.from(0)
       let veHndBackstopMaxAPR = BigNumber.from(0)
+      let veRewardTokenBackstopAPR = BigNumber.from(0)
+      let veRewardTokenBackstopMaxAPR = BigNumber.from(0)
 
       const gauge = gauges?.find(g => g.generalData.lpToken.toLowerCase() === token.tokenAddress.toLowerCase())
       const backstopGauge = gauges?.find(g => g.generalData.lpTokenUnderlying.toLowerCase() === token.tokenAddress.toLowerCase())
@@ -466,6 +469,13 @@ export const fetchData = async(
                   / (+gauge.userStakedTokenBalance * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
           )
           veHndMaxAPR = veHndAPR
+          veRewardTokenAPR = BigNumber.parseValue(
+              ((+gauge.generalData.weight / 1e18) *
+                  (+gauge.token_yearly_rewards * rewardTokenPrice / 1e18) *
+                  (+gauge.userWorkingStakeBalance / +gauge.generalData.workingTotalStake)
+                  / (+gauge.userStakedTokenBalance * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
+          )
+          veRewardTokenMaxAPR = veRewardTokenAPR
       } else if (gauge && +gauge.generalData.totalStake > 0) {
 
           const referenceStake = 10000 * (10 ** underlying.decimals) / +exchangeRateStored
@@ -483,6 +493,20 @@ export const fetchData = async(
                   (+gauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
                   / 10000).noExponents()
           )
+
+          veRewardTokenAPR = BigNumber.parseValue(
+              ((+gauge.generalData.weight / 1e18) *
+                  (referenceStake * 0.4 / (+gauge.generalData.workingTotalStake + referenceStake * 0.4)) *
+                  (+gauge.token_yearly_rewards * rewardTokenPrice / 1e18)
+                  / 10000 ).noExponents()
+          )
+
+          veRewardTokenMaxAPR = BigNumber.parseValue(
+              ((+gauge.generalData.weight / 1e18) *
+                  (referenceStake / (+gauge.generalData.workingTotalStake + referenceStake)) *
+                  (+gauge.token_yearly_rewards * rewardTokenPrice / 1e18)
+                  / 10000).noExponents()
+          )
       }
 
       if (backstopGauge && +backstopGauge.userWorkingStakeBalance > 0) {
@@ -496,6 +520,14 @@ export const fetchData = async(
                   / (+backstopGauge.userStakedTokenBalance * +exchangeRateStored * +totalBalance * +underlying.price / ((10 ** underlying.decimals) * +totalSupply * 1e10))).noExponents()
           )
           veHndBackstopMaxAPR = veHndBackstopAPR
+
+          veRewardTokenBackstopAPR = BigNumber.parseValue(
+              ((+backstopGauge.generalData.weight / 1e18) *
+                  (+backstopGauge.token_yearly_rewards * rewardTokenPrice / 1e18) *
+                  (+backstopGauge.userWorkingStakeBalance / +backstopGauge.generalData.workingTotalStake)
+                  / (+backstopGauge.userStakedTokenBalance * +exchangeRateStored * +totalBalance * +underlying.price / ((10 ** underlying.decimals) * +totalSupply * 1e10))).noExponents()
+          )
+          veRewardTokenBackstopMaxAPR = veRewardTokenBackstopAPR
       } else if (backstopGauge && +backstopGauge.generalData.totalStake > 0) {
 
           const referenceStake = 10000 * (10 ** underlying.decimals)
@@ -517,31 +549,53 @@ export const fetchData = async(
                   (+backstopGauge.generalData.veHndRewardRate * 365 * 24 * 3600 * hndPrice / 1e18)
                   / 10000).noExponents()
           )
+
+          veRewardTokenBackstopAPR = BigNumber.parseValue(
+              ((+backstopGauge.generalData.weight / 1e18) *
+                  (referenceStake * 0.4 / (workingStake  + referenceStake * 0.4)) *
+                  (+backstopGauge.token_yearly_rewards * rewardTokenPrice / 1e18)
+                  / 10000 ).noExponents()
+          )
+
+          veRewardTokenBackstopMaxAPR = BigNumber.parseValue(
+              ((+backstopGauge.generalData.weight / 1e18) *
+                  (referenceStake / (workingStake + referenceStake)) *
+                  (+backstopGauge.token_yearly_rewards * rewardTokenPrice / 1e18)
+                  / 10000).noExponents()
+          )
       }
 
-      if (gauge) {
+    const totalMaxSupplyApy = BigNumber.parseValue(
+        (Math.max(
+            +hndAPR.toString(),
+            +veHndMaxAPR.toString(),
+            +veHndBackstopMaxAPR.toString()
+        )
+        + +supplyApy.toString()
+        + Math.max(
+            +veRewardTokenMaxAPR.toString(),
+            +veRewardTokenBackstopMaxAPR.toString()
+        )
+    ).noExponents())
 
-          if (+gauge.generalData.totalStake > 0) {
-              const totalDollarStake = BigNumber.parseValue((
-                  +BigNumber.from(gauge.generalData.totalStake, decimals).toString() *
-                  +exchangeRateStored.toString() *
-                  +underlying.price.toString()
-              ).noExponents())
-
-              tokenRewardAPR = BigNumber.parseValue(
-                  (+gauge.token_yearly_rewards * rewardTokenPrice / ( 1e18 * +totalDollarStake) ).noExponents()
-              )
-          } else {
-              tokenRewardAPR = BigNumber.parseValue(
-                  (+gauge.token_yearly_rewards * rewardTokenPrice / ( 1e18 * 10000) ).noExponents()
-              )
-          }
-      }
-
-    const totalMaxSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString(), +veHndBackstopMaxAPR.toString())+ +supplyApy.toString()+ +tokenRewardAPR.toString()).noExponents())
-    const totalMinSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString(), +veHndBackstopAPR.toString())+ +supplyApy.toString()+ +tokenRewardAPR.toString()).noExponents())
+    const totalMinSupplyApy = BigNumber.parseValue(
+        (
+            Math.max(+hndAPR.toString(), +veHndAPR.toString(), +veHndBackstopAPR.toString())
+            + +supplyApy.toString()
+            + Math.max(+veRewardTokenAPR.toString(), +veRewardTokenBackstopAPR.toString())
+        ).noExponents()
+    )
     const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
-    const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +veHndBackstopAPR.toString() + +supplyApy.toString()+ +tokenRewardAPR.toString()).noExponents())
+
+    const newTotalSupplyApy = BigNumber.parseValue(
+        (
+            +veHndAPR.toString()
+            + +veRewardTokenAPR.toString()
+            + +veHndBackstopAPR.toString()
+            + +veRewardTokenBackstopAPR.toString()
+            + +supplyApy.toString()
+        ).noExponents()
+    )
 
     let accrued  = 0
     if(+token.totalSupply > 0){
@@ -599,9 +653,12 @@ export const fetchData = async(
       hndAPR,
       veHndAPR,
       veHndMaxAPR,
-      tokenRewardAPR,
+      veRewardTokenAPR,
+      veRewardTokenMaxAPR,
       veHndBackstopAPR,
       veHndBackstopMaxAPR,
+      veRewardTokenBackstopAPR,
+      veRewardTokenBackstopMaxAPR,
       borrowRatePerSecond,
       totalMaxSupplyApy,
       totalMinSupplyApy,

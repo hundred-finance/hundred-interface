@@ -3,7 +3,6 @@ import React from "react"
 import mm from '../../assets/icons/mm.png'
 import wc from '../../assets/icons/wc.png'
 import cbw from '../../assets/icons/cbw.png'
-import ud from '../../assets/icons/unstoppable.png'
 import xdefi from "../../assets/icons/XDEFIWallet.jpeg"
 import { connectrorsEnum, GetConnector } from "../../Connectors/connectors"
 import { useUiContext } from "../../Types/uiContext"
@@ -51,12 +50,6 @@ const Wallets: React.FC = () =>{
                             <img src={cbw} alt=""/>
                         </div>
                         <div className='wallet-item-name'>Coinbase Wallet</div>
-                    </div>
-                    <div className='wallet-item' onClick={() => handleConnect(connectrorsEnum.Unstoppable)}>
-                        <div className='wallet-item-icon'>
-                            <img src={ud} alt=""/>
-                        </div>
-                        <div className='wallet-item-name'>Unstoppable Domains</div>
                     </div>
                     <div className='wallet-item' onClick={() => handleConnect(connectrorsEnum.xDefi)}>
                         <div className='wallet-item-icon'>
