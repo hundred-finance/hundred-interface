@@ -162,7 +162,7 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
                         Borrow is Paused
                     </Button>
                     :<Button loading={{...selectedMarketSpinners}?.borrowSpinner}
-                        disabled={(!borrowInput || borrowValidation || selectedMarketSpinners?.borrowSpinner || !selectedMarket.isEnterMarket) ? true : false}
+                        disabled={(!borrowInput || borrowValidation || selectedMarketSpinners?.borrowSpinner) ? true : false}
                         onClick={() => {handleBorrow(
                                                 {...selectedMarket}?.underlying.symbol,
                                                 borrowInput
