@@ -111,6 +111,7 @@ export class CTokenInfo{
     borrowApy: BigNumber
     supplyBalanceInTokenUnit: BigNumber
     supplyBalance: BigNumber
+    stakeBalance: BigNumber
     marketTotalSupply: BigNumber
     borrowBalanceInTokenUnit: BigNumber
     borrowBalance: BigNumber
@@ -152,6 +153,7 @@ export class CTokenInfo{
                 borrowApy: BigNumber,
                 supplyBalanceInTokenUnit: BigNumber,
                 supplyBalance: BigNumber,
+                stakeBalance: BigNumber,
                 marketTotalSupply: BigNumber,
                 borrowBalanceInTokenUnit: BigNumber,
                 borrowBalance: BigNumber,
@@ -187,6 +189,7 @@ export class CTokenInfo{
         this.borrowApy= borrowApy
         this.supplyBalanceInTokenUnit= supplyBalanceInTokenUnit
         this.supplyBalance= supplyBalance
+        this.stakeBalance= stakeBalance
         this.marketTotalSupply= marketTotalSupply
         this.borrowBalanceInTokenUnit= borrowBalanceInTokenUnit
         this.borrowBalance= borrowBalance

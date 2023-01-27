@@ -452,6 +452,15 @@ export const fetchData = async(
       const gauge = gauges?.find(g => g.generalData.lpToken.toLowerCase() === token.tokenAddress.toLowerCase())
       const backstopGauge = gauges?.find(g => g.generalData.lpTokenUnderlying.toLowerCase() === token.tokenAddress.toLowerCase())
 
+      let stakeBalance = BigNumber.from(0);
+      if (gauge) {
+          stakeBalance = BigNumber.parseValue((
+              +gauge.userStakedTokenBalance
+              * +exchangeRateStored
+              / (10 ** underlying.decimals)
+          ).noExponents());
+      }
+
       if (gauge && +gauge.userWorkingStakeBalance > 0) {
           veHndAPR = BigNumber.parseValue(
               ((+gauge.generalData.weight / 1e18) *
@@ -629,6 +638,7 @@ export const fetchData = async(
       borrowApy,
       supplyBalanceInTokenUnit,
       supplyBalance,
+      stakeBalance,
       marketTotalSupply,
       borrowBalanceInTokenUnit,
       borrowBalance,
