@@ -120,13 +120,11 @@ export class CTokenInfo{
     cash: BigNumber
     liquidity: BigNumber
     collateralFactor: BigNumber
-    hndSpeed: BigNumber
     isNativeToken: boolean
     mintPaused: boolean
     borrowPaused: boolean
     
     borrowHndApy: BigNumber
-    hndAPR: BigNumber
     veHndAPR: BigNumber
     veHndMaxAPR: BigNumber
     veRewardTokenAPR: BigNumber
@@ -163,9 +161,7 @@ export class CTokenInfo{
                 cash: BigNumber,
                 liquidity: BigNumber,
                 collateralFactor: BigNumber,
-                hndSpeed: BigNumber,
                 isNativeToken: boolean,
-                hndAPR: BigNumber,
                 veHndAPR: BigNumber,
                 veHndMaxAPR: BigNumber,
                 veRewardTokenAPR: BigNumber,
@@ -200,11 +196,9 @@ export class CTokenInfo{
         this.cash= cash
         this.liquidity= liquidity
         this.collateralFactor= collateralFactor
-        this.hndSpeed= hndSpeed
         this.isNativeToken = isNativeToken
 
         this.borrowHndApy = BigNumber.from("0")
-        this.hndAPR = hndAPR
         this.veHndAPR = veHndAPR
         this.veHndMaxAPR = veHndMaxAPR
         this.veRewardTokenAPR = veRewardTokenAPR

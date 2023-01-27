@@ -66,7 +66,7 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         <td className={`apy ${props.market ? (+props.market?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`} 
           onClick={handleOpenSupplyMarketDialog}>
             <div className="supply-apy">
-              <StarBpro active={props.market && +props.market?.hndAPR.toString() > 0 ? true : false} backstop={hasBackstop()}/>
+              <StarBpro active={props.market && +props.market?.veHndAPR.toString() > 0 ? true : false} backstop={hasBackstop()}/>
               <div className="apy-content">
                 { props.market && +props?.market?.totalMaxSupplyApy.toString() > 0 ? formatSupplyApyRange(+props.market.totalMinSupplyApy, +props.market.totalMaxSupplyApy) : "0.00"}%
               </div>

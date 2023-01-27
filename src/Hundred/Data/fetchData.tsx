@@ -809,15 +809,6 @@ if(backstop){
 
       const liquidity = cash.mul(underlying.price)
 
-      const cTokenTVL = +marketTotalSupply.toString()
-
-      //const speed = await comptrollerData.comptroller.compSpeeds(address)
-      const hndSpeed = BigNumber.from(token.compSpeeds, 18);
-
-      const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
-
-      const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
-
       let veHndAPR = BigNumber.from(0)
       let veHndMaxAPR = BigNumber.from(0)
 
@@ -848,7 +839,7 @@ if(backstop){
                   (+gauge.userWorkingStakeBalance / +gauge.generalData.workingTotalStake)
                   / (+gauge.userStakedTokenBalance * +exchangeRateStored * +underlying.price / (10 ** underlying.decimals))).noExponents()
           )
-          veRewardTokenMaxAPR = veHndAPR
+          veRewardTokenMaxAPR = veRewardTokenAPR
       } else if (gauge && +gauge.generalData.totalStake > 0) {
 
           const referenceStake = 10000 * (10 ** underlying.decimals) / +exchangeRateStored
@@ -939,9 +930,21 @@ if(backstop){
           )
       }
 
-    const totalMaxSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndMaxAPR.toString(), +veHndBackstopMaxAPR.toString())+ +supplyApy.toString()+ +veRewardTokenBackstopMaxAPR.toString() + +veRewardTokenMaxAPR.toString()).noExponents())
-    const totalMinSupplyApy = BigNumber.parseValue((Math.max(+hndAPR.toString(), +veHndAPR.toString(), +veHndBackstopAPR.toString())+ +supplyApy.toString()+ +veRewardTokenBackstopAPR.toString() + +veRewardTokenAPR.toString()).noExponents())
-    const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
+    const totalMaxSupplyApy = BigNumber.parseValue(
+        (
+            Math.max(+veHndMaxAPR.toString(), +veHndBackstopMaxAPR.toString())
+            + +supplyApy.toString()
+            + Math.max(+veRewardTokenBackstopMaxAPR.toString(), +veRewardTokenMaxAPR.toString())
+        ).noExponents()
+    )
+    const totalMinSupplyApy = BigNumber.parseValue(
+        (
+            Math.max(+veHndAPR.toString(), +veHndBackstopAPR.toString())
+            + +supplyApy.toString()
+            + Math.max(+veRewardTokenBackstopAPR.toString(), +veRewardTokenAPR.toString())
+        ).noExponents()
+    )
+    const oldTotalSupplyApy = BigNumber.parseValue((+supplyApy.toString()).noExponents())
     const newTotalSupplyApy = BigNumber.parseValue((+veHndAPR.toString() + +veHndBackstopAPR.toString() + +supplyApy.toString() + +veRewardTokenBackstopAPR.toString() + +veRewardTokenAPR.toString()).noExponents())
 
     let accrued  = 0
@@ -995,9 +998,7 @@ if(backstop){
       cash,
       liquidity,
       collateralFactor,
-      hndSpeed,
       token.isNative,
-      hndAPR,
       veHndAPR,
       veHndMaxAPR,
       veRewardTokenAPR,

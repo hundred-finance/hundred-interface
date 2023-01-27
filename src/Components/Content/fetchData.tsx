@@ -439,15 +439,6 @@ export const fetchData = async(
 
       const liquidity = cash.mul(underlying.price)
 
-      const cTokenTVL = +marketTotalSupply.toString()
-
-      //const speed = await comptrollerData.comptroller.compSpeeds(address)
-      const hndSpeed = BigNumber.from(token.compSpeeds, 18);
-
-      const yearlyRewards = +hndSpeed.toString() * (network.blocksPerYear ? network.blocksPerYear : 0) * hndPrice
-
-      const hndAPR = BigNumber.parseValue(cTokenTVL > 0 ? (yearlyRewards / cTokenTVL).noExponents() : "0")
-
       let veHndAPR = BigNumber.from(0)
       let veHndMaxAPR = BigNumber.from(0)
       let veRewardTokenAPR = BigNumber.from(0)
@@ -567,7 +558,6 @@ export const fetchData = async(
 
     const totalMaxSupplyApy = BigNumber.parseValue(
         (Math.max(
-            +hndAPR.toString(),
             +veHndMaxAPR.toString(),
             +veHndBackstopMaxAPR.toString()
         )
@@ -580,12 +570,12 @@ export const fetchData = async(
 
     const totalMinSupplyApy = BigNumber.parseValue(
         (
-            Math.max(+hndAPR.toString(), +veHndAPR.toString(), +veHndBackstopAPR.toString())
+            Math.max(+veHndAPR.toString(), +veHndBackstopAPR.toString())
             + +supplyApy.toString()
             + Math.max(+veRewardTokenAPR.toString(), +veRewardTokenBackstopAPR.toString())
         ).noExponents()
     )
-    const oldTotalSupplyApy = BigNumber.parseValue((+hndAPR.toString() + +supplyApy.toString()).noExponents())
+    const oldTotalSupplyApy = BigNumber.parseValue((+supplyApy.toString()).noExponents())
 
     const newTotalSupplyApy = BigNumber.parseValue(
         (
@@ -648,9 +638,7 @@ export const fetchData = async(
       cash,
       liquidity,
       collateralFactor,
-      hndSpeed,
       token.isNative,
-      hndAPR,
       veHndAPR,
       veHndMaxAPR,
       veRewardTokenAPR,
@@ -718,8 +706,6 @@ export const fetchData = async(
     c = {name: "Liquidity", oldData: m && m.liquidity ? m.liquidity.toString() : "", newData: nm && nm.liquidity ? nm.liquidity.toString() : "",}
     compare.push(c)
     c = {name: "CollateralFactor", oldData: m && m.collateralFactor ? m.collateralFactor.toString() : "", newData: nm && nm.collateralFactor ? nm.collateralFactor.toString() : "",}
-    compare.push(c)
-    c = {name: "HndSpeed", oldData: m && m.hndSpeed ? m.hndSpeed.toString() : "", newData: nm && nm.hndSpeed ? nm.hndSpeed.toString() : "",}
     compare.push(c)
     c = {name: "Decimals", oldData: m && m.underlying.decimals ? m.underlying.decimals.toString() : "", newData: nm && nm.underlying.decimals ? nm.underlying.decimals.toString() : "",}
     compare.push(c)

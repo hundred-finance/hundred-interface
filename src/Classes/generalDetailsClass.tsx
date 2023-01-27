@@ -102,7 +102,7 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], gauges: Ga
         
         totalBorrowLimit = totalBorrowLimit.addSafe(market.isEnterMarket ? market.supplyBalance.mul(market.collateralFactor) : BigNumber.from("0"))
         
-        yearSupplyInterest = BigNumber.parseValue((+yearSupplyInterest.toString() + (+market.supplyBalance.toString() * (+market.supplyApy.toString() + +market.hndAPR.toString()))).noExponents())
+        yearSupplyInterest = BigNumber.parseValue((+yearSupplyInterest.toString() + (+market.supplyBalance.toString() * (+market.supplyApy.toString()))).noExponents())
         yearStakeInterest =
             BigNumber.parseValue(
                 (
@@ -112,7 +112,7 @@ export const getGeneralDetails = (marketsData: (CTokenInfo | null)[], gauges: Ga
                 ).noExponents()
             )
         yearBorrowInterest = BigNumber.parseValue((+yearBorrowInterest.toString() + (+market.borrowBalance.toString() * +market.borrowApy.toString())).noExponents())
-        yearSupplyHndRewards = BigNumber.parseValue((+yearSupplyHndRewards.toString() + +market.hndAPR.toString()).noExponents())
+        yearSupplyHndRewards = BigNumber.parseValue((+yearSupplyHndRewards.toString()).noExponents())
         if (market && market.liquidity.gt(BigNumber.from("0"))) {
             totalLiquidity = totalLiquidity.addSafe(market.liquidity)
         }
