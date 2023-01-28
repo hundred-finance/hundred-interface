@@ -79,8 +79,20 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         <td onClick={handleOpenSupplyMarketDialog}>
           {
             props.market && +props.market.supplyBalanceInTokenUnit.add(props.market.stakeBalance).toString() > 0 ?
-            <Tippy content={BigNumber.parseValueSafe(props.market.supplyBalanceInTokenUnit.add(props.market.stakeBalance).toString(), props.market.underlying.decimals).toRound(5, true, true)}>
-              <div>{BigNumber.parseValueSafe(props.market.supplyBalanceInTokenUnit.add(props.market.stakeBalance).toString(), props.market.underlying.decimals).toRound(4, true, true)}</div>
+            <Tippy content={
+                BigNumber.parseValueSafe(
+                    BigNumber.parseValueSafe(props.market.supplyBalanceInTokenUnit.toString(), props.market.underlying.decimals)
+                    .add(BigNumber.parseValueSafe(props.market.stakeBalance.toString(), props.market.underlying.decimals)).toString(),
+                    props.market.underlying.decimals
+                ).toRound(5, true, true)
+            }>
+              <div>{
+                  BigNumber.parseValueSafe(
+                      BigNumber.parseValueSafe(props.market.supplyBalanceInTokenUnit.toString(), props.market.underlying.decimals)
+                          .add(BigNumber.parseValueSafe(props.market.stakeBalance.toString(), props.market.underlying.decimals)).toString(),
+                      props.market.underlying.decimals
+                  ).toRound(4, true, true)
+              }</div>
             </Tippy>
             : "0"
           }
