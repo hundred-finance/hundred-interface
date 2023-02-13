@@ -57,9 +57,12 @@ const BorrowMarketRow: React.FC<Props> = (props : Props) => {
             {props.market ? +props.market.underlying.walletBalance.toRound(3).toString() : "0"}
         </td>
         <td>
-          <div className="spinner-container">
-            {`${props.market ? props.market.liquidity.convertToLargeNumberRepresentation(3, '$') : "$0"}`}
-            {props.marketSpinners?.spinner && (props.marketSpinners?.borrowSpinner || props.marketSpinners?.repaySpinner) ? <Spinner size={"20px"}/> : null}
+          <div className="spinner-row borrow-market-spinner">
+            <div className="borrow-market-liquidity">{`${props.market ? props.market.liquidity.convertToLargeNumberRepresentation(3, '$') : "$0"}`}</div>
+            {props.marketSpinners?.spinner && (props.marketSpinners?.borrowSpinner || props.marketSpinners?.repaySpinner) ?
+              <Spinner size={"20px"}/>
+            : null}
+
           </div>
         </td>
       </tr>

@@ -35,6 +35,15 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
     useEffect(() => {
         mounted.current = true
 
+        const sel = {...selectedMarket}
+        if (sel !== undefined && sel.borrowApy && sel.borrowBalanceInTokenUnit && sel.underlying){
+            console.log(sel)
+            const borrowAPYPerDay = sel.borrowApy.div(BigNumber.from('8760'));
+        const maxRepayFactor = BigNumber.from("1").addSafe(borrowAPYPerDay)// e.g. Borrow APY = 2% => maxRepayFactor = 1.0002
+
+        const amount = BigNumber.parseValueSafe(sel.borrowBalanceInTokenUnit.mulSafe(maxRepayFactor).toString(), sel.underlying.decimals)
+        console.log(amount.toString())
+        }
         return () => {
             mounted.current = false
         }
@@ -149,7 +158,7 @@ const BorrowItem: React.FC<Props> = (props : Props) =>{
         <TabContentItem open={props.open} tabId={1} tabChange={props.tabChange}>
             <TextBox placeholder={`0 ${{...selectedMarket}?.underlying.symbol}`} disabled={borrowDisabled || ({...selectedMarket}.borrowPaused)} value={borrowInput} setInput={setBorrowInput} validation={borrowValidation} button={"Safe Max"}
             buttonTooltip="50% of borrow limit" buttonDisabled={+{...generalData}?.totalBorrowLimitUsedPercent.toRound(2) >= 50.01 ? true : false} onClick={ () => handleMaxBorrow()}/>
-            <MarketDialogItem title={"You Borrowed"} value={`${{...selectedMarket}?.borrowBalanceInTokenUnit?.toRound(4, true)} ${{...selectedMarket}?.underlying.symbol}`}/>
+            <MarketDialogItem title={"You Borrowed"} value={`${{...selectedMarket}?.borrowBalanceInTokenUnit?.toString()} ${{...selectedMarket}?.underlying.symbol}`}/>
             <div className="dialog-line"/>
             <BorrowRateSection/>
             <div className="dialog-line"/>

@@ -242,17 +242,16 @@
 .market-table-content tr .spinner-container{    
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     position: relative;
-    width: 45px;
-    
+    width: 68px;
+    float: right;
 }
 
 .market-table-content tr .spinner-container .spinner-row{
-    width: 25px;
+    width: 20px;
     height: 20px;
-    position: absolute;
-    right: -26px;
+    
 }
 
 @media only screen and (min-width: 1190px){
@@ -294,3 +293,14 @@
         width: 100%;
     }
 }
+
+.borrow-market-spinner{
+    position: relative;
+}
+
+.borrow-market-spinner .borrow-market-liquidity{
+    width: 4rem;
+    float: left;
+}
+
+
