@@ -9,7 +9,7 @@ import { fetchData, fetchGeneralData } from "./fetchData"
 import { CTokenInfo, CTokenSpinner, SpinnersEnum } from "../../Classes/cTokenClass"
 import { BigNumber } from "../../bigNumber"
 import { GeneralDetailsData, getGeneralDetails } from "../../Classes/generalDetailsClass"
-import { BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2, CETHER_ABI, COMPTROLLER_ABI, CTOKEN_ABI, GAUGE_V4_ABI, HUNDRED_ABI, TOKEN_ABI, VOTING_ESCROW_ABI } from "../../abi"
+import { BACKSTOP_MASTERCHEF_ABI, BACKSTOP_MASTERCHEF_ABI_V2, CETHER_ABI, COMPTROLLER_ABI, CTOKEN_ABI, GAUGE_V4_ABI, GAUGE_V5_ABI, HUNDRED_ABI, TOKEN_ABI, VOTING_ESCROW_ABI } from "../../abi"
 import { Contract, Provider } from "ethcall"
 import { ethers } from "ethers"
 import { delay } from "../../helpers"
@@ -1020,12 +1020,23 @@ const useFetchData = () => {
         if(network && networkId.current === chain && library && account){
                 if(gaugeV4 && comptrollerData){
                     const comptroller = {...comptrollerData}
+                    const net = {...network}
                     const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI)
-                    const contract = new Contract(gaugeV4.generalData.address, GAUGE_V4_ABI)
-                    const [balance, value] = await comptroller.ethcallProvider.all
-                                        ([balanceContract.balanceOf(account), contract.claimable_tokens(account)])
+                    const contract = net.isMinterV2 ? new Contract(gaugeV4.generalData.address, GAUGE_V5_ABI) :
+                                     new Contract(gaugeV4.generalData.address, GAUGE_V4_ABI)
+                    const [balance, value, claimable_reward] = await comptroller.ethcallProvider.all
+                                        ([balanceContract.balanceOf(account), 
+                                         net.isMinterV2 ? contract.claimable_tokens(account, net.hundredAddress) 
+                                         : contract.claimable_tokens(account),
+                                         gaugeV4.generalData.reward_token !== "0x0000000000000000000000000000000000000000" 
+                                            ? net.isMinterV2
+                                                ? contract.claimable_tokens(account, gaugeV4.generalData.reward_token)
+                                                : contract.claimable_reward(account, gaugeV4.generalData.reward_token)
+                                            : new Contract(gaugeV4.generalData.address, GAUGE_V4_ABI).working_balances(account)])
+
                     const claimable = BigNumber.from(value, 18)
                     const hundred = BigNumber.from(balance, 18)
+                    const reward = BigNumber.from(claimable_reward, gaugeV4.reward_token_decimals)
                     if(+claimable.toString() < +gaugeV4.userClaimableHnd.toString() && +hundred.toString() > +hndBalance.toString()){
                         console.log("Should Return", claimable.toString())
                         const gauges = [...gaugesV4Data]
@@ -1033,6 +1044,7 @@ const useFetchData = () => {
                         if(g && networkId.current === chain){
                             setHndBalance(hundred)
                             g.userClaimableHnd = claimable
+                            g.claimable_reward = reward
                             setGaugesV4Data(gauges)
                             return true
                         }
@@ -1045,10 +1057,13 @@ const useFetchData = () => {
     const handleUpdateClaimRewards = async (gaugeV4: GaugeV4, chain: number) => {
         if(network && networkId.current === chain && library && account){
                 if(gaugeV4){
-                    const contract = new ethers.Contract(gaugeV4.generalData.address, GAUGE_V4_ABI, library)
+                    const net = {...network}
+                    const contract = net.isMinterV2 ? 
+                        new ethers.Contract(gaugeV4.generalData.address, GAUGE_V5_ABI, library)
+                        : new ethers.Contract(gaugeV4.generalData.address, GAUGE_V4_ABI, library)
                     const value = await contract.claimable_reward(account, gaugeV4.reward_token)
                     const claimableReward = BigNumber.from(value, 18)
-                    if(+claimableReward.toString() < +gaugeV4.claimable_reward.toString()){
+                    if(+gaugeV4.claimable_reward.toString() > 0 && +claimableReward.toString() < +gaugeV4.claimable_reward.toString()){
                         console.log("Should Return", claimableReward.toString())
                         const gauges = [...gaugesV4Data]
                         const g = gauges.find(x => x.generalData.address.toLowerCase() === gaugeV4.generalData.address.toLowerCase())
