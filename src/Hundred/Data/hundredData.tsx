@@ -4,7 +4,7 @@ import { Comptroller, getComptrollerData } from "../../Classes/comptrollerClass"
 import { useGlobalContext } from "../../Types/globalContext"
 import { useHundredDataContext } from "../../Types/hundredDataContext"
 import { useUiContext } from "../../Types/uiContext"
-import {GaugeV4, getBackstopGaugesData, getGaugesData} from "../../Classes/gaugeV4Class";
+import {GaugeV4, getBackstopGaugesData, getGaugesData, updateUnderlyingDecimals} from "../../Classes/gaugeV4Class";
 import { fetchData, fetchGeneralData } from "./fetchData"
 import { CTokenInfo, CTokenSpinner, SpinnersEnum } from "../../Classes/cTokenClass"
 import { BigNumber } from "../../bigNumber"
@@ -191,10 +191,13 @@ const useFetchData = () => {
             const provider = library ? library : new ethers.providers.JsonRpcProvider(net.networkParams.rpcUrls[0])
             const gauges = await getGaugesData(provider, account, net)
             const backstopGauges = await getBackstopGaugesData(provider, account, net)
-            const gaugesData = [...gauges, ...backstopGauges]
+            let gaugesData = [...gauges, ...backstopGauges]
+            
             const markets = account ? await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: account, comptrollerData: comptroller, network: net, marketsData: marketsData, provider: library, hndPrice: hndPrice, gaugesData: gaugesData })
                                     : await fetchGeneralData({ allMarkets: [...comptroller.allMarkets], comptrollerData: comptroller, network: net, marketsData: marketsData, provider, hndPrice: hndPrice, gaugesData: gaugesData })
 
+
+            gaugesData = updateUnderlyingDecimals(gaugesData, markets.markets)
             setMarketsData(markets.markets)
             setGaugesV4Data(gaugesData)
             
@@ -975,7 +978,8 @@ const useFetchData = () => {
                     ? await tokenContract.allowance(account, gauge.generalData.gaugeHelper)
                     : await tokenContract.allowance(account, gauge.generalData.address)
 
-                const value = BigNumber.from(allowance, gauge.lpTokenDecimals)
+                const market =[...marketsData].find(m => m.pTokenAddress === gauge.generalData.lpToken) 
+                const value = BigNumber.from(allowance, market ? market.underlying.decimals : gauge.lpTokenDecimals)
 
                 if(+value.toString() > +gauge.userAllowance.toString()){
                     console.log("Should Return", value.toString())

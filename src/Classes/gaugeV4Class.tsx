@@ -35,7 +35,8 @@ export interface GaugeV4GeneralData {
     veHndRewardRate: BigNumber
     reward_token: string
     gaugeHelper: string | undefined
-    minterIsV2: boolean
+    minterIsV2: boolean,
+    underlyingDecimals: number
 }
 
 export class GaugeV4{
@@ -91,7 +92,8 @@ export class GaugeV4{
         this.lpTokenDecimals = lpTokenDecimals
         this.userClaimableHnd = BigNumber.from(userClaimableHnd.toString(), 18)
         this.userWorkingStakeBalance = userWorkingStakeBalance
-        this.userAllowance = BigNumber.from(userAllowance.toString(), lpTokenDecimals)
+        console.log(userAllowance.toString(), lpTokenDecimals)
+        this.userAllowance = BigNumber.from(userAllowance.toString(), generalData.underlyingDecimals)
         this.reward_token = reward_token
         this.reward_token_symbol = reward_token_symbol
         this.reward_token_decimals = reward_token_decimals
@@ -105,6 +107,21 @@ export class GaugeV4{
         this.approveCall = approveCall
         this.approveUnstakeCall = approveUnstakeCall
     }
+}
+
+export const updateUnderlyingDecimals = (gauges: GaugeV4[], markets: CTokenInfo[]) : GaugeV4[] => {
+    console.log(gauges)
+    console.log("Markets")
+    console.log(markets)
+    const g = gauges.map(x => {
+        const m = markets.find(m=> m.pTokenAddress === x.generalData.lpToken)
+        if(m){
+            x.generalData.underlyingDecimals = m.underlying.decimals
+            x.userAllowance = BigNumber.from(x.userAllowance._value, x.generalData.underlyingDecimals)
+        }
+        return x
+    })
+    return g
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -198,7 +215,8 @@ export const getGaugesData = async (provider: any, userAddress: string | null | 
                 veHndRewardRate: rewards[index][0],
                 reward_token: c[6],
                 gaugeHelper: network.gaugeHelper,
-                minterIsV2: network.isMinterV2 === true
+                minterIsV2: network.isMinterV2 === true,
+                underlyingDecimals: 0
             }
         });
 
@@ -397,7 +415,8 @@ export const getBackstopGaugesData = async (provider: any, userAddress: string |
                 veHndRewardRate: rewards[index][0],
                 reward_token: c[6],
                 gaugeHelper: network.gaugeHelper,
-                minterIsV2: network.isMinterV2 === true
+                minterIsV2: network.isMinterV2 === true,
+                underlyingDecimals: 0
             }
         });
 

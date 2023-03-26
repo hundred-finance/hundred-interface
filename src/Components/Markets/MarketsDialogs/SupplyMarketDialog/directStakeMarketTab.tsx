@@ -144,7 +144,8 @@ const DirectStakeMarketTab:React.FC<Props> = (props: Props) =>{
                     if (!market.isNativeToken) {
                         //setSpinnerVisible(true)
                         toggleSpinners(market.underlying.symbol, SpinnersEnum.stake)
-                        
+                        const userAlloance = BigNumber.from(props.gaugeV4.userAllowance._value, market.underlying.decimals)
+                        console.log(userAlloance.toString())
                         const tx = await props.gaugeV4.approveCall(market)
                         
                         //setSpinnerVisible(false)
