@@ -371,99 +371,34 @@ const NETWORKS: NetworkData = !process.env?.REACT_APP_TEST_NETWORK
         gaugeHelper: "0x376020c5B0ba3Fd603d7722381fAA06DA8078d8a"
     },
 }: {
-    42: {
-        chainId: 42,
-        network: "KOVAN Test Network",
-        logo: Logos["ETH"],
+    4002: {
+        chainId: 4002,
+        network: "Fantom Testnet",
+        logo: Logos["FTM"],
         blocksPerYear: 2336000,
         networkParams: {
-            chainId: "0x2a",
-            chainName: "Kovan",
-            rpcUrls: ["https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+            chainId: "0xFA2",
+            chainName: "Fantom Testnet",
+            rpcUrls: ["https://rpc.testnet.fantom.network"],
             nativeCurrency: {
-                name: "ETH",
+                name: "FTM",
                 decimals: 18,
-                symbol: "ETH"
+                symbol: "FTM"
             },
-            blockExplorerUrls: ["https://kovan.etherscan.io"]
+            blockExplorerUrls: ["https://testnet.ftmscan.com"]
         },
         nativeTokenMarketAddress: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
-        unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
+        unitrollerAddress: "0x9A9C7C065efcd4A8FfBF3d97882BbcaEd4eB2910",
         hundredAddress: "0x10010054c81c8c01951E6A631dD228bB02d8D1e5",
         compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        minterAddress: "0xE52b96F1268B2f774E3fB7B5F1eA778E85379B52",
-        gaugeControllerAddress: "0xcd64350439ef028Af5086aBD5deDf4F38E4432D4",
-        backstopGaugeControllerAddress: "0x192356AD583E85020A0a71540E4d538a5684849e",
-        backstopGaugeMinterAddress: "0x0f4ED02A5b441176487Ff529392d9134F350550f",
-        votingAddress: "0x2b6E60A4e47f791028Cd27208b4Abb5B7D688F6F",
-        gaugeHelper: "0xB8481A3cE515EA8cAa112dba0D1ecfc03937fbcD",
-        maximillion: "0x6bb6ebCf3aC808E26545d59EA60F27A202cE8586"
-    },
-    1666700000: {
-        chainId: 1666700000,
-        network: "Harmony Testnet",
-        logo: Logos["ONE"],
-        blocksPerYear: 15017140,
-        networkParams: {
-            chainId: "0x6357d2e0",
-            chainName: "Harmony Testnet",
-            rpcUrls: ["https://api.s0.b.hmny.io"],
-            nativeCurrency: {
-                name: "ONE",
-                decimals: 18,
-                symbol: "ONE"
-            },
-            blockExplorerUrls: ["https://explorer.testnet.harmony.one/"]
-        },
-        nativeTokenMarketAddress: "0xfCD8570AD81e6c77b8D252bEbEBA62ed980BD64D",
-        unitrollerAddress: "0x0F390559F258eB8591C8e31Cf0905E97cf36ACE2",
-        hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
-        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        multicallAddress: "0xd078799c53396616844e2fa97f0dd2b4c145a685"
-    },
-    69: {
-        chainId: 69,
-        network: "Optimism Kovan",
-        logo: Logos["OPT"],
-        blocksPerYear: 15017140,
-        networkParams: {
-            chainId: "0x45",
-            chainName: "Optimism Kovan",
-            rpcUrls: ["https://kovan.optimism.io"],
-            nativeCurrency: {
-                name: "ETH",
-                decimals: 18,
-                symbol: "ETH"
-            },
-            blockExplorerUrls: ["https://kovan-optimistic.etherscan.io"]
-        },
-        nativeTokenMarketAddress: "0xfcd8570ad81e6c77b8d252bebeba62ed980bd64d",
-        unitrollerAddress: "0x0f390559f258eb8591c8e31cf0905e97cf36ace2",
-        hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
-        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        multicallAddress: "0x19ead25619352ea106f25a1c870c0a4df65faa75"
-    },
-    4690: {
-        chainId: 4690,
-        network: "IoTeX Testnet",
-        logo: Logos["IOTX"],
-        blocksPerYear: 6307200,
-        networkParams: {
-            chainId: "0x1252",
-            chainName: "IoTeX Testnet",
-            rpcUrls: ["https://babel-api.testnet.iotex.io"],
-            nativeCurrency: {
-                name: "IOTX-T",
-                decimals: 18,
-                symbol: "IOTX-T"
-            },
-            blockExplorerUrls: ["https://testnet.iotexscan.io/"],
-        },
-        nativeTokenMarketAddress: "",
-        unitrollerAddress: "0x8c6139ff1e9d7c1e32bdafd79948d0895ba0a831",
-        hundredAddress: "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
-        compoundLensAddress: "0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074",
-        multicallAddress: "0x25bb701a0ce238faecaec56b437460a372d7f139"
+        isMinterV2: true
+        // minterAddress: "0xE52b96F1268B2f774E3fB7B5F1eA778E85379B52",
+        // gaugeControllerAddress: "0xcd64350439ef028Af5086aBD5deDf4F38E4432D4",
+        // backstopGaugeControllerAddress: "0x192356AD583E85020A0a71540E4d538a5684849e",
+        // backstopGaugeMinterAddress: "0x0f4ED02A5b441176487Ff529392d9134F350550f",
+        // votingAddress: "0x2b6E60A4e47f791028Cd27208b4Abb5B7D688F6F",
+        // gaugeHelper: "0xB8481A3cE515EA8cAa112dba0D1ecfc03937fbcD",
+        // maximillion: "0x6bb6ebCf3aC808E26545d59EA60F27A202cE8586"
     }
 }
 

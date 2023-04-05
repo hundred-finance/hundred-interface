@@ -10,7 +10,6 @@ import WithdrawItem from "./withdrawItem"
 import DirectStakeMarketTab from "./directStakeMarketTab"
 import StakeMarketTab from "./StakeMarket"
 import DirectBackstopStakeMarketTab from "./directBackstopMarketTab"
-import BackstopMarketTab from "./backstopMarketTab"
 import "../marketDialog.css"
 
 interface Props{
@@ -61,18 +60,6 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
                 : contents.push(<StakeMarketTab gaugeV4={gaugeV4}/>)
             }
             
-            const backstopGaugeV4= [...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === market.pTokenAddress.toLowerCase())
-            if(market.backstop || backstopGaugeV4){
-                if (backstopGaugeV4){
-                    headers.push({title: "Backstop"})
-                    contents.push(<DirectBackstopStakeMarketTab gaugeV4={backstopGaugeV4}/>)
-                }   
-                else if(market.backstop){
-                    headers.push({title: "Backstop"})
-                    contents.push(<BackstopMarketTab/>)
-                }
-            }
-            
             headers.push({title: "Withdraw"})
             contents.push(
                 <WithdrawItem gaugeV4={gaugeV4}/>)
@@ -87,7 +74,7 @@ const SupplyMarketDialog:React.FC<Props> = (props: Props) =>{
         <div className={`dialog ${"open-dialog"} ${darkMode ? "dark" : "light"}`}>
             <ReactToolTip id="borrow-dialog-tooltip" effect="solid"/>
             <div className="dialog-background" onClick = {() => CloseDialog()}></div>
-            <div className={`supply-box ${selectedMarket.backstop && +{...selectedMarket.backstop}.pendingHundred.toString() > 0 ? "supply-box-expand" : "" }`}>
+            <div className={`supply-box`}>
                 <img src={closeIcon} alt="Close Icon" className="dialog-close" onClick={()=>CloseDialog()} />  
                     <div className="dialog-title">
                         {{...selectedMarket}.underlying.symbol && (

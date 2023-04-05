@@ -25,10 +25,6 @@ interface Props{
 const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
   const {setShowWallets} = useUiContext()
   const { account } = useWeb3React<providers.Web3Provider>()
-  
-    function hasBackstop() {
-        return props.hasbackstopGauge || !!props.market?.backstop;
-    }
 
     const handleOpenSupplyMarketDialog = () => {
       if(!account){
@@ -66,7 +62,7 @@ const SupplyMarketRow: React.FC<Props> = (props : Props) =>{
         <td className={`apy ${props.market ? (+props.market?.supplyApy.toFixed(2) > 0 ? "positive" : "") : ""}`} 
           onClick={handleOpenSupplyMarketDialog}>
             <div className="supply-apy">
-              <StarBpro active={props.market && +props.market?.veHndAPR.toString() > 0 ? true : false} backstop={hasBackstop()}/>
+              <StarBpro active={props.market && +props.market?.veHndAPR.toString() > 0 ? true : false} backstop={false}/>
               <div className="apy-content">
                 { props.market && +props?.market?.totalMaxSupplyApy.toString() > 0 ? formatSupplyApyRange(+props.market.totalMinSupplyApy, +props.market.totalMaxSupplyApy) : "0.00"}%
               </div>

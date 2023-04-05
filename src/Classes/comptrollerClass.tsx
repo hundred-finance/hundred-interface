@@ -72,6 +72,7 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
     const oracleAddress = data[0] as string
     const allMarkets = data[1] as string[]
 
+    
     const backstopPools = []
     if(backstop){
         const poolLength: any = data[2] 
@@ -117,6 +118,8 @@ export const getComptrollerData = async (provider: any, network: Network): Promi
     const comptroller = new ethers.Contract(network.unitrollerAddress, COMPTROLLER_ABI, provider)
     
     const oracle = new Contract(oracleAddress, ORACLE_ABI)
+
+    console.log(oracleAddress, allMarkets)
     return new Comptroller(network.unitrollerAddress, ethcallComptroller, comptroller, oracle, allMarkets, ethcallProvider, backstopPools)
   }
 

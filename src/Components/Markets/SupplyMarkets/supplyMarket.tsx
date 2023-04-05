@@ -67,7 +67,6 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                                 const backstopGauge = [...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === item?.pTokenAddress.toLowerCase())
 
                                 if(item.supplyBalance.gt(BigNumber.from("0")) || 
-                                   item.backstop?.userBalance.gt(BigNumber.from("0")) ||
                                    gauge?.userStakeBalance.gt(BigNumber.from("0")) ||
                                    backstopGauge?.userStakeBalance.gt(BigNumber.from("0")))
                                     return true
@@ -102,7 +101,6 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                             const backstopGauge = [...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === item?.pTokenAddress.toLowerCase())
                             
                             if(item.supplyBalance.gt(BigNumber.from("0")) || 
-                               item.backstop?.userBalance.gt(BigNumber.from("0")) ||
                                gauge?.userStakeBalance.gt(BigNumber.from("0")) ||
                                backstopGauge?.userStakeBalance.gt(BigNumber.from("0")))
                                     return true
@@ -135,7 +133,6 @@ const SupplyMarket: React.FC<Props> = (props: Props) => {
                         const backstopGauge = [...gaugesV4Data]?.find(g => g?.generalData.lpTokenUnderlying.toLowerCase() === item?.pTokenAddress.toLowerCase())
 
                         if(item.supplyBalance.gt(BigNumber.from("0")) || 
-                           item.backstop?.userBalance.gt(BigNumber.from("0")) ||
                            gauge?.userStakeBalance.gt(BigNumber.from("0")) || 
                            backstopGauge?.userStakeBalance.gt(BigNumber.from("0")))
                                     return false

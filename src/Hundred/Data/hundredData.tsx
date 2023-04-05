@@ -188,18 +188,18 @@ const useFetchData = () => {
         if(network && comptrollerData){
             const comptroller = {...comptrollerData}
             const net = {...network}
-            const provider = library ? library : new ethers.providers.JsonRpcProvider(net.networkParams.rpcUrls[0])
-            const gauges = await getGaugesData(provider, account, net)
-            const backstopGauges = await getBackstopGaugesData(provider, account, net)
-            let gaugesData = [...gauges, ...backstopGauges]
-            
-            const markets = account ? await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: account, comptrollerData: comptroller, network: net, marketsData: marketsData, provider: library, hndPrice: hndPrice, gaugesData: gaugesData })
-                                    : await fetchGeneralData({ allMarkets: [...comptroller.allMarkets], comptrollerData: comptroller, network: net, marketsData: marketsData, provider, hndPrice: hndPrice, gaugesData: gaugesData })
+           
+            //const gauges = await getGaugesData(provider, account, net)
+            //const backstopGauges = await getBackstopGaugesData(provider, account, net)
+            //let gaugesData = [...gauges, ...backstopGauges]
+            console.log("Get Markets")
+            const markets = account ? await fetchData({ allMarkets: [...comptroller.allMarkets], userAddress: "0x8286dC6dF929C4BfA4f6951caB4dAe2EC02d4D72", comptrollerData: comptroller, network: net, marketsData: marketsData, provider: library, hndPrice: hndPrice})
+                                    : await fetchGeneralData({ allMarkets: [...comptroller.allMarkets], comptrollerData: comptroller, network: net, marketsData: marketsData, hndPrice: hndPrice })
 
 
-            gaugesData = updateUnderlyingDecimals(gaugesData, markets.markets)
+            //gaugesData = updateUnderlyingDecimals(gaugesData, markets.markets)
             setMarketsData(markets.markets)
-            setGaugesV4Data(gaugesData)
+            //setGaugesV4Data(gaugesData)
             
             updateMarkets(
                 markets.markets,
@@ -442,18 +442,18 @@ const useFetchData = () => {
                     case UpdateTypeEnum.Repay:
                         res = await handleUpdateRepay(market as CTokenInfo, net.chainId)
                         break
-                    case UpdateTypeEnum.ApproveBackstop:
-                        res = await handleUpdateApproveBackstopDeposit(market as CTokenInfo, net.chainId)
-                        break
-                    case UpdateTypeEnum.BackstopDeposit:
-                        res = await handleUpdateBackstopDeposit(market as CTokenInfo, net.chainId)
-                        break
-                    case UpdateTypeEnum.BackstopWithdraw:
-                        res = await handleUpdateBackstopWithdraw(market as CTokenInfo, net.chainId)
-                        break
-                    case UpdateTypeEnum.BackstopClaim:
-                        res = await handleUpdateBackstopClaim(market as CTokenInfo, net.chainId)
-                        break
+                    // case UpdateTypeEnum.ApproveBackstop:
+                    //     res = await handleUpdateApproveBackstopDeposit(market as CTokenInfo, net.chainId)
+                    //     break
+                    // case UpdateTypeEnum.BackstopDeposit:
+                    //     res = await handleUpdateBackstopDeposit(market as CTokenInfo, net.chainId)
+                    //     break
+                    // case UpdateTypeEnum.BackstopWithdraw:
+                    //     res = await handleUpdateBackstopWithdraw(market as CTokenInfo, net.chainId)
+                    //     break
+                    // case UpdateTypeEnum.BackstopClaim:
+                    //     res = await handleUpdateBackstopClaim(market as CTokenInfo, net.chainId)
+                    //     break
                     case UpdateTypeEnum.ApproveStake:
                         res = await handleUpdateApproveStake(market as GaugeV4, net.chainId)
                         break
@@ -826,145 +826,145 @@ const useFetchData = () => {
         return false
     }
 
-    const handleUpdateApproveBackstopDeposit = async (market: CTokenInfo, chain: number) => {
-        if(network && networkId.current === chain && account && library && market.backstop){
-            const tokenContract = new ethers.Contract(market.underlying.address, TOKEN_ABI, library)
-            const allowance = await tokenContract.allowance(account, {...network.backstopMasterChef}.address)
-            const value = BigNumber.from(allowance, market.underlying.decimals)
-            if(+value.toString() > +market.backstop?.allowance.toString()){
-                console.log("Should Return", value.toString())
-                const markets = [...marketsData]
-                const m = markets.find(x => x.underlying.symbol.toLowerCase() === market.underlying.symbol.toLowerCase())
-                if(m !== undefined && networkId.current === chain && m.backstop){
-                    m.backstop.allowance = value
-                    setMarketsData(markets)
+    // const handleUpdateApproveBackstopDeposit = async (market: CTokenInfo, chain: number) => {
+    //     if(network && networkId.current === chain && account && library && market.backstop){
+    //         const tokenContract = new ethers.Contract(market.underlying.address, TOKEN_ABI, library)
+    //         const allowance = await tokenContract.allowance(account, {...network.backstopMasterChef}.address)
+    //         const value = BigNumber.from(allowance, market.underlying.decimals)
+    //         if(+value.toString() > +market.backstop?.allowance.toString()){
+    //             console.log("Should Return", value.toString())
+    //             const markets = [...marketsData]
+    //             const m = markets.find(x => x.underlying.symbol.toLowerCase() === market.underlying.symbol.toLowerCase())
+    //             if(m !== undefined && networkId.current === chain && m.backstop){
+    //                 m.backstop.allowance = value
+    //                 setMarketsData(markets)
                     
-                    return true
-                }
-            }
-        }
-        return false
-    }
+    //                 return true
+    //             }
+    //         }
+    //     }
+    //     return false
+    // }
 
-    const handleUpdateBackstopDeposit = async (market: CTokenInfo, chain: number) => {
-        if(network && networkId.current === chain && account && library && market.backstop && comptrollerData){
-            const comptroller = {...comptrollerData}
-            const net = {...network}
-            const bstop = comptroller.backstopPools.find(x=>x.underlyingTokens.toLowerCase() === market.underlying.address.toLowerCase())
+    // const handleUpdateBackstopDeposit = async (market: CTokenInfo, chain: number) => {
+    //     if(network && networkId.current === chain && account && library && market.backstop && comptrollerData){
+    //         const comptroller = {...comptrollerData}
+    //         const net = {...network}
+    //         const bstop = comptroller.backstopPools.find(x=>x.underlyingTokens.toLowerCase() === market.underlying.address.toLowerCase())
             
-            if(bstop && net.backstopMasterChef){
-                const backstopAbi = net.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
-                const backstopMasterchef = new Contract(net.backstopMasterChef.address, backstopAbi)
+    //         if(bstop && net.backstopMasterChef){
+    //             const backstopAbi = net.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
+    //             const backstopMasterchef = new Contract(net.backstopMasterChef.address, backstopAbi)
             
-                let value = BigNumber.from("0")
-                let walletBalance = BigNumber.from("0")
+    //             let value = BigNumber.from("0")
+    //             let walletBalance = BigNumber.from("0")
             
-                if(market.isNativeToken){
-                    const [balance] = await comptroller.ethcallProvider.all([backstopMasterchef.userInfo(bstop.poolId, account)])
-                    const wallet = await library.getBalance(account)
-                    value = BigNumber.from((balance as any)[0], market.backstop.decimals)
-                    walletBalance = BigNumber.from(wallet, market.underlying.decimals)
-                }
-                else{
-                    const tokenContract = new Contract(market.underlying.address, TOKEN_ABI)
-                    const [balance, wallet] = await comptroller.ethcallProvider.all(
-                        [backstopMasterchef.userInfo(bstop.poolId, account),
-                        tokenContract.balanceOf(account)])
-                    value = BigNumber.from((balance as any)[0], market.backstop.decimals)
-                    walletBalance = BigNumber.from(wallet, market.underlying.decimals)
-                }
+    //             if(market.isNativeToken){
+    //                 const [balance] = await comptroller.ethcallProvider.all([backstopMasterchef.userInfo(bstop.poolId, account)])
+    //                 const wallet = await library.getBalance(account)
+    //                 value = BigNumber.from((balance as any)[0], market.backstop.decimals)
+    //                 walletBalance = BigNumber.from(wallet, market.underlying.decimals)
+    //             }
+    //             else{
+    //                 const tokenContract = new Contract(market.underlying.address, TOKEN_ABI)
+    //                 const [balance, wallet] = await comptroller.ethcallProvider.all(
+    //                     [backstopMasterchef.userInfo(bstop.poolId, account),
+    //                     tokenContract.balanceOf(account)])
+    //                 value = BigNumber.from((balance as any)[0], market.backstop.decimals)
+    //                 walletBalance = BigNumber.from(wallet, market.underlying.decimals)
+    //             }
 
-                if(+value.toString() > +market.backstop.userBalance.toString() && 
-                    +walletBalance.toString() < +market.underlying.walletBalance){
-                    console.log("Should Return", value.toString())
-                    const markets = [...marketsData]
-                    const m = markets.find(x=> x.underlying.address.toLowerCase() === market.underlying.address.toLowerCase())
-                    if(m && m.backstop){
-                        m.backstop.userBalance = value
-                        m.underlying.walletBalance = walletBalance
-                        setMarketsData(markets)
-                        return true
-                    }
-                }
-            }
-        }
-        return false
-    }
+    //             if(+value.toString() > +market.backstop.userBalance.toString() && 
+    //                 +walletBalance.toString() < +market.underlying.walletBalance){
+    //                 console.log("Should Return", value.toString())
+    //                 const markets = [...marketsData]
+    //                 const m = markets.find(x=> x.underlying.address.toLowerCase() === market.underlying.address.toLowerCase())
+    //                 if(m && m.backstop){
+    //                     m.backstop.userBalance = value
+    //                     m.underlying.walletBalance = walletBalance
+    //                     setMarketsData(markets)
+    //                     return true
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return false
+    // }
 
-    const handleUpdateBackstopWithdraw = async (market: CTokenInfo, chain: number) => {
-        if(network && networkId.current === chain && account && library && market.backstop && comptrollerData){
-            const comptroller = {...comptrollerData}
-            const net = {...network}
-            const bstop = comptroller.backstopPools.find(x=>x.underlyingTokens.toLowerCase() === market.underlying.address.toLowerCase())
+    // const handleUpdateBackstopWithdraw = async (market: CTokenInfo, chain: number) => {
+    //     if(network && networkId.current === chain && account && library && market.backstop && comptrollerData){
+    //         const comptroller = {...comptrollerData}
+    //         const net = {...network}
+    //         const bstop = comptroller.backstopPools.find(x=>x.underlyingTokens.toLowerCase() === market.underlying.address.toLowerCase())
             
-            if(bstop && net.backstopMasterChef){
-                const backstopAbi = net.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
-                const backstopMasterchef = new Contract(net.backstopMasterChef.address, backstopAbi)
+    //         if(bstop && net.backstopMasterChef){
+    //             const backstopAbi = net.backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
+    //             const backstopMasterchef = new Contract(net.backstopMasterChef.address, backstopAbi)
             
-                let value = BigNumber.from("0")
-                let walletBalance = BigNumber.from("0")
+    //             let value = BigNumber.from("0")
+    //             let walletBalance = BigNumber.from("0")
             
-                if(market.isNativeToken){
-                    const [balance] = await comptroller.ethcallProvider.all([backstopMasterchef.userInfo(bstop.poolId, account)])
-                    const wallet = await library.getBalance(account)
-                    value = BigNumber.from((balance as any)[0], market.backstop.decimals)
-                    walletBalance = BigNumber.from(wallet, market.underlying.decimals)
-                }
-                else{
-                    const tokenContract = new Contract(market.underlying.address, TOKEN_ABI)
-                    const [balance, wallet] = await comptroller.ethcallProvider.all(
-                        [backstopMasterchef.userInfo(bstop.poolId, account),
-                        tokenContract.balanceOf(account)])
-                    value = BigNumber.from((balance as any)[0], market.backstop.decimals)
-                    walletBalance = BigNumber.from(wallet, market.underlying.decimals)
-                }
+    //             if(market.isNativeToken){
+    //                 const [balance] = await comptroller.ethcallProvider.all([backstopMasterchef.userInfo(bstop.poolId, account)])
+    //                 const wallet = await library.getBalance(account)
+    //                 value = BigNumber.from((balance as any)[0], market.backstop.decimals)
+    //                 walletBalance = BigNumber.from(wallet, market.underlying.decimals)
+    //             }
+    //             else{
+    //                 const tokenContract = new Contract(market.underlying.address, TOKEN_ABI)
+    //                 const [balance, wallet] = await comptroller.ethcallProvider.all(
+    //                     [backstopMasterchef.userInfo(bstop.poolId, account),
+    //                     tokenContract.balanceOf(account)])
+    //                 value = BigNumber.from((balance as any)[0], market.backstop.decimals)
+    //                 walletBalance = BigNumber.from(wallet, market.underlying.decimals)
+    //             }
 
-                if(+value.toString() < +market.backstop.userBalance.toString() && 
-                    +walletBalance.toString() > +market.underlying.walletBalance){
-                    console.log("Should Return", value.toString())
-                    const markets = [...marketsData]
-                    const m = markets.find(x=> x.underlying.address.toLowerCase() === market.underlying.address.toLowerCase())
-                    if(m && m.backstop){
-                        m.backstop.userBalance = value
-                        m.underlying.walletBalance = walletBalance
-                        setMarketsData(markets)
-                        return true
-                    }
-                }
-            }
-        }
-        return false
-    }
+    //             if(+value.toString() < +market.backstop.userBalance.toString() && 
+    //                 +walletBalance.toString() > +market.underlying.walletBalance){
+    //                 console.log("Should Return", value.toString())
+    //                 const markets = [...marketsData]
+    //                 const m = markets.find(x=> x.underlying.address.toLowerCase() === market.underlying.address.toLowerCase())
+    //                 if(m && m.backstop){
+    //                     m.backstop.userBalance = value
+    //                     m.underlying.walletBalance = walletBalance
+    //                     setMarketsData(markets)
+    //                     return true
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return false
+    // }
 
-    const handleUpdateBackstopClaim = async(market: CTokenInfo, chain: number) => {
-        if(network && networkId.current === chain && account && library && comptrollerData){
-            const backstopMasterChef = {...network.backstopMasterChef}
-            const comptroller = {...comptrollerData}
-            if(backstopMasterChef && backstopMasterChef.address && market.backstop){
-                const backstopAbi = backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
-                const backstopMasterchef = new Contract(backstopMasterChef.address, backstopAbi)
-                const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI)
+    // const handleUpdateBackstopClaim = async(market: CTokenInfo, chain: number) => {
+    //     if(network && networkId.current === chain && account && library && comptrollerData){
+    //         const backstopMasterChef = {...network.backstopMasterChef}
+    //         const comptroller = {...comptrollerData}
+    //         if(backstopMasterChef && backstopMasterChef.address && market.backstop){
+    //             const backstopAbi = backstopMasterChef.version === MasterChefVersion.v1 ? BACKSTOP_MASTERCHEF_ABI : BACKSTOP_MASTERCHEF_ABI_V2
+    //             const backstopMasterchef = new Contract(backstopMasterChef.address, backstopAbi)
+    //             const balanceContract = new Contract(network.hundredAddress, HUNDRED_ABI)
 
-                const [balance, pending] = await comptroller.ethcallProvider.all(
-                    [ balanceContract.balanceOf(account), 
-                      backstopMasterchef.pendingHundred(market.backstop.pool.poolId, account)]
-                )
-                const hundredBalance = BigNumber.from(balance, 18)
-                const pendingHnd = BigNumber.from(pending, market.backstop.decimals)
-                if(+hundredBalance.toString() > +hndBalance.toString() && +pendingHnd.toString() < +market.backstop.pendingHundred.toString()){
-                    setHndBalance(hundredBalance)
-                    const markets = [...marketsData]
-                    const m = markets.find(x=> x.underlying.symbol === market.underlying.symbol)
-                    if(m && m.backstop){
-                        m.backstop.pendingHundred = pendingHnd
-                        setMarketsData(markets)
-                        return true
-                    }
-                }
-            }
-        }
-        return false
-    }
+    //             const [balance, pending] = await comptroller.ethcallProvider.all(
+    //                 [ balanceContract.balanceOf(account), 
+    //                   backstopMasterchef.pendingHundred(market.backstop.pool.poolId, account)]
+    //             )
+    //             const hundredBalance = BigNumber.from(balance, 18)
+    //             const pendingHnd = BigNumber.from(pending, market.backstop.decimals)
+    //             if(+hundredBalance.toString() > +hndBalance.toString() && +pendingHnd.toString() < +market.backstop.pendingHundred.toString()){
+    //                 setHndBalance(hundredBalance)
+    //                 const markets = [...marketsData]
+    //                 const m = markets.find(x=> x.underlying.symbol === market.underlying.symbol)
+    //                 if(m && m.backstop){
+    //                     m.backstop.pendingHundred = pendingHnd
+    //                     setMarketsData(markets)
+    //                     return true
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return false
+    // }
 
     const handleUpdateApproveStake = async (gauge: GaugeV4, chain: number) => {
         if(network && networkId.current === chain && account && library){

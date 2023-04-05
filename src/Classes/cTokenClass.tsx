@@ -143,7 +143,7 @@ export class CTokenInfo{
 
     accrued: number
 
-    backstop: Backstop | BackstopV2 | undefined
+    //backstop: Backstop | BackstopV2 | undefined
    
 
     constructor(pTokenAddress: string,
@@ -180,7 +180,7 @@ export class CTokenInfo{
                 accrued: number,
                 mintPaused: boolean,
                 borrowPaused: boolean,
-                backstop: Backstop | BackstopV2 | undefined
+                //backstop: Backstop | BackstopV2 | undefined
                 ){
         this.pTokenAddress= pTokenAddress
         this.underlying = underlying
@@ -221,7 +221,7 @@ export class CTokenInfo{
         this.mintPaused = mintPaused
         this.borrowPaused = borrowPaused
 
-        this.backstop = backstop
+        //this.backstop = backstop
     }
 }
 

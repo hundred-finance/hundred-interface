@@ -71,8 +71,7 @@ const COMPTROLLER_ABI = [
         name: 'markets',
         outputs: [
             { internalType: 'bool', name: 'isListed', type: 'bool' },
-            { internalType: 'uint256', name: 'collateralFactorMantissa', type: 'uint256' },
-            { internalType: 'bool', name: 'isComped', type: 'bool' },
+            { internalType: 'uint256', name: 'collateralFactorMantissa', type: 'uint256' }
         ],
         payable: false,
         stateMutability: 'view',
@@ -2495,11 +2494,6 @@ const CTOKEN_V2_ABI = [
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
             }
         ],
         "payable": false,
@@ -2815,6 +2809,7 @@ const CTOKEN_V2_ABI = [
         "type": "function"
     }
 ];
+
 const ORACLE_ABI = [
     {
         inputs: [{ internalType: 'address', name: 'ethUsdChainlinkAggregatorAddress_', type: 'address' }],
