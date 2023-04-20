@@ -24,6 +24,7 @@ import { MyHundredDataContext } from '../../Types/hundredDataContext'
 import { useUiContext } from '../../Types/uiContext'
 import useHndPrice from '../Data/hndPrice'
 import useFetchData from '../Data/hundredData'
+import ExploitMessage from '../../Components/MessageDialog/exploitDialog'
 
 const Hundred: React.FC = () => {
   const { activate, error, chainId, account } = useWeb3React()
@@ -204,6 +205,7 @@ useEffect(() => {
             <OptimismMessage/>
             <HundredMessage isOpen={showGMessage} onRequestClose={() => setShowGMessage(false)} contentLabel="Info" className={`${darkMode ? "mymodal-dark" : ""}`}
               message={gMessageText}/>
+            <ExploitMessage/>
             {error instanceof UnsupportedChainIdError ? 
               <Error open={showError} close={() => setShowError(false)} errorMessage={getErrorMessage(error)} button={<Button onClick={() => openSwitchNetwork()}><span>Please Switch</span></Button>}/>
             : error instanceof XDEFIWalletNotFoundError || error instanceof XDEFIWalletNotDefaultError || error instanceof MetamaskNotFounfError ?
